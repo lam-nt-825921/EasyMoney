@@ -36,11 +36,13 @@ import java.util.*
 @Suppress("UNUSED_PARAMETER")
 fun LoanScreen(
     viewModel: LoanViewModel,
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LoanContent(
+        modifier = modifier,
         uiState = uiState,
         onAmountChanged = viewModel::onAmountChanged,
         onTenorSelected = viewModel::onTenorSelected,
@@ -52,6 +54,7 @@ fun LoanScreen(
 @Composable
 fun LoanScreenMock(
     mockPackage: LoanPackage,
+    modifier: Modifier = Modifier,
     initialAmount: Long = mockPackage.minAmount,
     initialTenor: Int = mockPackage.getTenorList().firstOrNull() ?: 6,
     initialInsuranceSelected: Boolean = true
@@ -70,6 +73,7 @@ fun LoanScreenMock(
     }
 
     LoanContent(
+        modifier = modifier,
         uiState = uiState,
         onAmountChanged = { amount ->
             uiState = calculatePreviewState(uiState.copy(loanAmount = amount))
@@ -97,6 +101,7 @@ private enum class LoanSheetType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoanContent(
+    modifier: Modifier = Modifier,
     uiState: LoanUiState,
     onAmountChanged: (Long) -> Unit,
     onTenorSelected: (Int) -> Unit,
@@ -113,6 +118,7 @@ private fun LoanContent(
     val safeTenor = uiState.selectedTenorMonth.takeIf { it > 0 } ?: availableTenors.first()
 
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             Column(
                 modifier = Modifier
@@ -575,14 +581,14 @@ fun LoanBreakdownBottomSheet(state: LoanUiState, onDismiss: () -> Unit) {
                 )
             }
 
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(top = 12.dp)
-            ) {
-                Text("Đóng")
-            }
+//            TextButton(
+//                onClick = onDismiss,
+//                modifier = Modifier
+//                    .align(Alignment.End)
+//                    .padding(top = 12.dp)
+//            ) {
+//                Text("Đóng")
+//            }
         }
     }
 }
