@@ -1,5 +1,10 @@
 package com.example.easymoney.ui.guide
 
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,9 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.easymoney.navigation.AppDestination
 
 @Composable
@@ -28,6 +35,9 @@ fun PageGuideScreen(
         packageName = context.packageName
     )
 
+    // 1. LẤY MÀU CHỮ TỪ THEME COMPOSE (Tự động đổi Đen/Trắng theo EasyMoneyTheme)
+    val composeTextColor = MaterialTheme.colorScheme.onSurface.toArgb()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,11 +48,13 @@ fun PageGuideScreen(
         Text(
             text = "Khung hướng dẫn trang",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground // Ép màu chữ Compose
         )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
+            // Dùng surface để Card lấy màu Trắng (Light) hoặc Xám đậm (Dark) từ Theme của bạn
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
@@ -52,20 +64,33 @@ fun PageGuideScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Màn hình này là khung xem hướng dẫn.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "File XML đang gắn: ${resolvedXml.displayName}.xml",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Nếu không chỉ định XML hoặc XML không tồn tại, hệ thống tự dùng file mặc định.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                AndroidView(
+                    modifier = Modifier.fillMaxWidth(),
+                    factory = { ctx ->
+                        LayoutInflater.from(ctx).inflate(
+                            resolvedXml.resourceId,
+                            null,
+                            false
+                        )
+                    },
+                    update = { view ->
+                        // 2. LỘT BỎ NỀN CỦA XML ĐỂ LỘ NỀN CỦA COMPONENT CARD
+                        view.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+                        // 3. HÀM ĐỆ QUY: TÌM VÀ ÉP MÀU TOÀN BỘ TEXTVIEW
+                        fun applyComposeThemeToXml(v: View) {
+                            if (v is TextView) {
+                                v.setTextColor(composeTextColor)
+                            } else if (v is ViewGroup) {
+                                for (i in 0 until v.childCount) {
+                                    applyComposeThemeToXml(v.getChildAt(i))
+                                }
+                            }
+                        }
+
+                        // Kích hoạt hàm đệ quy cho toàn bộ cấu trúc file XML
+                        applyComposeThemeToXml(view)
+                    }
                 )
             }
         }
@@ -114,12 +139,9 @@ private fun normalizeXmlName(rawXmlName: String?): String {
 private fun resolveXmlResourceId(
     xmlName: String,
     packageName: String,
-    context: android.content.Context
+    context: Context
 ): Int {
     if (xmlName.isBlank()) return 0
     @Suppress("DiscouragedApi")
-    return context.resources.getIdentifier(xmlName, "xml", packageName)
+    return context.resources.getIdentifier(xmlName, "layout", packageName)
 }
-
-
-
