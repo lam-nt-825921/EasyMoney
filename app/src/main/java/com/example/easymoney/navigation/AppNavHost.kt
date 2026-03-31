@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.example.easymoney.data.model.LoanPackage
 import com.example.easymoney.ui.guide.PageGuideScreen
 import com.example.easymoney.ui.loan.LoanScreenMock
+import com.example.easymoney.ui.onboarding.OnboardingScreen
 
 @Composable
 fun AppNavHost(
@@ -18,9 +19,19 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppDestination.LoanInformation.route,
+        startDestination = AppDestination.Onboarding.route,
         modifier = modifier
     ) {
+        composable(AppDestination.Onboarding.route) {
+            OnboardingScreen(
+                onNavigateToLoan = {
+                    navController.navigate(AppDestination.LoanInformation.route) {
+                        popUpTo(AppDestination.Onboarding.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(AppDestination.LoanInformation.route) {
             val mockPackage = LoanPackage(
                 id = "1",
