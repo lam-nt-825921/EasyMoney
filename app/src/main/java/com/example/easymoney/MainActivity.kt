@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import com.example.easymoney.ui.AppRoot
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

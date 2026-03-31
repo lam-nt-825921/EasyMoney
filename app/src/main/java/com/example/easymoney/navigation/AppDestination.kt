@@ -14,6 +14,20 @@ sealed class AppDestination(
     val topBarBackgroundColor: Color? = null,
     val topBarContentColor: Color? = null
 ) {
+    data object Onboarding : AppDestination(
+        route = "onboarding",
+        title = "Vay tổ chức tài chính",
+        showBackButton = true,
+        topBarBackgroundColor = Color.White
+    )
+
+    data object ConfirmInformation : AppDestination(
+        route = "confirm_information",
+        title = "Xác nhận thông tin",
+        showBackButton = true,
+        topBarBackgroundColor = Color.White
+    )
+
     data object LoanInformation : AppDestination(
         route = "loan_information",
         title = "Thông tin khoản vay",
@@ -40,9 +54,11 @@ sealed class AppDestination(
 }
 
 fun appDestinationFromRoute(route: String?): AppDestination = when {
+    route == AppDestination.Onboarding.route -> AppDestination.Onboarding
+    route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
     route == AppDestination.LoanInformation.route -> AppDestination.LoanInformation
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
-    else -> AppDestination.LoanInformation
+    else -> AppDestination.Onboarding
 }
 
 
