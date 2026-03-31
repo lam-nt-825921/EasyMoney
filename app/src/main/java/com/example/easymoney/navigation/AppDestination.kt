@@ -35,6 +35,14 @@ sealed class AppDestination(
         topBarBackgroundColor = Color.White
     )
 
+    data object Home : AppDestination(
+        route = "home",
+        title = "",
+        showBackButton = false,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White
+    )
+
     data object PageGuide : AppDestination(
         route = "page_guide?xml={xml}",
         title = "Hướng dẫn",
@@ -54,11 +62,12 @@ sealed class AppDestination(
 }
 
 fun appDestinationFromRoute(route: String?): AppDestination = when {
+    route == AppDestination.Home.route -> AppDestination.Home
     route == AppDestination.Onboarding.route -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
     route == AppDestination.LoanInformation.route -> AppDestination.LoanInformation
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
-    else -> AppDestination.Onboarding
+    else -> AppDestination.Home
 }
 
 
