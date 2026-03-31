@@ -27,4 +27,15 @@
     <string name="onboarding_continue">Trải nghiệm ngay</string>
     <string name="confirm_continue">Tiếp tục</string>
     <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
+
+    <string name="home_welcome">Xin chào, %1$s!</string>
+    <string name="home_main_banner_title">VAY TỔ CHỨC TÍN DỤNG</string>
+    <string name="home_main_banner_button">ĐĂNG KÝ NGAY</string>
+    <string name="home_manage_loan">QUẢN LÝ KHOẢN VAY</string>
+    <string name="home_suggest_loan">GỢI Ý KHOẢN VAY</string>
+    <string name="home_consult_loan">TƯ VẤN KHOẢN VAY</string>
+    <string name="home_nav_home">Trang chủ</string>
+    <string name="home_nav_history">Lịch sử giao dịch</string>
+    <string name="home_nav_notify">Thông báo</string>
+    <string name="home_nav_account">Tài khoản</string>
 </resources>

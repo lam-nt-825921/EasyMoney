@@ -11,6 +11,7 @@ import com.example.easymoney.data.model.LoanPackage
 import com.example.easymoney.ui.confirmation.ConfirmInfoScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoUiState
 import com.example.easymoney.ui.guide.PageGuideScreen
+import com.example.easymoney.ui.home.HomeScreen
 import com.example.easymoney.ui.loan.LoanUiState
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationContent
 import com.example.easymoney.ui.onboarding.OnboardingScreen
@@ -22,9 +23,15 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppDestination.Onboarding.route,
+        startDestination = AppDestination.Home.route,
         modifier = modifier
     ) {
+        composable(AppDestination.Home.route) {
+            HomeScreen(
+                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) }
+            )
+        }
+
         composable(AppDestination.Onboarding.route) {
             OnboardingScreen(
                 onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.route) }
@@ -32,7 +39,6 @@ fun AppNavHost(
         }
 
         composable(AppDestination.ConfirmInformation.route) {
-            // Temporary mock state. Replace with repository-backed state in the next step.
             val uiState = ConfirmInfoUiState.mock()
 
             ConfirmInfoScreen(
