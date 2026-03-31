@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">EasyMoney</string>
+    <string name="onboarding_title">Vay tổ chức tài chính</string>
+    <string name="onboarding_hero_content_desc">Onboarding hero image</string>
+    <string name="onboarding_reason_title">Lý do chọn EASY MONEY</string>
+    <string name="onboarding_reason_fast">Giải ngân nhanh chóng</string>
+    <string name="onboarding_reason_simple">Thủ tục dễ dàng</string>
+    <string name="onboarding_reason_reliable">Dịch vụ tin cậy</string>
+
+    <string name="onboarding_product_title">Thông tin sản phẩm</string>
+    <string name="onboarding_product_limit_label">Hạn mức vay: </string>
+    <string name="onboarding_product_limit_value">100,000,000đ</string>
+    <string name="onboarding_product_term_label">Kỳ hạn vay: </string>
+    <string name="onboarding_product_term_value">tới 36 tháng</string>
+    <string name="onboarding_product_interest_label">Lãi suất từ: </string>
+    <string name="onboarding_product_interest_value">2,1%/tháng</string>
+
+    <string name="onboarding_provider_title">Thông tin nhà cung cấp dịch vụ vay</string>
+    <string name="onboarding_provider_org_label">• Tổ chức cho vay:</string>
+    <string name="onboarding_provider_org_value">Tổ chức tài chính EASY MONEY</string>
+    <string name="onboarding_provider_tax_line">• Tổng đài CSKH:</string>
+    <string name="onboarding_provider_business_line">9999 9999</string>
+    <string name="onboarding_provider_address_label">• Địa chỉ trụ sở:</string>
+    <string name="onboarding_provider_address_value">114 Xuân Thủy, Phường Cầu Giấy, Thành phố Hà Nội.</string>
+
+    <string name="onboarding_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EASY MONEY</string>
+    <string name="onboarding_continue">Trải nghiệm ngay</string>
+    <string name="confirm_continue">Tiếp tục</string>
+    <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
 </resources>
