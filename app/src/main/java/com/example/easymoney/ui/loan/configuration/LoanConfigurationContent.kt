@@ -1,4 +1,4 @@
-package com.example.easymoney.ui.loan
+package com.example.easymoney.ui.loan.configuration
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,90 +22,23 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.easymoney.data.model.LoanPackage
-import com.example.easymoney.ui.theme.EasyMoneyTheme
-import java.text.NumberFormat
-import java.util.*
-
-@Composable
-@Suppress("UNUSED_PARAMETER")
-fun LoanScreen(
-    viewModel: LoanViewModel,
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    LoanContent(
-        modifier = modifier,
-        uiState = uiState,
-        onAmountChanged = viewModel::onAmountChanged,
-        onTenorSelected = viewModel::onTenorSelected,
-        onInsuranceToggled = viewModel::onInsuranceToggled,
-        onNextStep = viewModel::onNextStep
-    )
-}
-
-@Composable
-fun LoanScreenMock(
-    mockPackage: LoanPackage,
-    modifier: Modifier = Modifier,
-    initialAmount: Long = mockPackage.minAmount,
-    initialTenor: Int = mockPackage.getTenorList().firstOrNull() ?: 6,
-    initialInsuranceSelected: Boolean = true
-) {
-    var uiState by remember {
-        mutableStateOf(
-            calculatePreviewState(
-                LoanUiState(
-                    selectedPackage = mockPackage,
-                    loanAmount = initialAmount,
-                    selectedTenorMonth = initialTenor,
-                    isInsuranceSelected = initialInsuranceSelected
-                )
-            )
-        )
-    }
-
-    LoanContent(
-        modifier = modifier,
-        uiState = uiState,
-        onAmountChanged = { amount ->
-            uiState = calculatePreviewState(uiState.copy(loanAmount = amount))
-        },
-        onTenorSelected = { tenor ->
-            val validTenors = uiState.selectedPackage?.getTenorList().orEmpty()
-            if (tenor in validTenors) {
-                uiState = calculatePreviewState(uiState.copy(selectedTenorMonth = tenor))
-            }
-        },
-        onInsuranceToggled = { selected ->
-            uiState = calculatePreviewState(uiState.copy(isInsuranceSelected = selected))
-        },
-        onNextStep = {
-            uiState = uiState.copy(currentStep = (uiState.currentStep + 1).coerceAtMost(3))
-        }
-    )
-}
-
-private enum class LoanSheetType {
-    TENOR,
-    BREAKDOWN
-}
+import com.example.easymoney.ui.loan.LoanUiState
+import com.example.easymoney.ui.loan.components.LoanBottomButton
+import com.example.easymoney.ui.loan.formatCompactAmount
+import com.example.easymoney.ui.loan.formatCurrency
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoanContent(
-    modifier: Modifier = Modifier,
+fun LoanConfigurationContent(
     uiState: LoanUiState,
     onAmountChanged: (Long) -> Unit,
     onTenorSelected: (Int) -> Unit,
     onInsuranceToggled: (Boolean) -> Unit,
-    onNextStep: () -> Unit
+    onNextStep: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var activeSheet by remember { mutableStateOf<LoanSheetType?>(null) }
@@ -120,53 +52,11 @@ private fun LoanContent(
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                ) {
-                    Checkbox(
-                        checked = uiState.isInsuranceSelected,
-                        onCheckedChange = { onInsuranceToggled(it) },
-                        colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
-                    )
-                    Text(
-                        text = "Bảo hiểm người vay",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                    Icon(
-                        Icons.Default.Info,
-                        contentDescription = null,
-                        tint = Color.Red.copy(alpha = 0.6f),
-                        modifier = Modifier
-                            .padding(start = 4.dp)
-                            .size(18.dp)
-                    )
-                }
-                Button(
-                    onClick = onNextStep,
-                    enabled = uiState.isInsuranceSelected,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-                        disabledContentColor = Color.White.copy(alpha = 0.7f)
-                    )
-                ) {
-                    Text("Tiếp tục", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-            }
+            LoanBottomButton(
+                isInsuranceSelected = uiState.isInsuranceSelected,
+                onInsuranceToggled = onInsuranceToggled,
+                onNextClick = onNextStep
+            )
         },
         containerColor = Color.White
     ) { paddingValues ->
@@ -177,7 +67,6 @@ private fun LoanContent(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // Stepper
             LoanStepper(currentStep = uiState.currentStep)
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -231,19 +120,19 @@ private fun LoanContent(
                         }
                     )
                 }
-
                 LoanSheetType.BREAKDOWN -> {
                     LoanBreakdownBottomSheet(
                         state = uiState,
                         onDismiss = { activeSheet = null }
                     )
                 }
-
                 null -> Unit
             }
         }
     }
 }
+
+private enum class LoanSheetType { TENOR, BREAKDOWN }
 
 @Composable
 fun LoanStepper(currentStep: Int) {
@@ -261,7 +150,7 @@ fun LoanStepper(currentStep: Int) {
 }
 
 @Composable
-fun StepItem(step: Int, label: String, isActive: Boolean) {
+private fun StepItem(step: Int, label: String, isActive: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(100.dp)) {
         Box(
             modifier = Modifier
@@ -284,7 +173,7 @@ fun StepItem(step: Int, label: String, isActive: Boolean) {
 }
 
 @Composable
-fun StepDivider(isDone: Boolean) {
+private fun StepDivider(isDone: Boolean) {
     Box(
         modifier = Modifier
             .padding(top = 16.dp)
@@ -406,7 +295,7 @@ fun TenorSelector(selectedTenor: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun OutlinedSelector(label: String, value: String, onClick: () -> Unit) {
+private fun OutlinedSelector(label: String, value: String, onClick: () -> Unit) {
     Column(modifier = Modifier.clickable { onClick() }.padding(vertical = 8.dp)) {
         Text(label, fontSize = 14.sp, color = Color(0xFF667085))
         Spacer(modifier = Modifier.height(8.dp))
@@ -468,7 +357,7 @@ fun LoanSummaryCard(state: LoanUiState, onInfoClick: () -> Unit) {
 }
 
 @Composable
-fun SummaryRow(label: String, value: String) {
+private fun SummaryRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -477,171 +366,5 @@ fun SummaryRow(label: String, value: String) {
     ) {
         Text(label, color = Color(0xFF667085), fontSize = 14.sp)
         Text(value, fontWeight = FontWeight.Medium, fontSize = 16.sp)
-    }
-}
-
-@Composable
-fun TenorBottomSheetContent(
-    tenors: List<Int>,
-    selectedTenor: Int,
-    onTenorSelected: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 32.dp)
-    ) {
-        Text(
-            "Kỳ hạn vay",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-        HorizontalDivider()
-        
-        tenors.forEach { tenor ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onTenorSelected(tenor) }
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("$tenor tháng", fontSize = 16.sp)
-                if (tenor == selectedTenor) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                } else {
-                    RadioButton(
-                        selected = false,
-                        onClick = { onTenorSelected(tenor) },
-                        colors = RadioButtonDefaults.colors(unselectedColor = Color(0xFFB3B3B3))
-                    )
-                }
-            }
-            HorizontalDivider(color = Color(0xFFEAECF0))
-        }
-    }
-}
-
-@Composable
-fun LoanBreakdownBottomSheet(state: LoanUiState, onDismiss: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 24.dp)
-    ) {
-        Text(
-            text = "Tổng tiền tạm tính",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            fontSize = 32.sp
-        )
-        HorizontalDivider(color = Color(0xFFEAECF0))
-
-        Column(modifier = Modifier.padding(20.dp)) {
-            SummaryRow(label = "Số tiền thực nhận", value = formatCurrency(state.actualReceivedAmount))
-            if (state.insuranceFee > 0) {
-                SummaryRow(label = "Phí bảo hiểm", value = formatCurrency(state.insuranceFee))
-            }
-            SummaryRow(label = "Tiền lãi", value = formatCurrency(state.interestAmount))
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 14.dp),
-                thickness = 1.dp,
-                color = Color(0xFFEAECF0)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = "Tổng tiền phải trả\n(tạm tính)",
-                    color = Color(0xFF667085),
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp
-                )
-                Text(
-                    text = formatCurrency(state.totalPayment),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp
-                )
-            }
-
-//            TextButton(
-//                onClick = onDismiss,
-//                modifier = Modifier
-//                    .align(Alignment.End)
-//                    .padding(top = 12.dp)
-//            ) {
-//                Text("Đóng")
-//            }
-        }
-    }
-}
-
-fun formatCurrency(amount: Long): String {
-    val formatter = NumberFormat.getNumberInstance(Locale("vi", "VN"))
-    return "${formatter.format(amount)}đ"
-}
-
-fun formatCompactAmount(amount: Long): String = "${amount / 1_000_000}tr"
-
-private const val PREVIEW_INSURANCE_RATE = 0.01
-
-private fun calculatePreviewState(state: LoanUiState): LoanUiState {
-    val pkg = state.selectedPackage ?: return state
-    val tenor = state.selectedTenorMonth.coerceAtLeast(1)
-    val amount = state.loanAmount.coerceIn(pkg.minAmount, pkg.maxAmount)
-    val insuranceFee = if (state.isInsuranceSelected) (amount * PREVIEW_INSURANCE_RATE).toLong() else 0L
-    val interestAmount = (amount * (pkg.interest / 100.0) * tenor / 12.0).toLong()
-    val totalPayment = amount + insuranceFee + interestAmount
-    val monthlyPayment = (totalPayment / tenor.toDouble()).toLong()
-    val actualReceived = (amount - insuranceFee).coerceAtLeast(0L)
-
-    return state.copy(
-        loanAmount = amount,
-        insuranceFee = insuranceFee,
-        interestAmount = interestAmount,
-        monthlyPayment = monthlyPayment,
-        totalPayment = totalPayment,
-        actualReceivedAmount = actualReceived
-    )
-}
-
-@Preview(showBackground = true, widthDp = 390, heightDp = 844)
-@Composable
-fun LoanScreenPreview() {
-    val mockPackage = LoanPackage(
-        id = "1",
-        packageName = "Vay Nhanh",
-        tenorRange = "6,12,18,24",
-        minAmount = 6_000_000,
-        maxAmount = 100_000_000,
-        interest = 12.0,
-        overdueCost = 5.0,
-        eligibleCreditScore = 600
-    )
-
-    EasyMoneyTheme {
-        LoanScreenMock(
-            mockPackage = mockPackage,
-            initialAmount = 70_000_000,
-            initialTenor = 6,
-            initialInsuranceSelected = true
-        )
     }
 }

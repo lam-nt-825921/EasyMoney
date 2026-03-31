@@ -9,8 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.easymoney.data.model.LoanPackage
 import com.example.easymoney.ui.guide.PageGuideScreen
-import com.example.easymoney.ui.loan.LoanScreenMock
-
+import com.example.easymoney.ui.loan.configuration.LoanConfigurationPreview
 @Composable
 fun AppNavHost(
     navController: NavHostController,
@@ -33,12 +32,7 @@ fun AppNavHost(
                 eligibleCreditScore = 600
             )
 
-            LoanScreenMock(
-                mockPackage = mockPackage,
-                initialAmount = 70_000_000,
-                initialTenor = 6,
-                initialInsuranceSelected = true
-            )
+            LoanConfigurationPreview()
         }
 
         composable(
