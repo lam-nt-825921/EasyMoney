@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,14 +34,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.easymoney.R
 import com.example.easymoney.ui.theme.EasyMoneyTheme
+import android.view.LayoutInflater
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun OnboardingScreen(
@@ -97,27 +105,32 @@ private fun HeroSection() {
 
 @Composable
 private fun WhyChooseSection() {
-	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+	Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_reason_title),
 			style = MaterialTheme.typography.titleMedium,
 			fontWeight = FontWeight.Bold
 		)
 
-		Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.height(IntrinsicSize.Max),
+			horizontalArrangement = Arrangement.spacedBy(12.dp)
+		) {
 			ReasonItem(
-				iconRes = R.drawable.img_1,
-				textRes = R.string.onboarding_reason_fast,
+				iconRes = R.drawable.ic_feature_1_hand_money,
+				textRes = R.string.feature_1_title,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.img_2,
-				textRes = R.string.onboarding_reason_simple,
+				iconRes = R.drawable.ic_feature_2_procedure,
+				textRes = R.string.feature_2_title,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.img_3,
-				textRes = R.string.onboarding_reason_reliable,
+				iconRes = R.drawable.ic_feature_3_trust,
+				textRes = R.string.feature_3_title,
 				modifier = Modifier.weight(1f)
 			)
 		}
@@ -130,32 +143,28 @@ private fun ReasonItem(
 	textRes: Int,
 	modifier: Modifier = Modifier
 ) {
-	Card(
+	AndroidView(
 		modifier = modifier,
-		colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
-		shape = RoundedCornerShape(10.dp)
-	) {
-		Column(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(horizontal = 8.dp, vertical = 10.dp),
-			horizontalAlignment = Alignment.Start,
-			verticalArrangement = Arrangement.spacedBy(8.dp)
-		) {
-			Image(
-				painter = painterResource(id = iconRes),
-				contentDescription = null,
-				modifier = Modifier.size(30.dp)
-			)
-			Text(
-				text = stringResource(id = textRes),
-				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onSurface
-			)
-		}
-	}
-}
+		factory = { context ->
+			val view = LayoutInflater.from(context).inflate(R.layout.item_feature_card, null, false)
 
+			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
+			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
+
+			ivIcon.setImageResource(iconRes)
+			tvTitle.setText(textRes)
+
+			view
+		},
+		update = { view ->
+			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
+			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
+
+			ivIcon.setImageResource(iconRes)
+			tvTitle.setText(textRes)
+		}
+	)
+}
 @Composable
 private fun ProductInfoSection() {
 	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
