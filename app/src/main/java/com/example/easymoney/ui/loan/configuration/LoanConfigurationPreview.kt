@@ -2,10 +2,8 @@ package com.example.easymoney.ui.loan.configuration
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.easymoney.data.UserPreferencesRepository
-import com.example.easymoney.data.model.LoanPackage
+import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.loan.LoanViewModel
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
@@ -24,35 +22,19 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
  *    ViewModel mỗi khi người dùng thay đổi số tiền hoặc kỳ hạn.
  *
  * 3. Dữ liệu đầu vào:
- *    Cần gọi `viewModel.setLoanPackage(package)` để khởi tạo dữ liệu cho màn hình.
+ *    Cần gọi `viewModel.loadLoanPackage(id)` để khởi tạo dữ liệu cho màn hình.
  */
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 fun LoanConfigurationPreview() {
-    val context = LocalContext.current
-    
-    // 1. Tạo dữ liệu mẫu
-    val mockPackage = LoanPackage(
-        id = "1",
-        packageName = "Vay Nhanh 24/7",
-        tenorRange = "6,12,18,24",
-        minAmount = 5_000_000,
-        maxAmount = 50_000_000,
-        interest = 12.0,
-        overdueCost = 5.0,
-        eligibleCreditScore = 600
-    )
-
-    // 2. Khởi tạo ViewModel trực tiếp trong Preview (Sandbox mode)
     val viewModel = remember {
-        LoanViewModel(UserPreferencesRepository(context)).apply {
-            setLoanPackage(mockPackage)
+        LoanViewModel(LoanRepositoryImpl()).apply {
+            loadLoanPackage("1")
         }
     }
 
     EasyMoneyTheme {
-        // 3. Gọi màn hình chính thay vì gọi trực tiếp Content component
         LoanConfigurationScreen(
             viewModel = viewModel,
             onBackClick = { /* Không xử lý trong preview */ }

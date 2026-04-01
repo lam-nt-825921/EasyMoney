@@ -43,9 +43,9 @@ fun LoanConfigurationContent(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var activeSheet by remember { mutableStateOf<LoanSheetType?>(null) }
 
-    val availableTenors = uiState.selectedPackage?.getTenorList().orEmpty().ifEmpty { listOf(6, 12, 18, 24) }
-    val minAmount = uiState.selectedPackage?.minAmount ?: 6_000_000L
-    val maxAmount = uiState.selectedPackage?.maxAmount ?: 100_000_000L
+    val availableTenors = uiState.selectedPackage?.getTenorList().orEmpty().ifEmpty { listOf() }
+    val minAmount = uiState.selectedPackage?.minAmount ?: 0L
+    val maxAmount = uiState.selectedPackage?.maxAmount ?: 0L
     val safeAmount = uiState.loanAmount.coerceIn(minAmount, maxAmount)
     val safeTenor = uiState.selectedTenorMonth.takeIf { it > 0 } ?: availableTenors.first()
 

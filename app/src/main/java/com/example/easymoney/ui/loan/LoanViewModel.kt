@@ -1,15 +1,21 @@
 package com.example.easymoney.ui.loan
 
 import androidx.lifecycle.ViewModel
-import com.example.easymoney.data.UserPreferencesRepository
-import com.example.easymoney.data.model.LoanPackage
+import androidx.lifecycle.viewModelScope
+import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.repository.LoanRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoanViewModel(
-    private val userPreferencesRepository: UserPreferencesRepository
+@HiltViewModel
+class LoanViewModel @Inject constructor(
+    private val loanRepository: LoanRepository
 ) : ViewModel() {
 
     private companion object {
@@ -19,23 +25,31 @@ class LoanViewModel(
     private val _uiState = MutableStateFlow(LoanUiState())
     val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
 
-    /**
-     * Call this when the screen is initialized with a package
-     */
-    fun setLoanPackage(loanPackage: LoanPackage) {
+    fun loadLoanPackage(id: String) {
+        if (id.isBlank()) {
+            updateLoadError("Loan package id is empty")
+            return
+        }
+
         _uiState.update {
             it.copy(
-                selectedPackage = loanPackage,
-                loanAmount = loanPackage.minAmount, // Default to min
-                selectedTenorMonth = loanPackage.getTenorList().firstOrNull() ?: 6
+                isLoading = true,
+                errorMessage = null,
+                packageLoadState = LoanPackageLoadState.Loading
             )
         }
-        calculateLoan()
+
+        viewModelScope.launch {
+            when (val result = loanRepository.getLoanPackageById(id)) {
+                is Resource.Success -> applyLoanPackage(result.data)
+                is Resource.Error -> updateLoadError(result.message)
+                is Resource.Loading -> Unit
+            }
+        }
     }
 
     fun onAmountChanged(amount: Long) {
         val pkg = _uiState.value.selectedPackage ?: return
-        // Ensure amount stays within package limits
         val coercedAmount = amount.coerceIn(pkg.minAmount, pkg.maxAmount)
         _uiState.update { it.copy(loanAmount = coercedAmount) }
         calculateLoan()
@@ -55,10 +69,39 @@ class LoanViewModel(
         calculateLoan()
     }
 
+    fun onNextStep() {
+        _uiState.update { it.copy(currentStep = it.currentStep + 1) }
+    }
+
+    private fun applyLoanPackage(loanPackage: LoanPackageModel) {
+        _uiState.update {
+            it.copy(
+                selectedPackage = loanPackage,
+                loanAmount = loanPackage.minAmount,
+                selectedTenorMonth = loanPackage.getTenorList().firstOrNull() ?: 6,
+                isLoading = false,
+                errorMessage = null,
+                packageLoadState = LoanPackageLoadState.Success(loanPackage.id)
+            )
+        }
+        calculateLoan()
+    }
+
+    private fun updateLoadError(message: String) {
+        _uiState.update {
+            it.copy(
+                selectedPackage = null,
+                isLoading = false,
+                errorMessage = message,
+                packageLoadState = LoanPackageLoadState.Error(message)
+            )
+        }
+    }
+
     private fun calculateLoan() {
         val state = _uiState.value
         val pkg = state.selectedPackage ?: return
-        
+
         val amount = state.loanAmount
         val tenor = state.selectedTenorMonth.coerceAtLeast(1)
         val interestRatePerYear = pkg.interest / 100.0
@@ -78,9 +121,5 @@ class LoanViewModel(
                 totalPayment = totalPayment
             )
         }
-    }
-
-    fun onNextStep() {
-        _uiState.update { it.copy(currentStep = it.currentStep + 1) }
     }
 }

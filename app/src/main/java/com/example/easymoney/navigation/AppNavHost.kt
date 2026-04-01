@@ -7,7 +7,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.easymoney.data.model.LoanPackage
 import com.example.easymoney.ui.confirmation.ConfirmInfoScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoUiState
 import com.example.easymoney.ui.guide.PageGuideScreen
@@ -70,4 +69,3 @@ fun AppNavHost(
         // Register new scene routes here as the product flow is expanded.
     }
 }
-
