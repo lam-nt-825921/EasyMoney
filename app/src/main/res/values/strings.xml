@@ -38,4 +38,8 @@
     <string name="home_nav_history">Lịch sử giao dịch</string>
     <string name="home_nav_notify">Thông báo</string>
     <string name="home_nav_account">Tài khoản</string>
+
+    <string name="feature_1_title">Giải ngân\nnhanh chóng</string>
+    <string name="feature_2_title">Thủ tục\ndễ dàng</string>
+    <string name="feature_3_title">Dịch vụ\ntin cậy</string>
 </resources>

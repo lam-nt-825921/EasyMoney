@@ -31,7 +31,7 @@ sealed class AppDestination(
     data object LoanInformation : AppDestination(
         route = "loan_information",
         title = "Thông tin khoản vay",
-        showBackButton = false,
+        showBackButton = true,
         topBarBackgroundColor = Color.White
     )
 
