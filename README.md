@@ -2,6 +2,10 @@
 
 Android app project for loan simulation and related flows.
 
+# Tài liệu cần đọc
+- [tài liệu về Repository](./documents/CREATE_REPOSITORY_PLAN.md)
+- [tài liệu về Clean Architecture](./documents/CLEAN_ARCHITECTURE.md)] chỉ đọc phần mô tả, không đọc thực trạng và phương pháp
+
 # Giải thích code
 Đọc phần này để biết ý nghĩa cơ bản của các package trong project.
 
