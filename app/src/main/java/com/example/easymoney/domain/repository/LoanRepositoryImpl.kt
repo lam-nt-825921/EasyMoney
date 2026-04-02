@@ -2,9 +2,12 @@ package com.example.easymoney.domain.repository
 
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.model.MyInfoModel
 import javax.inject.Inject
 
 class LoanRepositoryImpl @Inject constructor() : LoanRepository {
+
+    private val myPackageId = "1"
 
     private val mockLoanPackages = listOf(
         LoanPackageModel(
@@ -29,6 +32,15 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
         )
     )
 
+    private val mockMyInfo = MyInfoModel(
+        fullName = "Nguyen Duc Minh",
+        gender = "Nam",
+        dateOfBirth = "01/05/2005",
+        phoneNumber = "0936-552-900",
+        nationalId = "093201403413",
+        issueDate = "03/11/2020"
+    )
+
     override suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
         if (id.isBlank()) {
             return Resource.Error(message = "Loan package id is empty")
@@ -38,5 +50,16 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             ?: return Resource.Error(message = "Loan package not found")
 
         return Resource.Success(data = packageData, isFromMock = true)
+    }
+
+    override suspend fun getMyPackage(): Resource<LoanPackageModel> {
+        val packageData = mockLoanPackages.firstOrNull { it.id == myPackageId }
+            ?: return Resource.Error(message = "My loan package not found")
+
+        return Resource.Success(data = packageData, isFromMock = true)
+    }
+
+    override suspend fun getMyInfo(): Resource<MyInfoModel> {
+        return Resource.Success(data = mockMyInfo, isFromMock = true)
     }
 }

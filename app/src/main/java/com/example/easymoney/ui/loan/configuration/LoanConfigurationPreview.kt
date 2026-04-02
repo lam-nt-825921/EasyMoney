@@ -30,7 +30,7 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 fun LoanConfigurationPreview() {
     val viewModel = remember {
         LoanViewModel(LoanRepositoryImpl()).apply {
-            loadLoanPackage("1")
+            loadLoanPackage()
         }
     }
 
