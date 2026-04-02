@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -39,11 +40,13 @@ fun GridSection() {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         BannerItem(
-            imageRes = R.drawable.quanlykhoanvay,
+            frameRes = R.drawable.quanlykhoanvay_frame,
+            iconRes = R.drawable.quanlykhoanvay,
             modifier = Modifier.weight(1f)
         )
         BannerItem(
-            imageRes = R.drawable.goiykhoanvay,
+            frameRes = R.drawable.goiykhoanvay_frame,
+            iconRes = R.drawable.goiykhoanvay,
             modifier = Modifier.weight(1f)
         )
     }
@@ -58,27 +61,51 @@ fun WideBanner() {
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.tuvankhoanvay),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillBounds
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.tuvankhoanvay_frame),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
+            )
+            Image(
+                painter = painterResource(id = R.drawable.tuvankhoanvay),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(110.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-8).dp),
+                contentScale = ContentScale.Fit
+            )
+        }
     }
 }
 
 @Composable
-private fun BannerItem(imageRes: Int, modifier: Modifier = Modifier) {
+private fun BannerItem(frameRes: Int, iconRes: Int, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.height(100.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillBounds
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = frameRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
+            )
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(80.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-8).dp),
+                contentScale = ContentScale.Fit
+            )
+        }
     }
 }
