@@ -6,9 +6,12 @@ import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.repository.LoanRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,6 +21,10 @@ class LoanViewModel @Inject constructor(
     private val loanRepository: LoanRepository
 ) : ViewModel() {
 
+    sealed interface NavigationEvent {
+        data object ToNextStep : NavigationEvent
+    }
+
     private companion object {
         const val INSURANCE_RATE = 0.01
     }
@@ -25,12 +32,10 @@ class LoanViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoanUiState())
     val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
 
-    fun loadLoanPackage(id: String) {
-        if (id.isBlank()) {
-            updateLoadError("Loan package id is empty")
-            return
-        }
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    val navigationEvent: SharedFlow<NavigationEvent> = _navigationEvent.asSharedFlow()
 
+    fun loadLoanPackage() {
         _uiState.update {
             it.copy(
                 isLoading = true,
@@ -40,13 +45,14 @@ class LoanViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            when (val result = loanRepository.getLoanPackageById(id)) {
+            when (val result = loanRepository.getMyPackage()) {
                 is Resource.Success -> applyLoanPackage(result.data)
                 is Resource.Error -> updateLoadError(result.message)
                 is Resource.Loading -> Unit
             }
         }
     }
+
 
     fun onAmountChanged(amount: Long) {
         val pkg = _uiState.value.selectedPackage ?: return
@@ -71,6 +77,9 @@ class LoanViewModel @Inject constructor(
 
     fun onNextStep() {
         _uiState.update { it.copy(currentStep = it.currentStep + 1) }
+        viewModelScope.launch {
+            _navigationEvent.emit(NavigationEvent.ToNextStep)
+        }
     }
 
     private fun applyLoanPackage(loanPackage: LoanPackageModel) {

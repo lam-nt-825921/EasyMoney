@@ -1,19 +1,20 @@
 package com.example.easymoney.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.easymoney.ui.confirmation.ConfirmInfoScreen
-import com.example.easymoney.ui.confirmation.ConfirmInfoUiState
+import com.example.easymoney.ui.confirmation.ConfirmInfoViewModel
 import com.example.easymoney.ui.guide.PageGuideScreen
 import com.example.easymoney.ui.home.HomeScreen
-import com.example.easymoney.ui.loan.LoanUiState
-import com.example.easymoney.ui.loan.configuration.LoanConfigurationContent
-import com.example.easymoney.ui.loan.configuration.LoanConfigurationPreview
+import com.example.easymoney.ui.loan.LoanViewModel
+import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 
 @Composable
@@ -39,17 +40,49 @@ fun AppNavHost(
         }
 
         composable(AppDestination.ConfirmInformation.route) {
-            val uiState = ConfirmInfoUiState.mock()
+            val viewModel: ConfirmInfoViewModel = hiltViewModel()
+
+            LaunchedEffect(viewModel) {
+                viewModel.navigationEvent.collect { event ->
+                    when (event) {
+                        ConfirmInfoViewModel.NavigationEvent.ToLoanInformation -> {
+                            navController.navigate(AppDestination.LoanInformation.route)
+                        }
+
+                        ConfirmInfoViewModel.NavigationEvent.ToEditInformation -> {
+                            navController.popBackStack()
+                        }
+                    }
+                }
+            }
 
             ConfirmInfoScreen(
-                uiState = uiState,
-                onContinueClick = { navController.navigate(AppDestination.LoanInformation.route) },
-                onEditInfoClick = { navController.popBackStack() }
+                viewModel = viewModel,
+                onBackButton = { navController.popBackStack() }
             )
         }
 
         composable(AppDestination.LoanInformation.route) {
-            LoanConfigurationPreview()
+            val viewModel: LoanViewModel = hiltViewModel()
+
+            LaunchedEffect(viewModel) {
+                viewModel.loadLoanPackage()
+            }
+
+            LaunchedEffect(viewModel) {
+                viewModel.navigationEvent.collect { event ->
+                    when (event) {
+                        LoanViewModel.NavigationEvent.ToNextStep -> {
+                            navController.navigate(AppDestination.PageGuide.createRoute())
+                        }
+                    }
+                }
+            }
+
+            LoanConfigurationScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
         composable(

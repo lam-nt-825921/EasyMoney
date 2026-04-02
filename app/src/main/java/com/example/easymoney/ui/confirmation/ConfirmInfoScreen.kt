@@ -19,22 +19,48 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
 @Composable
 fun ConfirmInfoScreen(
+    viewModel: ConfirmInfoViewModel,
+    onBackButton: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    ConfirmInfoContent(
+        uiState = uiState,
+        onContinueClick = viewModel::onContinueClick,
+        onEditInfoClick = viewModel::onEditInfoClick,
+        onBackButton = onBackButton,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun ConfirmInfoContent(
     uiState: ConfirmInfoUiState,
     onContinueClick: () -> Unit,
     onEditInfoClick: () -> Unit,
+    onBackButton: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -57,6 +83,7 @@ fun ConfirmInfoScreen(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             Text(
                 text = uiState.sectionTitle,
                 style = MaterialTheme.typography.titleMedium,
@@ -68,14 +95,40 @@ fun ConfirmInfoScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    uiState.personalInfoItems.forEach { item ->
-                        InfoRow(label = item.label, value = item.value)
+                when (val state = uiState.loadState) {
+                    ConfirmInfoLoadState.Loading -> {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    is ConfirmInfoLoadState.Error -> {
+                        Text(
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
+                        )
+                    }
+
+                    else -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 14.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            InfoRow(label = "Họ và tên", value = uiState.userInfo?.fullName?: "N/A")
+                            InfoRow(label = "Giới tính", value = uiState.userInfo?.gender?: "N/A")
+                            InfoRow(label = "Ngày sinh", value = uiState.userInfo?.dateOfBirth?: "N/A")
+                            InfoRow(label = "Số điện thoại", value = uiState.userInfo?.phoneNumber?: "N/A")
+                            InfoRow(label = "CMND/CCCD", value = uiState.userInfo?.nationalId?: "N/A")
+                            InfoRow(label = "Ngày cấp", value = uiState.userInfo?.issueDate?: "N/A")
+                        }
                     }
                 }
             }
@@ -153,11 +206,11 @@ private fun ConfirmInfoBottomBar(
 @Preview(showBackground = true, showSystemUi = true, name = "Confirm Info")
 @Composable
 private fun ConfirmInfoScreenPreview() {
+    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl()) }
     EasyMoneyTheme {
         ConfirmInfoScreen(
-            uiState = ConfirmInfoUiState.mock(),
-            onContinueClick = {},
-            onEditInfoClick = {}
+            viewModel = viewModel,
+            onBackButton = {}
         )
     }
 }
@@ -165,11 +218,11 @@ private fun ConfirmInfoScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Confirm Info Dark")
 @Composable
 private fun ConfirmInfoScreenDarkPreview() {
+    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl()) }
     EasyMoneyTheme(darkTheme = true) {
         ConfirmInfoScreen(
-            uiState = ConfirmInfoUiState.mock(),
-            onContinueClick = {},
-            onEditInfoClick = {}
+            viewModel = viewModel,
+            onBackButton = {}
         )
     }
 }
