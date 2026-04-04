@@ -70,10 +70,6 @@ fun LoanConfigurationContent(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            LoanStepper(currentStep = uiState.currentStep)
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             Text(
                 "Chọn khoản vay mong muốn",
                 fontSize = 20.sp,
@@ -137,54 +133,6 @@ fun LoanConfigurationContent(
 
 private enum class LoanSheetType { TENOR, BREAKDOWN }
 
-@Composable
-fun LoanStepper(currentStep: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
-        StepItem(1, "Chọn khoản vay", currentStep >= 1)
-        StepDivider(isDone = currentStep > 1)
-        StepItem(2, "Điền thông tin", currentStep >= 2)
-        StepDivider(isDone = currentStep > 2)
-        StepItem(3, "Xác nhận", currentStep >= 3)
-    }
-}
-
-@Composable
-private fun StepItem(step: Int, label: String, isActive: Boolean) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(100.dp)) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(if (isActive) MaterialTheme.colorScheme.primary else Color(0xFFD0D5DD)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(step.toString(), color = Color.White, fontWeight = FontWeight.Bold)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            label,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            color = if (isActive) MaterialTheme.colorScheme.primary else Color(0xFF667085),
-            lineHeight = 14.sp
-        )
-    }
-}
-
-@Composable
-private fun StepDivider(isDone: Boolean) {
-    Box(
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .width(40.dp)
-            .height(2.dp)
-            .background(if (isDone) MaterialTheme.colorScheme.primary else Color(0xFFEAECF0))
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

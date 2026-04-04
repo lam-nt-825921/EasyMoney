@@ -14,12 +14,14 @@ import com.example.easymoney.ui.confirmation.ConfirmInfoViewModel
 import com.example.easymoney.ui.guide.PageGuideScreen
 import com.example.easymoney.ui.home.HomeScreen
 import com.example.easymoney.ui.loan.LoanViewModel
-import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
+import com.example.easymoney.ui.loan.flow.LoanFlowScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -29,7 +31,9 @@ fun AppNavHost(
     ) {
         composable(AppDestination.Home.route) {
             HomeScreen(
-                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) }
+                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme
             )
         }
 
@@ -69,19 +73,9 @@ fun AppNavHost(
                 viewModel.loadLoanPackage()
             }
 
-            LaunchedEffect(viewModel) {
-                viewModel.navigationEvent.collect { event ->
-                    when (event) {
-                        LoanViewModel.NavigationEvent.ToNextStep -> {
-                            navController.navigate(AppDestination.PageGuide.createRoute())
-                        }
-                    }
-                }
-            }
-
-            LoanConfigurationScreen(
+            LoanFlowScreen(
                 viewModel = viewModel,
-                onBackClick = { navController.popBackStack() }
+                onExitFlow = { navController.popBackStack() }
             )
         }
 

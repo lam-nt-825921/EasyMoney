@@ -19,18 +19,24 @@ import com.example.easymoney.ui.components.HomeBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppRoot() {
+fun AppRoot(
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
     val appState = rememberAppState()
     val navBackStackEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val destination = appState.currentDestination()
     val canNavigateBack = appState.navController.previousBackStackEntry != null
-    val topBarBackgroundColor = destination.topBarBackgroundColor ?: MaterialTheme.colorScheme.background
+    val topBarBackgroundColor = when (destination) {
+        AppDestination.LoanInformation -> MaterialTheme.colorScheme.background
+        else -> destination.topBarBackgroundColor ?: MaterialTheme.colorScheme.background
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            if (destination != AppDestination.Home) {
+            if (destination != AppDestination.Home && destination != AppDestination.LoanInformation) {
                 AppNavigationBar(
                     title = destination.title,
                     showBackButton = destination.showBackButton && canNavigateBack,
@@ -62,6 +68,8 @@ fun AppRoot() {
     ) { innerPadding ->
         AppNavHost(
             navController = appState.navController,
+            isDarkTheme = isDarkTheme,
+            onToggleTheme = onToggleTheme,
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
