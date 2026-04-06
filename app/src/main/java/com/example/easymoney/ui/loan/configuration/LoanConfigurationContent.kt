@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,19 +37,23 @@ fun LoanConfigurationContent(
     onTenorSelected: (Int) -> Unit,
     onInsuranceToggled: (Boolean) -> Unit,
     onNextStep: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var activeSheet by remember { mutableStateOf<LoanSheetType?>(null) }
 
-    val availableTenors = uiState.selectedPackage?.getTenorList().orEmpty()
-    val minAmount = uiState.selectedPackage?.minAmount ?: 0L
-    val maxAmount = uiState.selectedPackage?.maxAmount ?: 0L
-    val safeAmount = uiState.loanAmount.coerceIn(minAmount, maxAmount)
-    val safeTenor = uiState.selectedTenorMonth
-        .takeIf { it > 0 }
-        ?: availableTenors.firstOrNull()
-        ?: 0
+    // ✓ Only compute safe values when NOT loading
+    val availableTenors = if (!isLoading) uiState.selectedPackage?.getTenorList().orEmpty() else emptyList()
+    val minAmount = if (!isLoading) uiState.selectedPackage?.minAmount ?: 0L else 0L
+    val maxAmount = if (!isLoading) uiState.selectedPackage?.maxAmount ?: 0L else 0L
+    val safeAmount = if (!isLoading) uiState.loanAmount.coerceIn(minAmount, maxAmount) else 0L
+    val safeTenor = if (!isLoading) {
+        uiState.selectedTenorMonth
+            .takeIf { it > 0 }
+            ?: availableTenors.firstOrNull()
+            ?: 0
+    } else 0
 
     Scaffold(
         modifier = modifier,
@@ -58,10 +61,11 @@ fun LoanConfigurationContent(
             LoanBottomButton(
                 isInsuranceSelected = uiState.isInsuranceSelected,
                 onInsuranceToggled = onInsuranceToggled,
-                onNextClick = onNextStep
+                onNextClick = onNextStep,
+                isLoading = isLoading
             )
         },
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -70,34 +74,41 @@ fun LoanConfigurationContent(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            Text(
-                "Chọn khoản vay mong muốn",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 34.sp,
-                modifier = Modifier.padding(bottom = 28.dp)
-            )
+            if (isLoading) {
+                // ✓ Show skeleton while loading
+                LoanConfigurationSkeleton(modifier = Modifier.fillMaxWidth())
+            } else {
+                // ✓ Show content when data loaded
+                Text(
+                    "Chọn khoản vay mong muốn",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 34.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 28.dp)
+                )
 
-            LoanAmountSection(
-                amount = safeAmount,
-                minAmount = minAmount,
-                maxAmount = maxAmount,
-                onAmountChange = onAmountChanged
-            )
+                LoanAmountSection(
+                    amount = safeAmount,
+                    minAmount = minAmount,
+                    maxAmount = maxAmount,
+                    onAmountChange = onAmountChanged
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            TenorSelector(
-                selectedTenor = safeTenor,
-                onClick = { activeSheet = LoanSheetType.TENOR }
-            )
+                TenorSelector(
+                    selectedTenor = safeTenor,
+                    onClick = { activeSheet = LoanSheetType.TENOR }
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-            LoanSummaryCard(
-                state = uiState,
-                onInfoClick = { activeSheet = LoanSheetType.BREAKDOWN }
-            )
+                LoanSummaryCard(
+                    state = uiState,
+                    onInfoClick = { activeSheet = LoanSheetType.BREAKDOWN }
+                )
+            }
         }
     }
 
@@ -105,7 +116,7 @@ fun LoanConfigurationContent(
         ModalBottomSheet(
             onDismissRequest = { activeSheet = null },
             sheetState = sheetState,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             scrimColor = Color.Black.copy(alpha = 0.55f)
         ) {
             when (activeSheet) {
@@ -266,7 +277,7 @@ private fun OutlinedSelector(label: String, value: String, onClick: () -> Unit) 
 @Composable
 fun LoanSummaryCard(state: LoanUiState, onInfoClick: () -> Unit) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FAFB)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -300,7 +311,7 @@ fun LoanSummaryCard(state: LoanUiState, onInfoClick: () -> Unit) {
                     formatCurrency(state.totalPayment),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

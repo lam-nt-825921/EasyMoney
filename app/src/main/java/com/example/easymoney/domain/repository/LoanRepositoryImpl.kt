@@ -2,7 +2,9 @@ package com.example.easymoney.domain.repository
 
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.model.LoanProviderInfoModel
 import com.example.easymoney.domain.model.MyInfoModel
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class LoanRepositoryImpl @Inject constructor() : LoanRepository {
@@ -41,7 +43,15 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
         issueDate = "03/11/2020"
     )
 
+    private val mockLoanProviderInfo = LoanProviderInfoModel(
+        organizationName = "To chuc tai chinh EASY MONEY",
+        hotline = "9999 9999",
+        address = "114 Xuan Thuy, Phuong Cau Giay, Thanh pho Ha Noi."
+    )
+
     override suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
+        delay(300)
+
         if (id.isBlank()) {
             return Resource.Error(message = "Loan package id is empty")
         }
@@ -53,6 +63,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyPackage(): Resource<LoanPackageModel> {
+        delay(300)
+
         val packageData = mockLoanPackages.firstOrNull { it.id == myPackageId }
             ?: return Resource.Error(message = "My loan package not found")
 
@@ -60,6 +72,14 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyInfo(): Resource<MyInfoModel> {
+        delay(300)
+
         return Resource.Success(data = mockMyInfo, isFromMock = true)
+    }
+
+    override suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel> {
+        delay(300)
+
+        return Resource.Success(data = mockLoanProviderInfo, isFromMock = true)
     }
 }

@@ -20,13 +20,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,15 +38,15 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 @Composable
 fun ConfirmInfoScreen(
     viewModel: ConfirmInfoViewModel,
-    onBackButton: () -> Unit,
+    onContinue: () -> Unit,
+    onEditInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     ConfirmInfoContent(
         uiState = uiState,
-        onContinueClick = viewModel::onContinueClick,
-        onEditInfoClick = viewModel::onEditInfoClick,
-        onBackButton = onBackButton,
+        onContinueClick = onContinue,
+        onEditInfoClick = onEditInfo,
         modifier = modifier
     )
 }
@@ -60,9 +56,10 @@ private fun ConfirmInfoContent(
     uiState: ConfirmInfoUiState,
     onContinueClick: () -> Unit,
     onEditInfoClick: () -> Unit,
-    onBackButton: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isLoading = uiState.loadState !in listOf(ConfirmInfoLoadState.Success)
+    
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -95,39 +92,20 @@ private fun ConfirmInfoContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                when (val state = uiState.loadState) {
-                    ConfirmInfoLoadState.Loading -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 24.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator()
+                if (isLoading) {
+                    ConfirmInfoLoadingBody()
+                } else {
+                    when (uiState.loadState) {
+                        is ConfirmInfoLoadState.Error -> {
+                            Text(
+                                text = (uiState.loadState as ConfirmInfoLoadState.Error).message,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
+                            )
                         }
-                    }
 
-                    is ConfirmInfoLoadState.Error -> {
-                        Text(
-                            text = state.message,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
-                        )
-                    }
-
-                    else -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            InfoRow(label = "Họ và tên", value = uiState.userInfo?.fullName?: "N/A")
-                            InfoRow(label = "Giới tính", value = uiState.userInfo?.gender?: "N/A")
-                            InfoRow(label = "Ngày sinh", value = uiState.userInfo?.dateOfBirth?: "N/A")
-                            InfoRow(label = "Số điện thoại", value = uiState.userInfo?.phoneNumber?: "N/A")
-                            InfoRow(label = "CMND/CCCD", value = uiState.userInfo?.nationalId?: "N/A")
-                            InfoRow(label = "Ngày cấp", value = uiState.userInfo?.issueDate?: "N/A")
+                        else -> {
+                            ConfirmInfoDataBody(uiState = uiState)
                         }
                     }
                 }
@@ -135,6 +113,36 @@ private fun ConfirmInfoContent(
         }
     }
 }
+
+@Composable
+private fun ConfirmInfoLoadingBody() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ConfirmInfoDataBody(uiState: ConfirmInfoUiState) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        InfoRow(label = "Họ và tên", value = uiState.userInfo?.fullName ?: "N/A")
+        InfoRow(label = "Giới tính", value = uiState.userInfo?.gender ?: "N/A")
+        InfoRow(label = "Ngày sinh", value = uiState.userInfo?.dateOfBirth ?: "N/A")
+        InfoRow(label = "Số điện thoại", value = uiState.userInfo?.phoneNumber ?: "N/A")
+        InfoRow(label = "CMND/CCCD", value = uiState.userInfo?.nationalId ?: "N/A")
+        InfoRow(label = "Ngày cấp", value = uiState.userInfo?.issueDate ?: "N/A")
+    }
+}
+
 
 @Composable
 private fun InfoRow(
@@ -210,7 +218,8 @@ private fun ConfirmInfoScreenPreview() {
     EasyMoneyTheme {
         ConfirmInfoScreen(
             viewModel = viewModel,
-            onBackButton = {}
+            onContinue = {},
+            onEditInfo = {}
         )
     }
 }
@@ -222,7 +231,8 @@ private fun ConfirmInfoScreenDarkPreview() {
     EasyMoneyTheme(darkTheme = true) {
         ConfirmInfoScreen(
             viewModel = viewModel,
-            onBackButton = {}
+            onContinue = {},
+            onEditInfo = {}
         )
     }
 }

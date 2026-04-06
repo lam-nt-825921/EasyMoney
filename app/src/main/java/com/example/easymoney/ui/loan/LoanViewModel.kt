@@ -24,13 +24,27 @@ class LoanViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(LoanUiState())
     val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
+    private var hasRequestedPackage = false
 
-    fun loadLoanPackage() {
+    init {
+        loadLoanPackage()
+    }
+
+    fun loadLoanPackage(force: Boolean = false) {
+        if (hasRequestedPackage && !force) return
+        hasRequestedPackage = true
+
         _uiState.update {
+            val nextLoadState = if (it.selectedPackage == null) {
+                LoanPackageLoadState.InitialLoading
+            } else {
+                LoanPackageLoadState.Loading
+            }
+
             it.copy(
                 isLoading = true,
                 errorMessage = null,
-                packageLoadState = LoanPackageLoadState.Loading
+                packageLoadState = nextLoadState
             )
         }
 

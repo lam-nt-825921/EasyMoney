@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import com.example.easymoney.R
 import com.example.easymoney.ui.home.components.GridSection
+import com.example.easymoney.ui.home.components.HomeLoadingContent
 import com.example.easymoney.ui.home.components.MainBanner
 import com.example.easymoney.ui.home.components.WideBanner
 import com.example.easymoney.ui.theme.EasyMoneyTheme
@@ -26,7 +27,9 @@ fun HomeScreen(
     onLoanRegistrationClick: () -> Unit,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    modifier: Modifier = Modifier
+    userName: String,
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     Column(
         modifier = modifier
@@ -37,20 +40,24 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         HeaderSection(
+            userName = userName,
             isDarkTheme = isDarkTheme,
             onToggleTheme = onToggleTheme
         )
 
-        MainBanner(onRegistrationClick = onLoanRegistrationClick)
-        
-        GridSection()
-        
-        WideBanner()
+        if (isLoading) {
+            HomeLoadingContent()
+        } else {
+            MainBanner(onRegistrationClick = onLoanRegistrationClick)
+            GridSection()
+            WideBanner()
+        }
     }
 }
 
 @Composable
 private fun HeaderSection(
+    userName: String,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
@@ -62,7 +69,7 @@ private fun HeaderSection(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(id = R.string.home_welcome, "NGUYỄN LÊ MINH"),
+            text = stringResource(id = R.string.home_welcome, userName),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f)
@@ -84,7 +91,8 @@ private fun HomeScreenPreview() {
         HomeScreen(
             onLoanRegistrationClick = {},
             isDarkTheme = false,
-            onToggleTheme = {}
+            onToggleTheme = {},
+            userName = "Nguyen Duc Minh"
         )
     }
 }

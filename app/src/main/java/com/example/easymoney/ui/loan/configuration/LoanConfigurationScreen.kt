@@ -19,13 +19,10 @@ fun LoanConfigurationScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val shouldShowSkeleton = uiState.packageLoadState is LoanPackageLoadState.Loading ||
-        (uiState.isLoading && uiState.selectedPackage == null)
+    // ✓ Single-instance: Call content ONE TIME with isLoading parameter
+    val isLoading = uiState.packageLoadState is LoanPackageLoadState.InitialLoading ||
+                    uiState.packageLoadState is LoanPackageLoadState.Loading
 
-    if (shouldShowSkeleton) {
-        LoanConfigurationSkeleton(modifier = modifier)
-        return
-    }
 
     LoanConfigurationContent(
         uiState = uiState,
@@ -33,6 +30,7 @@ fun LoanConfigurationScreen(
         onTenorSelected = viewModel::onTenorSelected,
         onInsuranceToggled = viewModel::onInsuranceToggled,
         onNextStep = viewModel::onNextStep,
-        modifier = modifier
+        modifier = modifier,
+        isLoading = isLoading
     )
 }
