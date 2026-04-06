@@ -91,6 +91,14 @@ fun LoanFlowScreen(
                 if (isCaptureSceneVisible) {
                     EkycFaceCaptureScreen(
                         onBackToIntro = { isCaptureSceneVisible = false },
+                        onSuccess = { 
+                            // Khi chụp xong thành công, chuyển sang bước tiếp theo (điền form)
+                            viewModel.onNextStep() 
+                        },
+                        onNavigateToError = { error ->
+                            // EkycFaceCaptureScreen đã tự hiển thị EkycErrorScreen bên trong
+                            // nên ở đây ta chỉ cần log hoặc xử lý nếu cần thoát luồng
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {

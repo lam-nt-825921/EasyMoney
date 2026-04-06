@@ -13,7 +13,7 @@ interface LoanRepository {
     suspend fun getMyPackage(): Resource<LoanPackageModel>
     suspend fun getMyInfo(): Resource<MyInfoModel>
     suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel>
-    
+
     // ========== eKYC Face Capture ==========
     /**
      * Upload ảnh face + metadata tới backend

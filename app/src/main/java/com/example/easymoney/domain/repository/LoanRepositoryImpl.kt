@@ -12,6 +12,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 
 class LoanRepositoryImpl @Inject constructor() : LoanRepository {
@@ -108,16 +109,23 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             // TODO: Call actual Retrofit service when available
             // val response = ekycService.captureFace(multipartBody)
             
-            // For now, mock success response
-            delay(500)
-            val mockResponse = EkycCaptureResponse(
-                captureId = "capture-${System.currentTimeMillis()}",
-                status = "accepted",
-                nextStep = "face_matching",
-                message = "Ảnh chân dung được nhận"
-            )
+            // For now, mock success/failure (50/50)
+            delay(1500)
+            val isSuccess = (0..100).random() >= 50
             
-            Resource.Success(mockResponse, isFromMock = true)
+            if (isSuccess) {
+                val mockResponse = EkycCaptureResponse(
+                    captureId = "capture-${System.currentTimeMillis()}",
+                    status = "accepted",
+                    nextStep = "face_matching",
+                    message = "Ảnh chân dung được nhận"
+                )
+                Resource.Success(mockResponse)
+            } else {
+                Resource.Error(
+                    message = "Lỗi nhận diện: Ảnh bị mờ hoặc không đủ ánh sáng. Vui lòng chụp lại.",
+                )
+            }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Capture failed")
         }
@@ -140,16 +148,23 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             // TODO: Call actual Retrofit service when available
             // val response = ekycService.captureFace(multipartBody)
             
-            // For now, mock success response
-            delay(500)
-            val mockResponse = EkycCaptureResponse(
-                captureId = "capture-${System.currentTimeMillis()}",
-                status = "accepted",
-                nextStep = "face_matching",
-                message = "Ảnh chân dung được nhận"
-            )
+            // For now, mock success/failure (50/50)
+            delay(1500)
+            val isSuccess = (0..100).random() >= 50
             
-            Resource.Success(mockResponse, isFromMock = true)
+            if (isSuccess) {
+                val mockResponse = EkycCaptureResponse(
+                    captureId = "capture-${System.currentTimeMillis()}",
+                    status = "accepted",
+                    nextStep = "face_matching",
+                    message = "Ảnh chân dung được nhận"
+                )
+                Resource.Success(mockResponse, isFromMock = true)
+            } else {
+                Resource.Error(
+                    message = "Lỗi nhận diện: Ảnh bị mờ hoặc không đủ ánh sáng. Vui lòng chụp lại.",
+                )
+            }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Capture failed")
         }
