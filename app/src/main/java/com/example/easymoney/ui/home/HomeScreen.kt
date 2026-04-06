@@ -6,14 +6,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import com.example.easymoney.R
 import com.example.easymoney.ui.home.components.GridSection
+import com.example.easymoney.ui.home.components.HomeLoadingContent
 import com.example.easymoney.ui.home.components.MainBanner
 import com.example.easymoney.ui.home.components.WideBanner
 import com.example.easymoney.ui.theme.EasyMoneyTheme
@@ -21,40 +25,74 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 @Composable
 fun HomeScreen(
     onLoanRegistrationClick: () -> Unit,
-    modifier: Modifier = Modifier
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit,
+    userName: String,
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        HeaderSection(userName = "NGUYỄN LÊ MINH")
-        
-        MainBanner(onRegistrationClick = onLoanRegistrationClick)
-        
-        GridSection()
-        
-        WideBanner()
+        HeaderSection(
+            userName = userName,
+            isDarkTheme = isDarkTheme,
+            onToggleTheme = onToggleTheme
+        )
+
+        if (isLoading) {
+            HomeLoadingContent()
+        } else {
+            MainBanner(onRegistrationClick = onLoanRegistrationClick)
+            GridSection()
+            WideBanner()
+        }
     }
 }
 
 @Composable
-private fun HeaderSection(userName: String) {
-    Text(
-        text = stringResource(id = R.string.home_welcome, userName),
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
+private fun HeaderSection(
+    userName: String,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(id = R.string.home_welcome, userName),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+
+        IconButton(onClick = onToggleTheme) {
+            Icon(
+                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                contentDescription = if (isDarkTheme) "Chuyển sang light mode" else "Chuyển sang dark mode"
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
     EasyMoneyTheme {
-        HomeScreen(onLoanRegistrationClick = {})
+        HomeScreen(
+            onLoanRegistrationClick = {},
+            isDarkTheme = false,
+            onToggleTheme = {},
+            userName = "Nguyen Duc Minh"
+        )
     }
 }

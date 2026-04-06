@@ -13,18 +13,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.ui.common.loading.InlineButtonLoading
 
 @Composable
 fun LoanBottomButton(
     modifier: Modifier = Modifier,
     isInsuranceSelected: Boolean,
     onInsuranceToggled: (Boolean) -> Unit,
-    onNextClick: () -> Unit
+    onNextClick: () -> Unit,
+    isLoading: Boolean = false
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
         Row(
@@ -33,7 +35,8 @@ fun LoanBottomButton(
         ) {
             Checkbox(
                 checked = isInsuranceSelected,
-                onCheckedChange = { onInsuranceToggled(it) },
+                onCheckedChange = { if (!isLoading) onInsuranceToggled(it) },
+                enabled = !isLoading,
                 colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
             )
             Text(
@@ -53,7 +56,7 @@ fun LoanBottomButton(
         }
         Button(
             onClick = onNextClick,
-            enabled = isInsuranceSelected,
+            enabled = !isLoading && isInsuranceSelected,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -65,7 +68,11 @@ fun LoanBottomButton(
                 disabledContentColor = Color.White.copy(alpha = 0.7f)
             )
         ) {
-            Text("Tiếp tục", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (isLoading) {
+                InlineButtonLoading(label = "Đang tải")
+            } else {
+                Text("Tiếp tục", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
