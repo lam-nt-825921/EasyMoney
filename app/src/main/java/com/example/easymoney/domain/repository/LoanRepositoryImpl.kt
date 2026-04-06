@@ -3,6 +3,7 @@ package com.example.easymoney.domain.repository
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.model.MyInfoModel
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class LoanRepositoryImpl @Inject constructor() : LoanRepository {
@@ -42,6 +43,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     )
 
     override suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
+        delay(300)
+
         if (id.isBlank()) {
             return Resource.Error(message = "Loan package id is empty")
         }
@@ -53,6 +56,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyPackage(): Resource<LoanPackageModel> {
+        delay(300)
+
         val packageData = mockLoanPackages.firstOrNull { it.id == myPackageId }
             ?: return Resource.Error(message = "My loan package not found")
 
@@ -60,6 +65,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyInfo(): Resource<MyInfoModel> {
+        delay(300)
+
         return Resource.Success(data = mockMyInfo, isFromMock = true)
     }
 }
