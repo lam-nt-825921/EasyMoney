@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.androidx.compose.runtime.saveable)
 
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -66,6 +67,13 @@ dependencies {
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
+
+    // CameraX + ML Kit (eKYC)
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
+    implementation("com.google.mlkit:face-detection:16.1.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

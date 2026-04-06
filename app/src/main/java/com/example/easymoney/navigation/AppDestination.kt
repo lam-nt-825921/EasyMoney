@@ -1,6 +1,9 @@
 package com.example.easymoney.navigation
 
 import androidx.compose.ui.graphics.Color
+import com.example.easymoney.ui.components.TopBarMode
+import com.example.easymoney.ui.components.SystemBarMode
+import com.example.easymoney.ui.components.ScreenColorMode
 
 /**
  * Central route contracts and top-bar metadata for the app.
@@ -12,7 +15,10 @@ sealed class AppDestination(
     val showHelpButton: Boolean = true,
     val guideXmlName: String? = null,
     val topBarBackgroundColor: Color? = null,
-    val topBarContentColor: Color? = null
+    val topBarContentColor: Color? = null,
+    val defaultTopBarMode: TopBarMode = TopBarMode.STANDARD,
+    val defaultSystemBarMode: SystemBarMode = SystemBarMode.THEME_DEFAULT,
+    val defaultScreenColorMode: ScreenColorMode = ScreenColorMode.THEME_AWARE
 ) {
     data object Onboarding : AppDestination(
         route = "onboarding",
