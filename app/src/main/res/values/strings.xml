@@ -3,9 +3,9 @@
     <string name="onboarding_title">Vay tổ chức tài chính</string>
     <string name="onboarding_hero_content_desc">Onboarding hero image</string>
     <string name="onboarding_reason_title">Lý do chọn EASY MONEY</string>
-    <string name="onboarding_reason_fast">Giải ngân nhanh chóng</string>
-    <string name="onboarding_reason_simple">Thủ tục dễ dàng</string>
-    <string name="onboarding_reason_reliable">Dịch vụ tin cậy</string>
+    <string name="onboarding_reason_fast">Giải ngân&#10; nhanh chóng</string>
+    <string name="onboarding_reason_simple">Thủ tục&#10;dễ dàng</string>
+    <string name="onboarding_reason_reliable">Dịch vụ&#10;tin cậy</string>
 
     <string name="onboarding_product_title">Thông tin sản phẩm</string>
     <string name="onboarding_product_limit_label">Hạn mức vay: </string>
