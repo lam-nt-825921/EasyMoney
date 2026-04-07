@@ -24,5 +24,6 @@ enum class LoanStatus {
 data class LoanFlowModel(
     val currentStep: Int = 1,
     val subState: LoanSubState = LoanSubState.CONFIG,
-    val status: LoanStatus = LoanStatus.DRAFT
+    val status: LoanStatus = LoanStatus.DRAFT,
+    val showExitDialog: Boolean = false
 )

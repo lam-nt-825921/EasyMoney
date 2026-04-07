@@ -17,6 +17,7 @@ import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.ui.components.AppTopBarOverride
 import com.example.easymoney.ui.components.RegisterTopBarOverride
+import com.example.easymoney.ui.loan.components.LoanExitDialog
 import com.example.easymoney.ui.loan.components.LoanStepper
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
 import com.example.easymoney.ui.loan.information.confirm.ConfirmLoanInformationScreen
@@ -28,11 +29,11 @@ import com.example.easymoney.ui.loan.information.form.LoanInformationFormViewMod
 
 @Composable
 fun LoanFlowScreen(
-    onExitFlow: () -> Unit,
+    onCancel: () -> Unit,
+    onComplete: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoanFlowViewModel = hiltViewModel(),
     ekycViewModel: EkycCameraViewModel = hiltViewModel(),
-    // Lấy FormViewModel ở đây để dữ liệu được giữ lại xuyên suốt Flow (Singleton-like in this scope)
     formViewModel: LoanInformationFormViewModel = hiltViewModel() 
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -54,20 +55,37 @@ fun LoanFlowScreen(
         }
     }
 
+    // Logic xử lý khi nhấn Back
+    val handleBack = {
+        if (currentStep == 1) {
+            onCancel() // Ở step 1 thì thoát thẳng
+        } else {
+            viewModel.toggleExitDialog(true)
+        }
+    }
+
     RegisterTopBarOverride(
         ownerRoute = AppDestination.LoanFlow.route,
         override = AppTopBarOverride(
             title = topBarTitle,
             showBackButton = true,
             showHelpButton = false,
-            onBackClick = {
-                if (currentStep == 1) onExitFlow() else viewModel.onPreviousStep()
-            }
+            onBackClick = handleBack
         )
     )
 
-    BackHandler(enabled = currentStep > 1) {
-        viewModel.onPreviousStep()
+    BackHandler(enabled = true) {
+        handleBack()
+    }
+
+    if (uiState.showExitDialog) {
+        LoanExitDialog(
+            onDismiss = { viewModel.toggleExitDialog(false) },
+            onConfirm = { 
+                viewModel.toggleExitDialog(false)
+                onCancel() // Hủy đăng ký -> Về Onboarding
+            }
+        )
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -82,7 +100,7 @@ fun LoanFlowScreen(
         when (currentStep) {
             1 -> LoanConfigurationScreen(
                 onNextStep = viewModel::onNextStep,
-                onBackClick = onExitFlow,
+                onBackClick = onCancel,
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -119,8 +137,7 @@ fun LoanFlowScreen(
                 ConfirmLoanInformationScreen(
                     formData = formUiState,
                     onConfirmed = { 
-                        // Khi xác nhận thành công, tiến tới bước phê duyệt (chưa code)
-                        onExitFlow() 
+                        onComplete() // Xác nhận thành công
                     },
                     modifier = Modifier.fillMaxSize()
                 )

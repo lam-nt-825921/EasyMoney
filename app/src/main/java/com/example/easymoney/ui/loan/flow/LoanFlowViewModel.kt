@@ -50,6 +50,10 @@ class LoanFlowViewModel @Inject constructor() : ViewModel() {
         _uiState.update { it.copy(subState = subState) }
     }
 
+    fun toggleExitDialog(show: Boolean) {
+        _uiState.update { it.copy(showExitDialog = show) }
+    }
+
     fun setStep(step: Int) {
         _uiState.update { currentState ->
             val nextSubState = when (step) {

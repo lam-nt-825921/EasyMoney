@@ -15,7 +15,8 @@ fun LoanFlowPreview() {
     EasyMoneyTheme {
         LoanFlowScreen(
             viewModel = viewModel,
-            onExitFlow = {}
+            onComplete = {},
+            onCancel = {}
         )
     }
 }
