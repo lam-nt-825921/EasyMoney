@@ -20,6 +20,7 @@ import com.example.easymoney.ui.components.AppNavigationBar
 import com.example.easymoney.ui.components.AppTopBarController
 import com.example.easymoney.ui.components.HomeBottomBar
 import com.example.easymoney.ui.components.LocalAppTopBarController
+import com.example.easymoney.ui.components.TopBarMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,25 +49,31 @@ fun AppRoot(
                     } else {
                         null
                     }
-                    val resolvedTitle = topBarOverride?.title ?: destination.title
-                    val resolvedShowBack = topBarOverride?.showBackButton ?: (destination.showBackButton && canNavigateBack)
-                    val resolvedShowHelp = topBarOverride?.showHelpButton ?: destination.showHelpButton
-                    val resolvedOnBack = topBarOverride?.onBackClick ?: { appState.popBackStack(); Unit }
-                    val resolvedOnHelp = topBarOverride?.onHelpClick ?: {
-                        appState.navigateTo(AppDestination.PageGuide.createRoute(destination.guideXmlName))
-                    }
-                    val resolvedBackground = topBarOverride?.backgroundColor ?: topBarBackgroundColor
-                    val resolvedContentColor = topBarOverride?.contentColor ?: (destination.topBarContentColor ?: Color.Unspecified)
+                    val resolvedTopBarMode = topBarOverride?.topBarMode ?: destination.defaultTopBarMode
+                    
+                    // Only render top bar if not HIDDEN
+                    if (resolvedTopBarMode != TopBarMode.HIDDEN) {
+                        val resolvedTitle = topBarOverride?.title ?: destination.title
+                        val resolvedShowBack = topBarOverride?.showBackButton ?: (destination.showBackButton && canNavigateBack)
+                        val resolvedShowHelp = topBarOverride?.showHelpButton ?: destination.showHelpButton
+                        val resolvedOnBack = topBarOverride?.onBackClick ?: { appState.popBackStack(); Unit }
+                        val resolvedOnHelp = topBarOverride?.onHelpClick ?: {
+                            appState.navigateTo(AppDestination.PageGuide.createRoute(destination.guideXmlName))
+                        }
+                        val resolvedBackground = topBarOverride?.backgroundColor ?: topBarBackgroundColor
+                        val resolvedContentColor = topBarOverride?.contentColor ?: (destination.topBarContentColor ?: Color.Unspecified)
 
-                    AppNavigationBar(
-                        title = resolvedTitle,
-                        showBackButton = resolvedShowBack,
-                        showHelpButton = resolvedShowHelp,
-                        onBackClick = resolvedOnBack,
-                        onHelpClick = resolvedOnHelp,
-                        backgroundColor = resolvedBackground,
-                        contentColor = resolvedContentColor
-                    )
+                        AppNavigationBar(
+                            title = resolvedTitle,
+                            showBackButton = resolvedShowBack,
+                            showHelpButton = resolvedShowHelp,
+                            onBackClick = resolvedOnBack,
+                            onHelpClick = resolvedOnHelp,
+                            backgroundColor = resolvedBackground,
+                            contentColor = resolvedContentColor,
+                            topBarMode = resolvedTopBarMode
+                        )
+                    }
                 }
             },
             bottomBar = {

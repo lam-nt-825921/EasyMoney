@@ -16,7 +16,10 @@ data class AppTopBarOverride(
     val onBackClick: (() -> Unit)? = null,
     val onHelpClick: (() -> Unit)? = null,
     val backgroundColor: Color? = null,
-    val contentColor: Color? = null
+    val contentColor: Color? = null,
+    val topBarMode: TopBarMode? = null,
+    val systemBarMode: SystemBarMode? = null,
+    val screenColorMode: ScreenColorMode? = null
 )
 
 @Stable

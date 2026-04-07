@@ -15,7 +15,6 @@ import com.example.easymoney.ui.confirmation.ConfirmInfoViewModel
 import com.example.easymoney.ui.guide.PageGuideScreen
 import com.example.easymoney.ui.home.HomeScreen
 import com.example.easymoney.ui.home.HomeViewModel
-import com.example.easymoney.ui.loan.LoanViewModel
 import com.example.easymoney.ui.loan.flow.LoanFlowScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 
@@ -61,11 +60,7 @@ fun AppNavHost(
         }
 
         composable(AppDestination.LoanFlow.route) {
-            val viewModel: LoanViewModel = hiltViewModel()
-
-
             LoanFlowScreen(
-                viewModel = viewModel,
                 onExitFlow = { navController.popBackStack() }
             )
         }

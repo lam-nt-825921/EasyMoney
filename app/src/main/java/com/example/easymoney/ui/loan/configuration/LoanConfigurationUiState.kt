@@ -1,10 +1,9 @@
-package com.example.easymoney.ui.loan
+package com.example.easymoney.ui.loan.configuration
 
 import com.example.easymoney.domain.model.LoanPackageModel
 
-data class LoanUiState(
+data class LoanConfigurationUiState(
     val selectedPackage: LoanPackageModel? = null,
-    val currentStep: Int = 1,
     val loanAmount: Long = 0,
     val selectedTenorMonth: Int = 0,
     val isInsuranceSelected: Boolean = true,
@@ -28,3 +27,4 @@ sealed class LoanPackageLoadState {
     data class Success(val packageId: String) : LoanPackageLoadState()
     data class Error(val message: String) : LoanPackageLoadState()
 }
+

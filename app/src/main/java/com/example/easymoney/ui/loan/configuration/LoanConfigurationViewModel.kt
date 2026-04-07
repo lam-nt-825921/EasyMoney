@@ -1,4 +1,4 @@
-package com.example.easymoney.ui.loan
+package com.example.easymoney.ui.loan.configuration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoanViewModel @Inject constructor(
+class LoanConfigurationViewModel @Inject constructor(
     private val loanRepository: LoanRepository
 ) : ViewModel() {
 
@@ -22,8 +22,8 @@ class LoanViewModel @Inject constructor(
         const val INSURANCE_RATE = 0.01
     }
 
-    private val _uiState = MutableStateFlow(LoanUiState())
-    val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LoanConfigurationUiState())
+    val uiState: StateFlow<LoanConfigurationUiState> = _uiState.asStateFlow()
     private var hasRequestedPackage = false
 
     init {
@@ -77,14 +77,6 @@ class LoanViewModel @Inject constructor(
     fun onInsuranceToggled(selected: Boolean) {
         _uiState.update { it.copy(isInsuranceSelected = selected) }
         calculateLoan()
-    }
-
-    fun onNextStep() {
-        _uiState.update { it.copy(currentStep = 2) }
-    }
-
-    fun onPreviousStep() {
-        _uiState.update { it.copy(currentStep = 1) }
     }
 
     private fun applyLoanPackage(loanPackage: LoanPackageModel) {

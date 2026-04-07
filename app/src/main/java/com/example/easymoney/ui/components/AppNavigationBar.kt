@@ -33,6 +33,7 @@ fun AppNavigationBar(
     onHelpClick: () -> Unit = {},
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = Color.Unspecified,
+    topBarMode: TopBarMode = TopBarMode.STANDARD,
     scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     val resolvedContentColor = if (contentColor != Color.Unspecified) {
@@ -51,11 +52,13 @@ fun AppNavigationBar(
 
     CenterAlignedTopAppBar(
         title = {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                color = resolvedContentColor
-            )
+            if (topBarMode != TopBarMode.NO_TITLE) {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    color = resolvedContentColor
+                )
+            }
         },
         navigationIcon = {
             if (showBackButton) {

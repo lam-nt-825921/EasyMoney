@@ -6,6 +6,10 @@ data class MyInfoModel(
     val dateOfBirth: String,
     val phoneNumber: String,
     val nationalId: String,
-    val issueDate: String
+    val issueDate: String,
+    // Add address info
+    val permanentProvince: String? = null,
+    val permanentDistrict: String? = null,
+    val permanentWard: String? = null,
+    val permanentDetail: String? = null
 )
-
