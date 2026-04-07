@@ -6,6 +6,8 @@ import com.example.easymoney.domain.model.LoanProviderInfoModel
 import com.example.easymoney.domain.model.MyInfoModel
 import com.example.easymoney.domain.model.EkycCaptureRequest
 import com.example.easymoney.domain.model.EkycCaptureResponse
+import com.example.easymoney.domain.model.LoanApplicationRequest
+import com.example.easymoney.domain.model.MasterDataItem
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -48,7 +50,11 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
         dateOfBirth = "01/05/2005",
         phoneNumber = "0936-552-900",
         nationalId = "093201403413",
-        issueDate = "03/11/2020"
+        issueDate = "03/11/2020",
+        permanentProvince = "TP Hà Nội",
+        permanentDistrict = "Quận Tây Hồ",
+        permanentWard = "Phường Nhật Tân",
+        permanentDetail = "1 Lạc Long Quân"
     )
 
     private val mockLoanProviderInfo = LoanProviderInfoModel(
@@ -89,6 +95,95 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
         delay(300)
 
         return Resource.Success(data = mockLoanProviderInfo, isFromMock = true)
+    }
+
+    // ========== Master Data Mock ==========
+    override suspend fun getProvinces(): Resource<List<MasterDataItem>> {
+        delay(300)
+        return Resource.Success(listOf(
+            MasterDataItem("p_hn", "TP Hà Nội"),
+            MasterDataItem("p_hcm", "TP Hồ Chí Minh"),
+            MasterDataItem("p_dn", "TP Đà Nẵng")
+        ), isFromMock = true)
+    }
+
+    override suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>> {
+        delay(200)
+        val data = when(provinceId) {
+            "p_hn" -> listOf(MasterDataItem("d_th", "Quận Tây Hồ", provinceId), MasterDataItem("d_cg", "Quận Cầu Giấy", provinceId))
+            "p_hcm" -> listOf(MasterDataItem("d_q1", "Quận 1", provinceId), MasterDataItem("d_q3", "Quận 3", provinceId))
+            else -> emptyList()
+        }
+        return Resource.Success(data, isFromMock = true)
+    }
+
+    override suspend fun getWards(districtId: String): Resource<List<MasterDataItem>> {
+        delay(200)
+        val data = when(districtId) {
+            "d_th" -> listOf(MasterDataItem("w_nt", "Phường Nhật Tân", districtId), MasterDataItem("w_pt", "Phường Phú Thượng", districtId))
+            "d_cg" -> listOf(MasterDataItem("w_dh", "Phường Dịch Vọng Hậu", districtId))
+            else -> listOf(MasterDataItem("w_default", "Phường Trung Tâm", districtId))
+        }
+        return Resource.Success(data, isFromMock = true)
+    }
+
+    override suspend fun getProfessions(): Resource<List<MasterDataItem>> {
+        delay(200)
+        return Resource.Success(listOf(
+            MasterDataItem("p1", "Nhân viên văn phòng công ty"),
+            MasterDataItem("p2", "Công chức nhà nước"),
+            MasterDataItem("p3", "Công nhân"),
+            MasterDataItem("p4", "Lao động phổ thông"),
+            MasterDataItem("p5", "Khác")
+        ), isFromMock = true)
+    }
+
+    override suspend fun getPositions(): Resource<List<MasterDataItem>> {
+        delay(200)
+        return Resource.Success(listOf(
+            MasterDataItem("pos1", "Nhân viên/Chuyên viên"),
+            MasterDataItem("pos2", "Tổ phó"),
+            MasterDataItem("pos3", "Nhóm trưởng/Tổ trưởng"),
+            MasterDataItem("pos4", "Quản lý/Trưởng phòng"),
+            MasterDataItem("pos5", "Khác")
+        ), isFromMock = true)
+    }
+
+    override suspend fun getEducationLevels(): Resource<List<MasterDataItem>> {
+        delay(200)
+        return Resource.Success(listOf(
+            MasterDataItem("e1", "Không có chuyên môn"),
+            MasterDataItem("e2", "Bằng trung cấp"),
+            MasterDataItem("e3", "Bằng cao đẳng"),
+            MasterDataItem("e4", "Bằng đại học trở lên")
+        ), isFromMock = true)
+    }
+
+    override suspend fun getMaritalStatuses(): Resource<List<MasterDataItem>> {
+        delay(200)
+        return Resource.Success(listOf(
+            MasterDataItem("m1", "Độc thân"),
+            MasterDataItem("m2", "Đã kết hôn"),
+            MasterDataItem("m3", "Ly hôn"),
+            MasterDataItem("m4", "Ly thân"),
+            MasterDataItem("m5", "Góa")
+        ), isFromMock = true)
+    }
+
+    override suspend fun getRelationships(): Resource<List<MasterDataItem>> {
+        delay(200)
+        return Resource.Success(listOf(
+            MasterDataItem("r1", "Ông/Bà"),
+            MasterDataItem("r2", "Bố/Mẹ"),
+            MasterDataItem("r3", "Vợ/Chồng"),
+            MasterDataItem("r4", "Anh/Chị/Em ruột"),
+            MasterDataItem("r5", "Bạn bè/Đồng nghiệp")
+        ), isFromMock = true)
+    }
+
+    override suspend fun submitApplication(request: LoanApplicationRequest): Resource<Unit> {
+        delay(1500)
+        return Resource.Success(Unit, isFromMock = true)
     }
 
     // ========== eKYC Face Capture ==========
@@ -151,6 +246,7 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             // For now, mock success/failure (50/50)
             delay(1500)
             val isSuccess = (0..100).random() >= 50
+            print("captureFaceCustom: isSuccess = $isSuccess")
             
             if (isSuccess) {
                 val mockResponse = EkycCaptureResponse(
@@ -181,7 +277,6 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             "capture_ts": ${request.captureTimestamp},
             "device_model": "${request.deviceModel}",
             "os_version": "${request.osVersion}",
-            "app_version": "${request.appVersion}",
             "camera_lens": "${request.cameraLens}",
             "image_width": ${request.imageWidth},
             "image_height": ${request.imageHeight},

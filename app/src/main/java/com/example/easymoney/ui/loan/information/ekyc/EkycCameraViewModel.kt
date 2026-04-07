@@ -183,6 +183,16 @@ class EkycCameraViewModel @Inject constructor(
     }
     
     // ========== NAVIGATION EVENTS ==========
+    fun resetState() {
+        _uiState.update { 
+            EkycUiState(
+                sessionId = UUID.randomUUID().toString(),
+                flowId = UUID.randomUUID().toString(),
+                permissionState = it.permissionState // Keep permission state
+            )
+        }
+    }
+
     fun onEvent(event: EkycUiEvent) {
         when (event) {
             is EkycUiEvent.OnScreenEnter -> {

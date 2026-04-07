@@ -10,11 +10,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.easymoney.ui.loan.LoanUiState
+import com.example.easymoney.ui.loan.configuration.LoanConfigurationUiState
 import com.example.easymoney.ui.loan.formatCurrency
 
 @Composable
-fun LoanBreakdownBottomSheet(state: LoanUiState, onDismiss: () -> Unit) {
+fun LoanBreakdownBottomSheet(state: LoanConfigurationUiState, onDismiss: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

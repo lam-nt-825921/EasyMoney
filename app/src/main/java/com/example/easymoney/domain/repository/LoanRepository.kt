@@ -6,6 +6,8 @@ import com.example.easymoney.domain.model.LoanProviderInfoModel
 import com.example.easymoney.domain.model.MyInfoModel
 import com.example.easymoney.domain.model.EkycCaptureRequest
 import com.example.easymoney.domain.model.EkycCaptureResponse
+import com.example.easymoney.domain.model.LoanApplicationRequest
+import com.example.easymoney.domain.model.MasterDataItem
 import java.io.File
 
 interface LoanRepository {
@@ -14,7 +16,21 @@ interface LoanRepository {
     suspend fun getMyInfo(): Resource<MyInfoModel>
     suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel>
 
-    // ========== eKYC Face Capture ==========
+    // Master Data
+    suspend fun getProvinces(): Resource<List<MasterDataItem>>
+    suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>>
+    suspend fun getWards(districtId: String): Resource<List<MasterDataItem>>
+    suspend fun getProfessions(): Resource<List<MasterDataItem>>
+    suspend fun getPositions(): Resource<List<MasterDataItem>>
+    suspend fun getEducationLevels(): Resource<List<MasterDataItem>>
+    suspend fun getMaritalStatuses(): Resource<List<MasterDataItem>>
+    suspend fun getRelationships(): Resource<List<MasterDataItem>>
+
+    // Application
+    suspend fun submitApplication(request: LoanApplicationRequest): Resource<Unit>
+
+    // eKYC
+
     /**
      * Upload ảnh face + metadata tới backend
      */

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.easymoney.ui.loan.LoanUiState
+import com.example.easymoney.ui.loan.configuration.LoanConfigurationUiState
 import com.example.easymoney.ui.loan.components.LoanBottomButton
 import com.example.easymoney.ui.loan.formatCompactAmount
 import com.example.easymoney.ui.loan.formatCurrency
@@ -32,7 +32,7 @@ import com.example.easymoney.ui.loan.formatCurrency
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoanConfigurationContent(
-    uiState: LoanUiState,
+    uiState: LoanConfigurationUiState,
     onAmountChanged: (Long) -> Unit,
     onTenorSelected: (Int) -> Unit,
     onInsuranceToggled: (Boolean) -> Unit,
@@ -275,7 +275,7 @@ private fun OutlinedSelector(label: String, value: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun LoanSummaryCard(state: LoanUiState, onInfoClick: () -> Unit) {
+fun LoanSummaryCard(state: LoanConfigurationUiState, onInfoClick: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp),
