@@ -86,7 +86,7 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyInfo(): Resource<MyInfoModel> {
-        delay(300)
+        delay(2000) // Tăng delay lên 2s để test skeleton
 
         return Resource.Success(data = mockMyInfo, isFromMock = true)
     }
