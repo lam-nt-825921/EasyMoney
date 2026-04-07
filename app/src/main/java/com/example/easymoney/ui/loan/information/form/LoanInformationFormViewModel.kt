@@ -57,33 +57,26 @@ class LoanInformationFormViewModel @Inject constructor(
 
     private fun loadMasterData() {
         viewModelScope.launch {
-            // Load provinces
             val provincesResult = loanRepository.getProvinces()
             if (provincesResult is Resource.Success) {
                 _uiState.update { it.copy(provinces = provincesResult.data) }
             }
-            
-            // Load other static master data
             val professionsResult = loanRepository.getProfessions()
             if (professionsResult is Resource.Success) {
                 _uiState.update { it.copy(professions = professionsResult.data) }
             }
-
             val positionsResult = loanRepository.getPositions()
             if (positionsResult is Resource.Success) {
                 _uiState.update { it.copy(positions = positionsResult.data) }
             }
-
             val educationResult = loanRepository.getEducationLevels()
             if (educationResult is Resource.Success) {
                 _uiState.update { it.copy(educationLevels = educationResult.data) }
             }
-
             val maritalResult = loanRepository.getMaritalStatuses()
             if (maritalResult is Resource.Success) {
                 _uiState.update { it.copy(maritalStatuses = maritalResult.data) }
             }
-
             val relationshipResult = loanRepository.getRelationships()
             if (relationshipResult is Resource.Success) {
                 _uiState.update { it.copy(relationships = relationshipResult.data) }
@@ -93,8 +86,6 @@ class LoanInformationFormViewModel @Inject constructor(
 
     fun onShowSheet(sheetType: FormSheetType, isPermanent: Boolean = false) {
         _uiState.update { it.copy(activeSheet = sheetType, isSelectingPermanentAddress = isPermanent) }
-        
-        // Load dynamic data if needed (Districts/Wards)
         if (sheetType == FormSheetType.DISTRICT) {
             val provinceId = if (isPermanent) _uiState.value.permanentProvince?.id else _uiState.value.currentProvince?.id
             provinceId?.let { loadDistricts(it) }
@@ -107,25 +98,26 @@ class LoanInformationFormViewModel @Inject constructor(
     private fun loadDistricts(provinceId: String) {
         viewModelScope.launch {
             val result = loanRepository.getDistricts(provinceId)
-            if (result is Resource.Success) {
-                _uiState.update { it.copy(districts = result.data) }
-            }
+            if (result is Resource.Success) _uiState.update { it.copy(districts = result.data) }
         }
     }
 
     private fun loadWards(districtId: String) {
         viewModelScope.launch {
             val result = loanRepository.getWards(districtId)
-            if (result is Resource.Success) {
-                _uiState.update { it.copy(wards = result.data) }
-            }
+            if (result is Resource.Success) _uiState.update { it.copy(wards = result.data) }
         }
+    }
+
+    fun triggerValidation(): Boolean {
+        val errors = _uiState.value.validateForm()
+        _uiState.update { it.copy(fieldErrors = errors, showErrors = true) }
+        return errors.isEmpty()
     }
 
     fun onSelectItem(item: MasterDataItem) {
         val sheetType = _uiState.value.activeSheet
         val isPermanent = _uiState.value.isSelectingPermanentAddress
-
         _uiState.update { state ->
             when (sheetType) {
                 FormSheetType.PROVINCE -> {
@@ -148,8 +140,6 @@ class LoanInformationFormViewModel @Inject constructor(
                 else -> state.copy(activeSheet = FormSheetType.NONE)
             }
         }
-
-        // Tự động load dữ liệu cấp tiếp theo
         val currentState = _uiState.value
         when (currentState.activeSheet) {
             FormSheetType.DISTRICT -> loadDistricts(item.id)
@@ -158,9 +148,6 @@ class LoanInformationFormViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Logic quay lại cấp trước đó trong Bottom Sheet phân cấp
-     */
     fun onBackSheet() {
         val sheetType = _uiState.value.activeSheet
         _uiState.update { state ->
@@ -187,7 +174,21 @@ class LoanInformationFormViewModel @Inject constructor(
     }
 
     fun onMonthlyIncomeChanged(value: String) {
-        _uiState.update { it.copy(monthlyIncome = value) }
+        // CHỈ LƯU SỐ THUẦN TÚY (No formatting here to avoid cursor jumping)
+        val cleanValue = value.filter { it.isDigit() }
+        _uiState.update { it.copy(monthlyIncome = cleanValue) }
+    }
+
+    fun onCompanyNameChanged(value: String) {
+        _uiState.update { it.copy(companyName = value) }
+    }
+
+    fun onSpouseNameChanged(value: String) {
+        _uiState.update { it.copy(spouseName = value) }
+    }
+
+    fun onSpousePhoneChanged(value: String) {
+        _uiState.update { it.copy(spousePhone = value) }
     }
 
     fun onContactNameChanged(value: String) {
