@@ -1,6 +1,9 @@
 package com.example.easymoney.navigation
 
 import androidx.compose.ui.graphics.Color
+import com.example.easymoney.ui.components.TopBarMode
+import com.example.easymoney.ui.components.SystemBarMode
+import com.example.easymoney.ui.components.ScreenColorMode
 
 /**
  * Central route contracts and top-bar metadata for the app.
@@ -14,7 +17,10 @@ sealed class AppDestination(
     val topBarBackgroundColor: Color? = null,
     val topBarContentColor: Color? = null,
     /** True for the four main bottom-tab destinations. */
-    val isMainTab: Boolean = false
+    val isMainTab: Boolean = false,
+    val defaultTopBarMode: TopBarMode = TopBarMode.STANDARD,
+    val defaultSystemBarMode: SystemBarMode = SystemBarMode.THEME_DEFAULT,
+    val defaultScreenColorMode: ScreenColorMode = ScreenColorMode.THEME_AWARE
 ) {
     data object Onboarding : AppDestination(
         route = "onboarding",
@@ -30,10 +36,12 @@ sealed class AppDestination(
         topBarBackgroundColor = Color.White
     )
 
-    data object LoanInformation : AppDestination(
+    // Single destination for the whole internal LoanFlow (all steps are managed inside LoanFlowScreen).
+    data object LoanFlow : AppDestination(
         route = "loan_information",
         title = "Thông tin khoản vay",
         showBackButton = true,
+        showHelpButton = false,
         topBarBackgroundColor = Color.White
     )
 
@@ -95,12 +103,10 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Home.route -> AppDestination.Home
     route == AppDestination.Onboarding.route -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
-    route == AppDestination.LoanInformation.route -> AppDestination.LoanInformation
+    route == AppDestination.LoanFlow.route -> AppDestination.LoanFlow
     route == AppDestination.TransactionHistory.route -> AppDestination.TransactionHistory
     route == AppDestination.Notifications.route -> AppDestination.Notifications
     route == AppDestination.Account.route -> AppDestination.Account
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home
 }
-
-

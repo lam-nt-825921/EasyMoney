@@ -13,6 +13,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.easymoney.R
+import com.example.easymoney.ui.common.loading.SkeletonBlock
+
+@Composable
+fun HomeLoadingContent() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        SkeletonBlock(height = 180.dp, cornerRadius = 16.dp)
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            SkeletonBlock(
+                modifier = Modifier.weight(1f),
+                height = 100.dp,
+                cornerRadius = 16.dp
+            )
+            SkeletonBlock(
+                modifier = Modifier.weight(1f),
+                height = 100.dp,
+                cornerRadius = 16.dp
+            )
+        }
+
+        SkeletonBlock(height = 120.dp, cornerRadius = 16.dp)
+    }
+}
 
 @Composable
 fun MainBanner(onRegistrationClick: () -> Unit) {

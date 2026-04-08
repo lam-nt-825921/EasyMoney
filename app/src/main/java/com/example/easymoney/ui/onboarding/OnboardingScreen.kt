@@ -1,5 +1,6 @@
 package com.example.easymoney.ui.onboarding
 
+import com.example.easymoney.ui.theme.LocalDarkMode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,10 +27,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -39,13 +42,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.easymoney.R
+import com.example.easymoney.ui.common.loading.InlineButtonLoading
+import com.example.easymoney.ui.common.loading.SkeletonBlock
 import com.example.easymoney.ui.theme.EasyMoneyTheme
+import android.view.LayoutInflater
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.model.LoanProviderInfoModel
+import com.example.easymoney.ui.loan.formatCurrency
 
 @Composable
 fun OnboardingScreen(
 	onContinueClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val viewModel: OnboardingViewModel = hiltViewModel()
+	val uiState by viewModel.uiState.collectAsState()
+	val isLoading = uiState.isLoading
 	var isTermsAccepted by remember { mutableStateOf(true) }
 
 	Scaffold(
@@ -54,6 +69,7 @@ fun OnboardingScreen(
 		bottomBar = {
 			OnboardingBottomSection(
 				isTermsAccepted = isTermsAccepted,
+				isLoading = isLoading,
 				onTermsChanged = { isTermsAccepted = it },
 				onContinueClick = onContinueClick
 			)
@@ -67,17 +83,45 @@ fun OnboardingScreen(
 				.padding(horizontal = 16.dp, vertical = 12.dp),
 			verticalArrangement = Arrangement.spacedBy(14.dp)
 		) {
-			HeroSection()
-			WhyChooseSection()
-			ProductInfoSection()
-			ProviderInfoSection()
+			if (isLoading) {
+				OnboardingLoadingContent()
+			} else {
+				HeroSection()
+				WhyChooseSection()
+				ProductInfoSection(productInfo = uiState.productInfo)
+				ProviderInfoSection(providerInfo = uiState.providerInfo)
+			}
 			Spacer(modifier = Modifier.height(8.dp))
 		}
 	}
 }
 
 @Composable
+private fun OnboardingLoadingContent() {
+	Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+		SkeletonBlock(height = 150.dp, cornerRadius = 12.dp)
+		SkeletonBlock(modifier = Modifier.fillMaxWidth(0.55f), height = 22.dp)
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			horizontalArrangement = Arrangement.spacedBy(12.dp)
+		) {
+			SkeletonBlock(modifier = Modifier.weight(1f), height = 108.dp, cornerRadius = 12.dp)
+			SkeletonBlock(modifier = Modifier.weight(1f), height = 108.dp, cornerRadius = 12.dp)
+			SkeletonBlock(modifier = Modifier.weight(1f), height = 108.dp, cornerRadius = 12.dp)
+		}
+		SkeletonBlock(modifier = Modifier.fillMaxWidth(0.5f), height = 22.dp)
+		SkeletonBlock(height = 110.dp, cornerRadius = 12.dp)
+		SkeletonBlock(modifier = Modifier.fillMaxWidth(0.5f), height = 22.dp)
+		SkeletonBlock(height = 160.dp, cornerRadius = 12.dp)
+	}
+}
+
+
+@Composable
 private fun HeroSection() {
+	val isDarkMode = LocalDarkMode.current
+	val illustrationRes = if (isDarkMode) R.drawable.part_dark else R.drawable.part_light
+
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -85,7 +129,7 @@ private fun HeroSection() {
 		contentAlignment = Alignment.Center
 	) {
 		Image(
-			painter = painterResource(id = R.drawable.img),
+			painter = painterResource(id = illustrationRes),
 			contentDescription = stringResource(id = R.string.onboarding_hero_content_desc),
 			modifier = Modifier
 				.fillMaxWidth()
@@ -106,17 +150,17 @@ private fun WhyChooseSection() {
 
 		Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
 			ReasonItem(
-				iconRes = R.drawable.img_1,
+				iconRes = R.drawable.ic_feature_1_hand_money,
 				textRes = R.string.onboarding_reason_fast,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.img_2,
+				iconRes = R.drawable.ic_feature_2_procedure,
 				textRes = R.string.onboarding_reason_simple,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.img_3,
+				iconRes = R.drawable.ic_feature_3_trust,
 				textRes = R.string.onboarding_reason_reliable,
 				modifier = Modifier.weight(1f)
 			)
@@ -157,7 +201,15 @@ private fun ReasonItem(
 }
 
 @Composable
-private fun ProductInfoSection() {
+private fun ProductInfoSection(productInfo: LoanPackageModel?) {
+	val maxAmountText = productInfo?.maxAmount?.let { formatCurrency(it) }
+		?: stringResource(id = R.string.onboarding_product_limit_value)
+	val maxTenor = productInfo?.getTenorList()?.maxOrNull()
+	val tenorText = maxTenor?.let { "toi $it thang" }
+		?: stringResource(id = R.string.onboarding_product_term_value)
+	val interestText = productInfo?.interest?.let { "$it%/nam" }
+		?: stringResource(id = R.string.onboarding_product_interest_value)
+
 	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_product_title),
@@ -183,15 +235,15 @@ private fun ProductInfoSection() {
 				) {
 					InfoLine(
 						label = stringResource(id = R.string.onboarding_product_limit_label),
-						value = stringResource(id = R.string.onboarding_product_limit_value)
+						value = maxAmountText
 					)
 					InfoLine(
 						label = stringResource(id = R.string.onboarding_product_term_label),
-						value = stringResource(id = R.string.onboarding_product_term_value)
+						value = tenorText
 					)
 					InfoLine(
 						label = stringResource(id = R.string.onboarding_product_interest_label),
-						value = stringResource(id = R.string.onboarding_product_interest_value)
+						value = interestText
 					)
 				}
 
@@ -226,7 +278,14 @@ private fun InfoLine(label: String, value: String) {
 }
 
 @Composable
-private fun ProviderInfoSection() {
+private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
+	val organizationName = providerInfo?.organizationName
+		?: stringResource(id = R.string.onboarding_provider_org_value)
+	val hotline = providerInfo?.hotline
+		?: stringResource(id = R.string.onboarding_provider_business_line)
+	val address = providerInfo?.address
+		?: stringResource(id = R.string.onboarding_provider_address_value)
+
 	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_provider_title),
@@ -251,7 +310,7 @@ private fun ProviderInfoSection() {
 					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 				)
 				Text(
-					text = stringResource(id = R.string.onboarding_provider_org_value),
+					text = organizationName,
 					style = MaterialTheme.typography.bodySmall,
 					fontWeight = FontWeight.Bold
 				)
@@ -263,7 +322,7 @@ private fun ProviderInfoSection() {
 				)
 
 				Text(
-					text = stringResource(id = R.string.onboarding_provider_business_line),
+					text = hotline,
 					style = MaterialTheme.typography.bodySmall,
 					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 				)
@@ -274,7 +333,7 @@ private fun ProviderInfoSection() {
 					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 				)
 				Text(
-					text = stringResource(id = R.string.onboarding_provider_address_value),
+					text = address,
 					style = MaterialTheme.typography.bodySmall,
 					fontWeight = FontWeight.Bold
 				)
@@ -286,6 +345,7 @@ private fun ProviderInfoSection() {
 @Composable
 private fun OnboardingBottomSection(
 	isTermsAccepted: Boolean,
+	isLoading: Boolean,
 	onTermsChanged: (Boolean) -> Unit,
 	onContinueClick: () -> Unit
 ) {
@@ -299,7 +359,8 @@ private fun OnboardingBottomSection(
 		Row(verticalAlignment = Alignment.Top) {
 			Checkbox(
 				checked = isTermsAccepted,
-				onCheckedChange = onTermsChanged,
+				onCheckedChange = { if (!isLoading) onTermsChanged(it) },
+				enabled = !isLoading,
 				colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
 			)
 			Text(
@@ -312,7 +373,7 @@ private fun OnboardingBottomSection(
 
 		Button(
 			onClick = onContinueClick,
-			enabled = isTermsAccepted,
+			enabled = isTermsAccepted && !isLoading,
 			modifier = Modifier
 				.fillMaxWidth()
 				.height(52.dp),
@@ -322,11 +383,15 @@ private fun OnboardingBottomSection(
 				disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
 			)
 		) {
-			Text(
-				text = stringResource(id = R.string.onboarding_continue),
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.Medium
-			)
+			if (isLoading) {
+				InlineButtonLoading(label = "Dang tai")
+			} else {
+				Text(
+					text = stringResource(id = R.string.onboarding_continue),
+					style = MaterialTheme.typography.titleMedium,
+					fontWeight = FontWeight.Medium
+				)
+			}
 		}
 	}
 }

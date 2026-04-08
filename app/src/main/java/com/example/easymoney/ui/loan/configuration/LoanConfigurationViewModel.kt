@@ -1,4 +1,4 @@
-package com.example.easymoney.ui.loan
+package com.example.easymoney.ui.loan.configuration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,41 +6,45 @@ import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.repository.LoanRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoanViewModel @Inject constructor(
+class LoanConfigurationViewModel @Inject constructor(
     private val loanRepository: LoanRepository
 ) : ViewModel() {
-
-    sealed interface NavigationEvent {
-        data object ToNextStep : NavigationEvent
-    }
 
     private companion object {
         const val INSURANCE_RATE = 0.01
     }
 
-    private val _uiState = MutableStateFlow(LoanUiState())
-    val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LoanConfigurationUiState())
+    val uiState: StateFlow<LoanConfigurationUiState> = _uiState.asStateFlow()
+    private var hasRequestedPackage = false
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
-    val navigationEvent: SharedFlow<NavigationEvent> = _navigationEvent.asSharedFlow()
+    init {
+        loadLoanPackage()
+    }
 
-    fun loadLoanPackage() {
+    fun loadLoanPackage(force: Boolean = false) {
+        if (hasRequestedPackage && !force) return
+        hasRequestedPackage = true
+
         _uiState.update {
+            val nextLoadState = if (it.selectedPackage == null) {
+                LoanPackageLoadState.InitialLoading
+            } else {
+                LoanPackageLoadState.Loading
+            }
+
             it.copy(
                 isLoading = true,
                 errorMessage = null,
-                packageLoadState = LoanPackageLoadState.Loading
+                packageLoadState = nextLoadState
             )
         }
 
@@ -73,13 +77,6 @@ class LoanViewModel @Inject constructor(
     fun onInsuranceToggled(selected: Boolean) {
         _uiState.update { it.copy(isInsuranceSelected = selected) }
         calculateLoan()
-    }
-
-    fun onNextStep() {
-        _uiState.update { it.copy(currentStep = it.currentStep + 1) }
-        viewModelScope.launch {
-            _navigationEvent.emit(NavigationEvent.ToNextStep)
-        }
     }
 
     private fun applyLoanPackage(loanPackage: LoanPackageModel) {
