@@ -36,6 +36,7 @@
     <string name="home_consult_loan">TƯ VẤN KHOẢN VAY</string>
     <string name="home_nav_home">Trang chủ</string>
     <string name="home_nav_history">Lịch sử giao dịch</string>
+    <string name="home_nav_history_short">Lịch sử</string>
     <string name="home_nav_notify">Thông báo</string>
     <string name="home_nav_account">Tài khoản</string>
 

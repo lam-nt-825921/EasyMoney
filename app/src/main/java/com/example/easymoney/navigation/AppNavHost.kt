@@ -9,12 +9,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.easymoney.ui.account.AccountScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoViewModel
 import com.example.easymoney.ui.guide.PageGuideScreen
+import com.example.easymoney.ui.history.TransactionHistoryScreen
 import com.example.easymoney.ui.home.HomeScreen
 import com.example.easymoney.ui.loan.LoanViewModel
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
+import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 
 @Composable
@@ -99,6 +102,16 @@ fun AppNavHost(
             PageGuideScreen(xmlName = xmlName)
         }
 
-        // Register new scene routes here as the product flow is expanded.
+        composable(AppDestination.TransactionHistory.route) {
+            TransactionHistoryScreen()
+        }
+
+        composable(AppDestination.Notifications.route) {
+            NotificationScreen()
+        }
+
+        composable(AppDestination.Account.route) {
+            AccountScreen()
+        }
     }
 }

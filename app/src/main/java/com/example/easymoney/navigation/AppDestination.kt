@@ -12,7 +12,9 @@ sealed class AppDestination(
     val showHelpButton: Boolean = true,
     val guideXmlName: String? = null,
     val topBarBackgroundColor: Color? = null,
-    val topBarContentColor: Color? = null
+    val topBarContentColor: Color? = null,
+    /** True for the four main bottom-tab destinations. */
+    val isMainTab: Boolean = false
 ) {
     data object Onboarding : AppDestination(
         route = "onboarding",
@@ -40,7 +42,35 @@ sealed class AppDestination(
         title = "",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White
+        topBarBackgroundColor = Color.White,
+        isMainTab = true
+    )
+
+    data object TransactionHistory : AppDestination(
+        route = "history",
+        title = "Lịch sử giao dịch",
+        showBackButton = false,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        isMainTab = true
+    )
+
+    data object Notifications : AppDestination(
+        route = "notifications",
+        title = "Thông báo",
+        showBackButton = false,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        isMainTab = true
+    )
+
+    data object Account : AppDestination(
+        route = "account",
+        title = "Tài khoản",
+        showBackButton = false,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        isMainTab = true
     )
 
     data object PageGuide : AppDestination(
@@ -66,6 +96,9 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Onboarding.route -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
     route == AppDestination.LoanInformation.route -> AppDestination.LoanInformation
+    route == AppDestination.TransactionHistory.route -> AppDestination.TransactionHistory
+    route == AppDestination.Notifications.route -> AppDestination.Notifications
+    route == AppDestination.Account.route -> AppDestination.Account
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home
 }

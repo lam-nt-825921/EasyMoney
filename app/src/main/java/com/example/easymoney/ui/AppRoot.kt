@@ -45,7 +45,7 @@ fun AppRoot() {
             }
         },
         bottomBar = {
-            if (destination == AppDestination.Home) {
+            if (destination.isMainTab) {
                 HomeBottomBar(
                     currentRoute = currentRoute,
                     onNavigateToRoute = { route ->

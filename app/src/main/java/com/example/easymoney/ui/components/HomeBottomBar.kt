@@ -10,7 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import com.example.easymoney.R
+import com.example.easymoney.ui.theme.TealPrimary
+
+private val unselectedColor = Color(0xFF98A2B3)
 
 @Composable
 fun HomeBottomBar(
@@ -21,51 +26,72 @@ fun HomeBottomBar(
     NavigationBar(
         modifier = modifier,
         containerColor = Color.White,
-        contentColor = MaterialTheme.colorScheme.primary
+        contentColor = TealPrimary
     ) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text(stringResource(id = R.string.home_nav_home)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.home_nav_home),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 10.sp
+                )
+            },
             selected = currentRoute == "home",
             onClick = { onNavigateToRoute("home") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFFD32F2F), // Approximate red from image
-                selectedTextColor = Color(0xFFD32F2F),
-                indicatorColor = Color.Transparent
-            )
+            colors = navItemColors()
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.ReceiptLong, contentDescription = null) },
-            label = { Text(stringResource(id = R.string.home_nav_history)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.home_nav_history_short),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 10.sp
+                )
+            },
             selected = currentRoute == "history",
-            onClick = { /* Navigate to history */ },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
+            onClick = { onNavigateToRoute("history") },
+            colors = navItemColors()
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.NotificationsActive, contentDescription = null) },
-            label = { Text(stringResource(id = R.string.home_nav_notify)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.home_nav_notify),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 10.sp
+                )
+            },
             selected = currentRoute == "notifications",
-            onClick = { /* Navigate to notifications */ },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
+            onClick = { onNavigateToRoute("notifications") },
+            colors = navItemColors()
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
-            label = { Text(stringResource(id = R.string.home_nav_account)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.home_nav_account),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 10.sp
+                )
+            },
             selected = currentRoute == "account",
-            onClick = { /* Navigate to account */ },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
+            onClick = { onNavigateToRoute("account") },
+            colors = navItemColors()
         )
     }
 }
+
+@Composable
+private fun navItemColors() = NavigationBarItemDefaults.colors(
+    selectedIconColor = TealPrimary,
+    selectedTextColor = TealPrimary,
+    unselectedIconColor = unselectedColor,
+    unselectedTextColor = unselectedColor,
+    indicatorColor = Color(0xFFE8F4F6) // TealSecondary as subtle indicator
+)
