@@ -17,6 +17,7 @@ import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.ui.components.AppTopBarOverride
 import com.example.easymoney.ui.components.RegisterTopBarOverride
+import com.example.easymoney.ui.components.TopBarMode
 import com.example.easymoney.ui.loan.components.LoanExitDialog
 import com.example.easymoney.ui.loan.components.LoanStepper
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
@@ -42,11 +43,43 @@ fun LoanFlowScreen(
     
     val formUiState by formViewModel.uiState.collectAsState()
 
+    // 1. Quản lý TopBar (Ẩn khi thành công)
+    val isSuccessScreen = subState == LoanSubState.REGISTRATION_SUCCESS
+    
     val topBarTitle = when (currentStep) {
         1 -> "Thông tin khoản vay"
         2 -> if (subState == LoanSubState.CUSTOMER_FORM) "Thông tin cá nhân" else "Xác thực khuôn mặt"
-        3 -> "Xác nhận thông tin"
+        3 -> if (isSuccessScreen) "" else "Xác nhận thông tin"
         else -> "Thông tin khoản vay"
+    }
+
+    RegisterTopBarOverride(
+        ownerRoute = AppDestination.LoanFlow.route,
+        override = AppTopBarOverride(
+            topBarMode = if (isSuccessScreen) TopBarMode.HIDDEN else TopBarMode.STANDARD,
+            title = topBarTitle,
+            showBackButton = !isSuccessScreen,
+            showHelpButton = false,
+            onBackClick = {
+                if (currentStep == 1) {
+                    onCancel()
+                } else {
+                    viewModel.toggleExitDialog(true)
+                }
+            }
+        )
+    )
+
+    // 2. Chặn nút Back vật lý khi ở màn hình thành công
+    BackHandler(enabled = true) {
+        if (!isSuccessScreen) {
+            if (currentStep == 1) {
+                onCancel()
+            } else {
+                viewModel.toggleExitDialog(true)
+            }
+        }
+        // Nếu isSuccessScreen = true, nút Back vật lý sẽ bị "nuốt" - không làm gì cả
     }
 
     LaunchedEffect(subState) {
@@ -55,41 +88,19 @@ fun LoanFlowScreen(
         }
     }
 
-    // Logic xử lý khi nhấn Back
-    val handleBack = {
-        if (currentStep == 1) {
-            onCancel() // Ở step 1 thì thoát thẳng
-        } else {
-            viewModel.toggleExitDialog(true)
-        }
-    }
-
-    RegisterTopBarOverride(
-        ownerRoute = AppDestination.LoanFlow.route,
-        override = AppTopBarOverride(
-            title = topBarTitle,
-            showBackButton = true,
-            showHelpButton = false,
-            onBackClick = handleBack
-        )
-    )
-
-    BackHandler(enabled = true) {
-        handleBack()
-    }
-
     if (uiState.showExitDialog) {
         LoanExitDialog(
             onDismiss = { viewModel.toggleExitDialog(false) },
             onConfirm = { 
                 viewModel.toggleExitDialog(false)
-                onCancel() // Hủy đăng ký -> Về Onboarding
+                onCancel()
             }
         )
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        if (subState != LoanSubState.EKYC_CAPTURE) {
+        // Ẩn Stepper khi ekyc capture HOẶC khi đã gửi thành công
+        if (subState != LoanSubState.EKYC_CAPTURE && !isSuccessScreen) {
             LoanStepper(
                 currentStep = currentStep,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -134,13 +145,24 @@ fun LoanFlowScreen(
             }
 
             3 -> {
-                ConfirmLoanInformationScreen(
-                    formData = formUiState,
-                    onConfirmed = { 
-                        onComplete() // Xác nhận thành công
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
+                when (subState) {
+                    LoanSubState.CONFIRM_FORM -> {
+                        ConfirmLoanInformationScreen(
+                            formData = formUiState,
+                            onConfirmed = {
+                                viewModel.onNextStep() // Chuyển sang thành công
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    LoanSubState.REGISTRATION_SUCCESS -> {
+                        LoanRegistrationSuccessScreen(
+                            onBackToHome = onComplete, // Thoát khỏi luồng, reset data
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    else -> {}
+                }
             }
         }
     }

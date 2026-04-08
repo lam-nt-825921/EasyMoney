@@ -85,6 +85,8 @@ import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+import com.example.easymoney.ui.common.error.AppErrorScreen
+
 @Composable
 fun EkycFaceCaptureScreen(
     onBackToIntro: () -> Unit,
@@ -148,10 +150,14 @@ fun EkycFaceCaptureScreen(
         when (uiState.permissionState) {
             PermissionState.Granted -> {
                 if (uiState.uploadState == UploadState.Error) {
-                    EkycErrorScreen(
-                        errorMessage = uiState.errorMessage ?: "Lỗi xác thực khuôn mặt",
-                        onRetake = { viewModel.onEvent(EkycUiEvent.OnRetakeClick) },
-                        onBackToIntro = onBackToIntro
+                    AppErrorScreen(
+                        title = "Xác thực không thành công",
+                        message = uiState.errorMessage ?: "Lỗi xác thực khuôn mặt. Vui lòng thử lại.",
+                        buttonText = "Chụp lại ngay",
+                        onButtonClick = { viewModel.onEvent(EkycUiEvent.OnRetakeClick) },
+                        secondaryButtonText = "Quay lại hướng dẫn",
+                        onSecondaryButtonClick = onBackToIntro,
+                        modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     CameraReadyContent(viewModel = viewModel)

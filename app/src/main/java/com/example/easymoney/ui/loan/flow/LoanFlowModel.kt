@@ -8,7 +8,8 @@ enum class LoanSubState {
     EKYC_INTRO,         // Step 2: Hướng dẫn eKYC
     EKYC_CAPTURE,       // Step 2: Chụp ảnh eKYC
     CUSTOMER_FORM,      // Step 2: Điền form thông tin
-    ESIGN_PENDING       // Step 3: Ký hợp đồng
+    CONFIRM_FORM,      // Step 3: Ký hợp đồng
+    REGISTRATION_SUCCESS // Màn hình thông báo gửi thành công
 }
 
 /**

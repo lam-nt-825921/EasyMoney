@@ -33,13 +33,14 @@ fun LoanStepper(
     modifier: Modifier = Modifier
 ) {
     val activeColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = Color(0xFFD0D5DD)
+    val inactiveColor = MaterialTheme.colorScheme.surfaceVariant
     val itemWidth = 100.dp
 
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.TopCenter
     ) {
+// ... existing dividers and steps ...
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,7 +99,7 @@ private fun StepItem(
             text = label,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
-            color = if (isActive) activeColor else Color(0xFF667085),
+            color = if (isActive) activeColor else MaterialTheme.colorScheme.onSurfaceVariant,
             lineHeight = 14.sp
         )
     }

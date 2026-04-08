@@ -10,22 +10,27 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = TealPrimary,
-    secondary = TealSecondary,
-    tertiary = OrangeWarning,
-    background = TextPrimary,
-    surface = TextPrimary,
+    primary = TealPrimaryDark,
+    secondary = TealSecondaryDark,
+    tertiary = OrangeWarningDark,
+    background = DeepNavyBackground,
+    surface = DeepNavySurface,
+    surfaceVariant = DeepNavySurfaceVariant,
     onPrimary = White,
-    onSecondary = TextPrimary,
-    onTertiary = TextPrimary,
-    onBackground = White,
-    onSurface = White
+    onSecondary = TextPrimaryDark,
+    onTertiary = DeepNavyBackground,
+    onBackground = TextPrimaryDark,
+    onSurface = TextPrimaryDark,
+    onSurfaceVariant = TextSecondaryDark,
+    outline = BorderColorDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,18 +39,22 @@ private val LightColorScheme = lightColorScheme(
     tertiary = OrangeWarning,
     background = BackgroundLight,
     surface = White,
+    surfaceVariant = BorderColor,
     onPrimary = White,
     onSecondary = TealPrimary,
     onTertiary = White,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
+    onSurfaceVariant = TextSecondary,
     outline = BorderColor
 )
+
+// LOCAL THEME STATE
+val LocalDarkMode = staticCompositionLocalOf { false }
 
 @Composable
 fun EasyMoneyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is disabled to maintain brand identity from image
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -67,9 +76,11 @@ fun EasyMoneyTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalDarkMode provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
