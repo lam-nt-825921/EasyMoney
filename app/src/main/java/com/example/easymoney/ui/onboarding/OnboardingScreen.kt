@@ -1,5 +1,6 @@
 package com.example.easymoney.ui.onboarding
 
+import com.example.easymoney.ui.theme.LocalDarkMode
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -115,8 +116,12 @@ private fun OnboardingLoadingContent() {
 	}
 }
 
+
 @Composable
 private fun HeroSection() {
+	val isDarkMode = LocalDarkMode.current
+	val illustrationRes = if (isDarkMode) R.drawable.part_dark else R.drawable.part_light
+
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -124,7 +129,7 @@ private fun HeroSection() {
 		contentAlignment = Alignment.Center
 	) {
 		Image(
-			painter = painterResource(id = R.drawable.img),
+			painter = painterResource(id = illustrationRes),
 			contentDescription = stringResource(id = R.string.onboarding_hero_content_desc),
 			modifier = Modifier
 				.fillMaxWidth()
