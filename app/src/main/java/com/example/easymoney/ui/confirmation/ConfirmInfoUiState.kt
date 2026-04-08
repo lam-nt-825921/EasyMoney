@@ -16,5 +16,3 @@ sealed class ConfirmInfoLoadState {
     data object Success : ConfirmInfoLoadState()
     data class Error(val message: String) : ConfirmInfoLoadState()
 }
-
-

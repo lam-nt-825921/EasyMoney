@@ -50,7 +50,7 @@ fun AppRoot(
                         null
                     }
                     val resolvedTopBarMode = topBarOverride?.topBarMode ?: destination.defaultTopBarMode
-                    
+
                     // Only render top bar if not HIDDEN
                     if (resolvedTopBarMode != TopBarMode.HIDDEN) {
                         val resolvedTitle = topBarOverride?.title ?: destination.title
@@ -77,7 +77,7 @@ fun AppRoot(
                 }
             },
             bottomBar = {
-                if (destination == AppDestination.Home) {
+                if (destination.isMainTab) {
                     HomeBottomBar(
                         currentRoute = currentRoute,
                         onNavigateToRoute = { route ->

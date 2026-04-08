@@ -6,13 +6,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -141,32 +141,27 @@ private fun HeroSection() {
 
 @Composable
 private fun WhyChooseSection() {
-	Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_reason_title),
 			style = MaterialTheme.typography.titleMedium,
 			fontWeight = FontWeight.Bold
 		)
 
-		Row(
-			modifier = Modifier
-				.fillMaxWidth()
-				.height(IntrinsicSize.Max),
-			horizontalArrangement = Arrangement.spacedBy(12.dp)
-		) {
+		Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_1_hand_money,
-				textRes = R.string.feature_1_title,
+				textRes = R.string.onboarding_reason_fast,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_2_procedure,
-				textRes = R.string.feature_2_title,
+				textRes = R.string.onboarding_reason_simple,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_3_trust,
-				textRes = R.string.feature_3_title,
+				textRes = R.string.onboarding_reason_reliable,
 				modifier = Modifier.weight(1f)
 			)
 		}
@@ -179,28 +174,32 @@ private fun ReasonItem(
 	textRes: Int,
 	modifier: Modifier = Modifier
 ) {
-	AndroidView(
+	Card(
 		modifier = modifier,
-		factory = { context ->
-			val view = LayoutInflater.from(context).inflate(R.layout.item_feature_card, null, false)
-
-			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
-			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-
-			ivIcon.setImageResource(iconRes)
-			tvTitle.setText(textRes)
-
-			view
-		},
-		update = { view ->
-			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
-			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-
-			ivIcon.setImageResource(iconRes)
-			tvTitle.setText(textRes)
+		colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
+		shape = RoundedCornerShape(10.dp)
+	) {
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 8.dp, vertical = 10.dp),
+			horizontalAlignment = Alignment.Start,
+			verticalArrangement = Arrangement.spacedBy(8.dp)
+		) {
+			Image(
+				painter = painterResource(id = iconRes),
+				contentDescription = null,
+				modifier = Modifier.size(30.dp)
+			)
+			Text(
+				text = stringResource(id = textRes),
+				style = MaterialTheme.typography.bodySmall,
+				color = MaterialTheme.colorScheme.onSurface
+			)
 		}
-	)
+	}
 }
+
 @Composable
 private fun ProductInfoSection(productInfo: LoanPackageModel?) {
 	val maxAmountText = productInfo?.maxAmount?.let { formatCurrency(it) }
