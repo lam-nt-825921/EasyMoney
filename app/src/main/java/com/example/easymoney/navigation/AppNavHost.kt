@@ -65,11 +65,13 @@ fun AppNavHost(
 
         composable(AppDestination.LoanFlow.route) {
             LoanFlowScreen(
+                onBack = {
+                    // Quay lại một bước tiêu chuẩn (ví dụ về ConfirmInformation)
+                    navController.popBackStack()
+                },
                 onCancel = {
-                    // Điều hướng về Onboarding và xóa sạch stack để reset ViewModel
-                    navController.navigate(AppDestination.Onboarding.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                    // Quay về Onboarding khi huỷ đăng ký
+                    navController.popBackStack(AppDestination.Onboarding.route, inclusive = false)
                 },
                 onComplete = {
                     // Xử lý khi hoàn thành (ví dụ: về Home)

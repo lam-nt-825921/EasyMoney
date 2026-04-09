@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
@@ -30,6 +31,7 @@ import com.example.easymoney.ui.loan.information.form.LoanInformationFormViewMod
 
 @Composable
 fun LoanFlowScreen(
+    onBack: () -> Unit,
     onCancel: () -> Unit,
     onComplete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -43,10 +45,10 @@ fun LoanFlowScreen(
     val isSuccessScreen = subState == LoanSubState.REGISTRATION_SUCCESS
     
     val topBarTitle = when (currentStep) {
-        1 -> "Thông tin khoản vay"
-        2 -> if (subState == LoanSubState.CUSTOMER_FORM) "Thông tin cá nhân" else "Xác thực khuôn mặt"
-        3 -> if (isSuccessScreen) "" else "Xác nhận thông tin"
-        else -> "Thông tin khoản vay"
+        1 -> stringResource(id = R.string.loan_flow_step_1)
+        2 -> if (subState == LoanSubState.CUSTOMER_FORM) stringResource(id = R.string.loan_flow_step_2_personal) else stringResource(id = R.string.loan_flow_step_2_ekyc)
+        3 -> if (isSuccessScreen) "" else stringResource(id = R.string.loan_flow_step_3)
+        else -> stringResource(id = R.string.loan_flow_step_1)
     }
 
     RegisterTopBarOverride(
@@ -58,7 +60,7 @@ fun LoanFlowScreen(
             showHelpButton = false,
             onBackClick = {
                 if (currentStep == 1) {
-                    onCancel()
+                    onBack() // Quay lại màn hình trước đó (Xác nhận thông tin)
                 } else {
                     viewModel.toggleExitDialog(true)
                 }
@@ -70,12 +72,11 @@ fun LoanFlowScreen(
     BackHandler(enabled = true) {
         if (!isSuccessScreen) {
             if (currentStep == 1) {
-                onCancel()
+                onBack() // Quay lại màn hình trước đó
             } else {
                 viewModel.toggleExitDialog(true)
             }
         }
-        // Nếu isSuccessScreen = true, nút Back vật lý sẽ bị "nuốt" - không làm gì cả
     }
 
     if (uiState.showExitDialog) {
@@ -83,7 +84,7 @@ fun LoanFlowScreen(
             onDismiss = { viewModel.toggleExitDialog(false) },
             onConfirm = { 
                 viewModel.toggleExitDialog(false)
-                onCancel()
+                onCancel() // Quay về Onboarding
             }
         )
     }

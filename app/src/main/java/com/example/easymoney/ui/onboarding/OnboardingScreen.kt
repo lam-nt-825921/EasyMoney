@@ -48,12 +48,15 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.model.LoanProviderInfoModel
 import com.example.easymoney.ui.loan.formatCurrency
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun OnboardingScreen(
@@ -143,26 +146,31 @@ private fun HeroSection() {
 
 @Composable
 private fun WhyChooseSection() {
-	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+	Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_reason_title),
 			style = MaterialTheme.typography.titleMedium,
 			fontWeight = FontWeight.Bold
 		)
 
-		Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.height(IntrinsicSize.Max),
+			horizontalArrangement = Arrangement.spacedBy(12.dp)
+		) {
 			ReasonItem(
-				iconRes = R.drawable.ic_onboarding_fast,
+				iconRes = R.drawable.ic_feature_1_hand_money,
 				textRes = R.string.onboarding_reason_fast,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.ic_onboarding_simple,
+				iconRes = R.drawable.ic_feature_2_procedure,
 				textRes = R.string.onboarding_reason_simple,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.ic_onboarding_reliable,
+				iconRes = R.drawable.ic_feature_3_trust,
 				textRes = R.string.onboarding_reason_reliable,
 				modifier = Modifier.weight(1f)
 			)
@@ -176,38 +184,27 @@ private fun ReasonItem(
 	textRes: Int,
 	modifier: Modifier = Modifier
 ) {
-	Card(
+	AndroidView(
 		modifier = modifier,
-		colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
-		shape = RoundedCornerShape(10.dp)
-	) {
-		Column(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(horizontal = 8.dp, vertical = 10.dp),
-			horizontalAlignment = Alignment.Start,
-			verticalArrangement = Arrangement.spacedBy(8.dp)
-		) {
-			// Wrap icon in a circular background to replace the functionality of layer-list
-			Box(
-				modifier = Modifier
-					.size(32.dp)
-					.background(Color(0xFF18788C), CircleShape),
-				contentAlignment = Alignment.Center
-			) {
-				Image(
-					painter = painterResource(id = iconRes),
-					contentDescription = null,
-					modifier = Modifier.size(18.dp)
-				)
-			}
-			Text(
-				text = stringResource(id = textRes),
-				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onSurface
-			)
+		factory = { context ->
+			val view = LayoutInflater.from(context).inflate(R.layout.item_feature_card, null, false)
+
+			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
+			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
+
+			ivIcon.setImageResource(iconRes)
+			tvTitle.setText(textRes)
+
+			view
+		},
+		update = { view ->
+			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
+			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
+
+			ivIcon.setImageResource(iconRes)
+			tvTitle.setText(textRes)
 		}
-	}
+	)
 }
 
 @Composable
@@ -215,9 +212,9 @@ private fun ProductInfoSection(productInfo: LoanPackageModel?) {
 	val maxAmountText = productInfo?.maxAmount?.let { formatCurrency(it) }
 		?: stringResource(id = R.string.onboarding_product_limit_value)
 	val maxTenor = productInfo?.getTenorList()?.maxOrNull()
-	val tenorText = maxTenor?.let { "toi $it thang" }
+	val tenorText = maxTenor?.let { "tới $it tháng" }
 		?: stringResource(id = R.string.onboarding_product_term_value)
-	val interestText = productInfo?.interest?.let { "$it%/nam" }
+	val interestText = productInfo?.interest?.let { "$it%/năm" }
 		?: stringResource(id = R.string.onboarding_product_interest_value)
 
 	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -394,7 +391,7 @@ private fun OnboardingBottomSection(
 			)
 		) {
 			if (isLoading) {
-				InlineButtonLoading(label = "Dang tai")
+				InlineButtonLoading(label = "Đang tải...")
 			} else {
 				Text(
 					text = stringResource(id = R.string.onboarding_continue),
@@ -406,21 +403,7 @@ private fun OnboardingBottomSection(
 	}
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Onboarding Light")
-@Composable
-private fun OnboardingScreenPreview() {
-	EasyMoneyTheme(darkTheme = false) {
-		OnboardingScreen(onContinueClick = {})
-	}
-}
 
-@Preview(showBackground = true, showSystemUi = true, name = "Onboarding Dark")
-@Composable
-private fun OnboardingScreenDarkPreview() {
-	EasyMoneyTheme(darkTheme = true) {
-		OnboardingScreen(onContinueClick = {})
-	}
-}
 
 
 

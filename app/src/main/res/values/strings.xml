@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">EasyMoney</string>
     <string name="onboarding_title">Vay tổ chức tài chính</string>
-    <string name="onboarding_hero_content_desc">Onboarding hero image</string>
+    <string name="onboarding_hero_content_desc">Hình ảnh giới thiệu dịch vụ</string>
     <string name="onboarding_reason_title">Lý do chọn EASY MONEY</string>
     <string name="onboarding_reason_fast">Giải ngân&#10; nhanh chóng</string>
     <string name="onboarding_reason_simple">Thủ tục&#10;dễ dàng</string>
@@ -25,8 +25,11 @@
 
     <string name="onboarding_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EASY MONEY</string>
     <string name="onboarding_continue">Trải nghiệm ngay</string>
+    
+    <string name="confirm_info_section_title">Thông tin cá nhân</string>
     <string name="confirm_continue">Tiếp tục</string>
     <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
+    <string name="confirm_loading">Đang tải thông tin...</string>
 
     <string name="home_welcome">Xin chào, %1$s!</string>
     <string name="home_main_banner_title">VAY TỔ CHỨC TÍN DỤNG</string>
@@ -40,7 +43,12 @@
     <string name="home_nav_notify">Thông báo</string>
     <string name="home_nav_account">Tài khoản</string>
 
-    <string name="feature_1_title">Giải ngân\nnhanh chóng</string>
-    <string name="feature_2_title">Thủ tục\ndễ dàng</string>
-    <string name="feature_3_title">Dịch vụ\ntin cậy</string>
+    <string name="loan_flow_step_1">Thông tin khoản vay</string>
+    <string name="loan_flow_step_2_personal">Thông tin cá nhân</string>
+    <string name="loan_flow_step_2_ekyc">Xác thực khuôn mặt</string>
+    <string name="loan_flow_step_3">Xác nhận thông tin</string>
+
+    <string name="ekyc_camera_title">Chụp ảnh chân dung</string>
+    <string name="ekyc_processing">Đang xử lý khuôn mặt...</string>
+    <string name="ekyc_ready">Khung hình đạt điều kiện, có thể chụp</string>
 </resources>

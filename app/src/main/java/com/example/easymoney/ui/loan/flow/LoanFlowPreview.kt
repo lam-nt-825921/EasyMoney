@@ -16,7 +16,8 @@ fun LoanFlowPreview() {
         LoanFlowScreen(
             viewModel = viewModel,
             onComplete = {},
-            onCancel = {}
+            onCancel = {},
+            onBack = {}
         )
     }
 }
