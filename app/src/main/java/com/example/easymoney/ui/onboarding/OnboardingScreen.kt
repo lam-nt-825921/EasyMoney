@@ -48,6 +48,8 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.model.LoanProviderInfoModel
@@ -150,17 +152,17 @@ private fun WhyChooseSection() {
 
 		Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
 			ReasonItem(
-				iconRes = R.drawable.ic_feature_1_hand_money,
+				iconRes = R.drawable.ic_onboarding_fast,
 				textRes = R.string.onboarding_reason_fast,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.ic_feature_2_procedure,
+				iconRes = R.drawable.ic_onboarding_simple,
 				textRes = R.string.onboarding_reason_simple,
 				modifier = Modifier.weight(1f)
 			)
 			ReasonItem(
-				iconRes = R.drawable.ic_feature_3_trust,
+				iconRes = R.drawable.ic_onboarding_reliable,
 				textRes = R.string.onboarding_reason_reliable,
 				modifier = Modifier.weight(1f)
 			)
@@ -186,11 +188,19 @@ private fun ReasonItem(
 			horizontalAlignment = Alignment.Start,
 			verticalArrangement = Arrangement.spacedBy(8.dp)
 		) {
-			Image(
-				painter = painterResource(id = iconRes),
-				contentDescription = null,
-				modifier = Modifier.size(30.dp)
-			)
+			// Wrap icon in a circular background to replace the functionality of layer-list
+			Box(
+				modifier = Modifier
+					.size(32.dp)
+					.background(Color(0xFF18788C), CircleShape),
+				contentAlignment = Alignment.Center
+			) {
+				Image(
+					painter = painterResource(id = iconRes),
+					contentDescription = null,
+					modifier = Modifier.size(18.dp)
+				)
+			}
 			Text(
 				text = stringResource(id = textRes),
 				style = MaterialTheme.typography.bodySmall,

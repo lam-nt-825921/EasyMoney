@@ -33,16 +33,12 @@ fun LoanFlowScreen(
     onCancel: () -> Unit,
     onComplete: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LoanFlowViewModel = hiltViewModel(),
-    ekycViewModel: EkycCameraViewModel = hiltViewModel(),
-    formViewModel: LoanInformationFormViewModel = hiltViewModel() 
+    viewModel: LoanFlowViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentStep = uiState.currentStep
     val subState = uiState.subState
     
-    val formUiState by formViewModel.uiState.collectAsState()
-
     // 1. Quản lý TopBar (Ẩn khi thành công)
     val isSuccessScreen = subState == LoanSubState.REGISTRATION_SUCCESS
     
@@ -82,12 +78,6 @@ fun LoanFlowScreen(
         // Nếu isSuccessScreen = true, nút Back vật lý sẽ bị "nuốt" - không làm gì cả
     }
 
-    LaunchedEffect(subState) {
-        if (subState == LoanSubState.CONFIG || subState == LoanSubState.EKYC_INTRO) {
-            ekycViewModel.resetState()
-        }
-    }
-
     if (uiState.showExitDialog) {
         LoanExitDialog(
             onDismiss = { viewModel.toggleExitDialog(false) },
@@ -125,6 +115,7 @@ fun LoanFlowScreen(
                         )
                     }
                     LoanSubState.EKYC_CAPTURE -> {
+                        val ekycViewModel: EkycCameraViewModel = hiltViewModel()
                         EkycFaceCaptureScreen(
                             viewModel = ekycViewModel,
                             onBackToIntro = { viewModel.updateSubState(LoanSubState.EKYC_INTRO) },
@@ -134,6 +125,7 @@ fun LoanFlowScreen(
                         )
                     }
                     LoanSubState.CUSTOMER_FORM -> {
+                        val formViewModel: LoanInformationFormViewModel = hiltViewModel()
                         LoanInformationFormScreen(
                             viewModel = formViewModel,
                             onNextStep = { viewModel.onNextStep() },
@@ -147,6 +139,8 @@ fun LoanFlowScreen(
             3 -> {
                 when (subState) {
                     LoanSubState.CONFIRM_FORM -> {
+                        val formViewModel: LoanInformationFormViewModel = hiltViewModel()
+                        val formUiState by formViewModel.uiState.collectAsState()
                         ConfirmLoanInformationScreen(
                             formData = formUiState,
                             onConfirmed = {

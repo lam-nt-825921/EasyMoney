@@ -591,16 +591,22 @@ private fun performPrecheckAnalysis(
         return
     }
 
+    // Capture necessary data BEFORE starting the async process
+    val imageWidth = mediaImage.width
+    val imageHeight = mediaImage.height
+    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+    val averageLuma = calculateAverageLuma(imageProxy)
+
     try {
-        val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+        val inputImage = InputImage.fromMediaImage(mediaImage, rotationDegrees)
         
         detector.process(inputImage)
             .addOnSuccessListener { faces ->
                 val (isReady, message, result) = evaluateFaceDetectionResult(
                     faces = faces,
-                    imageWidth = mediaImage.width,
-                    imageHeight = mediaImage.height,
-                    imageProxy = imageProxy
+                    imageWidth = imageWidth,
+                    imageHeight = imageHeight,
+                    averageLuma = averageLuma
                 )
                 onFrameQualityChanged(isReady, message, result)
             }
@@ -623,7 +629,7 @@ private fun evaluateFaceDetectionResult(
     faces: List<com.google.mlkit.vision.face.Face>,
     imageWidth: Int,
     imageHeight: Int,
-    imageProxy: androidx.camera.core.ImageProxy
+    averageLuma: Float
 ): Triple<Boolean, String, FaceDetectionResult> {
     if (faces.isEmpty()) {
         return Triple(false, "không phát hiện khuôn mặt", FaceDetectionResult(false, faceCount = 0, reason = FaceDetectionReason.NO_FACE))
@@ -660,7 +666,6 @@ private fun evaluateFaceDetectionResult(
         return Triple(false, "Quay thẳng phía trước", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_TILTED))
     }
 
-    val averageLuma = calculateAverageLuma(imageProxy)
     if (averageLuma < 45f) {
         return Triple(false, "Căn chỉnh ánh sáng (quá tối)", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.LOW_LIGHT))
     }
