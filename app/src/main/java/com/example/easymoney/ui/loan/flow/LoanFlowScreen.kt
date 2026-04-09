@@ -22,6 +22,7 @@ import com.example.easymoney.ui.components.TopBarMode
 import com.example.easymoney.ui.loan.components.LoanExitDialog
 import com.example.easymoney.ui.loan.components.LoanStepper
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
+import com.example.easymoney.ui.loan.configuration.LoanConfigurationViewModel
 import com.example.easymoney.ui.loan.information.confirm.ConfirmLoanInformationScreen
 import com.example.easymoney.ui.loan.information.ekyc.EkycCameraViewModel
 import com.example.easymoney.ui.loan.information.ekyc.EkycFaceCaptureScreen
@@ -100,11 +101,20 @@ fun LoanFlowScreen(
         }
 
         when (currentStep) {
-            1 -> LoanConfigurationScreen(
-                onNextStep = viewModel::onNextStep,
-                onBackClick = onCancel,
-                modifier = Modifier.fillMaxSize()
-            )
+            1 -> {
+                val configViewModel: LoanConfigurationViewModel = hiltViewModel()
+                LoanConfigurationScreen(
+                    viewModel = configViewModel,
+                    onNextStep = {
+                        // Hoist Step 1 data to Parent
+                        val state = configViewModel.uiState.value
+                        viewModel.updateLoanConfig(state.loanAmount, state.selectedTenorMonth, state.isInsuranceSelected)
+                        viewModel.onNextStep()
+                    },
+                    onBackClick = onBack,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             2 -> {
                 when (subState) {
@@ -129,7 +139,15 @@ fun LoanFlowScreen(
                         val formViewModel: LoanInformationFormViewModel = hiltViewModel()
                         LoanInformationFormScreen(
                             viewModel = formViewModel,
-                            onNextStep = { viewModel.onNextStep() },
+                            onNextStep = {
+                                // Hoist Step 2 data to Parent
+                                val currentDraft = viewModel.uiState.value.draftApplication
+                                if (currentDraft != null) {
+                                    val updatedDraft = mapFormToRequest(currentDraft, formViewModel.uiState.value)
+                                    viewModel.updateApplicationDraft(updatedDraft)
+                                }
+                                viewModel.onNextStep()
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -140,12 +158,11 @@ fun LoanFlowScreen(
             3 -> {
                 when (subState) {
                     LoanSubState.CONFIRM_FORM -> {
-                        val formViewModel: LoanInformationFormViewModel = hiltViewModel()
-                        val formUiState by formViewModel.uiState.collectAsState()
+                        // Pass aggregated data from Parent ViewModel to Step 3
                         ConfirmLoanInformationScreen(
-                            formData = formUiState,
+                            loanData = uiState.draftApplication,
                             onConfirmed = {
-                                viewModel.onNextStep() // Chuyển sang thành công
+                                viewModel.onNextStep()
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -161,4 +178,34 @@ fun LoanFlowScreen(
             }
         }
     }
+}
+
+/**
+ * Helper to map Form UI State to LoanApplicationRequest object
+ */
+private fun mapFormToRequest(
+    base: com.example.easymoney.domain.model.LoanApplicationRequest,
+    form: com.example.easymoney.ui.loan.information.form.LoanInformationFormUiState
+): com.example.easymoney.domain.model.LoanApplicationRequest {
+    return base.copy(
+        permanentProvince = form.permanentProvince?.name ?: "",
+        permanentDistrict = form.permanentDistrict?.name ?: "",
+        permanentWard = form.permanentWard?.name ?: "",
+        permanentDetail = form.permanentDetail,
+        
+        currentProvince = if (form.isCurrentSameAsPermanent) form.permanentProvince?.name ?: "" else form.currentProvince?.name ?: "",
+        currentDistrict = if (form.isCurrentSameAsPermanent) form.permanentDistrict?.name ?: "" else form.currentDistrict?.name ?: "",
+        currentWard = if (form.isCurrentSameAsPermanent) form.permanentWard?.name ?: "" else form.currentWard?.name ?: "",
+        currentDetail = if (form.isCurrentSameAsPermanent) form.permanentDetail else form.currentDetail,
+        
+        monthlyIncome = form.monthlyIncome.toLongOrNull() ?: 0L,
+        profession = form.profession?.name ?: "",
+        position = form.position?.name ?: "",
+        education = form.education?.name ?: "",
+        maritalStatus = form.maritalStatus?.name ?: "",
+        
+        contactName = form.contactName,
+        contactRelationship = form.contactRelationship?.name ?: "",
+        contactPhone = form.contactPhone
+    )
 }

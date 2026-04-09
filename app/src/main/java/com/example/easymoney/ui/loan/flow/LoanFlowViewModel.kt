@@ -1,6 +1,7 @@
 package com.example.easymoney.ui.loan.flow
 
 import androidx.lifecycle.ViewModel
+import com.example.easymoney.domain.model.LoanApplicationRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +14,38 @@ class LoanFlowViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanFlowModel())
     val uiState: StateFlow<LoanFlowModel> = _uiState.asStateFlow()
+
+    /**
+     * Cập nhật cấu hình khoản vay từ Step 1
+     */
+    fun updateLoanConfig(amount: Long, tenor: Int, hasInsurance: Boolean) {
+        _uiState.update { currentState ->
+            val draft = currentState.draftApplication ?: createEmptyApplication()
+            currentState.copy(
+                draftApplication = draft.copy(
+                    loanAmount = amount,
+                    tenorMonth = tenor,
+                    hasInsurance = hasInsurance
+                ),
+                loanId = currentState.loanId ?: "LOAN-${System.currentTimeMillis().toString().takeLast(6)}"
+            )
+        }
+    }
+
+    /**
+     * Cập nhật toàn bộ thông tin đơn đăng ký (thường gọi sau Step 2)
+     */
+    fun updateApplicationDraft(updatedDraft: LoanApplicationRequest) {
+        _uiState.update { it.copy(draftApplication = updatedDraft) }
+    }
+
+    private fun createEmptyApplication() = LoanApplicationRequest(
+        loanAmount = 0, tenorMonth = 0, hasInsurance = false,
+        permanentProvince = "", permanentDistrict = "", permanentWard = "", permanentDetail = "",
+        currentProvince = "", currentDistrict = "", currentWard = "", currentDetail = "",
+        monthlyIncome = 0, profession = "", position = "", education = "", maritalStatus = "",
+        contactName = "", contactRelationship = "", contactPhone = ""
+    )
 
     /**
      * Chuyển sang giai đoạn tiếp theo trong luồng

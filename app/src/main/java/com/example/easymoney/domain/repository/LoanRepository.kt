@@ -43,4 +43,19 @@ interface LoanRepository {
         imageFile: File,
         metadataJson: String
     ): Resource<EkycCaptureResponse>
+
+    /**
+     * Lấy nội dung hợp đồng vay vốn theo ID khoản vay
+     */
+    suspend fun getContractContent(loanId: String): Resource<String>
+
+    /**
+     * Gửi mã OTP tới SĐT của người dùng (Backend tự xác định SĐT)
+     */
+    suspend fun sendOtp(purpose: String): Resource<Unit>
+
+    /**
+     * Xác thực mã OTP
+     */
+    suspend fun verifyOtp(otp: String): Resource<Unit>
 }

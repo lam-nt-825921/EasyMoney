@@ -97,6 +97,22 @@ sealed class AppDestination(
             return if (normalized.isEmpty()) BASE_ROUTE else "$BASE_ROUTE?$XML_ARG=$normalized"
         }
     }
+
+    data object Sandbox : AppDestination(
+        route = "sandbox",
+        title = "Sandbox Developer",
+        showBackButton = true,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White
+    )
+
+    data object Contract : AppDestination(
+        route = "contract",
+        title = "Hợp đồng của bạn",
+        showBackButton = true,
+        showHelpButton = true,
+        topBarBackgroundColor = Color.White
+    )
 }
 
 fun appDestinationFromRoute(route: String?): AppDestination = when {
@@ -107,6 +123,8 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.TransactionHistory.route -> AppDestination.TransactionHistory
     route == AppDestination.Notifications.route -> AppDestination.Notifications
     route == AppDestination.Account.route -> AppDestination.Account
+    route == AppDestination.Sandbox.route -> AppDestination.Sandbox
+    route == AppDestination.Contract.route -> AppDestination.Contract
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home
 }

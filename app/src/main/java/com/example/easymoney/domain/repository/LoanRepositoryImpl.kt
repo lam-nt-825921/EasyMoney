@@ -265,6 +265,52 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
             Resource.Error(e.message ?: "Capture failed")
         }
     }
+
+    override suspend fun getContractContent(loanId: String): Resource<String> {
+        delay(800)
+        val content = """
+            CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+            Độc lập - Tự do - Hạnh phúc
+            
+            HỢP ĐỒNG CHO VAY TIÊU DÙNG
+            Số: $loanId/HĐ-EM
+            
+            Bên cho vay: Tổ chức tài chính Easy Money
+            Bên vay: Nguyen Duc Minh
+            
+            Nội dung chi tiết cho khoản vay có mã số: $loanId.
+            
+            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. 
+            
+            Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+            
+            ĐIỀU 1: ĐỐI TƯỢNG HỢP ĐỒNG
+            Bên cho vay đồng ý cung cấp cho Bên vay một khoản tín dụng với mục đích tiêu dùng cá nhân cho mã hồ sơ $loanId.
+            
+            ĐIỀU 2: LÃI SUẤT VÀ PHÍ
+            Lãi suất được áp dụng theo quy định của Tổ chức tài chính Easy Money tại từng thời điểm.
+            
+            ĐIỀU 3: QUYỀN VÀ NGHĨA VỤ
+            Bên vay có trách nhiệm thanh toán đầy đủ và đúng hạn các khoản nợ gốc và lãi theo lịch trả nợ đã thỏa thuận.
+            
+            Hợp đồng này có hiệu lực kể từ ngày ký cho đến khi Bên vay hoàn thành mọi nghĩa vụ trả nợ.
+        """.trimIndent()
+        return Resource.Success(content, isFromMock = true)
+    }
+
+    override suspend fun sendOtp(purpose: String): Resource<Unit> {
+        delay(1000) // Giả lập mạng
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
+    override suspend fun verifyOtp(otp: String): Resource<Unit> {
+        delay(1500)
+        return if (otp == "1234") {
+            Resource.Success(Unit, isFromMock = true)
+        } else {
+            Resource.Error("Mã OTP không chính xác. Vui lòng kiểm tra lại.")
+        }
+    }
     
     /**
      * Build metadata JSON string từ request

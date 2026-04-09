@@ -14,22 +14,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.domain.model.LoanApplicationRequest
 import com.example.easymoney.ui.loan.formatCurrency
-import com.example.easymoney.ui.loan.information.form.LoanInformationFormUiState
 
 @Composable
 fun ConfirmLoanInformationScreen(
-    formData: LoanInformationFormUiState,
+    loanData: LoanApplicationRequest?,
     onConfirmed: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ConfirmLoanInformationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(formData) {
-        viewModel.setFormData(formData)
-    }
 
     Scaffold(
         modifier = modifier,
@@ -41,7 +37,7 @@ fun ConfirmLoanInformationScreen(
                     .padding(16.dp)
             ) {
                 Button(
-                    onClick = { viewModel.onConfirmClick(onConfirmed) },
+                    onClick = onConfirmed,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
@@ -51,14 +47,7 @@ fun ConfirmLoanInformationScreen(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    if (uiState.isSubmitting) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Text(text = "Xác nhận", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    }
+                    Text(text = "Xác nhận", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
             }
         },
@@ -74,65 +63,52 @@ fun ConfirmLoanInformationScreen(
         ) {
             // Section: Thông tin khoản vay
             ReviewSection(title = "Thông tin khoản vay") {
-                ReviewRow("Số tiền vay mong muốn", "10.000.000đ")
-                ReviewRow("Kỳ hạn vay", "6 tháng")
+                ReviewRow("Số tiền vay mong muốn", formatCurrency(loanData?.loanAmount ?: 0L))
+                ReviewRow("Kỳ hạn vay", "${loanData?.tenorMonth ?: 0} tháng")
+                ReviewRow("Bảo hiểm khoản vay", if (loanData?.hasInsurance == true) "Có tham gia" else "Không tham gia")
                 ReviewRow("Phương thức cho vay", "Cho vay từng lần")
                 ReviewRow("Phương thức trả nợ", "Trả gốc và lãi hàng tháng")
-                ReviewRow("Mục đích vay", "Mua đồ dùng cá nhân, trang thiết bị gia đình")
             }
 
-            // Section: Tài khoản nhận giải ngân
+            // Section: Tài khoản nhận giải ngân (Thông tin này thường fix cứng theo TK đăng ký hoặc lấy từ form)
             ReviewSection(title = "Tài khoản nhận giải ngân") {
-                ReviewRow("Ngân hàng", formData.bankName)
-                ReviewRow("Số tài khoản", formData.accountNumber)
-                ReviewRow("Chủ tài khoản", formData.accountOwner)
+                ReviewRow("Chủ tài khoản", "NGUYEN DUC MINH")
+                ReviewRow("Ngân hàng", "TPBANK")
+                ReviewRow("Số tài khoản", "0936552900")
             }
 
             // Section: Địa chỉ thường trú
             ReviewSection(title = "Địa chỉ thường trú") {
                 ReviewRow(
                     "Tỉnh/Thành phố, Quận/Huyện, Phường/Xã", 
-                    "${formData.permanentWard?.name}, ${formData.permanentDistrict?.name}, ${formData.permanentProvince?.name}"
+                    "${loanData?.permanentWard ?: ""}, ${loanData?.permanentDistrict ?: ""}, ${loanData?.permanentProvince ?: ""}".trim(',', ' ')
                 )
-                ReviewRow("Địa chỉ chi tiết", formData.permanentDetail)
+                ReviewRow("Địa chỉ chi tiết", loanData?.permanentDetail ?: "")
             }
 
             // Section: Địa chỉ hiện tại
             ReviewSection(title = "Địa chỉ hiện tại") {
-                val province = if (formData.isCurrentSameAsPermanent) formData.permanentProvince?.name else formData.currentProvince?.name
-                val district = if (formData.isCurrentSameAsPermanent) formData.permanentDistrict?.name else formData.currentDistrict?.name
-                val ward = if (formData.isCurrentSameAsPermanent) formData.permanentWard?.name else formData.currentWard?.name
-                val detail = if (formData.isCurrentSameAsPermanent) formData.permanentDetail else formData.currentDetail
-                
-                ReviewRow("Tỉnh/Thành phố, Quận/Huyện, Phường/Xã", "${ward ?: ""}, ${district ?: ""}, ${province ?: ""}".trim(',', ' '))
-                ReviewRow("Địa chỉ chi tiết", detail)
+                ReviewRow(
+                    "Tỉnh/Thành phố, Quận/Huyện, Phường/Xã", 
+                    "${loanData?.currentWard ?: ""}, ${loanData?.currentDistrict ?: ""}, ${loanData?.currentProvince ?: ""}".trim(',', ' ')
+                )
+                ReviewRow("Địa chỉ chi tiết", loanData?.currentDetail ?: "")
             }
 
             // Section: Thông tin cá nhân
             ReviewSection(title = "Thông tin cá nhân") {
-                ReviewRow("Thu nhập hàng tháng", formatCurrency(formData.monthlyIncome.toLongOrNull() ?: 0L))
-                ReviewRow("Nghề nghiệp", formData.profession?.name ?: "")
-                if (formData.profession?.id == "p1") {
-                    ReviewRow("Tên công ty", formData.companyName)
-                    ReviewRow("Chức vụ", formData.position?.name ?: "")
-                }
-                ReviewRow("Trình độ học vấn", formData.education?.name ?: "")
-                ReviewRow("Tình trạng hôn nhân", formData.maritalStatus?.name ?: "")
-            }
-
-            // Section: Thông tin vợ/chồng
-            if (formData.maritalStatus?.id == "m2") {
-                ReviewSection(title = "Thông tin vợ/chồng") {
-                    ReviewRow("Họ và tên", formData.spouseName)
-                    ReviewRow("Số điện thoại", formData.spousePhone)
-                }
+                ReviewRow("Thu nhập hàng tháng", formatCurrency(loanData?.monthlyIncome ?: 0L))
+                ReviewRow("Nghề nghiệp", loanData?.profession ?: "")
+                ReviewRow("Chức vụ", loanData?.position ?: "")
+                ReviewRow("Trình độ học vấn", loanData?.education ?: "")
+                ReviewRow("Tình trạng hôn nhân", loanData?.maritalStatus ?: "")
             }
 
             // Section: Thông tin người liên hệ
             ReviewSection(title = "Thông tin người liên hệ") {
-                ReviewRow("Họ và tên", formData.contactName)
-                ReviewRow("Mối quan hệ với bạn", formData.contactRelationship?.name ?: "")
-                ReviewRow("Số điện thoại", formData.contactPhone)
+                ReviewRow("Họ và tên", loanData?.contactName ?: "")
+                ReviewRow("Mối quan hệ với bạn", loanData?.contactRelationship ?: "")
+                ReviewRow("Số điện thoại", loanData?.contactPhone ?: "")
             }
             
             Spacer(modifier = Modifier.height(16.dp))

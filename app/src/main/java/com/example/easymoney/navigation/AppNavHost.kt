@@ -21,6 +21,8 @@ import com.example.easymoney.ui.home.HomeViewModel
 import com.example.easymoney.ui.loan.flow.LoanFlowScreen
 import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
+import com.example.easymoney.ui.sandbox.SandBoxScreen
+import com.example.easymoney.ui.esign.ContractScreen
 
 @Composable
 fun AppNavHost(
@@ -40,10 +42,31 @@ fun AppNavHost(
 
             HomeScreen(
                 onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
+                onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
                 userName = uiState.userName.ifBlank { "NGUYEN LE MINH" },
                 isLoading = uiState.isLoading
+            )
+        }
+
+        composable(AppDestination.Sandbox.route) {
+            SandBoxScreen(
+                onBack = { navController.popBackStack() },
+                onEsign = { navController.navigate(AppDestination.Contract.route) }
+            )
+        }
+
+        composable(AppDestination.Contract.route) {
+            ContractScreen(
+                loanId = "MOCK-SANDBOX-123",
+                onSignSuccess = {
+                    // Logic after successful signing
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
             )
         }
 

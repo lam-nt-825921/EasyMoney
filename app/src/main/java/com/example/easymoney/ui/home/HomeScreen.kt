@@ -25,6 +25,7 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 @Composable
 fun HomeScreen(
     onLoanRegistrationClick: () -> Unit,
+    onToggleSandbox: () -> Unit,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
     userName: String,
@@ -42,7 +43,8 @@ fun HomeScreen(
         HeaderSection(
             userName = userName,
             isDarkTheme = isDarkTheme,
-            onToggleTheme = onToggleTheme
+            onToggleTheme = onToggleTheme,
+            onDevClick = onToggleSandbox
         )
 
         if (isLoading) {
@@ -59,7 +61,8 @@ fun HomeScreen(
 private fun HeaderSection(
     userName: String,
     isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    onToggleTheme: () -> Unit,
+    onDevClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -68,12 +71,26 @@ private fun HeaderSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = stringResource(id = R.string.home_welcome, userName),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(id = R.string.home_welcome, userName),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            
+            // Small Dev badge/button for sandbox
+            TextButton(
+                onClick = onDevClick,
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.height(24.dp)
+            ) {
+                Text(
+                    text = "Developer Mode",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                )
+            }
+        }
 
         IconButton(onClick = onToggleTheme) {
             Icon(
@@ -90,6 +107,7 @@ private fun HomeScreenPreview() {
     EasyMoneyTheme {
         HomeScreen(
             onLoanRegistrationClick = {},
+            onToggleSandbox = {},
             isDarkTheme = false,
             onToggleTheme = {},
             userName = "Nguyen Duc Minh"
