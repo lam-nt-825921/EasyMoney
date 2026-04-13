@@ -3,12 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 android {
@@ -35,8 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -46,6 +47,8 @@ android {
 dependencies {
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.sqlite.jdbc)
     implementation(libs.androidx.compose.foundation)
 
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")

@@ -24,72 +24,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.data.local.entity.NotificationEntity
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TealSecondary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.abs
 
-private data class NotificationItem(
-    val id: String,
-    val description: String,
-    val transactionCode: String,
-    val amount: Long,
-    val balance: Long,
-    val dateTime: String
-)
-
-private data class NotificationGroup(
-    val monthLabel: String,
-    val items: List<NotificationItem>
-)
-
-private val mockBalanceChanges = listOf(
-    NotificationGroup(
-        monthLabel = "Tháng 04/2026",
-        items = listOf(
-            NotificationItem("n1", "GD thanh toán điện tử", "2604750502914339", -14181L, 132376L, "01/04/2026 07:31"),
-            NotificationItem("n2", "GD thanh toán điện tử", "2604750502680030", -50000L, 82376L, "01/04/2026 06:31"),
-            NotificationItem("n3", "Thanh toán EASY MONEY", "843397835046260475", 1500L, 83876L, "01/04/2026 06:30"),
-            NotificationItem("n4", "GD thanh toán điện tử", "2604750597686372", -19868L, 153405L, "31/03/2026 13:44"),
-            NotificationItem("n5", "GD thanh toán điện tử", "2604750695990866", -23803L, 173273L, "31/03/2026 13:44"),
-        )
-    ),
-    NotificationGroup(
-        monthLabel = "Tháng 03/2026",
-        items = listOf(
-            NotificationItem("n6", "Giải ngân khoản vay", "2604750295880123", 5000000L, 212076L, "30/03/2026 14:00"),
-            NotificationItem("n7", "Phí dịch vụ tháng 3", "2604750295880124", -12000L, 207076L, "30/03/2026 10:30"),
-        )
-    )
-)
-
-private val mockPromotions = listOf(
-    NotificationGroup(
-        monthLabel = "Tháng 04/2026",
-        items = listOf(
-            NotificationItem("p1", "Ưu đãi lãi suất 0% tháng đầu tiên", "PROMO2604001", 0L, 0L, "01/04/2026 09:00"),
-            NotificationItem("p2", "Nhận ngay 500 điểm thưởng khi đăng ký vay", "PROMO2604002", 0L, 0L, "28/03/2026 10:00"),
-        )
-    )
-)
-
-private val mockReminders = listOf(
-    NotificationGroup(
-        monthLabel = "Tháng 04/2026",
-        items = listOf(
-            NotificationItem("r1", "Nhắc hạn thanh toán khoản vay", "DUE2604001", 0L, 0L, "05/04/2026 08:00"),
-            NotificationItem("r2", "Cập nhật thông tin tài khoản", "REMIND001", 0L, 0L, "02/04/2026 09:00"),
-        )
-    )
-)
-
 @Composable
-fun NotificationScreen(modifier: Modifier = Modifier) {
+fun NotificationScreen(
+    modifier: Modifier = Modifier,
+    viewModel: NotificationViewModel = hiltViewModel()
+) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var searchQuery by remember { mutableStateOf("") }
     val tabs = listOf("Biến động số dư", "Khuyến mại", "Nhắc nhở")
+
+    val notificationGroups by viewModel.getNotificationsByType(tabs[selectedTab])
+        .collectAsState(initial = emptyList())
 
     Column(
         modifier = modifier
@@ -121,19 +77,14 @@ fun NotificationScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        val filteredData = remember(selectedTab, searchQuery) {
-            val currentData = when (selectedTab) {
-                0 -> mockBalanceChanges
-                1 -> mockPromotions
-                else -> mockReminders
-            }
+        val filteredData = remember(notificationGroups, searchQuery) {
             if (searchQuery.isBlank()) {
-                currentData
+                notificationGroups
             } else {
-                currentData.map { group ->
+                notificationGroups.map { group ->
                     group.copy(items = group.items.filter {
-                        it.description.contains(searchQuery, ignoreCase = true) ||
-                                it.transactionCode.contains(searchQuery, ignoreCase = true)
+                        it.title.contains(searchQuery, ignoreCase = true) ||
+                                it.transactionCode?.contains(searchQuery, ignoreCase = true) == true
                     })
                 }.filter { it.items.isNotEmpty() }
             }
@@ -217,11 +168,15 @@ private fun MonthHeader(label: String) {
 }
 
 @Composable
-private fun BalanceChangeItem(item: NotificationItem) {
-    val isPositive = item.amount >= 0
+private fun BalanceChangeItem(item: NotificationEntity) {
+    val amount = item.amount ?: 0L
+    val isPositive = amount >= 0
     val amountColor = if (isPositive) Color(0xFF2E7D32) else Color(0xFFC62828)
     val iconBg = if (isPositive) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-    val amountText = if (isPositive) "+${formatAmount(item.amount)}đ" else "-${formatAmount(item.amount)}đ"
+    val amountText = if (isPositive) "+${formatAmount(amount)}đ" else "-${formatAmount(amount)}đ"
+    
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val dateStr = sdf.format(Date(item.timestamp))
 
     Surface(
         modifier = Modifier
@@ -258,22 +213,24 @@ private fun BalanceChangeItem(item: NotificationItem) {
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = item.description,
+                    text = item.title,
                     style = MaterialTheme.typography.bodySmall,
                     color = TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = item.transactionCode,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (item.balance > 0) {
+                item.transactionCode?.let {
                     Text(
-                        text = "Số dư: ${formatAmount(item.balance)}đ",
+                        text = it,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                item.balanceAfter?.let {
+                    Text(
+                        text = "Số dư: ${formatAmount(it)}đ",
                         style = MaterialTheme.typography.labelSmall,
                         color = TextSecondary
                     )
@@ -281,7 +238,7 @@ private fun BalanceChangeItem(item: NotificationItem) {
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = item.dateTime.takeLast(5),
+                text = dateStr.takeLast(5),
                 style = MaterialTheme.typography.labelSmall,
                 color = TextSecondary
             )
@@ -290,7 +247,10 @@ private fun BalanceChangeItem(item: NotificationItem) {
 }
 
 @Composable
-private fun GenericNotificationItem(item: NotificationItem, icon: ImageVector) {
+private fun GenericNotificationItem(item: NotificationEntity, icon: ImageVector) {
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val dateStr = sdf.format(Date(item.timestamp))
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,13 +280,13 @@ private fun GenericNotificationItem(item: NotificationItem, icon: ImageVector) {
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = item.description,
+                    text = item.title,
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = item.dateTime,
+                    text = dateStr,
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary
                 )
