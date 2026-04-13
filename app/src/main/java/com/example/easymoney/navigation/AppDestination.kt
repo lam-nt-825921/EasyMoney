@@ -25,15 +25,13 @@ sealed class AppDestination(
     data object Onboarding : AppDestination(
         route = "onboarding",
         title = "Vay tổ chức tài chính",
-        showBackButton = true,
-        topBarBackgroundColor = Color.White
+        showBackButton = true
     )
 
     data object ConfirmInformation : AppDestination(
         route = "confirm_information",
         title = "Xác nhận thông tin",
-        showBackButton = true,
-        topBarBackgroundColor = Color.White
+        showBackButton = true
     )
 
     // Single destination for the whole internal LoanFlow (all steps are managed inside LoanFlowScreen).
@@ -41,8 +39,7 @@ sealed class AppDestination(
         route = "loan_information",
         title = "Thông tin khoản vay",
         showBackButton = true,
-        showHelpButton = false,
-        topBarBackgroundColor = Color.White
+        showHelpButton = false
     )
 
     data object Home : AppDestination(
@@ -50,7 +47,6 @@ sealed class AppDestination(
         title = "",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         isMainTab = true
     )
 
@@ -59,7 +55,6 @@ sealed class AppDestination(
         title = "Lịch sử giao dịch",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         isMainTab = true
     )
 
@@ -68,7 +63,6 @@ sealed class AppDestination(
         title = "Thông báo",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         isMainTab = true
     )
 
@@ -77,7 +71,6 @@ sealed class AppDestination(
         title = "Tài khoản",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         isMainTab = true
     )
 
@@ -85,8 +78,7 @@ sealed class AppDestination(
         route = "page_guide?xml={xml}",
         title = "Hướng dẫn",
         showBackButton = true,
-        showHelpButton = false,
-        topBarBackgroundColor = Color.White
+        showHelpButton = false
     ) {
         const val BASE_ROUTE = "page_guide"
         const val XML_ARG = "xml"
@@ -102,16 +94,21 @@ sealed class AppDestination(
         route = "sandbox",
         title = "Sandbox Developer",
         showBackButton = true,
-        showHelpButton = false,
-        topBarBackgroundColor = Color.White
+        showHelpButton = false
     )
 
     data object Contract : AppDestination(
         route = "contract",
         title = "Hợp đồng của bạn",
         showBackButton = true,
-        showHelpButton = true,
-        topBarBackgroundColor = Color.White
+        showHelpButton = true
+    )
+
+    data object EsignSuccess : AppDestination(
+        route = "esign_success",
+        title = "Ký hợp đồng thành công",
+        showBackButton = false,
+        showHelpButton = false
     )
 }
 
@@ -125,6 +122,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Account.route -> AppDestination.Account
     route == AppDestination.Sandbox.route -> AppDestination.Sandbox
     route == AppDestination.Contract.route -> AppDestination.Contract
+    route == AppDestination.EsignSuccess.route -> AppDestination.EsignSuccess
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home
 }

@@ -23,6 +23,7 @@ import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 import com.example.easymoney.ui.sandbox.SandBoxScreen
 import com.example.easymoney.ui.esign.ContractScreen
+import com.example.easymoney.ui.esign.EsignSuccessScreen
 
 @Composable
 fun AppNavHost(
@@ -61,11 +62,23 @@ fun AppNavHost(
             ContractScreen(
                 loanId = "MOCK-SANDBOX-123",
                 onSignSuccess = {
-                    // Logic after successful signing
-                    navController.popBackStack()
+                    // Navigate to success screen instead of just popping
+                    navController.navigate(AppDestination.EsignSuccess.route) {
+                        popUpTo(AppDestination.Contract.route) { inclusive = true }
+                    }
                 },
                 onCancel = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(AppDestination.EsignSuccess.route) {
+            EsignSuccessScreen(
+                onBackToHome = {
+                    navController.navigate(AppDestination.Home.route) {
+                        popUpTo(AppDestination.Home.route) { inclusive = true }
+                    }
                 }
             )
         }
