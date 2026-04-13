@@ -18,6 +18,9 @@ import com.example.easymoney.ui.history.TransactionHistoryScreen
 import com.example.easymoney.ui.home.HomeScreen
 
 import com.example.easymoney.ui.home.HomeViewModel
+import com.example.easymoney.ui.login.LoginScreen1
+import com.example.easymoney.ui.login.RegisterScreen1
+import com.example.easymoney.ui.login.WelcomeScreen
 import com.example.easymoney.ui.loan.flow.LoanFlowScreen
 import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
@@ -41,12 +44,32 @@ fun AppNavHost(
             val uiState by viewModel.uiState.collectAsState()
 
             HomeScreen(
-                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
+                onLoanRegistrationClick = { navController.navigate(AppDestination.Welcome.route) },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
                 userName = uiState.userName.ifBlank { "NGUYEN LE MINH" },
                 isLoading = uiState.isLoading
+            )
+        }
+
+        composable(AppDestination.Welcome.route) {
+            WelcomeScreen(
+                onLoginClick = { navController.navigate(AppDestination.Login1.route) },
+                onRegisterClick = { navController.navigate(AppDestination.Register1.route) }
+            )
+        }
+
+        composable(AppDestination.Login1.route) {
+            LoginScreen1(
+                onLoginClick = { navController.navigate(AppDestination.Onboarding.route) },
+                onRegisterClick = { navController.navigate(AppDestination.Register1.route) }
+            )
+        }
+
+        composable(AppDestination.Register1.route) {
+            RegisterScreen1(
+                onRegisterClick = { navController.navigate(AppDestination.Onboarding.route) }
             )
         }
 

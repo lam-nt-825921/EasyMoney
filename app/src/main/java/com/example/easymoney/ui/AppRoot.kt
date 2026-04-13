@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.navigation.AppNavHost
 import com.example.easymoney.navigation.rememberAppState
@@ -34,8 +35,14 @@ fun AppRoot(
     val destination = appState.currentDestination()
     val canNavigateBack = appState.navController.previousBackStackEntry != null
     val topBarController = remember { AppTopBarController() }
+    val loginGradientTopColor = MaterialTheme.colorScheme.primary
+        .copy(alpha = if (isDarkTheme) 0.78f else 0.95f)
+        .compositeOver(MaterialTheme.colorScheme.background)
     val topBarBackgroundColor = when (destination) {
         AppDestination.LoanFlow -> MaterialTheme.colorScheme.background
+        AppDestination.Welcome -> MaterialTheme.colorScheme.background
+        AppDestination.Login1,
+        AppDestination.Register1 -> loginGradientTopColor
         else -> destination.topBarBackgroundColor ?: MaterialTheme.colorScheme.background
     }
 

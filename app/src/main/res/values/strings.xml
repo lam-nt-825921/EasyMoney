@@ -25,7 +25,25 @@
 
     <string name="onboarding_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EASY MONEY</string>
     <string name="onboarding_continue">Trải nghiệm ngay</string>
-    
+
+    <string name="welcome_illustration_content_desc">Hình minh họa màn chào mừng</string>
+    <string name="welcome_login">Đăng Nhập</string>
+    <string name="welcome_register">Đăng ký</string>
+    <string name="login_account_label">Tài khoản</string>
+    <string name="login_account_placeholder">Nhập tài khoản</string>
+    <string name="login_password_label">Mật khẩu</string>
+    <string name="login_password_placeholder">Nhập mật khẩu</string>
+    <string name="login_remember_account">nhớ tài khoản</string>
+    <string name="register_username_label">Tên đăng nhập</string>
+    <string name="register_username_placeholder">Nhập tên đăng nhập</string>
+    <string name="register_phone_label">Số điện thoại</string>
+    <string name="register_phone_placeholder">Nhập số điện thoại</string>
+    <string name="register_password_label">Mật khẩu</string>
+    <string name="register_password_placeholder">Nhập mật khẩu</string>
+    <string name="register_confirm_password_label">Nhập lại mật khẩu</string>
+    <string name="register_confirm_password_placeholder">Nhập lại mật khẩu</string>
+    <string name="register_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EasyMoney</string>
+
     <string name="confirm_info_section_title">Thông tin cá nhân</string>
     <string name="confirm_continue">Tiếp tục</string>
     <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
