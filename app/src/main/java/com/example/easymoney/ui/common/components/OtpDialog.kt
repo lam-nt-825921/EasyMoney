@@ -1,10 +1,12 @@
 package com.example.easymoney.ui.common.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
@@ -13,6 +15,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -41,6 +46,7 @@ fun OtpDialog(
     var timeLeft by remember { mutableIntStateOf(60) }
     var attempts by remember { mutableIntStateOf(0) }
     var isTimerRunning by remember { mutableStateOf(true) }
+    val focusRequester = remember { FocusRequester() }
 
     // Timer logic
     LaunchedEffect(isTimerRunning, timeLeft) {
@@ -60,6 +66,11 @@ fun OtpDialog(
                 onMaxAttemptsReached()
             }
         }
+    }
+
+    // Auto focus on start
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
     Dialog(
@@ -103,81 +114,90 @@ fun OtpDialog(
                     lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Column {
-                        Text(
-                            text = "Nhập mã OTP",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (errorMessage != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        TextField(
-                            value = otpValue,
-                            onValueChange = { if (it.length <= 6) otpValue = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent
-                            ),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                            singleLine = true,
-                            placeholder = { Text("____") }
-                        )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        repeat(6) { index ->
+                            val char = when {
+                                index < otpValue.length -> otpValue[index].toString()
+                                else -> ""
+                            }
+                            val isFocused = otpValue.length == index
+
+                            OtpCell(
+                                value = char,
+                                isFocused = isFocused,
+                                isError = errorMessage != null
+                            )
+                        }
                     }
 
-                    // Timer / Resend Button
-                    Box(
+                    // Hidden BasicTextField overlaying the Row
+                    BasicTextField(
+                        value = otpValue,
+                        onValueChange = {
+                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                                otpValue = it
+                            }
+                        },
                         modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(bottom = 8.dp)
-                    ) {
-                        if (timeLeft > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(Color.Transparent, CircleShape)
-                                    .padding(4.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    progress = { timeLeft / 60f },
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 2.dp,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
-                                Text(
-                                    text = timeLeft.toString(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        } else {
-                            IconButton(
-                                onClick = {
-                                    timeLeft = 60
-                                    isTimerRunning = true
-                                    onResendOtp()
-                                },
-                                modifier = Modifier.size(40.dp)
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = "Gửi lại",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Text(
-                                        "Gửi lại",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontSize = 8.sp,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
+                            .focusRequester(focusRequester)
+                            .matchParentSize() // Occupy the same area as Row
+                            .alpha(0f), // Invisible but has size
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Timer / Resend Button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (timeLeft > 0) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Gửi lại sau ${timeLeft}s",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    } else {
+                        TextButton(
+                            onClick = {
+                                timeLeft = 60
+                                isTimerRunning = true
+                                otpValue = ""
+                                onResendOtp()
+                            },
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Gửi lại",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "Gửi lại mã OTP",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }
@@ -186,8 +206,9 @@ fun OtpDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(top = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Error,
@@ -197,7 +218,7 @@ fun OtpDialog(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Sai mã OTP ($attempts/$maxAttempts lần). Vui lòng bấm gửi lại OTP mới",
+                            text = "Mã OTP không đúng ($attempts/$maxAttempts lần)",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -234,7 +255,7 @@ fun OtpDialog(
 
                     TextButton(
                         onClick = { onConfirm(otpValue) },
-                        enabled = otpValue.length >= 4 && !isVerifying,
+                        enabled = otpValue.length == 6 && !isVerifying,
                         modifier = Modifier
                             .weight(1f)
                             .height(56.dp)
@@ -245,13 +266,60 @@ fun OtpDialog(
                             Text(
                                 text = "Xác nhận",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = if (otpValue.length == 6) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun OtpCell(
+    value: String,
+    isFocused: Boolean,
+    isError: Boolean
+) {
+    val borderColor = when {
+        isError -> MaterialTheme.colorScheme.error
+        isFocused -> MaterialTheme.colorScheme.primary
+        value.isNotEmpty() -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        else -> MaterialTheme.colorScheme.outlineVariant
+    }
+
+    val borderWidth = if (isFocused || isError) 2.dp else 1.dp
+
+    Box(
+        modifier = Modifier
+            .size(width = 42.dp, height = 50.dp)
+            .background(
+                color = if (isFocused) MaterialTheme.colorScheme.primary.copy(alpha = 0.05f) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .border(
+                width = borderWidth,
+                color = borderColor,
+                shape = RoundedCornerShape(8.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+        )
+
+        if (value.isEmpty() && isFocused) {
+            Box(
+                modifier = Modifier
+                    .width(2.dp)
+                    .height(20.dp)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
         }
     }
 }

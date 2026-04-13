@@ -305,7 +305,7 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
 
     override suspend fun verifyOtp(otp: String): Resource<Unit> {
         delay(1500)
-        return if (otp == "1234") {
+        return if (otp == "123456") {
             Resource.Success(Unit, isFromMock = true)
         } else {
             Resource.Error("Mã OTP không chính xác. Vui lòng kiểm tra lại.")
