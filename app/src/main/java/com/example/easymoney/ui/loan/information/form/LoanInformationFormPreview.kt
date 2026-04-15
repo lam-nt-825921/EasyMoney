@@ -14,7 +14,7 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 @Composable
 fun LoanInformationFormPreview() {
     val viewModel = remember {
-        LoanInformationFormViewModel(LoanRepositoryImpl())
+        LoanInformationFormViewModel(LoanRepositoryImpl(null, null))
     }
 
     EasyMoneyTheme {

@@ -214,7 +214,7 @@ private fun ConfirmInfoBottomBar(
 @Preview(showBackground = true, showSystemUi = true, name = "Confirm Info")
 @Composable
 private fun ConfirmInfoScreenPreview() {
-    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl()) }
+    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl(null, null)) }
     EasyMoneyTheme {
         ConfirmInfoScreen(
             viewModel = viewModel,
@@ -227,7 +227,7 @@ private fun ConfirmInfoScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Confirm Info Dark")
 @Composable
 private fun ConfirmInfoScreenDarkPreview() {
-    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl()) }
+    val viewModel = remember { ConfirmInfoViewModel(LoanRepositoryImpl(null, null)) }
     EasyMoneyTheme(darkTheme = true) {
         ConfirmInfoScreen(
             viewModel = viewModel,

@@ -23,6 +23,12 @@ class NotificationViewModel @Inject constructor(
 
     private val currentUserId = "user_123"
 
+    init {
+        viewModelScope.launch {
+            notificationRepository.refreshNotifications()
+        }
+    }
+
     fun getNotificationsByType(type: String): Flow<List<NotificationGroup>> {
         val mappedType = when(type) {
             "Biến động số dư" -> "transaction"

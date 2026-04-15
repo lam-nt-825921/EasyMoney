@@ -1,25 +1,35 @@
 package com.example.easymoney.domain.repository
 
+import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.remote.LoanRemoteDataSource
 import com.example.easymoney.domain.common.Resource
-import com.example.easymoney.domain.model.LoanPackageModel
-import com.example.easymoney.domain.model.LoanProviderInfoModel
-import com.example.easymoney.domain.model.MyInfoModel
-import com.example.easymoney.domain.model.EkycCaptureRequest
-import com.example.easymoney.domain.model.EkycCaptureResponse
-import com.example.easymoney.domain.model.LoanApplicationRequest
-import com.example.easymoney.domain.model.MasterDataItem
+import com.example.easymoney.domain.model.*
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.UUID
 import javax.inject.Inject
 
-class LoanRepositoryImpl @Inject constructor() : LoanRepository {
+class LoanRepositoryImpl @Inject constructor(
+    private val remoteDataSource: LoanRemoteDataSource?,
+    private val appPreferences: AppPreferences?
+) : LoanRepository {
+
+    private fun isRemote() = appPreferences?.dataSourceMode == DataSourceMode.REMOTE && remoteDataSource != null
 
     private val myPackageId = "1"
+
+    // Simple Cache for Prototype
+    private var cachedMetadata: MasterDataMetadata? = null
+    private var cacheExpirationTime: Long = 0
 
     private val mockLoanPackages = listOf(
         LoanPackageModel(
@@ -77,6 +87,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getMyPackage(): Resource<LoanPackageModel> {
+        if (isRemote()) return remoteDataSource?.getMyPackage() ?: Resource.Error("Remote data source not available")
+        
         delay(300)
 
         val packageData = mockLoanPackages.firstOrNull { it.id == myPackageId }
@@ -98,16 +110,87 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     // ========== Master Data Mock ==========
+    override suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata> {
+        if (isRemote()) return remoteDataSource?.getMasterDataMetadata() ?: Resource.Error("Remote data source not available")
+        
+        val currentTime = System.currentTimeMillis()
+
+        // Check cache
+        if (cachedMetadata != null && currentTime < cacheExpirationTime) {
+            return Resource.Success(cachedMetadata!!, isFromMock = true)
+        }
+
+        delay(800) // Simulate network delay for first load or reload
+
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+
+        // Expire in 1 hour for testing
+        val expirationDate = Date(currentTime + 3600_000)
+        val expirationString = sdf.format(expirationDate)
+
+        val metadata = MasterDataMetadata(
+            version = "2026.04.15.01",
+            expiredAt = expirationString,
+            provinces = listOf(
+                MasterDataItem("p_hn", "TP Hà Nội"),
+                MasterDataItem("p_hcm", "TP Hồ Chí Minh"),
+                MasterDataItem("p_dn", "TP Đà Nẵng")
+            ),
+            professions = listOf(
+                MasterDataItem("p1", "Nhân viên văn phòng công ty"),
+                MasterDataItem("p2", "Công chức nhà nước"),
+                MasterDataItem("p3", "Công nhân"),
+                MasterDataItem("p4", "Lao động phổ thông"),
+                MasterDataItem("p5", "Khác")
+            ),
+            positions = listOf(
+                MasterDataItem("pos1", "Nhân viên/Chuyên viên"),
+                MasterDataItem("pos2", "Tổ phó"),
+                MasterDataItem("pos3", "Nhóm trưởng/Tổ trưởng"),
+                MasterDataItem("pos4", "Quản lý/Trưởng phòng"),
+                MasterDataItem("pos5", "Khác")
+            ),
+            educationLevels = listOf(
+                MasterDataItem("e1", "Không có chuyên môn"),
+                MasterDataItem("e2", "Bằng trung cấp"),
+                MasterDataItem("e3", "Bằng cao đẳng"),
+                MasterDataItem("e4", "Bằng đại học trở lên")
+            ),
+            maritalStatuses = listOf(
+                MasterDataItem("m1", "Độc thân"),
+                MasterDataItem("m2", "Đã kết hôn"),
+                MasterDataItem("m3", "Ly hôn"),
+                MasterDataItem("m4", "Ly thân"),
+                MasterDataItem("m5", "Góa")
+            ),
+            relationships = listOf(
+                MasterDataItem("r1", "Ông/Bà"),
+                MasterDataItem("r2", "Bố/Mẹ"),
+                MasterDataItem("r3", "Vợ/Chồng"),
+                MasterDataItem("r4", "Anh/Chị/Em ruột"),
+                MasterDataItem("r5", "Bạn bè/Đồng nghiệp")
+            )
+        )
+
+        // Save to cache
+        cachedMetadata = metadata
+        cacheExpirationTime = expirationDate.time
+
+        return Resource.Success(metadata, isFromMock = true)
+    }
+
     override suspend fun getProvinces(): Resource<List<MasterDataItem>> {
-        delay(300)
-        return Resource.Success(listOf(
-            MasterDataItem("p_hn", "TP Hà Nội"),
-            MasterDataItem("p_hcm", "TP Hồ Chí Minh"),
-            MasterDataItem("p_dn", "TP Đà Nẵng")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.provinces, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>> {
+        if (isRemote()) return remoteDataSource?.getDistricts(provinceId) ?: Resource.Error("Remote data source not available")
+        
         delay(200)
         val data = when(provinceId) {
             "p_hn" -> listOf(MasterDataItem("d_th", "Quận Tây Hồ", provinceId), MasterDataItem("d_cg", "Quận Cầu Giấy", provinceId))
@@ -118,6 +201,8 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getWards(districtId: String): Resource<List<MasterDataItem>> {
+        if (isRemote()) return remoteDataSource?.getWards(districtId) ?: Resource.Error("Remote data source not available")
+        
         delay(200)
         val data = when(districtId) {
             "d_th" -> listOf(MasterDataItem("w_nt", "Phường Nhật Tân", districtId), MasterDataItem("w_pt", "Phường Phú Thượng", districtId))
@@ -128,57 +213,43 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun getProfessions(): Resource<List<MasterDataItem>> {
-        delay(200)
-        return Resource.Success(listOf(
-            MasterDataItem("p1", "Nhân viên văn phòng công ty"),
-            MasterDataItem("p2", "Công chức nhà nước"),
-            MasterDataItem("p3", "Công nhân"),
-            MasterDataItem("p4", "Lao động phổ thông"),
-            MasterDataItem("p5", "Khác")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.professions, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun getPositions(): Resource<List<MasterDataItem>> {
-        delay(200)
-        return Resource.Success(listOf(
-            MasterDataItem("pos1", "Nhân viên/Chuyên viên"),
-            MasterDataItem("pos2", "Tổ phó"),
-            MasterDataItem("pos3", "Nhóm trưởng/Tổ trưởng"),
-            MasterDataItem("pos4", "Quản lý/Trưởng phòng"),
-            MasterDataItem("pos5", "Khác")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.positions, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun getEducationLevels(): Resource<List<MasterDataItem>> {
-        delay(200)
-        return Resource.Success(listOf(
-            MasterDataItem("e1", "Không có chuyên môn"),
-            MasterDataItem("e2", "Bằng trung cấp"),
-            MasterDataItem("e3", "Bằng cao đẳng"),
-            MasterDataItem("e4", "Bằng đại học trở lên")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.educationLevels, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun getMaritalStatuses(): Resource<List<MasterDataItem>> {
-        delay(200)
-        return Resource.Success(listOf(
-            MasterDataItem("m1", "Độc thân"),
-            MasterDataItem("m2", "Đã kết hôn"),
-            MasterDataItem("m3", "Ly hôn"),
-            MasterDataItem("m4", "Ly thân"),
-            MasterDataItem("m5", "Góa")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.maritalStatuses, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun getRelationships(): Resource<List<MasterDataItem>> {
-        delay(200)
-        return Resource.Success(listOf(
-            MasterDataItem("r1", "Ông/Bà"),
-            MasterDataItem("r2", "Bố/Mẹ"),
-            MasterDataItem("r3", "Vợ/Chồng"),
-            MasterDataItem("r4", "Anh/Chị/Em ruột"),
-            MasterDataItem("r5", "Bạn bè/Đồng nghiệp")
-        ), isFromMock = true)
+        return when (val result = getMasterDataMetadata()) {
+            is Resource.Success -> Resource.Success(result.data.relationships, isFromMock = true)
+            is Resource.Error -> Resource.Error(result.message)
+            else -> Resource.Loading
+        }
     }
 
     override suspend fun submitApplication(request: LoanApplicationRequest): Resource<Unit> {
@@ -188,6 +259,11 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
 
     // ========== eKYC Face Capture ==========
     override suspend fun captureFace(request: EkycCaptureRequest): Resource<EkycCaptureResponse> {
+        if (isRemote()) {
+            return remoteDataSource?.captureFace(request.imageFile, buildMetadataJson(request)) 
+                ?: Resource.Error("Remote data source not available")
+        }
+        
         return try {
             // Build multipart body
             val imageBody = request.imageFile.asRequestBody("image/jpeg".toMediaType())
@@ -200,9 +276,6 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
                 .addFormDataPart("face_image", request.imageFile.name, imageBody)
                 .addFormDataPart("meta", metadataJson, metadataBody)
                 .build()
-            
-            // TODO: Call actual Retrofit service when available
-            // val response = ekycService.captureFace(multipartBody)
             
             // For now, mock success/failure (50/50)
             delay(1500)
@@ -230,6 +303,11 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
         imageFile: File,
         metadataJson: String
     ): Resource<EkycCaptureResponse> {
+        if (isRemote()) {
+            return remoteDataSource?.captureFace(imageFile, metadataJson) 
+                ?: Resource.Error("Remote data source not available")
+        }
+        
         return try {
             val imageBody = imageFile.asRequestBody("image/jpeg".toMediaType())
             val metadataBody = metadataJson.toRequestBody("application/json".toMediaType())
@@ -239,9 +317,6 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
                 .addFormDataPart("face_image", imageFile.name, imageBody)
                 .addFormDataPart("meta", metadataJson, metadataBody)
                 .build()
-            
-            // TODO: Call actual Retrofit service when available
-            // val response = ekycService.captureFace(multipartBody)
             
             // For now, mock success/failure (50/50)
             delay(1500)
@@ -299,11 +374,15 @@ class LoanRepositoryImpl @Inject constructor() : LoanRepository {
     }
 
     override suspend fun sendOtp(purpose: String): Resource<Unit> {
+        if (isRemote()) return remoteDataSource?.sendOtp(purpose) ?: Resource.Error("Remote data source not available")
+        
         delay(1000) // Giả lập mạng
         return Resource.Success(Unit, isFromMock = true)
     }
 
     override suspend fun verifyOtp(otp: String): Resource<Unit> {
+        if (isRemote()) return remoteDataSource?.verifyOtp(otp, "SIGN_CONTRACT") ?: Resource.Error("Remote data source not available")
+        
         delay(1500)
         return if (otp == "123456") {
             Resource.Success(Unit, isFromMock = true)
