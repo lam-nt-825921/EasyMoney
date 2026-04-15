@@ -20,3 +20,4 @@ local.properties
 # Local-only files
 CLAUDE.md
 references_design/
+google-services.json

@@ -210,7 +210,7 @@ private fun ContractBottomSection(
 @Preview(showBackground = true, showSystemUi = true, name = "Contract Screen Light")
 @Composable
 private fun ContractScreenPreview() {
-    val viewModel = remember { ContractViewModel(LoanRepositoryImpl()) }
+    val viewModel = remember { ContractViewModel(LoanRepositoryImpl(null, null)) }
     EasyMoneyTheme(darkTheme = false) {
         ContractScreen(
             onSignSuccess = {},
@@ -224,7 +224,7 @@ private fun ContractScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true, name = "Contract Screen Dark")
 @Composable
 private fun ContractScreenDarkPreview() {
-    val viewModel = remember { ContractViewModel(LoanRepositoryImpl()) }
+    val viewModel = remember { ContractViewModel(LoanRepositoryImpl(null, null)) }
     EasyMoneyTheme(darkTheme = true) {
         ContractScreen(
             onSignSuccess = {},

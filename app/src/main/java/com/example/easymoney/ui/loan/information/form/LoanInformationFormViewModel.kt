@@ -57,29 +57,30 @@ class LoanInformationFormViewModel @Inject constructor(
 
     private fun loadMasterData() {
         viewModelScope.launch {
-            val provincesResult = loanRepository.getProvinces()
-            if (provincesResult is Resource.Success) {
-                _uiState.update { it.copy(provinces = provincesResult.data) }
-            }
-            val professionsResult = loanRepository.getProfessions()
-            if (professionsResult is Resource.Success) {
-                _uiState.update { it.copy(professions = professionsResult.data) }
-            }
-            val positionsResult = loanRepository.getPositions()
-            if (positionsResult is Resource.Success) {
-                _uiState.update { it.copy(positions = positionsResult.data) }
-            }
-            val educationResult = loanRepository.getEducationLevels()
-            if (educationResult is Resource.Success) {
-                _uiState.update { it.copy(educationLevels = educationResult.data) }
-            }
-            val maritalResult = loanRepository.getMaritalStatuses()
-            if (maritalResult is Resource.Success) {
-                _uiState.update { it.copy(maritalStatuses = maritalResult.data) }
-            }
-            val relationshipResult = loanRepository.getRelationships()
-            if (relationshipResult is Resource.Success) {
-                _uiState.update { it.copy(relationships = relationshipResult.data) }
+            _uiState.update { it.copy(isLoading = true) }
+            when (val result = loanRepository.getMasterDataMetadata()) {
+                is Resource.Success -> {
+                    val metadata = result.data
+                    _uiState.update {
+                        it.copy(
+                            provinces = metadata.provinces,
+                            professions = metadata.professions,
+                            positions = metadata.positions,
+                            educationLevels = metadata.educationLevels,
+                            maritalStatuses = metadata.maritalStatuses,
+                            relationships = metadata.relationships,
+                            isLoading = false
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = result.message)
+                    }
+                }
+                is Resource.Loading -> {
+                    _uiState.update { it.copy(isLoading = true) }
+                }
             }
         }
     }

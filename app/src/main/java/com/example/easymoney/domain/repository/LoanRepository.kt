@@ -8,6 +8,7 @@ import com.example.easymoney.domain.model.EkycCaptureRequest
 import com.example.easymoney.domain.model.EkycCaptureResponse
 import com.example.easymoney.domain.model.LoanApplicationRequest
 import com.example.easymoney.domain.model.MasterDataItem
+import com.example.easymoney.domain.model.MasterDataMetadata
 import java.io.File
 
 interface LoanRepository {
@@ -17,6 +18,8 @@ interface LoanRepository {
     suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel>
 
     // Master Data
+    suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata>
+    
     suspend fun getProvinces(): Resource<List<MasterDataItem>>
     suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>>
     suspend fun getWards(districtId: String): Resource<List<MasterDataItem>>

@@ -11,4 +11,9 @@ interface NotificationRepository {
     suspend fun markAsRead(id: Long)
     suspend fun markAllAsRead()
     suspend fun clearAll()
+
+    /**
+     * Đồng bộ thông báo từ API về máy
+     */
+    suspend fun refreshNotifications()
 }
