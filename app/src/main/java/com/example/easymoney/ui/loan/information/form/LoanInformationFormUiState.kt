@@ -1,6 +1,8 @@
 package com.example.easymoney.ui.loan.information.form
 
 import com.example.easymoney.domain.model.MasterDataItem
+import com.example.easymoney.utils.UiText
+import com.example.easymoney.R
 
 /**
  * Các loại Bottom Sheet cần hiển thị
@@ -67,49 +69,49 @@ data class LoanInformationFormUiState(
     // UI State
     val activeSheet: FormSheetType = FormSheetType.NONE,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessage: UiText? = null,
     val isSelectingPermanentAddress: Boolean = true,
     
     // Validation Errors (Key là tên trường, Value là nội dung lỗi)
-    val fieldErrors: Map<String, String> = emptyMap(),
+    val fieldErrors: Map<String, UiText> = emptyMap(),
     val showErrors: Boolean = false
 ) {
     val isFormValid: Boolean
         get() = validateForm().isEmpty()
 
-    fun validateForm(): Map<String, String> {
-        val errors = mutableMapOf<String, String>()
+    fun validateForm(): Map<String, UiText> {
+        val errors = mutableMapOf<String, UiText>()
         
-        if (permanentProvince == null) errors["permanentProvince"] = "Vui lòng chọn Tỉnh/Thành phố"
-        if (permanentDistrict == null) errors["permanentDistrict"] = "Vui lòng chọn Quận/Huyện"
-        if (permanentWard == null) errors["permanentWard"] = "Vui lòng chọn Phường/Xã"
-        if (permanentDetail.isBlank()) errors["permanentDetail"] = "Vui lòng nhập địa chỉ chi tiết"
+        if (permanentProvince == null) errors["permanentProvince"] = UiText.StringResource(R.string.error_select_province)
+        if (permanentDistrict == null) errors["permanentDistrict"] = UiText.StringResource(R.string.error_select_district)
+        if (permanentWard == null) errors["permanentWard"] = UiText.StringResource(R.string.error_select_ward)
+        if (permanentDetail.isBlank()) errors["permanentDetail"] = UiText.StringResource(R.string.error_input_address_detail)
         
         if (!isCurrentSameAsPermanent) {
-            if (currentProvince == null) errors["currentProvince"] = "Vui lòng chọn Tỉnh/Thành phố"
-            if (currentDistrict == null) errors["currentDistrict"] = "Vui lòng chọn Quận/Huyện"
-            if (currentWard == null) errors["currentWard"] = "Vui lòng chọn Phường/Xã"
-            if (currentDetail.isBlank()) errors["currentDetail"] = "Vui lòng nhập địa chỉ chi tiết"
+            if (currentProvince == null) errors["currentProvince"] = UiText.StringResource(R.string.error_select_province)
+            if (currentDistrict == null) errors["currentDistrict"] = UiText.StringResource(R.string.error_select_district)
+            if (currentWard == null) errors["currentWard"] = UiText.StringResource(R.string.error_select_ward)
+            if (currentDetail.isBlank()) errors["currentDetail"] = UiText.StringResource(R.string.error_input_address_detail)
         }
         
-        if (monthlyIncome.isBlank()) errors["monthlyIncome"] = "Vui lòng nhập thu nhập"
-        if (profession == null) errors["profession"] = "Vui lòng chọn nghề nghiệp"
-        if (education == null) errors["education"] = "Vui lòng chọn trình độ"
-        if (maritalStatus == null) errors["maritalStatus"] = "Vui lòng chọn tình trạng hôn nhân"
+        if (monthlyIncome.isBlank()) errors["monthlyIncome"] = UiText.StringResource(R.string.error_input_income)
+        if (profession == null) errors["profession"] = UiText.StringResource(R.string.error_select_profession)
+        if (education == null) errors["education"] = UiText.StringResource(R.string.error_select_education)
+        if (maritalStatus == null) errors["maritalStatus"] = UiText.StringResource(R.string.error_select_marital_status)
         
         if (profession?.id == "p1") {
-            if (companyName.isBlank()) errors["companyName"] = "Vui lòng nhập tên công ty"
-            if (position == null) errors["position"] = "Vui lòng chọn chức vụ"
+            if (companyName.isBlank()) errors["companyName"] = UiText.StringResource(R.string.error_input_company_name)
+            if (position == null) errors["position"] = UiText.StringResource(R.string.error_select_position)
         }
         
         if (maritalStatus?.id == "m2") {
-            if (spouseName.isBlank()) errors["spouseName"] = "Vui lòng nhập tên vợ/chồng"
-            if (spousePhone.length < 10) errors["spousePhone"] = "Số điện thoại không hợp lệ"
+            if (spouseName.isBlank()) errors["spouseName"] = UiText.StringResource(R.string.error_input_spouse_name)
+            if (spousePhone.length < 10) errors["spousePhone"] = UiText.StringResource(R.string.error_invalid_phone)
         }
         
-        if (contactName.isBlank()) errors["contactName"] = "Vui lòng nhập tên người liên hệ"
-        if (contactRelationship == null) errors["contactRelationship"] = "Vui lòng chọn mối quan hệ"
-        if (contactPhone.length < 10) errors["contactPhone"] = "Số điện thoại không hợp lệ"
+        if (contactName.isBlank()) errors["contactName"] = UiText.StringResource(R.string.error_input_contact_name)
+        if (contactRelationship == null) errors["contactRelationship"] = UiText.StringResource(R.string.error_select_relationship)
+        if (contactPhone.length < 10) errors["contactPhone"] = UiText.StringResource(R.string.error_invalid_phone)
         
         return errors
     }

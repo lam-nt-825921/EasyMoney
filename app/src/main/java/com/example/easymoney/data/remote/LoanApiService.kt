@@ -10,6 +10,12 @@ import retrofit2.http.*
 
 interface LoanApiService {
 
+    @POST("api/v1/auth/login")
+    suspend fun login(@Body request: LoginRequestDto): ApiResponse<AuthTokenDto>
+
+    @POST("api/v1/auth/register")
+    suspend fun register(@Body request: RegisterRequestDto): ApiResponse<AuthTokenDto>
+
     @GET("api/v1/loan/package/my")
     suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
 
@@ -62,6 +68,24 @@ data class FcmTestRequest(
 
 data class OtpRequest(val purpose: String)
 data class OtpVerifyRequest(val otp: String, val purpose: String)
+
+data class LoginRequestDto(
+    @SerializedName("phone") val phone: String,
+    @SerializedName("password") val password: String
+)
+
+data class RegisterRequestDto(
+    @SerializedName("phone") val phone: String,
+    @SerializedName("fullName") val fullName: String,
+    @SerializedName("password") val password: String
+)
+
+data class AuthTokenDto(
+    @SerializedName("accessToken") val accessToken: String,
+    @SerializedName("refreshToken") val refreshToken: String,
+    @SerializedName("expiresIn") val expiresIn: Int
+)
+
 data class NotificationDto(
     val id: Int,
     val title: String,

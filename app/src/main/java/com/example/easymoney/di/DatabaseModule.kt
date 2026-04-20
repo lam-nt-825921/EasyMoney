@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.easymoney.data.local.dao.AccountDao
 import com.example.easymoney.data.local.dao.NotificationDao
+import com.example.easymoney.data.local.dao.RememberedAccountDao
 import com.example.easymoney.data.local.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -35,5 +36,10 @@ object DatabaseModule {
     @Provides
     fun provideAccountDao(database: AppDatabase): AccountDao {
         return database.accountDao()
+    }
+
+    @Provides
+    fun provideRememberedAccountDao(database: AppDatabase): RememberedAccountDao {
+        return database.rememberedAccountDao()
     }
 }

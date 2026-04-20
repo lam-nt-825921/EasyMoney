@@ -25,7 +25,25 @@
 
     <string name="onboarding_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EASY MONEY</string>
     <string name="onboarding_continue">Trải nghiệm ngay</string>
-    
+
+    <string name="welcome_illustration_content_desc">Hình minh họa màn chào mừng</string>
+    <string name="welcome_login">Đăng Nhập</string>
+    <string name="welcome_register">Đăng ký</string>
+    <string name="login_account_label">Tài khoản</string>
+    <string name="login_account_placeholder">Nhập tài khoản</string>
+    <string name="login_password_label">Mật khẩu</string>
+    <string name="login_password_placeholder">Nhập mật khẩu</string>
+    <string name="login_remember_account">nhớ tài khoản</string>
+    <string name="register_username_label">Tên đăng nhập</string>
+    <string name="register_username_placeholder">Nhập tên đăng nhập</string>
+    <string name="register_phone_label">Số điện thoại</string>
+    <string name="register_phone_placeholder">Nhập số điện thoại</string>
+    <string name="register_password_label">Mật khẩu</string>
+    <string name="register_password_placeholder">Nhập mật khẩu</string>
+    <string name="register_confirm_password_label">Nhập lại mật khẩu</string>
+    <string name="register_confirm_password_placeholder">Nhập lại mật khẩu</string>
+    <string name="register_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EasyMoney</string>
+
     <string name="confirm_info_section_title">Thông tin cá nhân</string>
     <string name="confirm_continue">Tiếp tục</string>
     <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
@@ -51,4 +69,30 @@
     <string name="ekyc_camera_title">Chụp ảnh chân dung</string>
     <string name="ekyc_processing">Đang xử lý khuôn mặt...</string>
     <string name="ekyc_ready">Khung hình đạt điều kiện, có thể chụp</string>
+
+    <string name="login_welcome_back">Chào mừng trở lại,\n%1$s.</string>
+    <string name="login_switch_account">Chuyển tài khoản</string>
+    <string name="login_other_account">Hoặc đăng nhập với tài khoản khác</string>
+    <string name="login_select_account">Chọn tài khoản</string>
+    <string name="login_error_invalid">Số điện thoại hoặc mật khẩu không chính xác.</string>
+    <string name="login_error_network">Lỗi kết nối mạng, vui lòng thử lại.</string>
+    <string name="login_error_unknown">Đã có lỗi xảy ra, vui lòng thử lại sau.</string>
+    <string name="login_loading">Đang đăng nhập...</string>
+    <string name="register_loading">Đang đăng ký...</string>
+
+    <!-- Form Validation Errors -->
+    <string name="error_select_province">Vui lòng chọn Tỉnh/Thành phố</string>
+    <string name="error_select_district">Vui lòng chọn Quận/Huyện</string>
+    <string name="error_select_ward">Vui lòng chọn Phường/Xã</string>
+    <string name="error_input_address_detail">Vui lòng nhập địa chỉ chi tiết</string>
+    <string name="error_input_income">Vui lòng nhập thu nhập</string>
+    <string name="error_select_profession">Vui lòng chọn nghề nghiệp</string>
+    <string name="error_select_education">Vui lòng chọn trình độ</string>
+    <string name="error_select_marital_status">Vui lòng chọn tình trạng hôn nhân</string>
+    <string name="error_input_company_name">Vui lòng nhập tên công ty</string>
+    <string name="error_select_position">Vui lòng chọn chức vụ</string>
+    <string name="error_input_spouse_name">Vui lòng nhập tên vợ/chồng</string>
+    <string name="error_invalid_phone">Số điện thoại không hợp lệ</string>
+    <string name="error_input_contact_name">Vui lòng nhập tên người liên hệ</string>
+    <string name="error_select_relationship">Vui lòng chọn mối quan hệ</string>
 </resources>

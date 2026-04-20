@@ -2,8 +2,6 @@ package com.example.easymoney.domain.repository
 
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
-import com.example.easymoney.data.remote.LoanRemoteDataSource
-import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.*
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,12 +16,81 @@ import java.util.TimeZone
 import java.util.UUID
 import javax.inject.Inject
 
+import com.example.easymoney.data.local.dao.RememberedAccountDao
+import com.example.easymoney.data.local.entity.RememberedAccountEntity
+import com.example.easymoney.data.remote.LoanRemoteDataSource
+import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.model.*
+import kotlinx.coroutines.delay
+
 class LoanRepositoryImpl @Inject constructor(
     private val remoteDataSource: LoanRemoteDataSource?,
-    private val appPreferences: AppPreferences?
+    private val appPreferences: AppPreferences?,
+    private val rememberedAccountDao: RememberedAccountDao?
 ) : LoanRepository {
 
     private fun isRemote() = appPreferences?.dataSourceMode == DataSourceMode.REMOTE && remoteDataSource != null
+
+    // ========== Auth ==========
+    override suspend fun login(request: LoginRequest): Resource<AuthToken> {
+        if (isRemote()) return remoteDataSource?.login(request) ?: Resource.Error("Remote source error")
+        
+        delay(1000)
+        return if (request.phone.isNotEmpty() && request.password == "123456") {
+            Resource.Success(AuthToken("mock_access_token", "mock_refresh_token", 3600), isFromMock = true)
+        } else {
+            Resource.Error("Số điện thoại hoặc mật khẩu không chính xác.")
+        }
+    }
+
+    override suspend fun register(request: RegisterRequest): Resource<AuthToken> {
+        if (isRemote()) return remoteDataSource?.register(request) ?: Resource.Error("Remote source error")
+        
+        delay(1500)
+        return Resource.Success(AuthToken("mock_access_token", "mock_refresh_token", 3600), isFromMock = true)
+    }
+
+    override suspend fun logout(): Resource<Unit> {
+        delay(500)
+        return Resource.Success(Unit)
+    }
+
+    // ========== Remembered Accounts ==========
+    override suspend fun getRememberedAccounts(): Resource<List<RememberedAccount>> {
+        return try {
+            val entities = rememberedAccountDao?.getAll() ?: emptyList()
+            Resource.Success(entities.map { it.toDomain() })
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Database error")
+        }
+    }
+
+    override suspend fun getLastRememberedAccount(): Resource<RememberedAccount?> {
+        return try {
+            val entity = rememberedAccountDao?.getLastAccount()
+            Resource.Success(entity?.toDomain())
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Database error")
+        }
+    }
+
+    override suspend fun saveRememberedAccount(account: RememberedAccount): Resource<Unit> {
+        return try {
+            rememberedAccountDao?.insert(RememberedAccountEntity.fromDomain(account))
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Database error")
+        }
+    }
+
+    override suspend fun deleteRememberedAccount(phone: String): Resource<Unit> {
+        return try {
+            rememberedAccountDao?.deleteByPhone(phone)
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Database error")
+        }
+    }
 
     private val myPackageId = "1"
 

@@ -172,7 +172,7 @@ fun LoanInformationFormScreen(
                     label = "Chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã",
                     value = if (uiState.permanentProvince == null) "Chọn địa chỉ" 
                             else "${uiState.permanentProvince?.name}, ${uiState.permanentDistrict?.name ?: ""}, ${uiState.permanentWard?.name ?: ""}".trimEnd(',', ' '),
-                    error = if (uiState.showErrors) uiState.fieldErrors["permanentProvince"] ?: uiState.fieldErrors["permanentDistrict"] ?: uiState.fieldErrors["permanentWard"] else null,
+                    error = if (uiState.showErrors) (uiState.fieldErrors["permanentProvince"] ?: uiState.fieldErrors["permanentDistrict"] ?: uiState.fieldErrors["permanentWard"])?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.PROVINCE, true) }
                 )
                 
@@ -183,7 +183,7 @@ fun LoanInformationFormScreen(
                     value = uiState.permanentDetail,
                     onValueChange = { viewModel.onDetailAddressChanged(it, true) },
                     maxLength = 150,
-                    error = if (uiState.showErrors) uiState.fieldErrors["permanentDetail"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["permanentDetail"]?.asString() else null,
                     imeAction = if (uiState.isCurrentSameAsPermanent) ImeAction.Next else ImeAction.Done,
                     onImeAction = { if (!uiState.isCurrentSameAsPermanent) focusManager.clearFocus() }
                 )
@@ -221,7 +221,7 @@ fun LoanInformationFormScreen(
                             label = "Chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã",
                             value = if (uiState.currentProvince == null) "Chọn địa chỉ" 
                                     else "${uiState.currentProvince?.name}, ${uiState.currentDistrict?.name ?: ""}, ${uiState.currentWard?.name ?: ""}".trimEnd(',', ' '),
-                            error = if (uiState.showErrors) uiState.fieldErrors["currentProvince"] ?: uiState.fieldErrors["currentDistrict"] ?: uiState.fieldErrors["currentWard"] else null,
+                            error = if (uiState.showErrors) (uiState.fieldErrors["currentProvince"] ?: uiState.fieldErrors["currentDistrict"] ?: uiState.fieldErrors["currentWard"])?.asString() else null,
                             onClick = { viewModel.onShowSheet(FormSheetType.PROVINCE, false) }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -230,7 +230,7 @@ fun LoanInformationFormScreen(
                             value = uiState.currentDetail,
                             onValueChange = { viewModel.onDetailAddressChanged(it, false) },
                             maxLength = 150,
-                            error = if (uiState.showErrors) uiState.fieldErrors["currentDetail"] else null,
+                            error = if (uiState.showErrors) uiState.fieldErrors["currentDetail"]?.asString() else null,
                             imeAction = ImeAction.Next
                         )
                     }
@@ -246,7 +246,7 @@ fun LoanInformationFormScreen(
                     suffix = "đ",
                     keyboardType = KeyboardType.Number,
                     placeholder = "1.000.000",
-                    error = if (uiState.showErrors) uiState.fieldErrors["monthlyIncome"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["monthlyIncome"]?.asString() else null,
                     imeAction = ImeAction.Done,
                     onImeAction = { focusManager.clearFocus() },
                     visualTransformation = ThousandsSeparatorTransformation(), // SỬ DỤNG TRANSFORMATION Ở ĐÂY
@@ -261,7 +261,7 @@ fun LoanInformationFormScreen(
                 SelectorItem(
                     label = "Nghề nghiệp",
                     value = uiState.profession?.name ?: "Chọn nghề nghiệp",
-                    error = if (uiState.showErrors) uiState.fieldErrors["profession"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["profession"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.PROFESSION) }
                 )
 
@@ -272,7 +272,7 @@ fun LoanInformationFormScreen(
                         value = uiState.companyName,
                         onValueChange = viewModel::onCompanyNameChanged,
                         placeholder = "Nhập tên công ty",
-                        error = if (uiState.showErrors) uiState.fieldErrors["companyName"] else null,
+                        error = if (uiState.showErrors) uiState.fieldErrors["companyName"]?.asString() else null,
                         imeAction = ImeAction.Done,
                         onImeAction = { focusManager.clearFocus() }
                     )
@@ -280,7 +280,7 @@ fun LoanInformationFormScreen(
                     SelectorItem(
                         label = "Chức vụ",
                         value = uiState.position?.name ?: "Chọn chức vụ",
-                        error = if (uiState.showErrors) uiState.fieldErrors["position"] else null,
+                        error = if (uiState.showErrors) uiState.fieldErrors["position"]?.asString() else null,
                         onClick = { viewModel.onShowSheet(FormSheetType.POSITION) }
                     )
                 }
@@ -290,7 +290,7 @@ fun LoanInformationFormScreen(
                 SelectorItem(
                     label = "Trình độ học vấn",
                     value = uiState.education?.name ?: "Chọn trình độ học vấn",
-                    error = if (uiState.showErrors) uiState.fieldErrors["education"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["education"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.EDUCATION) }
                 )
 
@@ -299,7 +299,7 @@ fun LoanInformationFormScreen(
                 SelectorItem(
                     label = "Tình trạng hôn nhân",
                     value = uiState.maritalStatus?.name ?: "Chọn tình trạng hôn nhân",
-                    error = if (uiState.showErrors) uiState.fieldErrors["maritalStatus"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["maritalStatus"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.MARITAL_STATUS) }
                 )
             }
@@ -311,7 +311,7 @@ fun LoanInformationFormScreen(
                         value = uiState.spouseName,
                         onValueChange = viewModel::onSpouseNameChanged,
                         placeholder = "Nhập họ và tên",
-                        error = if (uiState.showErrors) uiState.fieldErrors["spouseName"] else null,
+                        error = if (uiState.showErrors) uiState.fieldErrors["spouseName"]?.asString() else null,
                         imeAction = ImeAction.Next
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -321,7 +321,7 @@ fun LoanInformationFormScreen(
                         onValueChange = viewModel::onSpousePhoneChanged,
                         keyboardType = KeyboardType.Phone,
                         placeholder = "Nhập số điện thoại",
-                        error = if (uiState.showErrors) uiState.fieldErrors["spousePhone"] else null,
+                        error = if (uiState.showErrors) uiState.fieldErrors["spousePhone"]?.asString() else null,
                         imeAction = ImeAction.Next
                     )
                 }
@@ -333,7 +333,7 @@ fun LoanInformationFormScreen(
                     label = "Họ và tên",
                     value = uiState.contactName,
                     onValueChange = viewModel::onContactNameChanged,
-                    error = if (uiState.showErrors) uiState.fieldErrors["contactName"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["contactName"]?.asString() else null,
                     imeAction = ImeAction.Done,
                     onImeAction = { focusManager.clearFocus() }
                 )
@@ -343,7 +343,7 @@ fun LoanInformationFormScreen(
                 SelectorItem(
                     label = "Mối quan hệ với bạn",
                     value = uiState.contactRelationship?.name ?: "Chọn mối quan hệ",
-                    error = if (uiState.showErrors) uiState.fieldErrors["contactRelationship"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["contactRelationship"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.RELATIONSHIP) }
                 )
 
@@ -354,7 +354,7 @@ fun LoanInformationFormScreen(
                     value = uiState.contactPhone,
                     onValueChange = viewModel::onContactPhoneChanged,
                     keyboardType = KeyboardType.Phone,
-                    error = if (uiState.showErrors) uiState.fieldErrors["contactPhone"] else null,
+                    error = if (uiState.showErrors) uiState.fieldErrors["contactPhone"]?.asString() else null,
                     imeAction = ImeAction.Done,
                     onImeAction = { focusManager.clearFocus() },
                     trailingIcon = {

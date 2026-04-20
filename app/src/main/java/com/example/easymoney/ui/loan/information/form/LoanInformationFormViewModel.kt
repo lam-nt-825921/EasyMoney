@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.MasterDataItem
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,8 +47,9 @@ class LoanInformationFormViewModel @Inject constructor(
                     }
                 }
                 is Resource.Error -> {
+                    val errorMessage = result.message
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = result.message)
+                        it.copy(isLoading = false, errorMessage = UiText.DynamicString(errorMessage))
                     }
                 }
                 else -> { _uiState.update { it.copy(isLoading = false) } }
@@ -74,8 +76,9 @@ class LoanInformationFormViewModel @Inject constructor(
                     }
                 }
                 is Resource.Error -> {
+                    val errorMessage = result.message
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = result.message)
+                        it.copy(isLoading = false, errorMessage = UiText.DynamicString(errorMessage))
                     }
                 }
                 is Resource.Loading -> {

@@ -22,6 +22,41 @@ sealed class AppDestination(
     val defaultSystemBarMode: SystemBarMode = SystemBarMode.THEME_DEFAULT,
     val defaultScreenColorMode: ScreenColorMode = ScreenColorMode.THEME_AWARE
 ) {
+    data object Welcome : AppDestination(
+        route = "welcome",
+        title = "",
+        showBackButton = true,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        defaultTopBarMode = TopBarMode.STANDARD
+    )
+
+    data object Login1 : AppDestination(
+        route = "login_1",
+        title = "",
+        showBackButton = true,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        defaultTopBarMode = TopBarMode.STANDARD
+    )
+
+    data object QuickLogin1 : AppDestination(
+        route = "quick_login_1",
+        title = "",
+        showBackButton = false,
+        showHelpButton = false,
+        topBarBackgroundColor = Color.White,
+        defaultTopBarMode = TopBarMode.STANDARD
+    )
+
+    data object Register1 : AppDestination(
+        route = "register_1",
+        title = "Đăng ký tài khoản",
+        showBackButton = true,
+        showHelpButton = true,
+        topBarBackgroundColor = Color.White
+    )
+
     data object Onboarding : AppDestination(
         route = "onboarding",
         title = "Vay tổ chức tài chính",
@@ -114,6 +149,9 @@ sealed class AppDestination(
 
 fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Home.route -> AppDestination.Home
+    route == AppDestination.Welcome.route -> AppDestination.Welcome
+    route == AppDestination.Login1.route -> AppDestination.Login1
+    route == AppDestination.Register1.route -> AppDestination.Register1
     route == AppDestination.Onboarding.route -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
     route == AppDestination.LoanFlow.route -> AppDestination.LoanFlow

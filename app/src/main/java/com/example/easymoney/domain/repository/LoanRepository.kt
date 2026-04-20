@@ -7,11 +7,21 @@ import com.example.easymoney.domain.model.MyInfoModel
 import com.example.easymoney.domain.model.EkycCaptureRequest
 import com.example.easymoney.domain.model.EkycCaptureResponse
 import com.example.easymoney.domain.model.LoanApplicationRequest
-import com.example.easymoney.domain.model.MasterDataItem
-import com.example.easymoney.domain.model.MasterDataMetadata
+import com.example.easymoney.domain.model.*
 import java.io.File
 
 interface LoanRepository {
+    // Auth
+    suspend fun login(request: LoginRequest): Resource<AuthToken>
+    suspend fun register(request: RegisterRequest): Resource<AuthToken>
+    suspend fun logout(): Resource<Unit>
+
+    // Remembered Accounts
+    suspend fun getRememberedAccounts(): Resource<List<RememberedAccount>>
+    suspend fun getLastRememberedAccount(): Resource<RememberedAccount?>
+    suspend fun saveRememberedAccount(account: RememberedAccount): Resource<Unit>
+    suspend fun deleteRememberedAccount(phone: String): Resource<Unit>
+
     suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel>
     suspend fun getMyPackage(): Resource<LoanPackageModel>
     suspend fun getMyInfo(): Resource<MyInfoModel>

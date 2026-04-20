@@ -12,6 +12,30 @@ import javax.inject.Inject
 class LoanRemoteDataSource @Inject constructor(
     private val apiService: LoanApiService
 ) {
+    suspend fun login(request: LoginRequest): Resource<AuthToken> {
+        return try {
+            val response = apiService.login(LoginRequestDto(request.phone, request.password))
+            if (response.status == "success") {
+                val data = response.data
+                Resource.Success(AuthToken(data.accessToken, data.refreshToken, data.expiresIn))
+            } else Resource.Error(response.message ?: "Login failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun register(request: RegisterRequest): Resource<AuthToken> {
+        return try {
+            val response = apiService.register(RegisterRequestDto(request.phone, request.fullName, request.password))
+            if (response.status == "success") {
+                val data = response.data
+                Resource.Success(AuthToken(data.accessToken, data.refreshToken, data.expiresIn))
+            } else Resource.Error(response.message ?: "Register failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
     suspend fun getMyPackage(): Resource<LoanPackageModel> {
         return try {
             val response = apiService.getMyPackage()

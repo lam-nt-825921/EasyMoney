@@ -37,6 +37,28 @@ Tài liệu này được xây dựng nhằm mô tả chi tiết các endpoint, 
   }
   ```
 
+#### **[POST] /api/v1/auth/register**
+- **Mô tả:** Đăng ký tài khoản mới.
+- **Request:**
+  ```json
+  {
+    "phone": "0987654321",
+    "fullName": "NGUYEN LE MINH",
+    "password": "hashed_password"
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "accessToken": "eyJhbGci...",
+      "refreshToken": "eyJhbGci...",
+      "expiresIn": 3600
+    }
+  }
+  ```
+
 ---
 
 ### 3.2. User Profile & Account (Thông tin người dùng)

@@ -1,6 +1,7 @@
 package com.example.easymoney.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,6 +19,12 @@ import com.example.easymoney.ui.history.TransactionHistoryScreen
 import com.example.easymoney.ui.home.HomeScreen
 
 import com.example.easymoney.ui.home.HomeViewModel
+import com.example.easymoney.ui.login.LoginScreen1
+import com.example.easymoney.ui.login.LoginViewModel
+import com.example.easymoney.ui.login.QuickLoginScreen1
+import com.example.easymoney.ui.login.QuickLoginAccount
+import com.example.easymoney.ui.login.RegisterScreen1
+import com.example.easymoney.ui.login.WelcomeScreen
 import com.example.easymoney.ui.loan.flow.LoanFlowScreen
 import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
@@ -32,9 +39,29 @@ fun AppNavHost(
     onToggleTheme: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    val loginUiState by loginViewModel.uiState.collectAsState()
+
+    // Xử lý chuyển hướng khi login thành công
+    LaunchedEffect(loginUiState.loginSuccess) {
+        if (loginUiState.loginSuccess) {
+            navController.navigate(AppDestination.Home.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    // Xác định màn hình bắt đầu dựa trên dữ liệu tài khoản ghi nhớ
+    // Lưu ý: Trong thực tế nên dùng Splash screen để chờ load dữ liệu
+    val startRoute = if (loginUiState.lastAccount != null) {
+        AppDestination.QuickLogin1.route
+    } else {
+        AppDestination.Welcome.route
+    }
+
     NavHost(
         navController = navController,
-        startDestination = AppDestination.Home.route,
+        startDestination = startRoute,
         modifier = modifier
     ) {
         composable(AppDestination.Home.route) {
@@ -42,12 +69,63 @@ fun AppNavHost(
             val uiState by viewModel.uiState.collectAsState()
 
             HomeScreen(
-                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
+                onLoanRegistrationClick = { navController.navigate(AppDestination.Welcome.route) },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
                 userName = uiState.userName.ifBlank { "NGUYEN LE MINH" },
                 isLoading = uiState.isLoading
+            )
+        }
+
+        composable(AppDestination.Welcome.route) {
+            WelcomeScreen(
+                onLoginClick = { navController.navigate(AppDestination.Login1.route) },
+                onRegisterClick = { navController.navigate(AppDestination.Register1.route) }
+            )
+        }
+
+        composable(AppDestination.Login1.route) {
+            LoginScreen1(
+                onLoginClick = { account, password, remember -> 
+                    loginViewModel.login(account, password, remember) 
+                },
+                onRegisterClick = { navController.navigate(AppDestination.Register1.route) },
+                isLoading = loginUiState.isLoading,
+                errorMessage = loginUiState.error?.asString()
+            )
+        }
+
+        composable(AppDestination.QuickLogin1.route) {
+            val lastAccount = loginUiState.lastAccount
+            QuickLoginScreen1(
+                displayName = lastAccount?.fullName ?: "",
+                onBackClick = { navController.navigate(AppDestination.Welcome.route) },
+                onLoginClick = { password -> 
+                    loginViewModel.login(lastAccount?.phone ?: "", password, true) 
+                },
+                isLoading = loginUiState.isLoading,
+                errorMessage = loginUiState.error?.asString(),
+                onSwitchAccountClick = { /* Handled inside via showAccountSheet */ },
+                otherAccounts = loginUiState.rememberedAccounts
+                    .filter { it.phone != lastAccount?.phone }
+                    .map { QuickLoginAccount(it.phone, it.fullName, it.phone) },
+                onSelectAccount = { account ->
+                    loginViewModel.selectAccount(loginUiState.rememberedAccounts.first { it.phone == account.id })
+                },
+                onDeleteAccount = { account ->
+                    loginViewModel.deleteAccount(account.id)
+                }
+            )
+        }
+
+        composable(AppDestination.Register1.route) {
+            RegisterScreen1(
+                onRegisterClick = { phone, fullName, password ->
+                    loginViewModel.register(phone, fullName, password)
+                },
+                isLoading = loginUiState.isLoading,
+                errorMessage = loginUiState.error?.asString()
             )
         }
 
@@ -62,7 +140,6 @@ fun AppNavHost(
             ContractScreen(
                 loanId = "MOCK-SANDBOX-123",
                 onSignSuccess = {
-                    // Navigate to success screen instead of just popping
                     navController.navigate(AppDestination.EsignSuccess.route) {
                         popUpTo(AppDestination.Contract.route) { inclusive = true }
                     }
@@ -102,15 +179,12 @@ fun AppNavHost(
         composable(AppDestination.LoanFlow.route) {
             LoanFlowScreen(
                 onBack = {
-                    // Quay lại một bước tiêu chuẩn (ví dụ về ConfirmInformation)
                     navController.popBackStack()
                 },
                 onCancel = {
-                    // Quay về Onboarding khi huỷ đăng ký
                     navController.popBackStack(AppDestination.Onboarding.route, inclusive = false)
                 },
                 onComplete = {
-                    // Xử lý khi hoàn thành (ví dụ: về Home)
                     navController.popBackStack(AppDestination.Home.route, inclusive = false)
                 }
             )
