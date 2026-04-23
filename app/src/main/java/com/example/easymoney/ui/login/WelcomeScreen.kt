@@ -42,15 +42,16 @@ fun WelcomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.SpaceAround
         ) {
             Image(
                 painter = painterResource(id = illustrationRes),
                 contentDescription = stringResource(id = R.string.welcome_illustration_content_desc),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(0.7f)
+                    .padding(top = 40.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -58,24 +59,27 @@ fun WelcomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(bottom = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = onLoginClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp)
+                        .height(56.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.welcome_login),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 TextButton(
                     onClick = onRegisterClick,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.welcome_register),

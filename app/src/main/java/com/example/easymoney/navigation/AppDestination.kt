@@ -28,7 +28,7 @@ sealed class AppDestination(
         showBackButton = true,
         showHelpButton = false,
         topBarBackgroundColor = Color.White,
-        defaultTopBarMode = TopBarMode.STANDARD
+        defaultTopBarMode = TopBarMode.HIDDEN
     )
 
     data object Login1 : AppDestination(
@@ -37,7 +37,7 @@ sealed class AppDestination(
         showBackButton = true,
         showHelpButton = false,
         topBarBackgroundColor = Color.White,
-        defaultTopBarMode = TopBarMode.STANDARD
+        defaultTopBarMode = TopBarMode.HIDDEN
     )
 
     data object QuickLogin1 : AppDestination(
@@ -46,7 +46,7 @@ sealed class AppDestination(
         showBackButton = false,
         showHelpButton = false,
         topBarBackgroundColor = Color.White,
-        defaultTopBarMode = TopBarMode.STANDARD
+        defaultTopBarMode = TopBarMode.HIDDEN
     )
 
     data object Register1 : AppDestination(
@@ -151,6 +151,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Home.route -> AppDestination.Home
     route == AppDestination.Welcome.route -> AppDestination.Welcome
     route == AppDestination.Login1.route -> AppDestination.Login1
+    route == AppDestination.QuickLogin1.route -> AppDestination.QuickLogin1
     route == AppDestination.Register1.route -> AppDestination.Register1
     route == AppDestination.Onboarding.route -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation

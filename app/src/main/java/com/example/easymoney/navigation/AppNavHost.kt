@@ -48,6 +48,7 @@ fun AppNavHost(
             navController.navigate(AppDestination.Home.route) {
                 popUpTo(0) { inclusive = true }
             }
+            loginViewModel.resetLoginState()
         }
     }
 
@@ -69,7 +70,7 @@ fun AppNavHost(
             val uiState by viewModel.uiState.collectAsState()
 
             HomeScreen(
-                onLoanRegistrationClick = { navController.navigate(AppDestination.Welcome.route) },
+                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
@@ -103,6 +104,9 @@ fun AppNavHost(
                 onBackClick = { navController.navigate(AppDestination.Welcome.route) },
                 onLoginClick = { password -> 
                     loginViewModel.login(lastAccount?.phone ?: "", password, true) 
+                },
+                onLoginWithOtherAccountClick = {
+                    navController.navigate(AppDestination.Login1.route)
                 },
                 isLoading = loginUiState.isLoading,
                 errorMessage = loginUiState.error?.asString(),

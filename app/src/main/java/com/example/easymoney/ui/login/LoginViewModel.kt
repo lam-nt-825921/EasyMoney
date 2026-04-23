@@ -112,4 +112,8 @@ class LoginViewModel @Inject constructor(
     fun resetError() {
         _uiState.update { it.copy(error = null) }
     }
+
+    fun resetLoginState() {
+        _uiState.update { it.copy(loginSuccess = false) }
+    }
 }

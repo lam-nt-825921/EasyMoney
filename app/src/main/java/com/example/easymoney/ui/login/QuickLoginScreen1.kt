@@ -67,6 +67,7 @@ fun QuickLoginScreen1(
     onBackClick: () -> Unit,
     onLoginClick: (String) -> Unit,
     onSwitchAccountClick: () -> Unit,
+    onLoginWithOtherAccountClick: () -> Unit = {},
     otherAccounts: List<QuickLoginAccount> = emptyList(),
     onSelectAccount: (QuickLoginAccount) -> Unit = {},
     onDeleteAccount: (QuickLoginAccount) -> Unit = {},
@@ -101,51 +102,35 @@ fun QuickLoginScreen1(
                 .fillMaxSize()
                 .background(gradient)
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 24.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-                Text(
-                    text = "EasyMoney",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = topTextColor
-                )
-                Box(modifier = Modifier.size(48.dp))
-            }
+            // Spacer to fix "shifted upwards" issue
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(60.dp))
 
             Box(
                 modifier = Modifier
                     .padding(top = 26.dp)
-                    .size(140.dp)
+                    .size(120.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = displayName.firstOrNull()?.uppercase() ?: "?",
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
             Text(
                 text = stringResource(id = R.string.login_welcome_back, displayName),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 color = welcomeTextColor,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 24.dp)
             )
 
             if (otherAccounts.isNotEmpty()) {
@@ -153,8 +138,9 @@ fun QuickLoginScreen1(
                     text = stringResource(id = R.string.login_switch_account),
                     style = MaterialTheme.typography.bodyLarge,
                     color = switchAccountColor,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier
-                        .padding(top = 8.dp)
+                        .padding(top = 12.dp)
                         .clickable {
                             onSwitchAccountClick()
                             showAccountSheet = true
@@ -173,7 +159,7 @@ fun QuickLoginScreen1(
                 onValueChange = { password = it },
                 placeholder = { Text(text = stringResource(id = R.string.login_password_placeholder)) },
                 singleLine = true,
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(16.dp),
                 visualTransformation = if (showPassword) {
                     androidx.compose.ui.text.input.VisualTransformation.None
                 } else {
@@ -188,9 +174,9 @@ fun QuickLoginScreen1(
                     }
                 },
                 modifier = Modifier
-                    .padding(top = 20.dp)
+                    .padding(top = 32.dp)
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(60.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = fieldColor,
                     unfocusedContainerColor = fieldColor,
@@ -206,7 +192,7 @@ fun QuickLoginScreen1(
                     text = errorMessage,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
                     textAlign = TextAlign.Start
                 )
             }
@@ -215,9 +201,9 @@ fun QuickLoginScreen1(
                 onClick = { onLoginClick(password) },
                 enabled = !isLoading && password.isNotBlank(),
                 modifier = Modifier
-                    .padding(top = 18.dp)
+                    .padding(top = 24.dp)
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(56.dp)
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -226,24 +212,20 @@ fun QuickLoginScreen1(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text(text = stringResource(id = R.string.welcome_login), style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(id = R.string.welcome_login), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
             }
 
-            if (otherAccounts.isNotEmpty()) {
-                TextButton(
-                    onClick = {
-                        onSwitchAccountClick()
-                        showAccountSheet = true
-                    },
-                    modifier = Modifier.padding(top = 6.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.login_other_account),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
-                    )
-                }
+            TextButton(
+                onClick = onLoginWithOtherAccountClick,
+                modifier = Modifier.padding(top = 12.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.login_other_account),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
 
             Box(

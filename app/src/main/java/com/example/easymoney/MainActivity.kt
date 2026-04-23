@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         
         enableEdgeToEdge()
         setContent {
-            var darkTheme by rememberSaveable { mutableStateOf(true) }
+            var darkTheme by rememberSaveable { mutableStateOf(false) }
 
             EasyMoneyTheme(darkTheme = darkTheme) {
                 AppRoot(

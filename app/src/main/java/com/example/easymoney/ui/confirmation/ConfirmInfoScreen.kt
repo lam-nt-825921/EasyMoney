@@ -73,24 +73,31 @@ private fun ConfirmInfoContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            // Spacer to fix "shifted upwards" issue
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = uiState.sectionTitle,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 20.dp)
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 if (isLoading) {
                     ConfirmInfoLoadingBody()
@@ -100,7 +107,8 @@ private fun ConfirmInfoContent(
                             Text(
                                 text = (uiState.loadState as ConfirmInfoLoadState.Error).message,
                                 color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
+                                modifier = Modifier.padding(20.dp),
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
 
@@ -110,6 +118,8 @@ private fun ConfirmInfoContent(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(60.dp))
         }
     }
 }
@@ -119,10 +129,10 @@ private fun ConfirmInfoLoadingBody() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .padding(vertical = 40.dp),
         horizontalArrangement = Arrangement.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -131,8 +141,8 @@ private fun ConfirmInfoDataBody(uiState: ConfirmInfoUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         InfoRow(label = "Họ và tên", value = uiState.userInfo?.fullName ?: "N/A")
         InfoRow(label = "Giới tính", value = uiState.userInfo?.gender ?: "N/A")
@@ -155,16 +165,16 @@ private fun InfoRow(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -179,15 +189,15 @@ private fun ConfirmInfoBottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Button(
             onClick = onContinueClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(56.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
@@ -195,18 +205,19 @@ private fun ConfirmInfoBottomBar(
         ) {
             Text(
                 text = uiState.continueButtonText,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
         }
 
         Text(
             text = uiState.editInfoText,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .clickable(onClick = onEditInfoClick)
-                .padding(bottom = 2.dp)
+                .padding(vertical = 4.dp)
         )
     }
 }

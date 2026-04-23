@@ -57,6 +57,10 @@ import com.example.easymoney.domain.model.LoanProviderInfoModel
 import com.example.easymoney.ui.loan.formatCurrency
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.graphics.toArgb
+import android.content.res.ColorStateList
+import android.view.View
 
 @Composable
 fun OnboardingScreen(
@@ -146,11 +150,14 @@ private fun HeroSection() {
 
 @Composable
 private fun WhyChooseSection() {
-	Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+	val variantColor = MaterialTheme.colorScheme.surfaceVariant
+	Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_reason_title),
-			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.Bold
+			style = MaterialTheme.typography.titleLarge,
+			fontWeight = FontWeight.Bold,
+			modifier = Modifier.fillMaxWidth(),
+			textAlign = TextAlign.Center
 		)
 
 		Row(
@@ -162,17 +169,20 @@ private fun WhyChooseSection() {
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_1_hand_money,
 				textRes = R.string.onboarding_reason_fast,
-				modifier = Modifier.weight(1f)
+				backgroundColor = variantColor,
+				modifier = Modifier.weight(1f).fillMaxHeight()
 			)
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_2_procedure,
 				textRes = R.string.onboarding_reason_simple,
-				modifier = Modifier.weight(1f)
+				backgroundColor = variantColor,
+				modifier = Modifier.weight(1f).fillMaxHeight()
 			)
 			ReasonItem(
 				iconRes = R.drawable.ic_feature_3_trust,
 				textRes = R.string.onboarding_reason_reliable,
-				modifier = Modifier.weight(1f)
+				backgroundColor = variantColor,
+				modifier = Modifier.weight(1f).fillMaxHeight()
 			)
 		}
 	}
@@ -182,27 +192,37 @@ private fun WhyChooseSection() {
 private fun ReasonItem(
 	iconRes: Int,
 	textRes: Int,
+	backgroundColor: Color,
 	modifier: Modifier = Modifier
 ) {
+	val colorInt = backgroundColor.toArgb()
 	AndroidView(
 		modifier = modifier,
 		factory = { context ->
 			val view = LayoutInflater.from(context).inflate(R.layout.item_feature_card, null, false)
 
+			val cardBg = view.findViewById<View>(R.id.card_background)
+			cardBg.backgroundTintList = ColorStateList.valueOf(colorInt)
+
 			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
 			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
 
 			ivIcon.setImageResource(iconRes)
 			tvTitle.setText(textRes)
+			tvTitle.textSize = 16f 
 
 			view
 		},
 		update = { view ->
+			val cardBg = view.findViewById<View>(R.id.card_background)
+			cardBg.backgroundTintList = ColorStateList.valueOf(colorInt)
+			
 			val ivIcon = view.findViewById<ImageView>(R.id.iv_icon)
 			val tvTitle = view.findViewById<TextView>(R.id.tv_title)
 
 			ivIcon.setImageResource(iconRes)
 			tvTitle.setText(textRes)
+			tvTitle.textSize = 16f
 		}
 	)
 }
@@ -217,28 +237,30 @@ private fun ProductInfoSection(productInfo: LoanPackageModel?) {
 	val interestText = productInfo?.interest?.let { "$it%/năm" }
 		?: stringResource(id = R.string.onboarding_product_interest_value)
 
-	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+	Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_product_title),
-			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.Bold
+			style = MaterialTheme.typography.titleLarge,
+			fontWeight = FontWeight.Bold,
+			modifier = Modifier.fillMaxWidth(),
+			textAlign = TextAlign.Center
 		)
 
 		Card(
 			modifier = Modifier.fillMaxWidth(),
-			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)),
-			shape = RoundedCornerShape(12.dp)
+			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+			shape = RoundedCornerShape(16.dp)
 		) {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(12.dp),
+					.padding(16.dp),
 				verticalAlignment = Alignment.CenterVertically,
 				horizontalArrangement = Arrangement.SpaceBetween
 			) {
 				Column(
 					modifier = Modifier.weight(1f),
-					verticalArrangement = Arrangement.spacedBy(4.dp)
+					verticalArrangement = Arrangement.spacedBy(8.dp)
 				) {
 					InfoLine(
 						label = stringResource(id = R.string.onboarding_product_limit_label),
@@ -259,8 +281,8 @@ private fun ProductInfoSection(productInfo: LoanPackageModel?) {
 					painter = painterResource(id = R.drawable.img_4),
 					contentDescription = null,
 					modifier = Modifier
-						.width(86.dp)
-						.height(56.dp),
+						.width(100.dp)
+						.height(64.dp),
 					contentScale = ContentScale.Fit
 				)
 			}
@@ -273,12 +295,12 @@ private fun InfoLine(label: String, value: String) {
 	Row {
 		Text(
 			text = label,
-			style = MaterialTheme.typography.bodySmall,
-			color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+			style = MaterialTheme.typography.bodyLarge,
+			color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 		)
 		Text(
 			text = value,
-			style = MaterialTheme.typography.bodySmall,
+			style = MaterialTheme.typography.bodyLarge,
 			fontWeight = FontWeight.Bold
 		)
 	}
@@ -293,55 +315,58 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 	val address = providerInfo?.address
 		?: stringResource(id = R.string.onboarding_provider_address_value)
 
-	Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+	Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 		Text(
 			text = stringResource(id = R.string.onboarding_provider_title),
-			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.Bold
+			style = MaterialTheme.typography.titleLarge,
+			fontWeight = FontWeight.Bold,
+			modifier = Modifier.fillMaxWidth(),
+			textAlign = TextAlign.Center
 		)
 
 		Card(
 			modifier = Modifier.fillMaxWidth(),
-			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)),
-			shape = RoundedCornerShape(12.dp)
+			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+			shape = RoundedCornerShape(16.dp)
 		) {
 			Column(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(12.dp),
-				verticalArrangement = Arrangement.spacedBy(6.dp)
+					.padding(16.dp),
+				verticalArrangement = Arrangement.spacedBy(10.dp)
 			) {
 				Text(
 					text = stringResource(id = R.string.onboarding_provider_org_label),
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 				)
 				Text(
 					text = organizationName,
-					style = MaterialTheme.typography.bodySmall,
+					style = MaterialTheme.typography.bodyLarge,
 					fontWeight = FontWeight.Bold
 				)
 
 				Text(
 					text = stringResource(id = R.string.onboarding_provider_tax_line),
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 				)
 
 				Text(
 					text = hotline,
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+					style = MaterialTheme.typography.bodyLarge,
+					fontWeight = FontWeight.Bold,
+					color = MaterialTheme.colorScheme.primary
 				)
 
 				Text(
 					text = stringResource(id = R.string.onboarding_provider_address_label),
-					style = MaterialTheme.typography.bodySmall,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 				)
 				Text(
 					text = address,
-					style = MaterialTheme.typography.bodySmall,
+					style = MaterialTheme.typography.bodyLarge,
 					fontWeight = FontWeight.Bold
 				)
 			}
@@ -360,21 +385,22 @@ private fun OnboardingBottomSection(
 		modifier = Modifier
 			.fillMaxWidth()
 			.background(MaterialTheme.colorScheme.surface)
-			.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
-		verticalArrangement = Arrangement.spacedBy(10.dp)
+			.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 20.dp),
+		verticalArrangement = Arrangement.spacedBy(12.dp)
 	) {
 		Row(verticalAlignment = Alignment.Top) {
 			Checkbox(
 				checked = isTermsAccepted,
 				onCheckedChange = { if (!isLoading) onTermsChanged(it) },
 				enabled = !isLoading,
-				colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
+				colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary),
+				modifier = Modifier.size(48.dp)
 			)
 			Text(
 				text = stringResource(id = R.string.onboarding_terms_text),
-				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
-				modifier = Modifier.padding(top = 12.dp)
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+				modifier = Modifier.padding(top = 10.dp)
 			)
 		}
 
@@ -383,8 +409,8 @@ private fun OnboardingBottomSection(
 			enabled = isTermsAccepted && !isLoading,
 			modifier = Modifier
 				.fillMaxWidth()
-				.height(52.dp),
-			shape = RoundedCornerShape(26.dp),
+				.height(56.dp),
+			shape = RoundedCornerShape(28.dp),
 			colors = ButtonDefaults.buttonColors(
 				containerColor = MaterialTheme.colorScheme.primary,
 				disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
@@ -395,8 +421,8 @@ private fun OnboardingBottomSection(
 			} else {
 				Text(
 					text = stringResource(id = R.string.onboarding_continue),
-					style = MaterialTheme.typography.titleMedium,
-					fontWeight = FontWeight.Medium
+					style = MaterialTheme.typography.titleLarge,
+					fontWeight = FontWeight.Bold
 				)
 			}
 		}

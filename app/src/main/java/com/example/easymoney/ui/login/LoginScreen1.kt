@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +55,7 @@ fun LoginScreen1(
     var account by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var rememberAccount by rememberSaveable { mutableStateOf(false) }
+    var showPassword by rememberSaveable { mutableStateOf(false) }
 
     val isDarkMode = LocalDarkMode.current
     val topGradientColor = MaterialTheme.colorScheme.primary.copy(alpha = if (isDarkMode) 0.78f else 0.95f)
@@ -77,10 +82,10 @@ fun LoginScreen1(
                     .padding(horizontal = 24.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier.height(180.dp))
+                Spacer(modifier = Modifier.height(140.dp))
 
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -107,7 +112,9 @@ fun LoginScreen1(
                         value = password,
                         onValueChange = { password = it },
                         placeholder = stringResource(id = R.string.login_password_placeholder),
-                        isPassword = true
+                        isPassword = true,
+                        showPassword = showPassword,
+                        onTogglePassword = { showPassword = !showPassword }
                     )
 
                     if (errorMessage != null) {
@@ -120,7 +127,8 @@ fun LoginScreen1(
                     }
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Checkbox(
                             checked = rememberAccount,
@@ -138,15 +146,15 @@ fun LoginScreen1(
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(bottom = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
                         onClick = { onLoginClick(account, password, rememberAccount) },
                         enabled = !isLoading && account.isNotBlank() && password.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(56.dp)
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -157,14 +165,17 @@ fun LoginScreen1(
                         } else {
                             Text(
                                 text = stringResource(id = R.string.welcome_login),
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
 
                     TextButton(
                         onClick = onRegisterClick,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
                     ) {
                         Text(
                             text = stringResource(id = R.string.welcome_register),
@@ -185,6 +196,8 @@ private fun LoginTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     isPassword: Boolean = false,
+    showPassword: Boolean = false,
+    onTogglePassword: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isDarkMode = LocalDarkMode.current
@@ -200,10 +213,24 @@ private fun LoginTextField(
         placeholder = { Text(text = placeholder) },
         shape = RoundedCornerShape(16.dp),
         singleLine = true,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        visualTransformation = if (isPassword && !showPassword) {
+            androidx.compose.ui.text.input.PasswordVisualTransformation()
+        } else {
+            androidx.compose.ui.text.input.VisualTransformation.None
+        },
+        trailingIcon = {
+            if (isPassword) {
+                IconButton(onClick = onTogglePassword) {
+                    Icon(
+                        imageVector = if (showPassword) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff,
+                        contentDescription = "Toggle password visibility"
+                    )
+                }
+            }
+        },
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp),
+            .height(60.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = fieldContainerColor,
             unfocusedContainerColor = fieldContainerColor,

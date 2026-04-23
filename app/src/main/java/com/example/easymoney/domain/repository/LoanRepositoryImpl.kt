@@ -135,9 +135,9 @@ class LoanRepositoryImpl @Inject constructor(
     )
 
     private val mockLoanProviderInfo = LoanProviderInfoModel(
-        organizationName = "To chuc tai chinh EASY MONEY",
+        organizationName = "Tổ chức tài chính EASY MONEY",
         hotline = "9999 9999",
-        address = "114 Xuan Thuy, Phuong Cau Giay, Thanh pho Ha Noi."
+        address = "114 Xuân Thủy, Phường Cầu Giấy, Thành phố Hà Nội."
     )
 
     override suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
