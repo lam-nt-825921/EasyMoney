@@ -3,6 +3,7 @@ package com.example.easymoney.ui.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -37,8 +38,8 @@ fun HomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(28.dp)
     ) {
         HeaderSection(
             userName = userName,
@@ -67,35 +68,50 @@ private fun HeaderSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 8.dp),
+            .padding(top = 12.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(id = R.string.home_welcome, userName),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground
             )
             
-            // Small Dev badge/button for sandbox
-            TextButton(
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Professional Badge for Developer Mode
+            Surface(
                 onClick = onDevClick,
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.height(24.dp)
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
                 Text(
-                    text = "Developer Mode",
+                    text = stringResource(id = R.string.home_developer_mode),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
         }
 
-        IconButton(onClick = onToggleTheme) {
+        IconButton(
+            onClick = onToggleTheme,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.size(44.dp)
+        ) {
             Icon(
                 imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                contentDescription = if (isDarkTheme) "Chuyển sang light mode" else "Chuyển sang dark mode"
+                contentDescription = stringResource(
+                    id = if (isDarkTheme) R.string.home_theme_light else R.string.home_theme_dark
+                ),
+                modifier = Modifier.size(24.dp)
             )
         }
     }

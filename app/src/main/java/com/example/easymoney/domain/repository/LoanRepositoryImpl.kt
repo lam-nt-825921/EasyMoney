@@ -52,6 +52,7 @@ class LoanRepositoryImpl @Inject constructor(
 
     override suspend fun logout(): Resource<Unit> {
         delay(500)
+        appPreferences?.clearAuthData()
         return Resource.Success(Unit)
     }
 
@@ -86,6 +87,15 @@ class LoanRepositoryImpl @Inject constructor(
     override suspend fun deleteRememberedAccount(phone: String): Resource<Unit> {
         return try {
             rememberedAccountDao?.deleteByPhone(phone)
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Database error")
+        }
+    }
+
+    override suspend fun clearAllRememberedAccounts(): Resource<Unit> {
+        return try {
+            rememberedAccountDao?.deleteAll()
             Resource.Success(Unit)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Database error")

@@ -76,7 +76,12 @@ fun EasyMoneyTheme(
         }
     }
 
-    CompositionLocalProvider(LocalDarkMode provides darkTheme) {
+    val homeColors = getHomeColors(darkTheme)
+
+    CompositionLocalProvider(
+        LocalDarkMode provides darkTheme,
+        LocalHomeColors provides homeColors
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

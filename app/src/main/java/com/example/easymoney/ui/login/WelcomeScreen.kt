@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,17 +33,18 @@ fun WelcomeScreen(
     modifier: Modifier = Modifier
 ) {
     val isDarkMode = LocalDarkMode.current
+    val scheme = MaterialTheme.colorScheme
     val illustrationRes = if (isDarkMode) R.drawable.main_dark else R.drawable.main
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = scheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp, vertical = 20.dp),
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.SpaceAround
         ) {
             Image(
@@ -51,7 +53,7 @@ fun WelcomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.7f)
-                    .padding(top = 40.dp),
+                    .padding(top = 20.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -60,32 +62,39 @@ fun WelcomeScreen(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(bottom = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Main CTA Button
                 Button(
                     onClick = onLoginClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(60.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = scheme.primary,
+                        contentColor = scheme.onPrimary
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.welcome_login),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
 
+                // Secondary Action
                 TextButton(
                     onClick = onRegisterClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(52.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.welcome_register),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.primary
                     )
                 }
             }
@@ -93,41 +102,10 @@ fun WelcomeScreen(
     }
 }
 
-@Preview(
-    name = "Welcome - Light",
-    showSystemUi = true,
-    showBackground = true
-)
+@Preview(name = "Welcome - Light", showSystemUi = true)
 @Composable
 private fun WelcomeScreenLightPreview() {
     EasyMoneyTheme {
-        WelcomeScreen(
-            onLoginClick = {},
-            onRegisterClick = {}
-        )
+        WelcomeScreen(onLoginClick = {}, onRegisterClick = {})
     }
 }
-
-@Preview(
-    name = "Welcome - Dark",
-    showSystemUi = true,
-    showBackground = true
-)
-@Composable
-private fun WelcomeScreenDarkPreview() {
-    EasyMoneyTheme(darkTheme = true) {
-        WelcomeScreen(
-            onLoginClick = {},
-            onRegisterClick = {}
-        )
-    }
-}
-
-
-
-
-
-
-
-
-

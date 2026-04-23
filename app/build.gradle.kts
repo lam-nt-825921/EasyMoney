@@ -51,6 +51,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.dagger:hilt-android:2.54")
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.foundation)
     ksp(libs.androidx.room.compiler)
     ksp(libs.sqlite.jdbc)
     implementation(libs.androidx.compose.foundation)

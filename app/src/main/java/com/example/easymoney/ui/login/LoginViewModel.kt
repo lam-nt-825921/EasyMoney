@@ -109,6 +109,14 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun logout() {
+        viewModelScope.launch {
+            repository.logout()
+            _uiState.update { it.copy(lastAccount = null, rememberedAccounts = emptyList()) }
+            loadRememberedAccounts()
+        }
+    }
+
     fun resetError() {
         _uiState.update { it.copy(error = null) }
     }

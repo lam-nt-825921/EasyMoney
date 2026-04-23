@@ -48,7 +48,10 @@ private val supportMenuItems = listOf(
 )
 
 @Composable
-fun AccountScreen(modifier: Modifier = Modifier) {
+fun AccountScreen(
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,7 +66,7 @@ fun AccountScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(12.dp))
         MenuSection(title = "Hỗ trợ", items = supportMenuItems)
         Spacer(modifier = Modifier.height(24.dp))
-        LogoutButton()
+        LogoutButton(onLogout = onLogout)
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
@@ -266,9 +269,9 @@ private fun MenuItemRow(item: MenuItem) {
 }
 
 @Composable
-private fun LogoutButton() {
+private fun LogoutButton(onLogout: () -> Unit) {
     OutlinedButton(
-        onClick = {},
+        onClick = onLogout,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
@@ -296,6 +299,6 @@ private fun LogoutButton() {
 @Composable
 private fun AccountScreenPreview() {
     EasyMoneyTheme {
-        AccountScreen()
+        AccountScreen(onLogout = {})
     }
 }

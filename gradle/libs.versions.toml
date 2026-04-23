@@ -17,6 +17,7 @@ runtimeSaveable = "1.10.6"
 roomKtx = "2.7.0-alpha11"
 sqliteJdbc = "3.47.1.0"
 foundation = "1.10.6"
+foundationVersion = "1.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
 androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version = "2.5.0-alpha11" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

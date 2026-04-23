@@ -25,9 +25,8 @@ sealed class AppDestination(
     data object Welcome : AppDestination(
         route = "welcome",
         title = "",
-        showBackButton = true,
+        showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         defaultTopBarMode = TopBarMode.HIDDEN
     )
 
@@ -36,8 +35,15 @@ sealed class AppDestination(
         title = "",
         showBackButton = true,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
-        defaultTopBarMode = TopBarMode.HIDDEN
+        defaultTopBarMode = TopBarMode.NO_TITLE
+    )
+
+    data object Register1 : AppDestination(
+        route = "register_1",
+        title = "",
+        showBackButton = true,
+        showHelpButton = false,
+        defaultTopBarMode = TopBarMode.NO_TITLE
     )
 
     data object QuickLogin1 : AppDestination(
@@ -45,16 +51,7 @@ sealed class AppDestination(
         title = "",
         showBackButton = false,
         showHelpButton = false,
-        topBarBackgroundColor = Color.White,
         defaultTopBarMode = TopBarMode.HIDDEN
-    )
-
-    data object Register1 : AppDestination(
-        route = "register_1",
-        title = "Đăng ký tài khoản",
-        showBackButton = true,
-        showHelpButton = true,
-        topBarBackgroundColor = Color.White
     )
 
     data object Onboarding : AppDestination(
@@ -69,7 +66,6 @@ sealed class AppDestination(
         showBackButton = true
     )
 
-    // Single destination for the whole internal LoanFlow (all steps are managed inside LoanFlowScreen).
     data object LoanFlow : AppDestination(
         route = "loan_information",
         title = "Thông tin khoản vay",

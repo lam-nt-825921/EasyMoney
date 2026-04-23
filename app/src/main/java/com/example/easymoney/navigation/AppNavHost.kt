@@ -112,7 +112,6 @@ fun AppNavHost(
                 errorMessage = loginUiState.error?.asString(),
                 onSwitchAccountClick = { /* Handled inside via showAccountSheet */ },
                 otherAccounts = loginUiState.rememberedAccounts
-                    .filter { it.phone != lastAccount?.phone }
                     .map { QuickLoginAccount(it.phone, it.fullName, it.phone) },
                 onSelectAccount = { account ->
                     loginViewModel.selectAccount(loginUiState.rememberedAccounts.first { it.phone == account.id })
@@ -217,7 +216,14 @@ fun AppNavHost(
         }
 
         composable(AppDestination.Account.route) {
-            AccountScreen()
+            AccountScreen(
+                onLogout = {
+                    loginViewModel.logout()
+                    navController.navigate(AppDestination.Welcome.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

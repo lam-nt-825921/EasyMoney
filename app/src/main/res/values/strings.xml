@@ -50,16 +50,19 @@
     <string name="confirm_loading">Đang tải thông tin...</string>
 
     <string name="home_welcome">Xin chào, %1$s!</string>
-    <string name="home_main_banner_title">VAY TỔ CHỨC TÍN DỤNG</string>
-    <string name="home_main_banner_button">ĐĂNG KÝ NGAY</string>
-    <string name="home_manage_loan">QUẢN LÝ KHOẢN VAY</string>
-    <string name="home_suggest_loan">GỢI Ý KHOẢN VAY</string>
-    <string name="home_consult_loan">TƯ VẤN KHOẢN VAY</string>
+    <string name="home_main_banner_title">Vay tổ chức tín dụng</string>
+    <string name="home_main_banner_button">Đăng ký ngay</string>
+    <string name="home_manage_loan">Quản lý&#10;khoản vay</string>
+    <string name="home_suggest_loan">Gợi ý&#10;khoản vay</string>
+    <string name="home_consult_loan">Tư vấn&#10;khoản vay</string>
     <string name="home_nav_home">Trang chủ</string>
     <string name="home_nav_history">Lịch sử giao dịch</string>
     <string name="home_nav_history_short">Lịch sử</string>
     <string name="home_nav_notify">Thông báo</string>
     <string name="home_nav_account">Tài khoản</string>
+    <string name="home_developer_mode">Chế độ nhà phát triển</string>
+    <string name="home_theme_light">Chuyển sang chế độ sáng</string>
+    <string name="home_theme_dark">Chuyển sang chế độ tối</string>
 
     <string name="loan_flow_step_1">Thông tin khoản vay</string>
     <string name="loan_flow_step_2_personal">Thông tin cá nhân</string>

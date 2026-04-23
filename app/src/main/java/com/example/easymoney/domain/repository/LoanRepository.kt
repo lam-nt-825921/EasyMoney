@@ -21,6 +21,7 @@ interface LoanRepository {
     suspend fun getLastRememberedAccount(): Resource<RememberedAccount?>
     suspend fun saveRememberedAccount(account: RememberedAccount): Resource<Unit>
     suspend fun deleteRememberedAccount(phone: String): Resource<Unit>
+    suspend fun clearAllRememberedAccounts(): Resource<Unit>
 
     suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel>
     suspend fun getMyPackage(): Resource<LoanPackageModel>
