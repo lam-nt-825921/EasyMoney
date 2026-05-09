@@ -227,7 +227,7 @@ fun OtpDialog(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Divider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outlineVariant)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

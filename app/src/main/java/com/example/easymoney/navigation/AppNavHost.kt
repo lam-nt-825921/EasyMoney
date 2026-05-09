@@ -11,26 +11,37 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import com.example.easymoney.ui.account.AccountScreen
+import com.example.easymoney.ui.account.GeneralSettingsScreen
+import com.example.easymoney.ui.account.profile.ProfileCompletionScreen
+import com.example.easymoney.ui.account.profile.ProfileScreen
+import com.example.easymoney.ui.account.profile.EditPersonalInfoScreen
+import com.example.easymoney.ui.account.profile.EditJobInfoScreen
+import com.example.easymoney.ui.account.profile.EditContactInfoScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoScreen
 import com.example.easymoney.ui.confirmation.ConfirmInfoViewModel
 import com.example.easymoney.ui.guide.PageGuideScreen
 import com.example.easymoney.ui.history.TransactionHistoryScreen
 import com.example.easymoney.ui.home.HomeScreen
-
 import com.example.easymoney.ui.home.HomeViewModel
-import com.example.easymoney.ui.login.LoginScreen1
-import com.example.easymoney.ui.login.LoginViewModel
-import com.example.easymoney.ui.login.QuickLoginScreen1
-import com.example.easymoney.ui.login.QuickLoginAccount
-import com.example.easymoney.ui.login.RegisterScreen1
-import com.example.easymoney.ui.login.WelcomeScreen
+import com.example.easymoney.ui.home.EventDetailScreen
+import com.example.easymoney.ui.login.*
 import com.example.easymoney.ui.loan.flow.LoanFlowScreen
+import com.example.easymoney.ui.loan.discovery.LoanListScreen
+import com.example.easymoney.ui.loan.discovery.LoanDetailScreen
+import com.example.easymoney.ui.reward.RewardScreen
 import com.example.easymoney.ui.notification.NotificationScreen
 import com.example.easymoney.ui.onboarding.OnboardingScreen
 import com.example.easymoney.ui.sandbox.SandBoxScreen
 import com.example.easymoney.ui.esign.ContractScreen
 import com.example.easymoney.ui.esign.EsignSuccessScreen
+import com.example.easymoney.ui.payment.MoneyManagementScreen
+import com.example.easymoney.ui.payment.PaymentCardsScreen
+import com.example.easymoney.ui.security.SecuritySettingsScreen
 
 @Composable
 fun AppNavHost(
@@ -53,7 +64,6 @@ fun AppNavHost(
     }
 
     // Xác định màn hình bắt đầu dựa trên dữ liệu tài khoản ghi nhớ
-    // Lưu ý: Trong thực tế nên dùng Splash screen để chờ load dữ liệu
     val startRoute = if (loginUiState.lastAccount != null) {
         AppDestination.QuickLogin1.route
     } else {
@@ -65,20 +75,87 @@ fun AppNavHost(
         startDestination = startRoute,
         modifier = modifier
     ) {
+        // --- MAIN TABS ---
         composable(AppDestination.Home.route) {
             val viewModel: HomeViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
 
             HomeScreen(
-                onLoanRegistrationClick = { navController.navigate(AppDestination.Onboarding.route) },
+                uiState = uiState,
+                onLoanRegistrationClick = { packageId -> 
+                    navController.navigate(AppDestination.LoanDetail.createRoute(packageId)) 
+                },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
+                onBannerClick = { type, id ->
+                    when (type) {
+                        "EVENT" -> navController.navigate(AppDestination.EventDetail.createRoute(id))
+                        "LOAN" -> navController.navigate(AppDestination.LoanDetail.createRoute(id))
+                        "WEB" -> { /* Open URL in custom tab or webview */ }
+                    }
+                },
+                onRedeemClick = { navController.navigate(AppDestination.Rewards.route) },
+                onVerifyEkycClick = { navController.navigate(AppDestination.IdentityVerification.route) },
+                onLoanProductClick = { id -> 
+                    if (id == "ALL") {
+                        navController.navigate(AppDestination.LoanList.route)
+                    } else {
+                        navController.navigate(AppDestination.LoanDetail.createRoute(id))
+                    }
+                },
+                onConsultLoanClick = { navController.navigate(AppDestination.ChatBot.route) },
+                onManageLoanClick = { navController.navigate(AppDestination.LoanList.route) }, 
+                onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
-                userName = uiState.userName.ifBlank { "NGUYEN LE MINH" },
-                isLoading = uiState.isLoading
+                modifier = Modifier.fillMaxSize()
             )
         }
 
+        composable(AppDestination.TransactionHistory.route) {
+            TransactionHistoryScreen(modifier = Modifier.fillMaxSize())
+        }
+
+        composable(AppDestination.Notifications.route) {
+            NotificationScreen(
+                onNavigateToHistory = { 
+                    navController.navigate(AppDestination.TransactionHistory.route) {
+                        popUpTo(AppDestination.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onNavigateToEvent = { id -> navController.navigate(AppDestination.EventDetail.createRoute(id)) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        composable(AppDestination.Account.route) {
+            AccountScreen(
+                onLogout = {
+                    loginViewModel.logout()
+                    navController.navigate(AppDestination.Welcome.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onNavigateToMoneyManagement = { navController.navigate(AppDestination.MoneyManagement.route) },
+                onNavigateToPaymentCards = { navController.navigate(AppDestination.PaymentCards.route) },
+                onNavigateToHistory = { 
+                    navController.navigate(AppDestination.TransactionHistory.route) {
+                        popUpTo(AppDestination.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onNavigateToRewards = { navController.navigate(AppDestination.Rewards.route) },
+                onNavigateToSecurity = { navController.navigate(AppDestination.SecuritySettings.route) },
+                onNavigateToSettings = { navController.navigate(AppDestination.GeneralSettings.route) },
+                onNavigateToSupport = { /* Open web center */ },
+                onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // --- AUTH FLOW ---
         composable(AppDestination.Welcome.route) {
             WelcomeScreen(
                 onLoginClick = { navController.navigate(AppDestination.Login1.route) },
@@ -132,6 +209,54 @@ fun AppNavHost(
             )
         }
 
+        // --- ONBOARDING & LOAN FLOW ---
+        composable(AppDestination.Onboarding.route) {
+            OnboardingScreen(
+                onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.route) }
+            )
+        }
+
+        composable(AppDestination.ConfirmInformation.route) {
+            val viewModel: ConfirmInfoViewModel = hiltViewModel()
+            ConfirmInfoScreen(
+                viewModel = viewModel,
+                onContinue = { navController.navigate(AppDestination.LoanFlow.route) },
+                onEditInfo = { navController.popBackStack() }
+            )
+        }
+
+        composable(AppDestination.LoanFlow.route) {
+            LoanFlowScreen(
+                onBack = { navController.popBackStack() },
+                onCancel = { navController.popBackStack(AppDestination.Onboarding.route, inclusive = false) },
+                onComplete = { navController.popBackStack(AppDestination.Home.route, inclusive = false) }
+            )
+        }
+
+        // --- ACCOUNT SUB-SCREENS ---
+        composable(AppDestination.MoneyManagement.route) {
+            MoneyManagementScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToTopUp = { /* Handle top up flow */ },
+                onNavigateToWithdraw = { /* Handle withdraw flow */ }
+            )
+        }
+
+        composable(AppDestination.PaymentCards.route) {
+            PaymentCardsScreen(
+                onBack = { navController.popBackStack() },
+                onAddCard = { /* Handle add card form */ }
+            )
+        }
+
+        composable(AppDestination.SecuritySettings.route) {
+            SecuritySettingsScreen(
+                onBack = { navController.popBackStack() },
+                onChangePassword = { /* Handle change password */ }
+            )
+        }
+
+        // --- OTHERS ---
         composable(AppDestination.Sandbox.route) {
             SandBoxScreen(
                 onBack = { navController.popBackStack() },
@@ -147,9 +272,7 @@ fun AppNavHost(
                         popUpTo(AppDestination.Contract.route) { inclusive = true }
                     }
                 },
-                onCancel = {
-                    navController.popBackStack()
-                }
+                onCancel = { navController.popBackStack() }
             )
         }
 
@@ -159,36 +282,6 @@ fun AppNavHost(
                     navController.navigate(AppDestination.Home.route) {
                         popUpTo(AppDestination.Home.route) { inclusive = true }
                     }
-                }
-            )
-        }
-
-        composable(AppDestination.Onboarding.route) {
-            OnboardingScreen(
-                onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.route) }
-            )
-        }
-
-        composable(AppDestination.ConfirmInformation.route) {
-            val viewModel: ConfirmInfoViewModel = hiltViewModel()
-
-            ConfirmInfoScreen(
-                viewModel = viewModel,
-                onContinue = { navController.navigate(AppDestination.LoanFlow.route) },
-                onEditInfo = { navController.popBackStack() }
-            )
-        }
-
-        composable(AppDestination.LoanFlow.route) {
-            LoanFlowScreen(
-                onBack = {
-                    navController.popBackStack()
-                },
-                onCancel = {
-                    navController.popBackStack(AppDestination.Onboarding.route, inclusive = false)
-                },
-                onComplete = {
-                    navController.popBackStack(AppDestination.Home.route, inclusive = false)
                 }
             )
         }
@@ -207,23 +300,79 @@ fun AppNavHost(
             PageGuideScreen(xmlName = xmlName)
         }
 
-        composable(AppDestination.TransactionHistory.route) {
-            TransactionHistoryScreen()
+        composable(AppDestination.EventDetail.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString(AppDestination.EventDetail.ID_ARG) ?: ""
+            EventDetailScreen(
+                eventId = id,
+                onBack = { navController.popBackStack() }
+            )
         }
 
-        composable(AppDestination.Notifications.route) {
-            NotificationScreen()
+        composable(AppDestination.Rewards.route) {
+            RewardScreen(onBack = { navController.popBackStack() })
         }
 
-        composable(AppDestination.Account.route) {
-            AccountScreen(
-                onLogout = {
-                    loginViewModel.logout()
-                    navController.navigate(AppDestination.Welcome.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+        composable(AppDestination.LoanList.route) {
+            LoanListScreen(
+                onBack = { navController.popBackStack() },
+                onPackageClick = { id -> 
+                    navController.navigate(AppDestination.LoanDetail.createRoute(id))
                 }
             )
         }
+
+        composable(AppDestination.LoanDetail.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString(AppDestination.LoanDetail.ID_ARG) ?: ""
+            LoanDetailScreen(
+                packageId = id,
+                onBack = { navController.popBackStack() },
+                onRegisterSuccess = { 
+                    navController.navigate(AppDestination.Onboarding.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(AppDestination.Profile.route)
+                }
+            )
+        }
+
+        composable(AppDestination.Profile.route) {
+            ProfileScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppDestination.GeneralSettings.route) {
+            GeneralSettingsScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppDestination.ChatBot.route) {
+            PlaceholderScreen(title = "Tư vấn tài chính (Chat Bot)")
+        }
+
+        composable(AppDestination.IdentityVerification.route) {
+            ProfileCompletionScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToEditPersonalInfo = { navController.navigate(AppDestination.EditPersonalInfo.route) },
+                onNavigateToEditJobInfo = { navController.navigate(AppDestination.EditJobInfo.route) },
+                onNavigateToEditContactInfo = { navController.navigate(AppDestination.EditContactInfo.route) }
+            )
+        }
+
+        composable(AppDestination.EditPersonalInfo.route) {
+            EditPersonalInfoScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppDestination.EditJobInfo.route) {
+            EditJobInfoScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppDestination.EditContactInfo.route) {
+            EditContactInfoScreen(onBack = { navController.popBackStack() })
+        }
+    }
+}
+
+@Composable
+fun PlaceholderScreen(title: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = title)
     }
 }

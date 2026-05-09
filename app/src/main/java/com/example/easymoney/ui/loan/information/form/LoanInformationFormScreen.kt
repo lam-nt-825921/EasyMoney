@@ -129,38 +129,13 @@ fun LoanInformationFormScreen(
         if (isGranted) contactPickerLauncher.launch(null)
     }
 
-    Scaffold(
-        modifier = modifier,
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
-            ) {
-                Button(
-                    onClick = {
-                        if (viewModel.triggerValidation()) {
-                            onNextStep()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(27.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(text = "Tiếp tục", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(16.dp),
@@ -384,6 +359,31 @@ fun LoanInformationFormScreen(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Bottom Action
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            shadowElevation = 8.dp,
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                Button(
+                    onClick = {
+                        if (viewModel.triggerValidation()) {
+                            onNextStep()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(27.dp)
+                ) {
+                    Text(text = "Tiếp tục", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
         }
 
         if (uiState.isLoading) {

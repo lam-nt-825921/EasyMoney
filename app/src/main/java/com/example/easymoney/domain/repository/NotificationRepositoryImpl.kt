@@ -57,18 +57,22 @@ class NotificationRepositoryImpl @Inject constructor(
                     NotificationEntity(
                         id = dto.id.toLong(),
                         userId = currentUserId,
-                        title = dto.title,
+                        title = dto.title ?: "Thông báo",
                         content = dto.content,
-                        type = dto.type,
+                        type = dto.type ?: "transaction",
                         amount = dto.amount,
                         balanceAfter = dto.balanceAfter,
                         transactionCode = dto.transactionCode,
-                        timestamp = dto.timestamp,
+                        timestamp = if (dto.timestamp > 0) dto.timestamp else System.currentTimeMillis(),
                         isRead = dto.isRead
                     )
                 }
-                // Sync to Local Database
-                notificationDao.insertNotifications(entities)
+                // Sync to Local Database with safety
+                try {
+                    notificationDao.insertNotifications(entities)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             else -> { /* Handle Error */ }
         }

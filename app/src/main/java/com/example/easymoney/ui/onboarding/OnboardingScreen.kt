@@ -72,23 +72,15 @@ fun OnboardingScreen(
 	val isLoading = uiState.isLoading
 	var isTermsAccepted by remember { mutableStateOf(true) }
 
-	Scaffold(
-		modifier = modifier.fillMaxSize(),
-		containerColor = MaterialTheme.colorScheme.background,
-		bottomBar = {
-			OnboardingBottomSection(
-				isTermsAccepted = isTermsAccepted,
-				isLoading = isLoading,
-				onTermsChanged = { isTermsAccepted = it },
-				onContinueClick = onContinueClick
-			)
-		}
-	) { innerPadding ->
+	Column(
+		modifier = modifier
+			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+	) {
 		Column(
 			modifier = Modifier
-				.fillMaxSize()
+				.weight(1f)
 				.verticalScroll(rememberScrollState())
-				.padding(innerPadding)
 				.padding(horizontal = 16.dp, vertical = 12.dp),
 			verticalArrangement = Arrangement.spacedBy(14.dp)
 		) {
@@ -102,6 +94,13 @@ fun OnboardingScreen(
 			}
 			Spacer(modifier = Modifier.height(8.dp))
 		}
+
+		OnboardingBottomSection(
+			isTermsAccepted = isTermsAccepted,
+			isLoading = isLoading,
+			onTermsChanged = { isTermsAccepted = it },
+			onContinueClick = onContinueClick
+		)
 	}
 }
 

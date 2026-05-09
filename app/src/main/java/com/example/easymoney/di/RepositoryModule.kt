@@ -28,4 +28,34 @@ abstract class RepositoryModule {
     abstract fun bindAccountRepository(
         accountRepositoryImpl: AccountRepositoryImpl
     ): AccountRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHomeRepository(
+        homeRepositoryImpl: HomeRepositoryImpl
+    ): HomeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPaymentRepository(
+        paymentRepositoryImpl: PaymentRepositoryImpl
+    ): PaymentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        userRepositoryImpl: UserRepositoryImpl
+    ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRewardRepository(
+        rewardRepositoryImpl: RewardRepositoryImpl
+    ): RewardRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEventRepository(
+        eventRepositoryImpl: EventRepositoryImpl
+    ): EventRepository
 }

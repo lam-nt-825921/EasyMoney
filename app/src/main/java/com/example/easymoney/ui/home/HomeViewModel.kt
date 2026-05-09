@@ -3,8 +3,10 @@ package com.example.easymoney.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.repository.HomeRepository
 import com.example.easymoney.domain.repository.LoanRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,47 +14,83 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.example.easymoney.domain.repository.RewardRepository
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val loanRepository: LoanRepository
+    private val loanRepository: LoanRepository,
+    private val homeRepository: HomeRepository,
+    private val rewardRepository: RewardRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        loadUserName()
+        loadHomeData()
     }
 
-    fun loadUserName() {
+    fun loadHomeData() {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
-            when (val result = loanRepository.getMyInfo()) {
-                is Resource.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            userName = result.data.fullName,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    }
-                }
+            val userJob = async { loanRepository.getMyInfo() }
+            val bannersJob = async { homeRepository.getBanners() }
+            val hotLoansJob = async { homeRepository.getHotLoans() }
+            val eKycJob = async { homeRepository.getEKycStatus() }
+            val rewardsJob = async { rewardRepository.getRewardsCatalog() }
 
-                is Resource.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
-                }
+            val userRes = userJob.await()
+            val bannersRes = bannersJob.await()
+            val hotLoansRes = hotLoansJob.await()
+            val eKycRes = eKycJob.await()
+            val rewardsRes = rewardsJob.await()
 
-                is Resource.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
-                }
+            _uiState.update { state ->
+                state.copy(
+                    isLoading = false,
+                    userName = if (userRes is Resource.Success) userRes.data.fullName else state.userName,
+                    banners = if (bannersRes is Resource.Success) bannersRes.data else state.banners,
+                    hotLoans = if (hotLoansRes is Resource.Success) hotLoansRes.data else state.hotLoans,
+                    eKycStatus = if (eKycRes is Resource.Success) eKycRes.data else state.eKycStatus,
+                    rewardPoints = if (rewardsRes is Resource.Success) rewardsRes.data.totalPoints else state.rewardPoints,
+                    errorMessage = if (userRes is Resource.Error) userRes.message else null
+                )
             }
         }
     }
-}
 
+    fun checkLoanEligibility(packageId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(eligibilityState = EligibilityUiState.Checking) }
+            when (val result = loanRepository.checkEligibility(packageId)) {
+                is Resource.Success -> {
+                    val eligibility = result.data
+                    if (eligibility.isEligible) {
+                        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Success(packageId)) }
+                    } else {
+                        when (eligibility.action) {
+                            "NAVIGATE_PROFILE" -> {
+                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.MissingInfo(eligibility.message ?: "")) }
+                            }
+                            "SHOW_REJECT" -> {
+                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.Rejected(eligibility.message ?: "")) }
+                            }
+                            else -> {
+                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.Error("Unknown error")) }
+                            }
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update { it.copy(eligibilityState = EligibilityUiState.Error(result.message ?: "Network error")) }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun resetEligibilityState() {
+        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Idle) }
+    }
+}

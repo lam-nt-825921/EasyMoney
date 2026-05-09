@@ -21,6 +21,312 @@ import com.example.easymoney.R
 import com.example.easymoney.ui.common.loading.SkeletonBlock
 import com.example.easymoney.ui.theme.LocalHomeColors
 
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import com.example.easymoney.domain.model.Banner
+import com.example.easymoney.domain.model.LoanProduct
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+
+import coil.compose.AsyncImage
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+
+import androidx.compose.animation.core.tween
+
+/**
+ * Dynamic Banner Carousel with Auto-scroll
+ */
+@Composable
+fun BannerCarousel(
+    banners: List<Banner>,
+    onBannerClick: (Banner) -> Unit
+) {
+    if (banners.isEmpty()) return
+
+    val pagerState = rememberPagerState(pageCount = { banners.size })
+
+    // Auto-scroll logic: 5s interval with 1s smooth transition
+    // Fixed glitch: Changed key to 'banners' to prevent cancellation mid-animation
+    LaunchedEffect(key1 = banners) {
+        if (banners.isEmpty()) return@LaunchedEffect
+        while (true) {
+            delay(5000)
+            if (!pagerState.isScrollInProgress) {
+                val nextPage = (pagerState.currentPage + 1) % banners.size
+                pagerState.animateScrollToPage(
+                    page = nextPage,
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .clip(RoundedCornerShape(24.dp))
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            val banner = banners[page]
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { onBannerClick(banner) }
+            ) {
+                AsyncImage(
+                    model = banner.imageUrl,
+                    contentDescription = banner.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                
+                // Gradient Overlay for text readability
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
+                                startY = 300f
+                            )
+                        )
+                )
+
+                Text(
+                    text = banner.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 20.dp, bottom = 32.dp, end = 20.dp),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        // Pager Indicator
+        Row(
+            Modifier
+                .height(24.dp)
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(banners.size) { iteration ->
+                val isSelected = pagerState.currentPage == iteration
+                val width = if (isSelected) 24.dp else 8.dp
+                val color = if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
+                
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .height(8.dp)
+                        .width(width)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Section for Points and Rewards
+ */
+@Composable
+fun RewardsSection(
+    points: Int,
+    onRedeemClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(id = R.string.home_reward_points),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                )
+                Text(
+                    text = "$points ${stringResource(id = R.string.common_points_unit)}",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Button(
+                onClick = onRedeemClick,
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(text = stringResource(id = R.string.home_redeem_gift))
+            }
+        }
+    }
+}
+
+/**
+ * Section for Hot Loan Promotions
+ */
+@Composable
+fun HotLoansSection(
+    loans: List<LoanProduct>,
+    onLoanClick: (LoanProduct) -> Unit,
+    onSeeAllClick: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.home_hot_loan_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            
+            TextButton(onClick = onSeeAllClick) {
+                Text(
+                    text = "Tất cả", // Should be in strings.xml
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(end = 16.dp)
+        ) {
+            items(loans) { loan ->
+                HotLoanCard(loan = loan, onClick = { onLoanClick(loan) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun HotLoanCard(
+    loan: LoanProduct,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(200.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (loan.badge != null) {
+                Surface(
+                    color = MaterialTheme.colorScheme.error,
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = loan.badge,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            Text(
+                text = loan.name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(id = R.string.home_loan_interest_rate, loan.interestRate),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = stringResource(id = R.string.home_loan_max_amount, formatAmount(loan.maxAmount)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+private fun formatAmount(amount: Long): String = "%,dđ".format(amount).replace(',', '.')
+
+/**
+ * Alert box for incomplete eKYC
+ */
+@Composable
+fun EKycAlertSection(
+    message: String,
+    onVerifyClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.ErrorOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(id = R.string.home_ekyc_alert_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            TextButton(onClick = onVerifyClick) {
+                Text(
+                    text = stringResource(id = R.string.home_ekyc_alert_button),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
 /**
  * Enum representing main features on the Home Screen.
  * Logic for colors is now handled via HomeTheme and CompositionLocal.
@@ -122,26 +428,32 @@ fun MainBanner(onRegistrationClick: () -> Unit) {
 }
 
 @Composable
-fun GridSection() {
+fun GridSection(
+    onManageLoanClick: () -> Unit,
+    onSuggestLoanClick: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FeatureItem(
             feature = HomeFeature.MANAGE_LOAN,
+            onClick = onManageLoanClick,
             modifier = Modifier.weight(1f)
         )
         FeatureItem(
             feature = HomeFeature.SUGGEST_LOAN,
+            onClick = onSuggestLoanClick,
             modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-fun WideBanner() {
+fun WideBanner(onClick: () -> Unit) {
     FeatureItem(
         feature = HomeFeature.CONSULT_LOAN,
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(135.dp)
@@ -151,6 +463,7 @@ fun WideBanner() {
 @Composable
 private fun FeatureItem(
     feature: HomeFeature,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val homeColors = LocalHomeColors.current
@@ -162,7 +475,9 @@ private fun FeatureItem(
     }
 
     Card(
-        modifier = modifier.height(120.dp),
+        modifier = modifier
+            .height(120.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

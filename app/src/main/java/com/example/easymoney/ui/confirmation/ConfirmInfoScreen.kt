@@ -60,25 +60,17 @@ private fun ConfirmInfoContent(
 ) {
     val isLoading = uiState.loadState !in listOf(ConfirmInfoLoadState.Success)
     
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            ConfirmInfoBottomBar(
-                uiState = uiState,
-                onContinueClick = onContinueClick,
-                onEditInfoClick = onEditInfoClick
-            )
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Spacer to fix "shifted upwards" issue
             Spacer(modifier = Modifier.height(40.dp))
@@ -121,6 +113,12 @@ private fun ConfirmInfoContent(
 
             Spacer(modifier = Modifier.height(60.dp))
         }
+
+        ConfirmInfoBottomBar(
+            uiState = uiState,
+            onContinueClick = onContinueClick,
+            onEditInfoClick = onEditInfoClick
+        )
     }
 }
 

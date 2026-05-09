@@ -141,6 +141,101 @@ sealed class AppDestination(
         showBackButton = false,
         showHelpButton = false
     )
+
+    // New Destinations from Phase 1
+    data object EventDetail : AppDestination(
+        route = "event_detail/{id}",
+        title = "Chi tiết sự kiện",
+        showBackButton = true
+    ) {
+        const val BASE_ROUTE = "event_detail"
+        const val ID_ARG = "id"
+        fun createRoute(id: String) = "$BASE_ROUTE/$id"
+    }
+
+    data object Rewards : AppDestination(
+        route = "rewards",
+        title = "Đổi điểm thưởng",
+        showBackButton = true
+    )
+
+    data object LoanList : AppDestination(
+        route = "loan_list",
+        title = "Gói vay ưu đãi",
+        showBackButton = true
+    )
+
+    data object LoanDetail : AppDestination(
+        route = "loan_detail/{id}",
+        title = "Chi tiết gói vay",
+        showBackButton = true
+    ) {
+        const val BASE_ROUTE = "loan_detail"
+        const val ID_ARG = "id"
+        fun createRoute(id: String) = "$BASE_ROUTE/$id"
+    }
+
+    data object Profile : AppDestination(
+        route = "profile",
+        title = "Hồ sơ cá nhân",
+        showBackButton = true
+    )
+
+    data object MoneyManagement : AppDestination(
+        route = "money_management",
+        title = "Quản lý nguồn tiền",
+        showBackButton = true
+    )
+
+    data object PaymentCards : AppDestination(
+        route = "payment_cards",
+        title = "Thẻ thanh toán",
+        showBackButton = true
+    )
+
+    data object GeneralSettings : AppDestination(
+        route = "general_settings",
+        title = "Cài đặt",
+        showBackButton = true
+    )
+
+    data object SecuritySettings : AppDestination(
+        route = "security_settings",
+        title = "Bảo mật tài khoản",
+        showBackButton = true
+    )
+
+    data object ChatBot : AppDestination(
+        route = "chatbot",
+        title = "Tư vấn tài chính",
+        showBackButton = true,
+        showHelpButton = false
+    )
+
+    data object IdentityVerification : AppDestination(
+        route = "identity_verification",
+        title = "Định danh tài khoản",
+        showBackButton = true,
+        showHelpButton = true
+    )
+
+    data object EditPersonalInfo : AppDestination(
+        route = "edit_personal_info",
+        title = "Thông tin cá nhân",
+        showBackButton = true
+    )
+
+    data object EditJobInfo : AppDestination(
+        route = "edit_job_info",
+        title = "Công việc & Thu nhập",
+        showBackButton = true
+    )
+
+    data object EditContactInfo : AppDestination(
+        route = "edit_contact_info",
+        title = "Thông tin người liên hệ",
+        showBackButton = true
+    )
 }
 
 fun appDestinationFromRoute(route: String?): AppDestination = when {
@@ -158,6 +253,20 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Sandbox.route -> AppDestination.Sandbox
     route == AppDestination.Contract.route -> AppDestination.Contract
     route == AppDestination.EsignSuccess.route -> AppDestination.EsignSuccess
+    route == AppDestination.Rewards.route -> AppDestination.Rewards
+    route == AppDestination.LoanList.route -> AppDestination.LoanList
+    route == AppDestination.Profile.route -> AppDestination.Profile
+    route == AppDestination.MoneyManagement.route -> AppDestination.MoneyManagement
+    route == AppDestination.PaymentCards.route -> AppDestination.PaymentCards
+    route == AppDestination.GeneralSettings.route -> AppDestination.GeneralSettings
+    route == AppDestination.SecuritySettings.route -> AppDestination.SecuritySettings
+    route == AppDestination.ChatBot.route -> AppDestination.ChatBot
+    route == AppDestination.IdentityVerification.route -> AppDestination.IdentityVerification
+    route == AppDestination.EditPersonalInfo.route -> AppDestination.EditPersonalInfo
+    route == AppDestination.EditJobInfo.route -> AppDestination.EditJobInfo
+    route == AppDestination.EditContactInfo.route -> AppDestination.EditContactInfo
+    route?.startsWith(AppDestination.EventDetail.BASE_ROUTE) == true -> AppDestination.EventDetail
+    route?.startsWith(AppDestination.LoanDetail.BASE_ROUTE) == true -> AppDestination.LoanDetail
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home
 }

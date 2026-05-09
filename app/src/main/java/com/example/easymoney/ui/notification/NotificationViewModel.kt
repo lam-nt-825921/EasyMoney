@@ -25,7 +25,11 @@ class NotificationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            notificationRepository.refreshNotifications()
+            try {
+                notificationRepository.refreshNotifications()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -39,11 +43,15 @@ class NotificationViewModel @Inject constructor(
 
         return notificationRepository.getNotificationsByType(currentUserId, mappedType)
             .map { list ->
-                list.groupBy { entity ->
-                    val sdf = SimpleDateFormat("'Tháng' MM/yyyy", Locale("vi", "VN"))
-                    sdf.format(Date(entity.timestamp))
-                }.map { (label, items) ->
-                    NotificationGroup(label, items)
+                try {
+                    list.groupBy { entity ->
+                        val sdf = SimpleDateFormat("'Tháng' MM/yyyy", Locale("vi", "VN"))
+                        sdf.format(Date(entity.timestamp))
+                    }.map { (label, items) ->
+                        NotificationGroup(label, items)
+                    }
+                } catch (e: Exception) {
+                    emptyList()
                 }
             }
     }

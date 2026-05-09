@@ -8,7 +8,9 @@ data class LoanPackageModel(
     val maxAmount: Long,
     val interest: Double,
     val overdueCost: Double,
-    val eligibleCreditScore: Int
+    val eligibleCreditScore: Int,
+    val isEligible: Boolean = true,
+    val ineligibilityReason: String? = null
 ) {
     fun getTenorList(defaultTenors: List<Int> = listOf(6, 12, 18, 24)): List<Int> {
         return try {

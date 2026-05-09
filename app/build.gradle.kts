@@ -55,6 +55,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     ksp(libs.sqlite.jdbc)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.coil.compose)
 
     kapt("com.google.dagger:hilt-android-compiler:2.54")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -84,6 +85,9 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.4.1")
     implementation("androidx.camera:camera-view:1.4.1")
     implementation("com.google.mlkit:face-detection:16.1.7")
+
+    // Biometrics
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

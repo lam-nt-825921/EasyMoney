@@ -186,6 +186,49 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(data = mockLoanProviderInfo, isFromMock = true)
     }
 
+    override suspend fun getLoanPackages(
+        minAmount: Long?,
+        maxAmount: Long?,
+        tenor: Int?,
+        eligibleOnly: Boolean
+    ): Resource<List<LoanPackageModel>> {
+        delay(800)
+        var filtered = mockLoanPackages.map { pkg ->
+            // Mock eligibility based on ID for demo
+            when (pkg.id) {
+                "1" -> pkg.copy(isEligible = true)
+                "2" -> pkg.copy(isEligible = false, ineligibilityReason = "MISSING_PROFILE")
+                else -> pkg.copy(isEligible = false, ineligibilityReason = "LOW_CREDIT_SCORE")
+            }
+        }
+
+        if (minAmount != null) filtered = filtered.filter { it.maxAmount >= minAmount }
+        if (maxAmount != null) filtered = filtered.filter { it.minAmount <= maxAmount }
+        if (tenor != null) filtered = filtered.filter { it.getTenorList().contains(tenor) }
+        if (eligibleOnly) filtered = filtered.filter { it.isEligible }
+
+        return Resource.Success(data = filtered, isFromMock = true)
+    }
+
+    override suspend fun checkEligibility(packageId: String): Resource<EligibilityResult> {
+        delay(1000)
+        return when (packageId) {
+            "1" -> Resource.Success(EligibilityResult(true))
+            "2" -> Resource.Success(EligibilityResult(
+                isEligible = false,
+                reasonCode = "MISSING_PROFILE",
+                message = "Bạn cần hoàn thiện thông tin nghề nghiệp và eKYC để tiếp tục.",
+                action = "NAVIGATE_PROFILE"
+            ))
+            else -> Resource.Success(EligibilityResult(
+                isEligible = false,
+                reasonCode = "LOW_CREDIT_SCORE",
+                message = "Rất tiếc, điểm tín dụng của bạn chưa đủ để đăng ký gói vay này.",
+                action = "SHOW_REJECT"
+            ))
+        }
+    }
+
     // ========== Master Data Mock ==========
     override suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata> {
         if (isRemote()) return remoteDataSource?.getMasterDataMetadata() ?: Resource.Error("Remote data source not available")

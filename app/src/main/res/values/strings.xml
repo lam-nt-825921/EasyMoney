@@ -98,4 +98,37 @@
     <string name="error_invalid_phone">Số điện thoại không hợp lệ</string>
     <string name="error_input_contact_name">Vui lòng nhập tên người liên hệ</string>
     <string name="error_select_relationship">Vui lòng chọn mối quan hệ</string>
+
+    <!-- Home Enhancements -->
+    <string name="home_reward_points">Điểm thưởng của bạn</string>
+    <string name="home_redeem_gift">Đổi quà</string>
+    <string name="home_ekyc_alert_title">Hoàn thiện hồ sơ</string>
+    <string name="home_ekyc_alert_button">Định danh ngay</string>
+    <string name="home_hot_loan_title">Gợi ý khoản vay hot</string>
+    <string name="home_loan_interest_rate">%1$.1f%%/tháng</string>
+    <string name="home_loan_max_amount">Tới %1$s</string>
+
+    <!-- Account & Settings -->
+    <string name="account_money_management">Quản lý nguồn tiền</string>
+    <string name="account_payment_cards">Thẻ thanh toán</string>
+    <string name="account_transaction_history">Lịch sử giao dịch</string>
+    <string name="account_support_center">Trung tâm hỗ trợ</string>
+    <string name="account_security">Bảo mật tài khoản</string>
+    <string name="account_settings">Cài đặt</string>
+    <string name="account_logout">Đăng xuất</string>
+
+    <!-- Money Management -->
+    <string name="money_mgmt_balance">Số dư khả dụng</string>
+    <string name="money_mgmt_topup">Nạp tiền</string>
+    <string name="money_mgmt_withdraw">Rút tiền</string>
+    <string name="money_mgmt_auto_deduction">Tự động trả nợ</string>
+    <string name="money_mgmt_recent_flow">Dòng tiền gần đây</string>
+
+    <!-- Security & Bio -->
+    <string name="security_biometric_auth">Xác thực sinh trắc học</string>
+    <string name="security_change_password">Đổi mật khẩu</string>
+
+    <!-- General -->
+    <string name="common_points_unit">điểm</string>
+    <string name="common_loading">Đang tải...</string>
 </resources>

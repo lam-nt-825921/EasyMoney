@@ -1,19 +1,49 @@
 package com.example.easymoney.ui.loan.flow
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.LoanApplicationRequest
+import com.example.easymoney.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoanFlowViewModel @Inject constructor() : ViewModel() {
+class LoanFlowViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanFlowModel())
     val uiState: StateFlow<LoanFlowModel> = _uiState.asStateFlow()
+
+    init {
+        preFillFromProfile()
+    }
+
+    private fun preFillFromProfile() {
+        viewModelScope.launch {
+            when (val result = userRepository.getProfile()) {
+                is Resource.Success -> {
+                    val profile = result.data
+                    _uiState.update { currentState ->
+                        val draft = currentState.draftApplication ?: createEmptyApplication()
+                        currentState.copy(
+                            draftApplication = draft.copy(
+                                // Pre-fill basic info if needed in the request model
+                                // Note: LoanApplicationRequest might need more fields from UserProfile
+                            )
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
 
     /**
      * Cập nhật cấu hình khoản vay từ Step 1
@@ -83,6 +113,16 @@ class LoanFlowViewModel @Inject constructor() : ViewModel() {
 
     fun updateSubState(subState: LoanSubState) {
         _uiState.update { it.copy(subState = subState) }
+    }
+
+    /**
+     * Xử lý kết quả từ FaceCaptureModule
+     */
+    fun onFaceCaptureResult(result: com.example.easymoney.ui.common.identity.FaceCaptureResult) {
+        if (result.livenessVerified) {
+            // Có thể lưu ảnh eKYC vào draftApplication nếu cần
+            onNextStep()
+        }
     }
 
     fun toggleExitDialog(show: Boolean) {

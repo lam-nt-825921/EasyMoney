@@ -1,14 +1,15 @@
 package com.example.easymoney.domain.repository
 
 import com.example.easymoney.domain.common.Resource
-import com.example.easymoney.domain.model.LoanPackageModel
-import com.example.easymoney.domain.model.LoanProviderInfoModel
-import com.example.easymoney.domain.model.MyInfoModel
-import com.example.easymoney.domain.model.EkycCaptureRequest
-import com.example.easymoney.domain.model.EkycCaptureResponse
-import com.example.easymoney.domain.model.LoanApplicationRequest
 import com.example.easymoney.domain.model.*
 import java.io.File
+
+data class EligibilityResult(
+    val isEligible: Boolean,
+    val reasonCode: String? = null,
+    val message: String? = null,
+    val action: String? = null // NAVIGATE_PROFILE, SHOW_REJECT
+)
 
 interface LoanRepository {
     // Auth
@@ -29,6 +30,15 @@ interface LoanRepository {
     suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel>
 
     // Master Data
+    suspend fun getLoanPackages(
+        minAmount: Long? = null,
+        maxAmount: Long? = null,
+        tenor: Int? = null,
+        eligibleOnly: Boolean = false
+    ): Resource<List<LoanPackageModel>>
+
+    suspend fun checkEligibility(packageId: String): Resource<EligibilityResult>
+    
     suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata>
     
     suspend fun getProvinces(): Resource<List<MasterDataItem>>

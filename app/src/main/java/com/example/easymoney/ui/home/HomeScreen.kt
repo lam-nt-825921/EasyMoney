@@ -7,54 +7,163 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
-import com.example.easymoney.ui.home.components.GridSection
-import com.example.easymoney.ui.home.components.HomeLoadingContent
-import com.example.easymoney.ui.home.components.MainBanner
-import com.example.easymoney.ui.home.components.WideBanner
+import com.example.easymoney.ui.home.components.*
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
 @Composable
 fun HomeScreen(
-    onLoanRegistrationClick: () -> Unit,
+    uiState: HomeUiState,
+    onLoanRegistrationClick: (String) -> Unit,
     onToggleSandbox: () -> Unit,
+    onBannerClick: (String, String) -> Unit,
+    onRedeemClick: () -> Unit,
+    onVerifyEkycClick: () -> Unit,
+    onLoanProductClick: (String) -> Unit,
+    onConsultLoanClick: () -> Unit,
+    onManageLoanClick: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    userName: String,
     modifier: Modifier = Modifier,
-    isLoading: Boolean = false
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(28.dp)
-    ) {
-        HeaderSection(
-            userName = userName,
-            isDarkTheme = isDarkTheme,
-            onToggleTheme = onToggleTheme,
-            onDevClick = onToggleSandbox
-        )
+    val isLoading = uiState.isLoading
 
-        if (isLoading) {
-            HomeLoadingContent()
-        } else {
-            MainBanner(onRegistrationClick = onLoanRegistrationClick)
-            GridSection()
-            WideBanner()
+    // Handle Eligibility results
+    LaunchedEffect(uiState.eligibilityState) {
+        when (val state = uiState.eligibilityState) {
+            is EligibilityUiState.Success -> {
+                onLoanRegistrationClick(state.packageId)
+                viewModel.resetEligibilityState()
+            }
+            else -> {}
         }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp)
+        ) {
+            HeaderSection(
+                userName = uiState.userName.ifBlank { "Khách hàng" },
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme,
+                onDevClick = onToggleSandbox
+            )
+
+            if (isLoading) {
+                HomeLoadingContent()
+            } else {
+                // eKYC Alert if not identified
+                uiState.eKycStatus?.let { status ->
+                    if (!status.isIdentified) {
+                        EKycAlertSection(
+                            message = status.message ?: "",
+                            onVerifyClick = onVerifyEkycClick
+                        )
+                    }
+                }
+
+                // Banner Carousel
+                BannerCarousel(
+                    banners = uiState.banners,
+                    onBannerClick = { banner -> 
+                        if (banner.targetType == "LOAN") {
+                            viewModel.checkLoanEligibility(banner.targetId ?: "1")
+                        } else {
+                            onBannerClick(banner.targetType, banner.targetId ?: "")
+                        }
+                    }
+                )
+
+                // Rewards Section
+                RewardsSection(
+                    points = uiState.rewardPoints,
+                    onRedeemClick = onRedeemClick
+                )
+
+                // Feature Grid
+                GridSection(
+                    onManageLoanClick = onManageLoanClick,
+                    onSuggestLoanClick = { onLoanProductClick("ALL") }
+                )
+
+                // Consult Loan (Chat bot)
+                WideBanner(onClick = onConsultLoanClick)
+
+                // Hot Loans Section
+                HotLoansSection(
+                    loans = uiState.hotLoans,
+                    onLoanClick = { product -> viewModel.checkLoanEligibility(product.id) },
+                    onSeeAllClick = { onLoanProductClick("ALL") }
+                )
+
+                // Bottom Banner
+                MainBanner(onRegistrationClick = { viewModel.checkLoanEligibility("1") })
+                
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+
+        if (uiState.eligibilityState is EligibilityUiState.Checking) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+    }
+
+    // Eligibility Dialogs
+    if (uiState.eligibilityState is EligibilityUiState.MissingInfo) {
+        val state = uiState.eligibilityState as EligibilityUiState.MissingInfo
+        AlertDialog(
+            onDismissRequest = { viewModel.resetEligibilityState() },
+            title = { Text("Hồ sơ chưa hoàn thiện") },
+            text = { Text(state.message) },
+            confirmButton = {
+                Button(onClick = { 
+                    viewModel.resetEligibilityState()
+                    onNavigateToProfile() 
+                }) {
+                    Text("Hoàn thiện ngay")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.resetEligibilityState() }) {
+                    Text("Đóng")
+                }
+            }
+        )
+    }
+
+    if (uiState.eligibilityState is EligibilityUiState.Rejected) {
+        val state = uiState.eligibilityState as EligibilityUiState.Rejected
+        AlertDialog(
+            onDismissRequest = { viewModel.resetEligibilityState() },
+            title = { Text("Không đủ điều kiện") },
+            text = { Text(state.message) },
+            confirmButton = {
+                Button(onClick = { viewModel.resetEligibilityState() }) {
+                    Text("Đã hiểu")
+                }
+            }
+        )
     }
 }
 
@@ -82,7 +191,6 @@ private fun HeaderSection(
             
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Professional Badge for Developer Mode
             Surface(
                 onClick = onDevClick,
                 shape = RoundedCornerShape(8.dp),
@@ -114,19 +222,5 @@ private fun HeaderSection(
                 modifier = Modifier.size(24.dp)
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun HomeScreenPreview() {
-    EasyMoneyTheme {
-        HomeScreen(
-            onLoanRegistrationClick = {},
-            onToggleSandbox = {},
-            isDarkTheme = false,
-            onToggleTheme = {},
-            userName = "Nguyen Duc Minh"
-        )
     }
 }
