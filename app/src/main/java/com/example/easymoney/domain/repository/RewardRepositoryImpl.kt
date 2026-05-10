@@ -1,11 +1,18 @@
 package com.example.easymoney.domain.repository
 
+import com.example.easymoney.data.sample.SAMPLE_REWARD_CATALOG
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.*
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class RewardRepositoryImpl @Inject constructor() : RewardRepository {
+
+    override suspend fun getRewardCatalogItems(): Resource<List<RewardCatalogItem>> {
+        delay(800)
+        return Resource.Success(SAMPLE_REWARD_CATALOG)
+    }
+
     override suspend fun getRewardsCatalog(): Resource<UserRewards> {
         delay(500)
         return Resource.Success(

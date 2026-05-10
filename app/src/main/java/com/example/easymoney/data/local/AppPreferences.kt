@@ -3,6 +3,9 @@ package com.example.easymoney.data.local
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,9 +27,20 @@ class AppPreferences @Inject constructor(
         private const val KEY_REFRESH_TOKEN = "refresh_token"
     }
 
+    private val _dataSourceModeFlow = MutableStateFlow(readDataSourceMode())
+    val dataSourceModeFlow: StateFlow<DataSourceMode> = _dataSourceModeFlow.asStateFlow()
+
+    private fun readDataSourceMode(): DataSourceMode =
+        DataSourceMode.valueOf(
+            prefs.getString(KEY_DATA_SOURCE_MODE, DataSourceMode.MOCK.name) ?: DataSourceMode.MOCK.name
+        )
+
     var dataSourceMode: DataSourceMode
-        get() = DataSourceMode.valueOf(prefs.getString(KEY_DATA_SOURCE_MODE, DataSourceMode.MOCK.name) ?: DataSourceMode.MOCK.name)
-        set(value) = prefs.edit().putString(KEY_DATA_SOURCE_MODE, value.name).apply()
+        get() = readDataSourceMode()
+        set(value) {
+            prefs.edit().putString(KEY_DATA_SOURCE_MODE, value.name).apply()
+            _dataSourceModeFlow.value = value
+        }
 
     var apiBaseUrl: String
         get() = prefs.getString(KEY_API_BASE_URL, DEFAULT_BASE_URL) ?: DEFAULT_BASE_URL

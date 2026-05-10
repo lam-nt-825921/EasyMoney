@@ -103,7 +103,10 @@ fun AppNavHost(
                     }
                 },
                 onConsultLoanClick = { navController.navigate(AppDestination.ChatBot.route) },
-                onManageLoanClick = { navController.navigate(AppDestination.LoanList.route) }, 
+                onManageLoanClick = {
+                    android.util.Log.d("Analytics", "event=home_banner_click banner=loan_management")
+                    navController.navigate(AppDestination.LoanManagement.route)
+                },
                 onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
@@ -237,8 +240,8 @@ fun AppNavHost(
         composable(AppDestination.MoneyManagement.route) {
             MoneyManagementScreen(
                 onBack = { navController.popBackStack() },
-                onNavigateToTopUp = { /* Handle top up flow */ },
-                onNavigateToWithdraw = { /* Handle withdraw flow */ }
+                onNavigateToTopUp = { navController.navigate(AppDestination.TopUp.route) },
+                onNavigateToWithdraw = { navController.navigate(AppDestination.Withdraw.route) }
             )
         }
 
@@ -264,12 +267,22 @@ fun AppNavHost(
             )
         }
 
-        composable(AppDestination.Contract.route) {
+        composable(
+            route = AppDestination.Contract.route,
+            arguments = listOf(
+                androidx.navigation.navArgument(AppDestination.Contract.CONTRACT_ID_ARG) {
+                    type = androidx.navigation.NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val contractId = backStackEntry.arguments?.getString(AppDestination.Contract.CONTRACT_ID_ARG)
             ContractScreen(
-                loanId = "MOCK-SANDBOX-123",
+                loanId = contractId ?: "MOCK-SANDBOX-123",
                 onSignSuccess = {
                     navController.navigate(AppDestination.EsignSuccess.route) {
-                        popUpTo(AppDestination.Contract.route) { inclusive = true }
+                        popUpTo(AppDestination.Contract.BASE_ROUTE) { inclusive = true }
                     }
                 },
                 onCancel = { navController.popBackStack() }
@@ -344,7 +357,33 @@ fun AppNavHost(
         }
 
         composable(AppDestination.ChatBot.route) {
-            PlaceholderScreen(title = "Tư vấn tài chính (Chat Bot)")
+            com.example.easymoney.ui.chatbot.ChatBotScreen(
+                onNavigateRoute = { route -> navController.navigate(route) }
+            )
+        }
+
+        composable(AppDestination.Terms.route) {
+            com.example.easymoney.ui.terms.TermsScreen()
+        }
+
+        composable(AppDestination.TopUp.route) {
+            com.example.easymoney.ui.payment.TopUpScreen(
+                onTopUpSuccess = { navController.popBackStack() }
+            )
+        }
+
+        composable(AppDestination.Withdraw.route) {
+            com.example.easymoney.ui.payment.WithdrawScreen(
+                onWithdrawSuccess = { navController.popBackStack() }
+            )
+        }
+
+        composable(AppDestination.LoanManagement.route) {
+            com.example.easymoney.ui.loan.management.LoanManagementScreen(
+                onSignContract = { contractId ->
+                    navController.navigate(AppDestination.Contract.createRoute(contractId))
+                }
+            )
         }
 
         composable(AppDestination.IdentityVerification.route) {

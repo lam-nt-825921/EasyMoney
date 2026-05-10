@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -102,9 +103,63 @@ fun RewardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(uiState.rewards) { reward ->
-                    RewardCard(reward = reward, canRedeem = uiState.totalPoints >= reward.points)
+                    RewardCard(
+                        reward = reward,
+                        canRedeem = uiState.totalPoints >= reward.points,
+                        onRedeem = { viewModel.onRedeemRequest(reward.id) }
+                    )
                 }
             }
+        }
+
+        uiState.pendingConfirmId?.let { id ->
+            val item = uiState.rewards.firstOrNull { it.id == id }
+            if (item != null) {
+                AlertDialog(
+                    onDismissRequest = viewModel::onCancelRedeem,
+                    title = { Text("Xác nhận đổi quà") },
+                    text = {
+                        Column {
+                            Text(item.title, fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(4.dp))
+                            Text("Trừ ${item.points} điểm. Số dư sau: ${uiState.totalPoints - item.points} điểm.")
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = viewModel::onConfirmRedeem, enabled = !uiState.isRedeeming) {
+                            Text("Xác nhận")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = viewModel::onCancelRedeem) {
+                            Text("Hủy")
+                        }
+                    }
+                )
+            }
+        }
+
+        uiState.redeemSuccessMessage?.let { msg ->
+            AlertDialog(
+                onDismissRequest = viewModel::consumeMessages,
+                title = { Text("Đổi quà thành công") },
+                text = { Text(msg) },
+                confirmButton = {
+                    TextButton(onClick = viewModel::consumeMessages) { Text("OK") }
+                }
+            )
+        }
+
+        uiState.errorMessage?.let { msg ->
+            LaunchedEffect(msg) { /* could show snackbar */ }
+            AlertDialog(
+                onDismissRequest = viewModel::consumeMessages,
+                title = { Text("Thông báo") },
+                text = { Text(msg) },
+                confirmButton = {
+                    TextButton(onClick = viewModel::consumeMessages) { Text("OK") }
+                }
+            )
         }
     }
 }
@@ -112,7 +167,8 @@ fun RewardScreen(
 @Composable
 fun RewardCard(
     reward: RewardItem,
-    canRedeem: Boolean
+    canRedeem: Boolean,
+    onRedeem: () -> Unit = {}
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -161,7 +217,7 @@ fun RewardCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             Button(
-                onClick = { /* Handle redeem */ },
+                onClick = onRedeem,
                 enabled = canRedeem,
                 modifier = Modifier.fillMaxWidth().height(32.dp),
                 contentPadding = PaddingValues(0.dp),

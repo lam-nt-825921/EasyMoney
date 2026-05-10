@@ -28,7 +28,9 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d("FCM", "New Token: $token")
-        // TODO: Gửi token này lên backend của bạn để lưu lại
+        scope.launch {
+            notificationRepository.registerFcmToken(token)
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

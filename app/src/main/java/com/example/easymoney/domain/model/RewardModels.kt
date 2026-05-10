@@ -23,3 +23,13 @@ data class UserRewards(
     val totalPoints: Int,
     val history: List<PointHistory>
 )
+
+/** Reward item hiển thị trong catalog (workflow #7) — khác RewardItem (catalog backend cũ). */
+data class RewardCatalogItem(
+    val id: String,
+    val title: String,
+    val points: Int,
+    val description: String,
+    val category: String,
+    val imageUrl: String? = null
+)

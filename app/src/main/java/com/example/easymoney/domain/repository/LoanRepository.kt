@@ -82,4 +82,8 @@ interface LoanRepository {
      * Xác thực mã OTP
      */
     suspend fun verifyOtp(otp: String): Resource<Unit>
+
+    // Workflow #12 — Loan management
+    suspend fun getApprovedContracts(): Resource<List<LoanContractModel>>
+    suspend fun cancelContract(contractId: String): Resource<Unit>
 }
