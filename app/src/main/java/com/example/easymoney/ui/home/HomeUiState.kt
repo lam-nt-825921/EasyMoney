@@ -7,7 +7,7 @@ import com.example.easymoney.domain.model.EKycStatus
 sealed interface EligibilityUiState {
     data object Idle : EligibilityUiState
     data object Checking : EligibilityUiState
-    data class Success(val packageId: String) : EligibilityUiState
+    data class Success(val packageId: String, val skipDetail: Boolean = false) : EligibilityUiState
     data class MissingInfo(val message: String) : EligibilityUiState
     data class Rejected(val message: String) : EligibilityUiState
     data class Error(val message: String) : EligibilityUiState
@@ -23,5 +23,3 @@ data class HomeUiState(
     val errorMessage: String? = null,
     val eligibilityState: EligibilityUiState = EligibilityUiState.Idle
 )
-
-

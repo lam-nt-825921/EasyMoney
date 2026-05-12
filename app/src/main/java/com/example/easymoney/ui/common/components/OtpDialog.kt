@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
+import com.example.easymoney.R
 
 @Composable
 fun OtpDialog(
@@ -91,7 +93,7 @@ fun OtpDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Xác thực OTP",
+                    text = stringResource(R.string.otp_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -99,11 +101,11 @@ fun OtpDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 val description = buildAnnotatedString {
-                    append("Vui lòng nhập mã OTP được gửi về SĐT ")
+                    append(stringResource(R.string.otp_desc_1))
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(phoneNumber)
                     }
-                    append(" để ký hợp đồng")
+                    append(stringResource(R.string.otp_desc_2))
                 }
 
                 Text(
@@ -173,7 +175,7 @@ fun OtpDialog(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Gửi lại sau ${timeLeft}s",
+                            text = stringResource(R.string.otp_resend_wait, timeLeft),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -189,12 +191,12 @@ fun OtpDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Gửi lại",
+                                contentDescription = stringResource(R.string.otp_resend),
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                "Gửi lại mã OTP",
+                                stringResource(R.string.otp_resend),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -218,7 +220,7 @@ fun OtpDialog(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Mã OTP không đúng ($attempts/$maxAttempts lần)",
+                            text = stringResource(R.string.otp_error_wrong, attempts, maxAttempts),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -240,7 +242,7 @@ fun OtpDialog(
                             .height(56.dp)
                     ) {
                         Text(
-                            text = "Bỏ qua",
+                            text = stringResource(R.string.action_skip),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -264,7 +266,7 @@ fun OtpDialog(
                             CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                         } else {
                             Text(
-                                text = "Xác nhận",
+                                text = stringResource(R.string.action_confirm),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = if (otpValue.length == 6) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                                 fontWeight = FontWeight.Bold

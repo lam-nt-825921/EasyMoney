@@ -1,5 +1,6 @@
 package com.example.easymoney.ui.account
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,10 +19,17 @@ import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
 
+import androidx.compose.ui.res.stringResource
+import androidx.core.os.LocaleListCompat
+import com.example.easymoney.R
+
 @Composable
 fun GeneralSettingsScreen(
     onBack: () -> Unit
 ) {
+    val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    val isEnglish = currentLocale == "en"
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,16 +37,20 @@ fun GeneralSettingsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SettingsGroup(title = "Ứng dụng") {
+        SettingsGroup(title = stringResource(id = R.string.settings_group_app)) {
             SettingsItem(
-                title = "Ngôn ngữ",
-                subtitle = "Tiếng Việt",
-                icon = Icons.Default.Language
+                title = stringResource(id = R.string.settings_item_language),
+                subtitle = stringResource(id = R.string.settings_item_language_value),
+                icon = Icons.Default.Language,
+                onClick = {
+                    val newLocale = if (isEnglish) "vi" else "en"
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(newLocale))
+                }
             )
             HorizontalDivider(modifier = Modifier.padding(start = 56.dp), color = Color(0xFFF2F4F7))
             SettingsItem(
-                title = "Chế độ tối",
-                subtitle = "Tắt",
+                title = stringResource(id = R.string.settings_item_dark_mode),
+                subtitle = stringResource(id = R.string.settings_item_dark_mode_off),
                 icon = Icons.Default.DarkMode,
                 control = {
                     Switch(checked = false, onCheckedChange = {})
@@ -46,10 +58,10 @@ fun GeneralSettingsScreen(
             )
         }
 
-        SettingsGroup(title = "Thông báo") {
+        SettingsGroup(title = stringResource(id = R.string.settings_group_notifications)) {
             SettingsItem(
-                title = "Thông báo ứng dụng",
-                subtitle = "Nhận tin tức và ưu đãi",
+                title = stringResource(id = R.string.settings_item_notify),
+                subtitle = stringResource(id = R.string.settings_item_notify_sub),
                 icon = Icons.Default.Notifications,
                 control = {
                     Switch(checked = true, onCheckedChange = {})
@@ -57,15 +69,15 @@ fun GeneralSettingsScreen(
             )
         }
 
-        SettingsGroup(title = "Thông tin") {
+        SettingsGroup(title = stringResource(id = R.string.settings_group_info)) {
             SettingsItem(
-                title = "Điều khoản sử dụng",
+                title = stringResource(id = R.string.settings_item_terms),
                 icon = Icons.Default.Description
             )
             HorizontalDivider(modifier = Modifier.padding(start = 56.dp), color = Color(0xFFF2F4F7))
             SettingsItem(
-                title = "Phiên bản ứng dụng",
-                subtitle = "v1.0.26 (Build 20260509)",
+                title = stringResource(id = R.string.settings_item_version),
+                subtitle = stringResource(id = R.string.settings_item_version_value),
                 icon = Icons.Default.Info
             )
         }

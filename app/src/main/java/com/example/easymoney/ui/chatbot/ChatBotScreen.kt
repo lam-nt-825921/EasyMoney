@@ -13,9 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.utils.LinkHandler
+import com.example.easymoney.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,7 @@ fun ChatBotScreen(
             }
             if (uiState.isThinking) {
                 item {
-                    Text("Đang trả lời...", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.chatbot_typing), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -109,7 +111,7 @@ private fun InputRow(input: String, onChange: (String) -> Unit, onSend: () -> Un
             OutlinedTextField(
                 value = input,
                 onValueChange = onChange,
-                placeholder = { Text("Nhập câu hỏi...") },
+                placeholder = { Text(stringResource(R.string.chatbot_placeholder)) },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )

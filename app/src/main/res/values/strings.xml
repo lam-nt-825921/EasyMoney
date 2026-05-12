@@ -123,6 +123,9 @@
     <string name="money_mgmt_withdraw">Rút tiền</string>
     <string name="money_mgmt_auto_deduction">Tự động trả nợ</string>
     <string name="money_mgmt_recent_flow">Dòng tiền gần đây</string>
+    <string name="money_mgmt_add_card">Thêm thẻ mới</string>
+    <string name="money_mgmt_card_holder">CARD HOLDER</string>
+    <string name="money_mgmt_expires">EXPIRES</string>
 
     <!-- Security & Bio -->
     <string name="security_biometric_auth">Xác thực sinh trắc học</string>
@@ -160,4 +163,120 @@
     <string name="withdraw_amount_placeholder">Nhập số tiền</string>
     <string name="withdraw_select_dest">Chọn đích nhận</string>
     <string name="withdraw_button">Rút tiền</string>
+    <string name="onboarding_title_default">Vay tổ chức tài chính</string>
+
+    <!-- Settings & Profile -->
+    <string name="settings_group_app">Ứng dụng</string>
+    <string name="settings_item_language">Ngôn ngữ</string>
+    <string name="settings_item_language_value">Tiếng Việt</string>
+    <string name="settings_item_dark_mode">Chế độ tối</string>
+    <string name="settings_item_dark_mode_off">Tắt</string>
+    <string name="settings_group_notifications">Thông báo</string>
+    <string name="settings_item_notify">Thông báo ứng dụng</string>
+    <string name="settings_item_notify_sub">Nhận tin tức và ưu đãi</string>
+    <string name="settings_group_info">Thông tin</string>
+    <string name="settings_item_terms">Điều khoản sử dụng</string>
+    <string name="settings_item_version">Phiên bản ứng dụng</string>
+    <string name="settings_item_version_value">v1.0.26 (Build 20260509)</string>
+
+    <string name="profile_save_changes">Lưu thay đổi</string>
+    <string name="profile_label_fullname">Họ và tên</string>
+    <string name="profile_label_id_number">Số CCCD</string>
+    <string name="profile_label_gender">Giới tính</string>
+    <string name="profile_label_dob">Ngày sinh</string>
+    <string name="profile_placeholder_dob">YYYY-MM-DD</string>
+    <string name="profile_label_income">Thu nhập hàng tháng</string>
+    <string name="profile_label_company">Tên công ty</string>
+    <string name="profile_label_contact_name">Họ và tên người liên hệ</string>
+    <string name="profile_label_phone">Số điện thoại</string>
+    <string name="profile_label_relationship">Mối quan hệ</string>
+    <string name="profile_unit_currency_short">đ</string>
+
+    <string name="profile_section_basic">Thông tin cơ bản</string>
+    <string name="profile_section_address">Địa chỉ</string>
+    <string name="profile_section_job">Nghề nghiệp</string>
+    <string name="profile_section_personal">Thông tin cá nhân</string>
+    <string name="profile_section_job_income">Công việc &amp; Thu nhập</string>
+    <string name="profile_section_contact">Người liên hệ</string>
+
+    <string name="ekyc_step_face">Xác thực khuôn mặt (eKYC)</string>
+    <string name="ekyc_step_nfc">Quét thẻ chip CCCD (NFC)</string>
+    <string name="ekyc_step_bio">Sinh trắc học thiết bị</string>
+    <string name="ekyc_step_docs">Tải hồ sơ/giấy tờ</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_incomplete_profile_title">Hồ sơ chưa hoàn thiện</string>
+    <string name="dialog_incomplete_profile_button">Hoàn thiện ngay</string>
+    <string name="dialog_ineligible_title">Không đủ điều kiện</string>
+    <string name="dialog_button_understand">Đã hiểu</string>
+    <string name="dialog_button_close">Đóng</string>
+    <string name="dialog_error_title">Đã xảy ra lỗi</string>
+    <string name="dialog_cancel_auth">Hủy</string>
+    <string name="dialog_cancel_upload">Hủy bỏ</string>
+
+    <!-- Chatbot -->
+    <string name="chatbot_typing">Đang trả lời...</string>
+    <string name="chatbot_placeholder">Nhập câu hỏi...</string>
+    <string name="chatbot_suggest_loan">Gói vay phù hợp</string>
+    <string name="chatbot_suggest_reward">Đổi điểm thưởng</string>
+    <string name="chatbot_suggest_mgmt">Quản lý khoản vay</string>
+
+    <!-- Loan Detail -->
+    <string name="loan_detail_section_info">Thông tin chi tiết</string>
+    <string name="loan_detail_section_conditions">Điều kiện đăng ký</string>
+    <string name="loan_detail_register_now">Đăng ký vay ngay</string>
+
+    <!-- Loan Confirmation -->
+    <string name="loan_review_section_loan">Thông tin khoản vay</string>
+    <string name="loan_review_section_disbursement">Tài khoản nhận giải ngân</string>
+    <string name="loan_review_section_permanent_addr">Địa chỉ thường trú</string>
+    <string name="loan_review_section_current_addr">Địa chỉ hiện tại</string>
+    <string name="loan_review_section_personal">Thông tin cá nhân</string>
+
+    <!-- Menu -->
+    <string name="menu_section_account_cards">Tài khoản và thẻ</string>
+    <string name="menu_section_support">Hỗ trợ</string>
+
+    <!-- Guide -->
+    <string name="guide_title_default">Hướng dẫn sử dụng</string>
+    <!-- OTP Dialog -->
+    <string name="otp_title">Xác thực OTP</string>
+    <string name="otp_desc_1">Vui lòng nhập mã OTP được gửi về SĐT </string>
+    <string name="otp_desc_2"> để ký hợp đồng</string>
+    <string name="otp_resend_wait">Gửi lại sau %1$ds</string>
+    <string name="otp_resend">Gửi lại mã OTP</string>
+    <string name="otp_error_wrong">Mã OTP không đúng (%1$d/%2$d lần)</string>
+    <string name="action_skip">Bỏ qua</string>
+    <!-- Contract & E-Sign -->
+    <string name="contract_agree_prefix">Tôi đã đọc và đồng ý với </string>
+    <string name="esign_success_home">Về trang chủ</string>
+    <string name="esign_success_title">Ký hợp đồng thành công</string>
+    <string name="esign_success_desc">Bạn hãy đợi chờ trong giây lát để hệ thống thực hiện giải ngân.</string>
+    <!-- History Strings -->
+    
+    <!-- Event Strings -->
+    <string name="history_balance_label">Số dư: %1$sđ</string>
+    <string name="event_time_label">Thời gian: %1$s</string>
+    <string name="event_join_now">Tham gia ngay</string>
+    <!-- Rewards -->
+    <string name="reward_current_points">Điểm hiện có của bạn</string>
+    <string name="reward_featured_gifts">Quà tặng tài chính nổi bật</string>
+    <string name="reward_confirm_title">Xác nhận đổi quà</string>
+    <string name="reward_confirm_message">Trừ %1$d điểm. Số dư sau: %2$d điểm.</string>
+    <string name="reward_success_title">Đổi quà thành công</string>
+    <string name="reward_btn_redeem">Đổi quà</string>
+    <string name="reward_notice_title">Thông báo</string>
+    <string name="action_ok">OK</string>
+
+    <!-- Security Settings -->
+    <string name="security_group_auth">Xác thực</string>
+    <string name="security_group_password">Mật khẩu</string>
+    <string name="security_group_device">Thiết bị</string>
+    <string name="security_item_bio_subtitle_supported">Sử dụng vân tay/khuôn mặt</string>
+    <string name="security_item_bio_subtitle_unsupported">Thiết bị không hỗ trợ</string>
+    <string name="security_item_pwd_subtitle">Cập nhật định kỳ để bảo mật</string>
+    <string name="security_item_device_title">Quản lý thiết bị</string>
+    <string name="security_item_device_subtitle">1 thiết bị đang đăng nhập</string>
+    <string name="biometric_auth_failed">Xác thực thất bại</string>
+    <string name="biometric_auth_subtitle">Vui lòng xác thực để tiếp tục</string>
 </resources>

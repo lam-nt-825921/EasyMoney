@@ -84,7 +84,10 @@ fun AppRoot(
                         val resolvedShowHelp = topBarOverride?.showHelpButton ?: destination.showHelpButton
                         val resolvedOnBack = topBarOverride?.onBackClick ?: { appState.popBackStack(); Unit }
                         val resolvedOnHelp = topBarOverride?.onHelpClick ?: {
-                            appState.navigateTo(AppDestination.PageGuide.createRoute(destination.guideXmlName))
+                            appState.navigateTo(AppDestination.PageGuide.createRoute(
+                                xmlName = destination.guideXmlName,
+                                title = if (destination.title.isNotEmpty()) "Hướng dẫn ${destination.title}" else "Hướng dẫn sử dụng"
+                            ))
                         }
                         val resolvedBackground = topBarOverride?.backgroundColor ?: topBarBackgroundColor
                         val resolvedContentColor = topBarOverride?.contentColor ?: (destination.topBarContentColor ?: Color.Unspecified)

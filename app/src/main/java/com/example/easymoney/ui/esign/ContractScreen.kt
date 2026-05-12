@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -19,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.common.components.OtpDialog
 import com.example.easymoney.ui.common.loading.SkeletonBlock
@@ -31,6 +34,7 @@ fun ContractScreen(
     onSignSuccess: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
+    onTermsClick: () -> Unit = {},
     viewModel: ContractViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -64,7 +68,8 @@ fun ContractScreen(
                 isSigning = uiState.isSigning,
                 onAcceptedChange = viewModel::onTermsAcceptedChange,
                 onSignClick = { viewModel.signContract(onSignSuccess) },
-                onCancelClick = onCancel
+                onCancelClick = onCancel,
+                onTermsClick = onTermsClick
             )
         }
     ) { innerPadding ->
@@ -118,7 +123,8 @@ private fun ContractBottomSection(
     isSigning: Boolean,
     onAcceptedChange: (Boolean) -> Unit,
     onSignClick: () -> Unit,
-    onCancelClick: () -> Unit
+    onCancelClick: () -> Unit,
+    onTermsClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -146,17 +152,26 @@ private fun ContractBottomSection(
                 )
                 
                 val annotatedString = buildAnnotatedString {
-                    append("Tôi đã đọc và đồng ý với ")
+                    append(stringResource(R.string.contract_agree_prefix))
+                    pushStringAnnotation(tag = "terms", annotation = "terms")
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)) {
-                        append("Điều khoản sử dụng")
+                        append(stringResource(R.string.settings_item_terms))
                     }
+                    pop()
                 }
                 
-                Text(
+                ClickableText(
                     text = annotatedString,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    onClick = { offset ->
+                        annotatedString.getStringAnnotations(tag = "terms", start = offset, end = offset)
+                            .firstOrNull()?.let {
+                                onTermsClick()
+                            }
+                    }
                 )
             }
 
@@ -182,7 +197,7 @@ private fun ContractBottomSection(
                     )
                 } else {
                     Text(
-                        text = "Ký hợp đồng",
+                        text = stringResource(R.string.loan_management_sign),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -195,7 +210,7 @@ private fun ContractBottomSection(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Hủy hợp đồng",
+                    text = stringResource(R.string.loan_management_cancel),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium

@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -82,7 +84,7 @@ fun EventDetailScreen(
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
-                        text = "Thời gian: $eventTime",
+                        text = stringResource(R.string.event_time_label, eventTime),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
@@ -119,7 +121,7 @@ fun EventDetailScreen(
                 shape = RoundedCornerShape(26.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
             ) {
-                Text("Tham gia ngay", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.event_join_now), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

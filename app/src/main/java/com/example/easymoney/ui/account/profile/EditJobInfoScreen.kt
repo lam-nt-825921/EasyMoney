@@ -18,6 +18,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.ui.loan.information.form.FormSheetType
 import com.example.easymoney.ui.loan.information.form.SimpleSelectionBottomSheet
 
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
+
 @Composable
 fun EditJobInfoScreen(
     onBack: () -> Unit,
@@ -41,7 +44,7 @@ fun EditJobInfoScreen(
                         .height(54.dp),
                     shape = RoundedCornerShape(27.dp)
                 ) {
-                    Text("Lưu thay đổi", fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.profile_save_changes), fontWeight = FontWeight.Bold)
                 }
             }
         ) { padding ->
@@ -55,16 +58,16 @@ fun EditJobInfoScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 SelectorField(
-                    label = "Nghề nghiệp",
-                    value = jobInfo.jobTitle.ifBlank { "Chọn nghề nghiệp" },
+                    label = stringResource(id = R.string.profile_section_job),
+                    value = jobInfo.jobTitle.ifBlank { stringResource(id = R.string.error_select_profession) },
                     onClick = { viewModel.onShowSheet(FormSheetType.PROFESSION) }
                 )
 
                 OutlinedTextField(
                     value = if (jobInfo.monthlyIncome == 0L) "" else jobInfo.monthlyIncome.toString(),
                     onValueChange = { viewModel.updateJobInfo(income = it.toLongOrNull() ?: 0L) },
-                    label = { Text("Thu nhập hàng tháng") },
-                    suffix = { Text("đ") },
+                    label = { Text(stringResource(id = R.string.profile_label_income)) },
+                    suffix = { Text(stringResource(id = R.string.profile_unit_currency_short)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -72,25 +75,25 @@ fun EditJobInfoScreen(
                 OutlinedTextField(
                     value = jobInfo.companyName,
                     onValueChange = { viewModel.updateJobInfo(company = it) },
-                    label = { Text("Tên công ty") },
+                    label = { Text(stringResource(id = R.string.profile_label_company)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 SelectorField(
-                    label = "Chức vụ",
-                    value = jobInfo.position.ifBlank { "Chọn chức vụ" },
+                    label = stringResource(id = R.string.error_select_position),
+                    value = jobInfo.position.ifBlank { stringResource(id = R.string.error_select_position) },
                     onClick = { viewModel.onShowSheet(FormSheetType.POSITION) }
                 )
 
                 SelectorField(
-                    label = "Trình độ học vấn",
-                    value = uiState.profile.education.ifBlank { "Chọn trình độ học vấn" },
+                    label = stringResource(id = R.string.error_select_education),
+                    value = uiState.profile.education.ifBlank { stringResource(id = R.string.error_select_education) },
                     onClick = { viewModel.onShowSheet(FormSheetType.EDUCATION) }
                 )
 
                 SelectorField(
-                    label = "Tình trạng hôn nhân",
-                    value = uiState.profile.maritalStatus.ifBlank { "Chọn tình trạng hôn nhân" },
+                    label = stringResource(id = R.string.profile_label_relationship),
+                    value = uiState.profile.maritalStatus.ifBlank { stringResource(id = R.string.error_select_marital_status) },
                     onClick = { viewModel.onShowSheet(FormSheetType.MARITAL_STATUS) }
                 )
             }
@@ -99,10 +102,10 @@ fun EditJobInfoScreen(
         // Bottom Sheets
         if (uiState.activeSheet != FormSheetType.NONE) {
             val title = when (uiState.activeSheet) {
-                FormSheetType.PROFESSION -> "Nghề nghiệp"
-                FormSheetType.POSITION -> "Chức vụ"
-                FormSheetType.EDUCATION -> "Trình độ học vấn"
-                FormSheetType.MARITAL_STATUS -> "Tình trạng hôn nhân"
+                FormSheetType.PROFESSION -> stringResource(id = R.string.profile_section_job)
+                FormSheetType.POSITION -> stringResource(id = R.string.error_select_position)
+                FormSheetType.EDUCATION -> stringResource(id = R.string.error_select_education)
+                FormSheetType.MARITAL_STATUS -> stringResource(id = R.string.error_select_marital_status)
                 else -> ""
             }
             val items = when (uiState.activeSheet) {

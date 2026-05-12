@@ -55,10 +55,28 @@ sealed class AppDestination(
     )
 
     data object Onboarding : AppDestination(
-        route = "onboarding",
-        title = "Vay tổ chức tài chính",
-        showBackButton = true
-    )
+        route = "onboarding?packageId={packageId}&packageName={packageName}",
+        title = "",
+        showBackButton = true,
+        guideXmlName = "guide_onboarding"
+    ) {
+        const val BASE_ROUTE = "onboarding"
+        const val PACKAGE_ID_ARG = "packageId"
+        const val PACKAGE_NAME_ARG = "packageName"
+
+        fun createRoute(packageId: String? = null, packageName: String? = null): String {
+            val builder = StringBuilder(BASE_ROUTE)
+            var hasParam = false
+            if (!packageId.isNullOrEmpty()) {
+                builder.append("?").append(PACKAGE_ID_ARG).append("=").append(packageId)
+                hasParam = true
+            }
+            if (!packageName.isNullOrEmpty()) {
+                builder.append(if (hasParam) "&" else "?").append(PACKAGE_NAME_ARG).append("=").append(packageName)
+            }
+            return builder.toString()
+        }
+    }
 
     data object ConfirmInformation : AppDestination(
         route = "confirm_information",
@@ -77,7 +95,8 @@ sealed class AppDestination(
         route = "home",
         title = "",
         showBackButton = false,
-        showHelpButton = false,
+        showHelpButton = true,
+        guideXmlName = "guide_home",
         isMainTab = true
     )
 
@@ -106,18 +125,27 @@ sealed class AppDestination(
     )
 
     data object PageGuide : AppDestination(
-        route = "page_guide?xml={xml}",
+        route = "page_guide?xml={xml}&title={title}",
         title = "Hướng dẫn",
         showBackButton = true,
         showHelpButton = false
     ) {
         const val BASE_ROUTE = "page_guide"
         const val XML_ARG = "xml"
+        const val TITLE_ARG = "title"
         const val DEFAULT_XML_NAME = "guide_default_updating"
 
-        fun createRoute(xmlName: String? = null): String {
-            val normalized = xmlName?.trim().orEmpty()
-            return if (normalized.isEmpty()) BASE_ROUTE else "$BASE_ROUTE?$XML_ARG=$normalized"
+        fun createRoute(xmlName: String? = null, title: String? = null): String {
+            val builder = StringBuilder(BASE_ROUTE)
+            var hasParam = false
+            if (!xmlName.isNullOrBlank()) {
+                builder.append("?").append(XML_ARG).append("=").append(xmlName.trim())
+                hasParam = true
+            }
+            if (!title.isNullOrBlank()) {
+                builder.append(if (hasParam) "&" else "?").append(TITLE_ARG).append("=").append(title.trim())
+            }
+            return builder.toString()
         }
     }
 
@@ -173,7 +201,8 @@ sealed class AppDestination(
     data object LoanDetail : AppDestination(
         route = "loan_detail/{id}",
         title = "Chi tiết gói vay",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_loan_detail"
     ) {
         const val BASE_ROUTE = "loan_detail"
         const val ID_ARG = "id"
@@ -275,7 +304,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Login1.route -> AppDestination.Login1
     route == AppDestination.QuickLogin1.route -> AppDestination.QuickLogin1
     route == AppDestination.Register1.route -> AppDestination.Register1
-    route == AppDestination.Onboarding.route -> AppDestination.Onboarding
+    route?.startsWith(AppDestination.Onboarding.BASE_ROUTE) == true -> AppDestination.Onboarding
     route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
     route == AppDestination.LoanFlow.route -> AppDestination.LoanFlow
     route == AppDestination.TransactionHistory.route -> AppDestination.TransactionHistory

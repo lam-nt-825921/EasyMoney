@@ -61,6 +61,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.graphics.toArgb
 import android.content.res.ColorStateList
 import android.view.View
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.text.style.TextDecoration
+
+import com.example.easymoney.ui.components.AppTopBarOverride
+import com.example.easymoney.ui.components.RegisterTopBarOverride
+import com.example.easymoney.navigation.AppDestination
+import com.example.easymoney.utils.LinkHandler
 
 @Composable
 fun OnboardingScreen(
@@ -71,6 +79,13 @@ fun OnboardingScreen(
 	val uiState by viewModel.uiState.collectAsState()
 	val isLoading = uiState.isLoading
 	var isTermsAccepted by remember { mutableStateOf(true) }
+	
+	val dynamicTitle = uiState.productInfo?.packageName ?: uiState.initialPackageName ?: stringResource(id = R.string.onboarding_title_default)
+
+	RegisterTopBarOverride(
+		ownerRoute = AppDestination.Onboarding.route,
+		override = AppTopBarOverride(title = dynamicTitle)
+	)
 
 	Column(
 		modifier = modifier
@@ -307,6 +322,7 @@ private fun InfoLine(label: String, value: String) {
 
 @Composable
 private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
+	val context = androidx.compose.ui.platform.LocalContext.current
 	val organizationName = providerInfo?.organizationName
 		?: stringResource(id = R.string.onboarding_provider_org_value)
 	val hotline = providerInfo?.hotline
@@ -355,7 +371,12 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 					text = hotline,
 					style = MaterialTheme.typography.bodyLarge,
 					fontWeight = FontWeight.Bold,
-					color = MaterialTheme.colorScheme.primary
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable {
+						val target = providerInfo?.supportUrl ?: "tel:${hotline.replace(" ", "")}"
+						LinkHandler.openUrl(context, target)
+					}
 				)
 
 				Text(

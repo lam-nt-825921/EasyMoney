@@ -18,6 +18,7 @@
 | POST | `/api/v1/otp/send` | `OtpSendRequest(phone, purpose)` | `ApiResponse<Unit>` | `LoanRepository.sendOtp(...)` | login/register flow |
 | POST | `/api/v1/otp/verify` | `OtpVerifyRequest(otp, purpose)` | `ApiResponse<Unit>` | `LoanRepository.verifyOtp(...)` | login/register flow |
 | GET  | `/api/v1/notifications` | — | `ApiResponse<List<NotificationDto>>` | `NotificationRepository.refreshNotifications()` | `NotificationViewModel` |
+| GET  | `/api/v1/loan/provider-info` | — | `ApiResponse<LoanProviderInfoModel>` | `LoanRepository.getLoanProviderInfo()` | `OnboardingViewModel` |
 | POST | `/api/v1/test/fcm/trigger` | `FcmTestRequest` | `ApiResponse<Unit>` | `NotificationRepository.triggerFcmTest()` | `SandBoxViewModel` |
 
 ---

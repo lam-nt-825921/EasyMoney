@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,12 +24,13 @@ import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
 import com.example.easymoney.ui.home.EligibilityUiState
+import com.example.easymoney.R
 
 @Composable
 fun LoanDetailScreen(
     packageId: String,
     onBack: () -> Unit,
-    onRegisterSuccess: (String) -> Unit,
+    onRegisterSuccess: (String, String) -> Unit,
     onNavigateToProfile: () -> Unit,
     viewModel: LoanDiscoveryViewModel = hiltViewModel()
 ) {
@@ -42,7 +44,7 @@ fun LoanDetailScreen(
     LaunchedEffect(uiState.eligibilityState) {
         when (val state = uiState.eligibilityState) {
             is EligibilityUiState.Success -> {
-                onRegisterSuccess(state.packageId)
+                onRegisterSuccess(state.packageId, uiState.selectedPackage?.packageName ?: "")
                 viewModel.resetEligibilityState()
             }
             else -> {}
@@ -148,7 +150,7 @@ fun LoanDetailScreen(
                         shape = RoundedCornerShape(26.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
                     ) {
-                        Text("Đăng ký vay ngay", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(id = R.string.loan_detail_register_now), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -166,19 +168,19 @@ fun LoanDetailScreen(
         val state = uiState.eligibilityState as EligibilityUiState.MissingInfo
         AlertDialog(
             onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text("Hồ sơ chưa hoàn thiện") },
+            title = { Text(stringResource(id = R.string.dialog_incomplete_profile_title)) },
             text = { Text(state.message) },
             confirmButton = {
                 Button(onClick = { 
                     viewModel.resetEligibilityState()
                     onNavigateToProfile() 
                 }) {
-                    Text("Hoàn thiện ngay")
+                    Text(stringResource(id = R.string.dialog_incomplete_profile_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.resetEligibilityState() }) {
-                    Text("Đóng")
+                    Text(stringResource(id = R.string.dialog_button_close))
                 }
             }
         )
@@ -188,11 +190,11 @@ fun LoanDetailScreen(
         val state = uiState.eligibilityState as EligibilityUiState.Rejected
         AlertDialog(
             onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text("Không đủ điều kiện") },
+            title = { Text(stringResource(id = R.string.dialog_ineligible_title)) },
             text = { Text(state.message) },
             confirmButton = {
                 Button(onClick = { viewModel.resetEligibilityState() }) {
-                    Text("Đã hiểu")
+                    Text(stringResource(id = R.string.dialog_button_understand))
                 }
             }
         )
@@ -252,3 +254,4 @@ private fun ConditionItem(text: String) {
         Text(text = text, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
     }
 }
+

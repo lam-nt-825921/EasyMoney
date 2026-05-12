@@ -99,11 +99,11 @@ fun AccountScreen(
         
         Spacer(modifier = Modifier.height(20.dp))
         
-        MenuSection(title = "Tài khoản và thẻ", items = accountMenuItems)
+        MenuSection(title = stringResource(R.string.menu_section_account_cards), items = accountMenuItems)
         
         Spacer(modifier = Modifier.height(20.dp))
         
-        MenuSection(title = "Hỗ trợ", items = supportMenuItems)
+        MenuSection(title = stringResource(R.string.menu_section_support), items = supportMenuItems)
         
         Spacer(modifier = Modifier.height(32.dp))
         

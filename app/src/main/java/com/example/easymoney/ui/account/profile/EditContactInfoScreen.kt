@@ -22,6 +22,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.ui.loan.information.form.FormSheetType
 import com.example.easymoney.ui.loan.information.form.SimpleSelectionBottomSheet
 
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
+
 @Composable
 fun EditContactInfoScreen(
     onBack: () -> Unit,
@@ -82,7 +85,7 @@ fun EditContactInfoScreen(
                         .height(54.dp),
                     shape = RoundedCornerShape(27.dp)
                 ) {
-                    Text("Lưu thay đổi", fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.profile_save_changes), fontWeight = FontWeight.Bold)
                 }
             }
         ) { padding ->
@@ -98,7 +101,7 @@ fun EditContactInfoScreen(
                 OutlinedTextField(
                     value = contactInfo.contactName,
                     onValueChange = { viewModel.updateContactInfo(name = it) },
-                    label = { Text("Họ và tên người liên hệ") },
+                    label = { Text(stringResource(id = R.string.profile_label_contact_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         IconButton(onClick = { contactPickerLauncher.launch(null) }) {
@@ -108,15 +111,15 @@ fun EditContactInfoScreen(
                 )
 
                 SelectorField(
-                    label = "Mối quan hệ",
-                    value = contactInfo.relationship.ifBlank { "Chọn mối quan hệ" },
+                    label = stringResource(id = R.string.profile_label_relationship),
+                    value = contactInfo.relationship.ifBlank { stringResource(id = R.string.error_select_relationship) },
                     onClick = { viewModel.onShowSheet(FormSheetType.RELATIONSHIP) }
                 )
 
                 OutlinedTextField(
                     value = contactInfo.phoneNumber,
                     onValueChange = { viewModel.updateContactInfo(phone = it) },
-                    label = { Text("Số điện thoại") },
+                    label = { Text(stringResource(id = R.string.profile_label_phone)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -126,7 +129,7 @@ fun EditContactInfoScreen(
         // Bottom Sheets
         if (uiState.activeSheet != FormSheetType.NONE) {
             SimpleSelectionBottomSheet(
-                title = "Mối quan hệ",
+                title = stringResource(id = R.string.profile_label_relationship),
                 items = uiState.relationships,
                 selectedId = null,
                 onItemSelected = { viewModel.onSelectItem(it) },

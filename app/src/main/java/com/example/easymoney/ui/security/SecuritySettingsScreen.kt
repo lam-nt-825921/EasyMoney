@@ -12,9 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -34,10 +36,10 @@ fun SecuritySettingsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SecurityGroup(title = "Xác thực") {
+        SecurityGroup(title = stringResource(R.string.security_group_auth)) {
             SecurityItem(
-                title = "Xác thực sinh trắc học",
-                subtitle = if (uiState.isBiometricSupported) "Sử dụng vân tay/khuôn mặt" else "Thiết bị không hỗ trợ",
+                title = stringResource(R.string.security_biometric_auth),
+                subtitle = if (uiState.isBiometricSupported) stringResource(R.string.security_item_bio_subtitle_supported) else stringResource(R.string.security_item_bio_subtitle_unsupported),
                 icon = Icons.Default.Fingerprint,
                 control = {
                     Switch(
@@ -49,19 +51,19 @@ fun SecuritySettingsScreen(
             )
         }
 
-        SecurityGroup(title = "Mật khẩu") {
+        SecurityGroup(title = stringResource(R.string.security_group_password)) {
             SecurityItem(
-                title = "Đổi mật khẩu",
-                subtitle = "Cập nhật định kỳ để bảo mật",
+                title = stringResource(R.string.security_change_password),
+                subtitle = stringResource(R.string.security_item_pwd_subtitle),
                 icon = Icons.Default.Lock,
                 onClick = onChangePassword
             )
         }
 
-        SecurityGroup(title = "Thiết bị") {
+        SecurityGroup(title = stringResource(R.string.security_group_device)) {
             SecurityItem(
-                title = "Quản lý thiết bị",
-                subtitle = "1 thiết bị đang đăng nhập",
+                title = stringResource(R.string.security_item_device_title),
+                subtitle = stringResource(R.string.security_item_device_subtitle),
                 icon = Icons.Default.Devices
             )
         }

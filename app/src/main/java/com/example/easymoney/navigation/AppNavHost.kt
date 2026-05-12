@@ -82,8 +82,13 @@ fun AppNavHost(
 
             HomeScreen(
                 uiState = uiState,
-                onLoanRegistrationClick = { packageId -> 
-                    navController.navigate(AppDestination.LoanDetail.createRoute(packageId)) 
+                onLoanRegistrationClick = { packageId, skipDetail -> 
+                    if (skipDetail) {
+                        val packageName = uiState.hotLoans.find { it.id == packageId }?.name
+                        navController.navigate(AppDestination.Onboarding.createRoute(packageId, packageName))
+                    } else {
+                        navController.navigate(AppDestination.LoanDetail.createRoute(packageId)) 
+                    }
                 },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 onBannerClick = { type, id ->
@@ -213,7 +218,21 @@ fun AppNavHost(
         }
 
         // --- ONBOARDING & LOAN FLOW ---
-        composable(AppDestination.Onboarding.route) {
+        composable(
+            route = AppDestination.Onboarding.route,
+            arguments = listOf(
+                navArgument(AppDestination.Onboarding.PACKAGE_ID_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument(AppDestination.Onboarding.PACKAGE_NAME_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
             OnboardingScreen(
                 onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.route) }
             )
@@ -224,7 +243,7 @@ fun AppNavHost(
             ConfirmInfoScreen(
                 viewModel = viewModel,
                 onContinue = { navController.navigate(AppDestination.LoanFlow.route) },
-                onEditInfo = { navController.popBackStack() }
+                onEditInfo = { navController.navigate(AppDestination.IdentityVerification.route) }
             )
         }
 
@@ -306,11 +325,17 @@ fun AppNavHost(
                     type = NavType.StringType
                     nullable = true
                     defaultValue = AppDestination.PageGuide.DEFAULT_XML_NAME
+                },
+                navArgument(AppDestination.PageGuide.TITLE_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
             val xmlName = backStackEntry.arguments?.getString(AppDestination.PageGuide.XML_ARG)
-            PageGuideScreen(xmlName = xmlName)
+            val title = backStackEntry.arguments?.getString(AppDestination.PageGuide.TITLE_ARG)
+            PageGuideScreen(xmlName = xmlName, title = title)
         }
 
         composable(AppDestination.EventDetail.route) { backStackEntry ->
@@ -339,8 +364,8 @@ fun AppNavHost(
             LoanDetailScreen(
                 packageId = id,
                 onBack = { navController.popBackStack() },
-                onRegisterSuccess = { 
-                    navController.navigate(AppDestination.Onboarding.route)
+                onRegisterSuccess = { packageId, packageName -> 
+                    navController.navigate(AppDestination.Onboarding.createRoute(packageId, packageName))
                 },
                 onNavigateToProfile = {
                     navController.navigate(AppDestination.Profile.route)

@@ -18,10 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -207,7 +209,7 @@ fun RewardCard(
                 Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFD54F), modifier = Modifier.size(12.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${reward.points} điểm",
+                    text = "${reward.points} ${stringResource(R.string.common_points_unit)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = TealPrimary,
                     fontWeight = FontWeight.Bold
@@ -224,8 +226,9 @@ fun RewardCard(
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
             ) {
-                Text(text = "Đổi quà", fontSize = 12.sp)
+                Text(text = stringResource(R.string.reward_btn_redeem), fontSize = 12.sp)
             }
         }
     }
 }
+

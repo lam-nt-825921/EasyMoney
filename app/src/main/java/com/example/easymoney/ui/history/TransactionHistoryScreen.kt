@@ -23,6 +23,8 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
 import kotlin.math.abs
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
 
 private data class TransactionItem(
     val description: String,
@@ -146,7 +148,7 @@ private fun TransactionItemRow(item: TransactionItem) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "Số dư: ${formatAmount(item.balance)}đ",
+                    text = stringResource(R.string.history_balance_label, formatAmount(item.balance)),
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary
                 )
@@ -179,3 +181,4 @@ private fun TransactionHistoryScreenPreview() {
         TransactionHistoryScreen()
     }
 }
+

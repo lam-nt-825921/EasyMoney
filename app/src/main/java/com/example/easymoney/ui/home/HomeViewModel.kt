@@ -60,14 +60,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkLoanEligibility(packageId: String) {
+    fun checkLoanEligibility(packageId: String, skipDetail: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(eligibilityState = EligibilityUiState.Checking) }
             when (val result = loanRepository.checkEligibility(packageId)) {
                 is Resource.Success -> {
                     val eligibility = result.data
                     if (eligibility.isEligible) {
-                        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Success(packageId)) }
+                        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Success(packageId, skipDetail)) }
                     } else {
                         when (eligibility.action) {
                             "NAVIGATE_PROFILE" -> {

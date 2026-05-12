@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ fun EsignSuccessScreen(
                     )
                 ) {
                     Text(
-                        text = "Về trang chủ",
+                        text = stringResource(R.string.esign_success_home),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -78,7 +79,7 @@ fun EsignSuccessScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Ký hợp đồng thành công",
+                text = stringResource(R.string.esign_success_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -88,7 +89,7 @@ fun EsignSuccessScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Bạn hãy đợi chờ trong giây lát để hệ thống thực hiện giải ngân.",
+                text = stringResource(R.string.esign_success_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -97,3 +98,4 @@ fun EsignSuccessScreen(
         }
     }
 }
+

@@ -1,0 +1,282 @@
+<resources>
+    <string name="app_name">EasyMoney</string>
+    <string name="onboarding_title">Financial Institution Loan</string>
+    <string name="onboarding_hero_content_desc">Service introduction image</string>
+    <string name="onboarding_reason_title">Reasons to choose EASY MONEY</string>
+    <string name="onboarding_reason_fast">Fast&#10;disbursement</string>
+    <string name="onboarding_reason_simple">Simple&#10;procedures</string>
+    <string name="onboarding_reason_reliable">Reliable&#10;service</string>
+
+    <string name="onboarding_product_title">Product Information</string>
+    <string name="onboarding_product_limit_label">Loan limit: </string>
+    <string name="onboarding_product_limit_value">100,000,000 VND</string>
+    <string name="onboarding_product_term_label">Loan term: </string>
+    <string name="onboarding_product_term_value">up to 36 months</string>
+    <string name="onboarding_product_interest_label">Interest rate from: </string>
+    <string name="onboarding_product_interest_value">2.1%/month</string>
+
+    <string name="onboarding_provider_title">Loan Provider Information</string>
+    <string name="onboarding_provider_org_label">• Lending institution:</string>
+    <string name="onboarding_provider_org_value">EASY MONEY Financial Institution</string>
+    <string name="onboarding_provider_tax_line">• Customer Service Call Center:</string>
+    <string name="onboarding_provider_business_line">9999 9999</string>
+    <string name="onboarding_provider_address_label">• Headquarters address:</string>
+    <string name="onboarding_provider_address_value">114 Xuan Thuy, Cau Giay District, Hanoi City.</string>
+
+    <string name="onboarding_terms_text">I have read, understood, and agree to all terms and conditions of EASY MONEY\'s services</string>
+    <string name="onboarding_continue">Experience now</string>
+
+    <string name="welcome_illustration_content_desc">Welcome screen illustration</string>
+    <string name="welcome_login">Log In</string>
+    <string name="welcome_register">Register</string>
+    <string name="login_account_label">Account</string>
+    <string name="login_account_placeholder">Enter account</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_password_placeholder">Enter password</string>
+    <string name="login_remember_account">Remember account</string>
+    <string name="register_username_label">Username</string>
+    <string name="register_username_placeholder">Enter username</string>
+    <string name="register_phone_label">Phone number</string>
+    <string name="register_phone_placeholder">Enter phone number</string>
+    <string name="register_password_label">Password</string>
+    <string name="register_password_placeholder">Enter password</string>
+    <string name="register_confirm_password_label">Confirm password</string>
+    <string name="register_confirm_password_placeholder">Confirm password</string>
+    <string name="register_terms_text">I have read, understood, and agree to all terms and conditions of EasyMoney\'s services</string>
+
+    <string name="confirm_info_section_title">Personal Information</string>
+    <string name="confirm_continue">Continue</string>
+    <string name="confirm_edit_info">I want to edit information</string>
+    <string name="confirm_loading">Loading information...</string>
+
+    <string name="home_welcome">Hello, %1$s!</string>
+    <string name="home_main_banner_title">Credit institution loan</string>
+    <string name="home_main_banner_button">Register now</string>
+    <string name="home_manage_loan">Manage&#10;loan</string>
+    <string name="home_suggest_loan">Suggest&#10;loan</string>
+    <string name="home_consult_loan">Consult&#10;loan</string>
+    <string name="home_nav_home">Home</string>
+    <string name="home_nav_history">Transaction history</string>
+    <string name="home_nav_history_short">History</string>
+    <string name="home_nav_notify">Notifications</string>
+    <string name="home_nav_account">Account</string>
+    <string name="home_developer_mode">Developer mode</string>
+    <string name="home_theme_light">Switch to light mode</string>
+    <string name="home_theme_dark">Switch to dark mode</string>
+
+    <string name="loan_flow_step_1">Loan information</string>
+    <string name="loan_flow_step_2_personal">Personal information</string>
+    <string name="loan_flow_step_2_ekyc">Face verification</string>
+    <string name="loan_flow_step_3">Confirm information</string>
+
+    <string name="ekyc_camera_title">Take a portrait photo</string>
+    <string name="ekyc_processing">Processing face...</string>
+    <string name="ekyc_ready">Frame is eligible, you can capture</string>
+
+    <string name="login_welcome_back">Welcome back,\n%1$s.</string>
+    <string name="login_switch_account">Switch account</string>
+    <string name="login_other_account">Or log in with another account</string>
+    <string name="login_select_account">Select account</string>
+    <string name="login_error_invalid">Incorrect phone number or password.</string>
+    <string name="login_error_network">Network error, please try again.</string>
+    <string name="login_error_unknown">An error occurred, please try again later.</string>
+    <string name="login_loading">Logging in...</string>
+    <string name="register_loading">Registering...</string>
+
+    <!-- Form Validation Errors -->
+    <string name="error_select_province">Please select Province/City</string>
+    <string name="error_select_district">Please select District</string>
+    <string name="error_select_ward">Please select Ward/Commune</string>
+    <string name="error_input_address_detail">Please enter detailed address</string>
+    <string name="error_input_income">Please enter income</string>
+    <string name="error_select_profession">Please select profession</string>
+    <string name="error_select_education">Please select education level</string>
+    <string name="error_select_marital_status">Please select marital status</string>
+    <string name="error_input_company_name">Please enter company name</string>
+    <string name="error_select_position">Please select position</string>
+    <string name="error_input_spouse_name">Please enter spouse\'s name</string>
+    <string name="error_invalid_phone">Invalid phone number</string>
+    <string name="error_input_contact_name">Please enter contact name</string>
+    <string name="error_select_relationship">Please select relationship</string>
+
+    <!-- Home Enhancements -->
+    <string name="home_reward_points">Your reward points</string>
+    <string name="home_redeem_gift">Redeem gift</string>
+    <string name="home_ekyc_alert_title">Complete profile</string>
+    <string name="home_ekyc_alert_button">Verify now</string>
+    <string name="home_hot_loan_title">Suggested hot loans</string>
+    <string name="home_loan_interest_rate">%1$.1f%%/month</string>
+    <string name="home_loan_max_amount">Up to %1$s</string>
+
+    <!-- Account & Settings -->
+    <string name="account_money_management">Money management</string>
+    <string name="account_payment_cards">Payment cards</string>
+    <string name="account_transaction_history">Transaction history</string>
+    <string name="account_support_center">Support center</string>
+    <string name="account_security">Account security</string>
+    <string name="account_settings">Settings</string>
+    <string name="account_logout">Log out</string>
+
+    <!-- Money Management -->
+    <string name="money_mgmt_balance">Available balance</string>
+    <string name="money_mgmt_topup">Top up</string>
+    <string name="money_mgmt_withdraw">Withdraw</string>
+    <string name="money_mgmt_auto_deduction">Auto deduction</string>
+    <string name="money_mgmt_recent_flow">Recent cash flow</string>
+    <string name="money_mgmt_add_card">Add new card</string>
+    <string name="money_mgmt_card_holder">CARD HOLDER</string>
+    <string name="money_mgmt_expires">EXPIRES</string>
+
+    <!-- Security & Bio -->
+    <string name="security_biometric_auth">Biometric authentication</string>
+    <string name="security_change_password">Change password</string>
+
+    <!-- General -->
+    <string name="common_points_unit">pts</string>
+    <string name="common_loading">Loading...</string>
+
+    <!-- Loan Management (workflow #12) -->
+    <string name="loan_management_empty">You do not have any approved contracts</string>
+    <string name="loan_management_amount">Loan amount: %1$s VND</string>
+    <string name="loan_management_term">Term: %1$d months</string>
+    <string name="loan_management_rate">Interest rate: %1$.2f%%/month</string>
+    <string name="loan_management_approved_at">Approval date: %1$s</string>
+    <string name="loan_management_cancel">Cancel contract</string>
+    <string name="loan_management_sign">Sign contract</string>
+    <string name="loan_management_cancel_title">Confirm cancellation</string>
+    <string name="loan_management_cancel_confirm">Are you sure you want to cancel this contract?</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_dismiss">Cancel</string>
+    <string name="action_retry">Retry</string>
+
+    <!-- Terms (workflow #15) -->
+    <string name="terms_title">Terms and Policies</string>
+    <string name="terms_body_placeholder">The terms and policies of EasyMoney will be updated when the official documents are ready. Please contact the call center for details.</string>
+    <string name="hotline_number">19001234</string>
+
+    <!-- TopUp / Withdraw (workflow #8 / #9) -->
+    <string name="topup_amount_label">Top-up amount</string>
+    <string name="topup_amount_placeholder">Minimum 10,000 VND</string>
+    <string name="topup_select_card">Select funding source</string>
+    <string name="topup_button">Top up</string>
+    <string name="withdraw_balance">Available balance: %1$s VND</string>
+    <string name="withdraw_amount_placeholder">Enter amount</string>
+    <string name="withdraw_select_dest">Select receiving account</string>
+    <string name="withdraw_button">Withdraw</string>
+    <string name="onboarding_title_default">Financial Institution Loan</string>
+
+    <!-- Settings & Profile -->
+    <string name="settings_group_app">Application</string>
+    <string name="settings_item_language">Language</string>
+    <string name="settings_item_language_value">English</string>
+    <string name="settings_item_dark_mode">Dark mode</string>
+    <string name="settings_item_dark_mode_off">Off</string>
+    <string name="settings_group_notifications">Notifications</string>
+    <string name="settings_item_notify">App notifications</string>
+    <string name="settings_item_notify_sub">Receive news and offers</string>
+    <string name="settings_group_info">Information</string>
+    <string name="settings_item_terms">Terms of use</string>
+    <string name="settings_item_version">App version</string>
+    <string name="settings_item_version_value">v1.0.26 (Build 20260509)</string>
+
+    <string name="profile_save_changes">Save changes</string>
+    <string name="profile_label_fullname">Full name</string>
+    <string name="profile_label_id_number">ID Number</string>
+    <string name="profile_label_gender">Gender</string>
+    <string name="profile_label_dob">Date of birth</string>
+    <string name="profile_placeholder_dob">YYYY-MM-DD</string>
+    <string name="profile_label_income">Monthly income</string>
+    <string name="profile_label_company">Company name</string>
+    <string name="profile_label_contact_name">Contact name</string>
+    <string name="profile_label_phone">Phone number</string>
+    <string name="profile_label_relationship">Relationship</string>
+    <string name="profile_unit_currency_short">VND</string>
+
+    <string name="profile_section_basic">Basic Information</string>
+    <string name="profile_section_address">Address</string>
+    <string name="profile_section_job">Profession</string>
+    <string name="profile_section_personal">Personal Information</string>
+    <string name="profile_section_job_income">Job &amp; Income</string>
+    <string name="profile_section_contact">Contact Person</string>
+
+    <string name="ekyc_step_face">Face Verification (eKYC)</string>
+    <string name="ekyc_step_nfc">Scan ID Chip (NFC)</string>
+    <string name="ekyc_step_bio">Device Biometrics</string>
+    <string name="ekyc_step_docs">Upload Documents</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_incomplete_profile_title">Incomplete Profile</string>
+    <string name="dialog_incomplete_profile_button">Complete now</string>
+    <string name="dialog_ineligible_title">Not Eligible</string>
+    <string name="dialog_button_understand">Understood</string>
+    <string name="dialog_button_close">Close</string>
+    <string name="dialog_error_title">An error occurred</string>
+    <string name="dialog_cancel_auth">Cancel</string>
+    <string name="dialog_cancel_upload">Cancel</string>
+
+    <!-- Chatbot -->
+    <string name="chatbot_typing">Typing...</string>
+    <string name="chatbot_placeholder">Type a question...</string>
+    <string name="chatbot_suggest_loan">Suitable loan packages</string>
+    <string name="chatbot_suggest_reward">Redeem points</string>
+    <string name="chatbot_suggest_mgmt">Manage loans</string>
+
+    <!-- Loan Detail -->
+    <string name="loan_detail_section_info">Detailed Information</string>
+    <string name="loan_detail_section_conditions">Registration Conditions</string>
+    <string name="loan_detail_register_now">Register now</string>
+
+    <!-- Loan Confirmation -->
+    <string name="loan_review_section_loan">Loan Information</string>
+    <string name="loan_review_section_disbursement">Receiving Account</string>
+    <string name="loan_review_section_permanent_addr">Permanent Address</string>
+    <string name="loan_review_section_current_addr">Current Address</string>
+    <string name="loan_review_section_personal">Personal Information</string>
+
+    <!-- Menu -->
+    <string name="menu_section_account_cards">Accounts and Cards</string>
+    <string name="menu_section_support">Support</string>
+
+    <!-- Guide -->
+    <string name="guide_title_default">User Guide</string>
+    <!-- OTP Dialog -->
+    <string name="otp_title">OTP Verification</string>
+    <string name="otp_desc_1">Please enter the OTP sent to phone number </string>
+    <string name="otp_desc_2"> to sign the contract</string>
+    <string name="otp_resend_wait">Resend in %1$ds</string>
+    <string name="otp_resend">Resend OTP</string>
+    <string name="otp_error_wrong">Incorrect OTP (%1$d/%2$d attempts)</string>
+    <string name="action_skip">Skip</string>
+    <!-- Contract & E-Sign -->
+    <string name="contract_agree_prefix">I have read and agree to </string>
+    <string name="esign_success_home">Back to Home</string>
+    <string name="esign_success_title">Contract signed successfully</string>
+    <string name="esign_success_desc">Please wait a moment for the system to disburse the funds.</string>
+    <!-- History Strings -->
+    
+    <!-- Event Strings -->
+    <string name="history_balance_label">Balance: %1$s VND</string>
+    <string name="event_time_label">Time: %1$s</string>
+    <string name="event_join_now">Join now</string>
+    <!-- Rewards -->
+    <string name="reward_current_points">Your current points</string>
+    <string name="reward_featured_gifts">Featured financial gifts</string>
+    <string name="reward_confirm_title">Confirm redemption</string>
+    <string name="reward_confirm_message">Deduct %1$d points. Balance after: %2$d points.</string>
+    <string name="reward_success_title">Gift redeemed successfully</string>
+    <string name="reward_btn_redeem">Redeem gift</string>
+    <string name="reward_notice_title">Notice</string>
+    <string name="action_ok">OK</string>
+
+    <!-- Security Settings -->
+    <string name="security_group_auth">Authentication</string>
+    <string name="security_group_password">Password</string>
+    <string name="security_group_device">Devices</string>
+    <string name="security_item_bio_subtitle_supported">Use fingerprint/face ID</string>
+    <string name="security_item_bio_subtitle_unsupported">Device not supported</string>
+    <string name="security_item_pwd_subtitle">Update periodically for security</string>
+    <string name="security_item_device_title">Device management</string>
+    <string name="security_item_device_subtitle">1 device logged in</string>
+    <string name="biometric_auth_failed">Authentication failed</string>
+    <string name="biometric_auth_subtitle">Please authenticate to continue</string>
+</resources>

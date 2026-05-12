@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -57,7 +59,7 @@ fun PaymentCardsScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Thêm thẻ mới", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.money_mgmt_add_card), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -94,11 +96,11 @@ private fun CreditCardItem(card: com.example.easymoney.domain.model.PaymentCard)
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text(text = "CARD HOLDER", color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                        Text(text = stringResource(R.string.money_mgmt_card_holder), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
                         Text(text = "NGUYEN VAN A", color = Color.White, style = MaterialTheme.typography.bodyMedium)
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text(text = "EXPIRES", color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                        Text(text = stringResource(R.string.money_mgmt_expires), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
                         Text(text = "12/28", color = Color.White, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
@@ -106,3 +108,4 @@ private fun CreditCardItem(card: com.example.easymoney.domain.model.PaymentCard)
         }
     }
 }
+

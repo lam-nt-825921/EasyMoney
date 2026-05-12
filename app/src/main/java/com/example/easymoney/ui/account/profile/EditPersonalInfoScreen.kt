@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
+
 @Composable
 fun EditPersonalInfoScreen(
     onBack: () -> Unit,
@@ -36,7 +39,7 @@ fun EditPersonalInfoScreen(
                     .height(54.dp),
                 shape = RoundedCornerShape(27.dp)
             ) {
-                Text("Lưu thay đổi", fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.profile_save_changes), fontWeight = FontWeight.Bold)
             }
         }
     ) { padding ->
@@ -52,29 +55,29 @@ fun EditPersonalInfoScreen(
             OutlinedTextField(
                 value = personalInfo.fullName,
                 onValueChange = { viewModel.updatePersonalInfo(fullName = it) },
-                label = { Text("Họ và tên") },
+                label = { Text(stringResource(id = R.string.profile_label_fullname)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = personalInfo.nationalId,
                 onValueChange = { viewModel.updatePersonalInfo(nationalId = it) },
-                label = { Text("Số CCCD") },
+                label = { Text(stringResource(id = R.string.profile_label_id_number)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = personalInfo.gender,
                 onValueChange = { viewModel.updatePersonalInfo(gender = it) },
-                label = { Text("Giới tính") },
+                label = { Text(stringResource(id = R.string.profile_label_gender)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = personalInfo.dateOfBirth,
                 onValueChange = { viewModel.updatePersonalInfo(dob = it) },
-                label = { Text("Ngày sinh") },
-                placeholder = { Text("YYYY-MM-DD") },
+                label = { Text(stringResource(id = R.string.profile_label_dob)) },
+                placeholder = { Text(stringResource(id = R.string.profile_placeholder_dob)) },
                 modifier = Modifier.fillMaxWidth()
             )
         }

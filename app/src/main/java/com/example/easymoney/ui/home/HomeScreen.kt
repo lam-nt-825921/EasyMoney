@@ -25,7 +25,7 @@ import com.example.easymoney.ui.theme.EasyMoneyTheme
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onLoanRegistrationClick: (String) -> Unit,
+    onLoanRegistrationClick: (String, Boolean) -> Unit,
     onToggleSandbox: () -> Unit,
     onBannerClick: (String, String) -> Unit,
     onRedeemClick: () -> Unit,
@@ -45,7 +45,7 @@ fun HomeScreen(
     LaunchedEffect(uiState.eligibilityState) {
         when (val state = uiState.eligibilityState) {
             is EligibilityUiState.Success -> {
-                onLoanRegistrationClick(state.packageId)
+                onLoanRegistrationClick(state.packageId, state.skipDetail)
                 viewModel.resetEligibilityState()
             }
             else -> {}
@@ -116,7 +116,7 @@ fun HomeScreen(
                 )
 
                 // Bottom Banner
-                MainBanner(onRegistrationClick = { viewModel.checkLoanEligibility("1") })
+                MainBanner(onRegistrationClick = { viewModel.checkLoanEligibility("1", skipDetail = true) })
                 
                 Spacer(modifier = Modifier.height(20.dp))
             }
@@ -134,19 +134,19 @@ fun HomeScreen(
         val state = uiState.eligibilityState as EligibilityUiState.MissingInfo
         AlertDialog(
             onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text("Hồ sơ chưa hoàn thiện") },
+            title = { Text(stringResource(id = R.string.dialog_incomplete_profile_title)) },
             text = { Text(state.message) },
             confirmButton = {
                 Button(onClick = { 
                     viewModel.resetEligibilityState()
                     onNavigateToProfile() 
                 }) {
-                    Text("Hoàn thiện ngay")
+                    Text(stringResource(id = R.string.dialog_incomplete_profile_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.resetEligibilityState() }) {
-                    Text("Đóng")
+                    Text(stringResource(id = R.string.dialog_button_close))
                 }
             }
         )
@@ -156,11 +156,11 @@ fun HomeScreen(
         val state = uiState.eligibilityState as EligibilityUiState.Rejected
         AlertDialog(
             onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text("Không đủ điều kiện") },
+            title = { Text(stringResource(id = R.string.dialog_ineligible_title)) },
             text = { Text(state.message) },
             confirmButton = {
                 Button(onClick = { viewModel.resetEligibilityState() }) {
-                    Text("Đã hiểu")
+                    Text(stringResource(id = R.string.dialog_button_understand))
                 }
             }
         )
