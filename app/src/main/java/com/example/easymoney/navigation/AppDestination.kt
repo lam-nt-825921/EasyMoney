@@ -129,11 +129,16 @@ sealed class AppDestination(
     )
 
     data object Contract : AppDestination(
-        route = "contract",
+        route = "contract?contractId={contractId}",
         title = "Hợp đồng của bạn",
         showBackButton = true,
         showHelpButton = true
-    )
+    ) {
+        const val BASE_ROUTE = "contract"
+        const val CONTRACT_ID_ARG = "contractId"
+        fun createRoute(contractId: String? = null): String =
+            if (contractId.isNullOrEmpty()) BASE_ROUTE else "$BASE_ROUTE?contractId=$contractId"
+    }
 
     data object EsignSuccess : AppDestination(
         route = "esign_success",
@@ -219,6 +224,32 @@ sealed class AppDestination(
         showHelpButton = true
     )
 
+    data object TopUp : AppDestination(
+        route = "top_up",
+        title = "Nạp tiền",
+        showBackButton = true
+    )
+
+    data object Withdraw : AppDestination(
+        route = "withdraw",
+        title = "Rút tiền",
+        showBackButton = true
+    )
+
+    data object Terms : AppDestination(
+        route = "terms",
+        title = "Điều khoản và chính sách",
+        showBackButton = true,
+        showHelpButton = false
+    )
+
+    data object LoanManagement : AppDestination(
+        route = "loan_management",
+        title = "Quản lý khoản vay",
+        showBackButton = true,
+        showHelpButton = true
+    )
+
     data object EditPersonalInfo : AppDestination(
         route = "edit_personal_info",
         title = "Thông tin cá nhân",
@@ -251,7 +282,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.Notifications.route -> AppDestination.Notifications
     route == AppDestination.Account.route -> AppDestination.Account
     route == AppDestination.Sandbox.route -> AppDestination.Sandbox
-    route == AppDestination.Contract.route -> AppDestination.Contract
+    route?.startsWith(AppDestination.Contract.BASE_ROUTE) == true -> AppDestination.Contract
     route == AppDestination.EsignSuccess.route -> AppDestination.EsignSuccess
     route == AppDestination.Rewards.route -> AppDestination.Rewards
     route == AppDestination.LoanList.route -> AppDestination.LoanList
@@ -262,6 +293,10 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.SecuritySettings.route -> AppDestination.SecuritySettings
     route == AppDestination.ChatBot.route -> AppDestination.ChatBot
     route == AppDestination.IdentityVerification.route -> AppDestination.IdentityVerification
+    route == AppDestination.LoanManagement.route -> AppDestination.LoanManagement
+    route == AppDestination.Terms.route -> AppDestination.Terms
+    route == AppDestination.TopUp.route -> AppDestination.TopUp
+    route == AppDestination.Withdraw.route -> AppDestination.Withdraw
     route == AppDestination.EditPersonalInfo.route -> AppDestination.EditPersonalInfo
     route == AppDestination.EditJobInfo.route -> AppDestination.EditJobInfo
     route == AppDestination.EditContactInfo.route -> AppDestination.EditContactInfo

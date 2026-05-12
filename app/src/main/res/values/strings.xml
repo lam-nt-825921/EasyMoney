@@ -131,4 +131,33 @@
     <!-- General -->
     <string name="common_points_unit">điểm</string>
     <string name="common_loading">Đang tải...</string>
+
+    <!-- Loan Management (workflow #12) -->
+    <string name="loan_management_empty">Bạn chưa có hợp đồng nào được duyệt</string>
+    <string name="loan_management_amount">Số tiền vay: %1$s đ</string>
+    <string name="loan_management_term">Kỳ hạn: %1$d tháng</string>
+    <string name="loan_management_rate">Lãi suất: %1$.2f%%/tháng</string>
+    <string name="loan_management_approved_at">Ngày duyệt: %1$s</string>
+    <string name="loan_management_cancel">Hủy hợp đồng</string>
+    <string name="loan_management_sign">Ký hợp đồng</string>
+    <string name="loan_management_cancel_title">Xác nhận hủy hợp đồng</string>
+    <string name="loan_management_cancel_confirm">Bạn có chắc chắn muốn hủy hợp đồng này?</string>
+    <string name="action_confirm">Xác nhận</string>
+    <string name="action_dismiss">Hủy</string>
+    <string name="action_retry">Thử lại</string>
+
+    <!-- Terms (workflow #15) -->
+    <string name="terms_title">Điều khoản và chính sách</string>
+    <string name="terms_body_placeholder">Nội dung điều khoản và chính sách dịch vụ EasyMoney sẽ được cập nhật khi tài liệu chính thức sẵn sàng. Vui lòng liên hệ tổng đài để biết chi tiết.</string>
+    <string name="hotline_number">19001234</string>
+
+    <!-- TopUp / Withdraw (workflow #8 / #9) -->
+    <string name="topup_amount_label">Số tiền nạp</string>
+    <string name="topup_amount_placeholder">Tối thiểu 10.000đ</string>
+    <string name="topup_select_card">Chọn nguồn nạp</string>
+    <string name="topup_button">Nạp tiền</string>
+    <string name="withdraw_balance">Số dư khả dụng: %1$s đ</string>
+    <string name="withdraw_amount_placeholder">Nhập số tiền</string>
+    <string name="withdraw_select_dest">Chọn đích nhận</string>
+    <string name="withdraw_button">Rút tiền</string>
 </resources>

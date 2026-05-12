@@ -18,7 +18,7 @@ class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
-    private val currentUserId = "user_123" // TODO: Get from Auth session
+    private val currentUserId = "user_123" // TODO(auth-session): lấy userId từ AppPreferences/AuthSession sau khi auth flow hoàn thiện
 
     val notifications: StateFlow<List<NotificationUiModel>> = notificationRepository.getNotificationsForUser(currentUserId)
         .map { list -> list.map { it.toUiModel() } }

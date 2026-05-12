@@ -1,7 +1,9 @@
 package com.example.easymoney.domain.repository
 
+import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.sample.SAMPLE_APPROVED_CONTRACTS
 import com.example.easymoney.domain.model.*
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
@@ -29,7 +31,15 @@ class LoanRepositoryImpl @Inject constructor(
     private val rememberedAccountDao: RememberedAccountDao?
 ) : LoanRepository {
 
-    private fun isRemote() = appPreferences?.dataSourceMode == DataSourceMode.REMOTE && remoteDataSource != null
+    private fun isRemote(): Boolean {
+        val remote = appPreferences?.dataSourceMode == DataSourceMode.REMOTE && remoteDataSource != null
+        Log.d(TAG_DATA_SOURCE, "LoanRepository mode=${if (remote) "REMOTE" else "MOCK"}")
+        return remote
+    }
+
+    private companion object {
+        const val TAG_DATA_SOURCE = "DataSource"
+    }
 
     // ========== Auth ==========
     override suspend fun login(request: LoginRequest): Resource<AuthToken> {
@@ -514,6 +524,23 @@ class LoanRepositoryImpl @Inject constructor(
     /**
      * Build metadata JSON string từ request
      */
+    // Workflow #12 — Loan management
+    private val cancelledContractIds = mutableSetOf<String>()
+
+    override suspend fun getApprovedContracts(): Resource<List<LoanContractModel>> {
+        delay(500)
+        val contracts = SAMPLE_APPROVED_CONTRACTS.map { c ->
+            if (c.id in cancelledContractIds) c.copy(status = ContractStatus.CANCELLED) else c
+        }
+        return Resource.Success(contracts, isFromMock = !isRemote())
+    }
+
+    override suspend fun cancelContract(contractId: String): Resource<Unit> {
+        delay(400)
+        cancelledContractIds.add(contractId)
+        return Resource.Success(Unit, isFromMock = !isRemote())
+    }
+
     private fun buildMetadataJson(request: EkycCaptureRequest): String {
         return """{
             "session_id": "${request.sessionId}",

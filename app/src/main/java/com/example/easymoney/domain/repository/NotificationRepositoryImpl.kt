@@ -1,6 +1,7 @@
 package com.example.easymoney.domain.repository
 
 import android.app.Application
+import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
 import com.example.easymoney.data.local.dao.NotificationDao
@@ -37,7 +38,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun markAsRead(id: Long) {
         notificationDao.markAsRead(id)
-        // TODO: Gọi API mark read nếu cần
+        // TODO(workflow_14): gọi API mark-read khi backend hỗ trợ — hiện chỉ update local DB
     }
 
     override suspend fun markAllAsRead() {
@@ -48,8 +49,25 @@ class NotificationRepositoryImpl @Inject constructor(
         notificationDao.clearAll()
     }
 
+    override suspend fun registerFcmToken(token: String): Resource<Unit> {
+        Log.d("FCM", "registerFcmToken (workflow #14) token=${token.take(20)}... mode=${appPreferences.dataSourceMode}")
+        // TODO(workflow_14): khi backend có endpoint, gọi remoteDataSource.registerToken(token)
+        return Resource.Success(Unit)
+    }
+
+    override suspend fun triggerFcmTest(
+        token: String,
+        delay: Int,
+        title: String,
+        content: String,
+        type: String,
+        amount: Long?
+    ): Resource<Unit> = remoteDataSource.triggerFcmTest(token, delay, title, content, type, amount)
+
     override suspend fun refreshNotifications() {
-        if (appPreferences.dataSourceMode == DataSourceMode.MOCK) return
+        val mode = appPreferences.dataSourceMode
+        Log.d("DataSource", "NotificationRepository mode=$mode")
+        if (mode == DataSourceMode.MOCK) return
         
         when (val result = remoteDataSource.getNotifications()) {
             is Resource.Success -> {

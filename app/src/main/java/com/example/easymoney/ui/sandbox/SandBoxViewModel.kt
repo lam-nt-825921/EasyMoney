@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
-import com.example.easymoney.data.remote.LoanRemoteDataSource
 import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.repository.NotificationRepository
 import com.example.easymoney.ui.notification.manager.AppNotificationManager
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +31,7 @@ sealed class SandboxEffect {
 class SandBoxViewModel @Inject constructor(
     private val notificationManager: AppNotificationManager,
     private val appPreferences: AppPreferences,
-    private val remoteDataSource: LoanRemoteDataSource
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SandboxUiState())
@@ -72,7 +72,7 @@ class SandBoxViewModel @Inject constructor(
                 val token = FirebaseMessaging.getInstance().token.await()
                 
                 // 2. Gọi API Backend (Yêu cầu gửi sau 5 giây)
-                val result = remoteDataSource.triggerFcmTest(
+                val result = notificationRepository.triggerFcmTest(
                     token = token,
                     delay = 5,
                     title = "Biến động số dư (Test)",

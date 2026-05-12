@@ -1,58 +1,112 @@
-# BACKEND_DATA_PATHS
+# Backend Data Paths — EasyMoney
 
-Tài liệu này chuẩn hoá đường đi dữ liệu giữa Backend và Mobile app EasyMoney.
+> Endpoint → DTO → Domain → Screen mapping. Cập nhật mỗi khi backend đổi contract hoặc thêm endpoint.
 
-## Mục đích
+---
 
-- Ghi rõ endpoint nào phục vụ screen/flow nào.
-- Ghi rõ dữ liệu đi từ DTO → domain model → UI như thế nào.
-- Làm rõ mode **mock** và **connected** đang được quyết định ở đâu.
-- Giảm tình trạng UI nhận đúng log nhưng hiển thị sai do mapping.
+## 1. Endpoint table
 
-## Quy tắc chung
+| HTTP | Path | Request DTO | Response DTO | Repository function | Layer triggers |
+|---|---|---|---|---|---|
+| POST | `/api/v1/auth/login` | `LoginRequestDto` | `ApiResponse<AuthTokenDto>` | `LoanRepository.login()` | `Login1ViewModel` |
+| POST | `/api/v1/auth/register` | `RegisterRequestDto` | `ApiResponse<AuthTokenDto>` | `LoanRepository.register()` | `Register1ViewModel` |
+| GET  | `/api/v1/loan/package/my` | — | `ApiResponse<List<LoanPackageDto>>` | `LoanRepository.getMyLoanPackages()` | `LoanListViewModel`, `LoanDetailViewModel` |
+| GET  | `/api/v1/master/metadata` | — | `ApiResponse<MasterDataMetadataDto>` | `LoanRepository.getMasterMetadata()` | `IdentityVerificationViewModel`, `EditPersonalInfoViewModel` |
+| GET  | `/api/v1/master/districts/{provinceId}` | — | `ApiResponse<List<MasterDataItemDto>>` | `LoanRepository.getDistricts(provinceId)` | địa chỉ form |
+| GET  | `/api/v1/master/wards/{districtId}` | — | `ApiResponse<List<MasterDataItemDto>>` | `LoanRepository.getWards(districtId)` | địa chỉ form |
+| POST | `/api/v1/ekyc/capture/face` | multipart `image`, `frontIdImage`, `backIdImage` | `ApiResponse<EkycResultDto>` | `LoanRepository.submitEkyc(...)` | `EkycCameraViewModel` |
+| POST | `/api/v1/otp/send` | `OtpSendRequest(phone, purpose)` | `ApiResponse<Unit>` | `LoanRepository.sendOtp(...)` | login/register flow |
+| POST | `/api/v1/otp/verify` | `OtpVerifyRequest(otp, purpose)` | `ApiResponse<Unit>` | `LoanRepository.verifyOtp(...)` | login/register flow |
+| GET  | `/api/v1/notifications` | — | `ApiResponse<List<NotificationDto>>` | `NotificationRepository.refreshNotifications()` | `NotificationViewModel` |
+| POST | `/api/v1/test/fcm/trigger` | `FcmTestRequest` | `ApiResponse<Unit>` | `NotificationRepository.triggerFcmTest()` | `SandBoxViewModel` |
 
-1. UI chỉ gọi `Repository`.
-2. `Repository` quyết định dùng mock hay remote.
-3. `RemoteDataSource` chịu trách nhiệm gọi API và map DTO.
-4. Domain model không nên phụ thuộc trực tiếp vào tên field backend.
-5. Nếu backend đổi field, cập nhật tại DTO/mapping trước, không sửa trực tiếp UI.
+---
 
-## Bảng đối chiếu dữ liệu
+## 2. DTO ↔ Domain mapping
 
-| Screen / Flow | Repository | Remote DataSource | Backend endpoint | Domain model |
-| --- | --- | --- | --- | --- |
-| Home |  |  |  |  |
-| Loan management |  |  |  |  |
-| Reward redemption |  |  |  |  |
-| Notifications |  |  |  |  |
-| AI Chatbot |  |  |  |  |
-| Cashflow / wallet |  |  |  |  |
+### `AuthTokenDto` ↔ `AuthToken`
+| DTO field (Kotlin) | JSON key (`@SerializedName`) | Domain field |
+|---|---|---|
+| `accessToken: String` | `"accessToken"` | `accessToken` |
+| `refreshToken: String` | `"refreshToken"` | `refreshToken` |
+| `expiresIn: Int` | `"expiresIn"` | `expiresIn` |
 
-## Mock vs Connected mode
+> Backend dùng camelCase. `@SerializedName` ép Gson bỏ qua naming policy `LOWER_CASE_WITH_UNDERSCORES`.
 
-- **Mock mode**: dùng dữ liệu mẫu để phát triển nhanh UI/UX.
-- **Connected mode**: gọi backend thật qua repository/remote data source.
-- Cần ghi rõ:
-  - mode được đọc từ đâu (`AppPreferences`, sandbox, remote config, v.v.)
-  - cách chuyển mode
-  - những flow nào bắt buộc phải gọi backend thật
+### `NotificationDto` ↔ `NotificationEntity`
+| DTO field | JSON key (snake_case via policy) | Entity field | Ghi chú |
+|---|---|---|---|
+| `id: Int` | `id` | `id: Long` (cast) | id local Long |
+| `title: String` | `title` | `title: String` | nullable fallback "Thông báo" |
+| `content: String` | `content` | `content: String` | |
+| `type: String` | `type` | `type: String` | nullable fallback "transaction" |
+| `amount: Long?` | `amount` | `amount: Long?` | |
+| `balanceAfter: Long?` | `balance_after` | `balanceAfter: Long?` | |
+| `transactionCode: String?` | `transaction_code` | `transactionCode: String?` | |
+| `timestamp: Long` | `timestamp` | `timestamp: Long` | nếu ≤ 0 dùng `System.currentTimeMillis()` |
+| `isRead: Boolean` | `is_read` | `isRead: Boolean` | |
 
-## Mapping notes
+### `MasterDataItemDto` ↔ `MasterDataItem`
+| DTO field | JSON key | Domain field |
+|---|---|---|
+| `id: String` | `id` | `id` |
+| `name: String` | `name` | `name` |
+| `parentId: String?` | `parent_id` | `parentId` |
 
-- Ghi chú các trường backend hay gặp:
-  - snake_case ↔ camelCase
-  - nested object
-  - list / optional / nullable field
-- Với mỗi API quan trọng, nên mô tả:
-  - request payload
-  - response payload
-  - error code
-  - fallback khi thiếu dữ liệu
+### `MasterDataMetadataDto` ↔ `MasterDataMetadata`
+- `version` ↔ `version`
+- `expiredAt` (JSON `expired_at`) ↔ `expiredAt`
+- `masterData` (JSON `master_data`) ↔ flatten thành các list trong `MasterDataMetadata` (provinces, professions, positions, educationLevels, maritalStatuses, relationships)
 
-## Cần bổ sung sau
+---
 
-- Endpoint chi tiết cho từng module.
-- Bảng mapping DTO ↔ domain model.
-- Quy ước cache/local storage nếu có.
-- Quy định versioning API nếu backend thay đổi lớn.
+## 3. Screen ↔ Repository
 
+| Screen / Route | ViewModel | Repository | Mode hỗ trợ |
+|---|---|---|---|
+| `welcome` | — | — | n/a |
+| `login_1` | `Login1ViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `register_1` | `Register1ViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `quick_login_1` | `QuickLogin1ViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `home` | `HomeViewModel` | `HomeRepository` | MOCK only |
+| `history` | `TransactionHistoryViewModel` | `LoanRepository` | MOCK only |
+| `notifications` | `NotificationViewModel` | `NotificationRepository` | MOCK + REMOTE |
+| `account` | `AccountViewModel` | `AccountRepository`, `UserRepository` | MOCK only |
+| `loan_list` | `LoanListViewModel` | `LoanRepository.getMyLoanPackages()` | MOCK + REMOTE |
+| `loan_detail/{id}` | `LoanDetailViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `loan_information` | `LoanFlowViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `confirm_information` | `ConfirmInformationViewModel` | `LoanRepository` | MOCK + REMOTE |
+| `identity_verification` | `IdentityVerificationViewModel` | `LoanRepository` (master + ekyc) | MOCK + REMOTE |
+| `event_detail/{id}` | `EventDetailViewModel` | `EventRepository` | MOCK only |
+| `rewards` | `RewardViewModel` | `RewardRepository` | MOCK only |
+| `profile` | `ProfileViewModel` | `UserRepository` | MOCK only |
+| `money_management` | `MoneyManagementViewModel` | `PaymentRepository` | MOCK only |
+| `payment_cards` | `PaymentCardsViewModel` | `PaymentRepository` | MOCK only |
+| `general_settings` | `GeneralSettingsViewModel` | `AppPreferences` | n/a |
+| `security_settings` | `SecuritySettingsViewModel` | `UserRepository` | MOCK only |
+| `chatbot` | `ChatBotViewModel` (chưa tồn tại) | `ChatBotRepository` (chưa tồn tại) | MOCK only |
+| `sandbox` | `SandBoxViewModel` | `NotificationRepository`, `AppPreferences` | n/a (dev tool) |
+| `contract` | `ContractViewModel` | `LoanRepository` | MOCK only |
+| `esign_success` | — | — | static |
+
+> "MOCK only" nghĩa là repository hiện trả mock cứng — chưa có nhánh REMOTE. Khi backend có endpoint sẽ thêm nhánh tương ứng.
+
+---
+
+## 4. Mode switching guide
+
+Mode lưu ở `AppPreferences.dataSourceMode: DataSourceMode` (`MOCK` hoặc `REMOTE`). Reactive qua `dataSourceModeFlow: StateFlow<DataSourceMode>`.
+
+### Bật/tắt từ app
+1. Mở app → tab Account → "Sandbox Developer" (hoặc deep link `sandbox`)
+2. Toggle giữa MOCK và REMOTE
+3. Đổi `apiBaseUrl` nếu cần (mặc định `https://easymoney.lamgd.dev/`)
+4. Thay đổi áp dụng ngay — mọi repository check `appPreferences.dataSourceMode` lần gọi tiếp theo
+
+### Logging
+- Repos branch theo mode log `Log.d("DataSource", "<repo> mode=<MOCK|REMOTE>")` — filter logcat `tag:DataSource` để theo dõi
+
+### Repos đã hỗ trợ branch
+- ✅ `LoanRepositoryImpl.isRemote()` → toàn bộ auth, loan, ekyc, otp
+- ✅ `NotificationRepositoryImpl.refreshNotifications()`
+- ❌ `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl`, `AccountRepositoryImpl` — chưa có nhánh REMOTE (chờ endpoint backend)
