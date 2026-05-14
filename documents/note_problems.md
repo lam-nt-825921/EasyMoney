@@ -17,6 +17,28 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 
 ## P0 — Việc cần làm ngay
 
+### 0) Chuẩn hoá nguồn dữ liệu MOCK/REMOTE theo Sandbox cho toàn bộ repository
+
+**Hiện trạng đã xác thực**
+- `documents/BACKEND_DATA_PATHS.md` đang ghi `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl`, `AccountRepositoryImpl` vẫn là `MOCK only`.
+- `AppPreferences.dataSourceMode` và `SandBoxScreen` đã có cơ chế chọn `MOCK` / `REMOTE`, nhưng nhiều repository chưa branch theo mode.
+- `EventDetailScreen` vẫn dựng mock trực tiếp trong UI.
+- `ChatBotViewModel` tự sinh câu trả lời bằng rule local, chưa có repository.
+- `TransactionHistoryScreen` có `mockTransactions` trực tiếp trong UI.
+
+**Yêu cầu**
+- Mọi repository implementation phải có đủ 2 nguồn dữ liệu:
+  - `MOCK`: lấy từ `data/sample` hoặc data source mock trung gian.
+  - `REMOTE`: gọi endpoint thật qua remote data source/API service.
+- Việc chọn nguồn dữ liệu phải thống nhất theo `AppPreferences.dataSourceMode`, do giao diện `sandbox` điều khiển.
+- UI và ViewModel không được tự dựng mock data hoặc tự quyết định mock/remote.
+- Nếu backend chưa có endpoint, cập nhật contract trong `documents/API_SPEC.md` và coi như backend sẽ cung cấp.
+
+**Tiêu chí hoàn thành**
+- `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl`, `AccountRepositoryImpl`, `LoanRepositoryImpl`, `NotificationRepositoryImpl` đều branch rõ ràng `MOCK/REMOTE`.
+- Không còn mock trực tiếp ở `EventDetailScreen`, `ChatBotViewModel`, `TransactionHistoryScreen` và các UI listed ở mục 2.
+- `documents/BACKEND_DATA_PATHS.md` được cập nhật lại trạng thái repository/screen sau khi hoàn thiện.
+
 ### 1) Chuẩn hoá luồng Home → Loan Detail → Register
 
 **Yêu cầu**
@@ -53,6 +75,25 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 - Không còn dữ liệu mock hard-coded trong UI layer cho các màn trên.
 - Mock chỉ xuất hiện ở repository/data source trung gian khi cần.
 - Dữ liệu thật từ backend được ưu tiên khi endpoint đã sẵn sàng.
+
+### 2.1) Hoàn thiện hệ thống hướng dẫn theo từng màn hình
+
+**Hiện trạng đã xác thực**
+- `AppNavigationBar` có nút Help dùng `showHelpButton`.
+- `AppRoot` điều hướng Help sang `AppDestination.PageGuide.createRoute(xmlName = destination.guideXmlName, ...)`.
+- `AppDestination.PageGuide.DEFAULT_XML_NAME` là `guide_default_updating`.
+- Hiện chỉ có các layout guide: `guide_home.xml`, `guide_loan_detail.xml`, `guide_onboarding.xml`, `guide_default_updating.xml`.
+- Nhiều destination đang `showHelpButton = true` nhưng không có `guideXmlName`, ví dụ `ConfirmInformation`, `Contract`, `EventDetail`, `Rewards`, `LoanList`, `Profile`, `MoneyManagement`, `PaymentCards`, `GeneralSettings`, `SecuritySettings`, `IdentityVerification`, `TopUp`, `Withdraw`, `LoanManagement`, `EditPersonalInfo`, `EditJobInfo`, `EditContactInfo`.
+
+**Yêu cầu**
+- Với mỗi màn hình có thao tác nghiệp vụ đáng kể, tạo guide XML riêng và set `guideXmlName` đúng trong `AppDestination`.
+- Với màn hình quá đơn giản hoặc không cần hướng dẫn, override `showHelpButton = false` ở `AppDestination` hoặc qua `AppTopBarOverride`.
+- Không để Help mở `guide_default_updating` trong production cho các màn có nghiệp vụ chính.
+
+**Tiêu chí hoàn thành**
+- Mỗi route có `showHelpButton = true` đều có `guideXmlName` trỏ tới XML tồn tại trong `res/layout`.
+- Các màn không cần guide không hiển thị nút Help.
+- QA có thể mở Help từ từng màn chính và thấy hướng dẫn thao tác đúng màn đó.
 
 ## P1 — Nhiệm vụ cần hoàn thiện sớm
 
@@ -124,6 +165,48 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 - Các màn loan hiển thị đúng ngôn ngữ theo locale.
 - Option backend như tỉnh/thành, nghề nghiệp, tình trạng hôn nhân... trả về đúng ngôn ngữ đã chọn.
 
+### 7.1) Mở rộng bộ lọc tìm kiếm khoản vay
+
+**Hiện trạng đã xác thực**
+- `LoanDiscoveryUiState` chỉ có `minAmount`, `maxAmount`, `tenor`, `eligibleOnly`.
+- `LoanListScreen` hiện chỉ có slider hạn mức và switch "Chỉ hiện gói đủ điều kiện".
+- `LoanRepository.getLoanPackages(...)` chưa nhận bộ lọc lãi suất, hot/new/ưu đãi hoặc keyword.
+
+**Yêu cầu**
+- Thiết kế lại UI bộ lọc `LoanListScreen` đẹp hơn, dễ quét và có trạng thái filter đang áp dụng.
+- Bổ sung filter:
+  - Khoảng lãi suất.
+  - Kỳ hạn.
+  - Gói hot.
+  - Gói mới.
+  - Gói ưu đãi/khuyến mãi.
+  - Chỉ gói đủ điều kiện.
+  - Từ khóa/tên gói nếu UX cần.
+- Cập nhật domain model/API để backend trả metadata tương ứng: `isHot`, `isNew`, `isPromotional`, `badges`, `interestRate`, `tenorRange`.
+- Repository phải truyền filter xuống backend ở REMOTE mode và filter từ sample data ở MOCK mode.
+
+**Tiêu chí hoàn thành**
+- Người dùng lọc được theo các tham số trên và có nút reset filter.
+- Filter hoạt động nhất quán ở cả MOCK và REMOTE.
+- API contract trong `documents/API_SPEC.md` mô tả đủ query params.
+
+### 7.2) Bắt buộc master data theo ngôn ngữ cho hồ sơ và LoanFlow
+
+**Hiện trạng đã xác thực**
+- `EditProfileViewModel.loadMasterData()` gọi `loanRepository.getProfessions()`, `getPositions()`, `getEducationLevels()`, `getMaritalStatuses()`, `getRelationships()` nhưng interface không có tham số ngôn ngữ.
+- `LoanInformationFormViewModel.loadMasterData()` gọi `loanRepository.getMasterDataMetadata()` cũng không truyền `lang/locale`.
+- `LoanApiService.getMasterDataMetadata()`, `getDistricts()`, `getWards()` chưa có query language.
+
+**Yêu cầu**
+- Repository/API master data phải nhận tham số ngôn ngữ hiện tại (`vi`/`en`) hoặc đọc locale từ app và truyền xuống backend.
+- Áp dụng cho cả màn sửa hồ sơ (`EditPersonalInfoScreen`, `EditJobInfoScreen`, `EditContactInfoScreen`) và `LoanInformationFormViewModel` trong `LoanFlow`.
+- Dropdown phải lưu bằng id/code ổn định, không chỉ lưu text hiển thị, để đổi ngôn ngữ không làm hỏng dữ liệu đã chọn.
+
+**Tiêu chí hoàn thành**
+- Khi app ở tiếng Việt/Anh, dropdown nhận label đúng ngôn ngữ từ backend.
+- Dữ liệu submit dùng id/code ổn định; label chỉ dùng để hiển thị.
+- `documents/API_SPEC.md` mô tả query `lang` cho master data.
+
 ### 8) Gắn điều hướng đúng cho các text highlight / link trong UI
 
 **Yêu cầu**
@@ -144,6 +227,110 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 **Tiêu chí hoàn thành**
 - Không còn chatbot mock hoàn toàn ở UI.
 - Chatbot có thể hiển thị phản hồi dạng text + component điều hướng.
+
+### 9.1) Cải thiện UI các màn đang đơn điệu
+
+**Hiện trạng đã xác thực**
+- `RewardScreen` dùng grid card đơn giản, nhiều text hard-code và visual gift placeholder.
+- `EventDetailScreen` dùng hero placeholder icon và mock content trong UI.
+- `ChatBotScreen` chỉ có bubble cơ bản, action button đơn giản.
+- `LoanManagementScreen` chỉ là danh sách contract card cơ bản với 2 nút.
+
+**Yêu cầu**
+- Thiết kế lại các màn `RewardScreen`, `EventDetailScreen`, `ChatBotScreen`, `LoanManagementScreen` theo UX giàu thông tin hơn, có loading/error/empty state tốt và responsive.
+- Dữ liệu hiển thị phải đến từ repository/backend; UI không dựng mock.
+- `RewardScreen`: có phân loại quà, trạng thái đổi quà, lịch sử/ưu đãi nổi bật, confirm redeem đẹp và kết quả trả về từ backend.
+- `EventDetailScreen`: hero image thật từ backend, timeline/điều kiện tham gia, CTA theo `interactionType`.
+- `ChatBotScreen`: hỗ trợ message text/card/action component từ backend, trạng thái typing/error/retry, action điều hướng rõ ràng.
+- `LoanManagementScreen`: hiển thị hợp đồng đã duyệt, trạng thái, lịch trả nợ, CTA hủy/ký hợp đồng, yêu cầu xác thực 2 bước nếu user bật.
+
+**Tiêu chí hoàn thành**
+- Các màn trên không còn UI tạm/placeholder làm trải nghiệm chính.
+- Các action quan trọng có loading/error/success feedback.
+- Text được đưa vào string resources và hỗ trợ dark mode.
+
+### 9.2) Chuẩn hoá xác thực sinh trắc học thiết bị và dùng optional 2FA
+
+**Hiện trạng đã xác thực**
+- `BiometricModule` có gọi `androidx.biometric.BiometricPrompt.authenticate(...)`.
+- `SecurityViewModel.isBiometricSupported` đang hard-code `true // Mocked` và toggle chỉ update state local.
+- `ProfileCompletionScreen` coi "Sinh trắc học thiết bị" như một task hồ sơ, trong khi yêu cầu mới là 2FA optional.
+- `LoanFlowScreen` chưa dùng `BiometricModule` khi xác nhận/gửi hồ sơ vay.
+
+**Yêu cầu**
+- Kiểm tra capability thật bằng `BiometricManager` trước khi bật/tắt biometric.
+- Thiết kế popup/xác nhận UI đơn giản cho 2 loại phổ biến: vân tay và FaceID/face unlock, nhưng vẫn dùng `BiometricPrompt` hệ thống để người dùng xác thực bằng cảm biến thiết bị.
+- Biometric là 2FA optional theo cài đặt người dùng, không bắt buộc mặc định trong hồ sơ.
+- Lưu trạng thái bật/tắt qua repository/backend hoặc secure local storage theo policy.
+- Tích hợp vào `LoanFlow`: trước bước submit/xác nhận cuối, nếu user bật biometric 2FA thì yêu cầu xác thực thành công mới tiếp tục.
+- Rút tiền/ký hợp đồng cũng dùng cùng cơ chế xác thực này nếu nghiệp vụ yêu cầu.
+
+**Tiêu chí hoàn thành**
+- Thiết bị không hỗ trợ biometric hiển thị trạng thái unsupported và không cho bật.
+- User bật/tắt biometric thật qua luồng xác thực thành công.
+- `LoanFlow` chặn submit khi user đã bật 2FA nhưng xác thực thất bại/hủy.
+
+### 9.3) Sửa logic hoàn thiện hồ sơ định danh: NFC CCCD hoặc hồ sơ giấy tờ là đủ
+
+**Hiện trạng đã xác thực**
+- `IdentitySection` hiển thị riêng `Quét thẻ chip CCCD (NFC)` và `Tải hồ sơ/giấy tờ`.
+- `DocumentUploadModule` trả mock result, nhưng `ProfileCompletionScreen` chỉ `closeModule()` và không cập nhật trạng thái document verified.
+- `IdentityVerificationStatus` hiện có `isNfcVerified`, chưa có trạng thái document upload verified rõ ràng.
+
+**Yêu cầu**
+- NFC CCCD và upload giấy tờ là 2 phương thức thay thế nhau để xác nhận thông tin định danh; chỉ cần 1 trong 2 thành công là đủ cho phần định danh giấy tờ.
+- Tách rõ:
+  - eKYC face/liveness.
+  - Identity document verification: `NFC` OR `DOCUMENT_UPLOAD`.
+  - Biometric 2FA optional, không tính là điều kiện hoàn thiện hồ sơ bắt buộc.
+- Cập nhật model/backend contract để có trạng thái `documentVerified`, `nfcVerified`, `identityDocumentVerified` hoặc tương đương.
+
+**Tiêu chí hoàn thành**
+- Hồ sơ không còn yêu cầu đồng thời cả NFC và document upload.
+- UI hiển thị rõ người dùng có thể chọn một trong hai phương thức.
+- Backend/profile completion tính hoàn thiện đúng theo điều kiện OR.
+
+### 9.4) Hoàn thiện Payment: nạp/rút, tự động thanh toán, thẻ và QR
+
+**Hiện trạng đã xác thực**
+- `PaymentRepositoryImpl` chỉ mock in-memory balance/cards, không branch REMOTE.
+- `PaymentRepository.addPaymentCard()` chỉ add local, chưa xác minh thẻ qua API.
+- `PaymentCardsScreen` có nút thêm thẻ nhưng chưa thấy form nhập/xóa thẻ đầy đủ; card holder/expiry còn hard-code.
+- `TopUpScreen` và `WithdrawScreen` là form cơ bản, chưa có QR flow hoặc trạng thái giao dịch realtime/polling.
+
+**Yêu cầu**
+- `PaymentRepository` phải hỗ trợ MOCK/REMOTE cho wallet, cards, top-up, withdraw, auto deduction.
+- Nhập thẻ/xóa thẻ phải gọi API backend để xác minh thẻ hợp lệ trước khi lưu hoặc xóa.
+- Hoàn thiện UI nạp/rút/tự động thanh toán đẹp hơn, có trạng thái giao dịch rõ ràng.
+- Thêm luồng thanh toán bằng QR:
+  - User nhập số tiền.
+  - Frontend gọi API tạo QR/payment intent.
+  - UI hiển thị QR code và trạng thái chờ thanh toán.
+  - Frontend poll/subscribe trạng thái giao dịch và hiển thị success/failed/expired/cancelled.
+- Backend xử lý tiền thật, frontend chỉ hiển thị trạng thái theo API.
+
+**Tiêu chí hoàn thành**
+- Thêm/xóa thẻ có validation từ backend và xử lý lỗi rõ ràng.
+- QR payment hiển thị được pending/success/failed/expired.
+- Auto deduction toggle gọi API và đồng bộ lại wallet info.
+- Payment docs/API contract được cập nhật.
+
+### 9.5) Cải thiện UI sửa thông tin hồ sơ
+
+**Hiện trạng đã xác thực**
+- `EditPersonalInfoScreen`, `EditJobInfoScreen`, `EditContactInfoScreen` còn form đơn giản.
+- Dropdown đã có gọi repository lấy master data ở `EditProfileViewModel`, nhưng chưa truyền ngôn ngữ và chưa lưu id/code ổn định.
+
+**Yêu cầu**
+- Thiết kế lại các màn sửa thông tin cá nhân, công việc/thu nhập, người liên hệ để đẹp hơn, có grouping, helper text, validation inline, loading/error state.
+- Dropdown phải lấy dữ liệu từ backend/repository theo ngôn ngữ app hiện tại.
+- Các field như giới tính, nghề nghiệp, chức vụ, học vấn, tình trạng hôn nhân, quan hệ nên dùng selector từ master data thay vì text input tự do khi có master data.
+- Contact picker cần chuẩn hóa số điện thoại trước khi lưu.
+
+**Tiêu chí hoàn thành**
+- Form có validation rõ ràng và không submit khi dữ liệu sai.
+- Dropdown hiển thị đúng locale và submit id/code.
+- Save profile gọi repository/backend, có loading/success/error feedback.
 
 ### 10) Rà soát toàn bộ repository để đảm bảo đã gọi API thật
 
@@ -172,4 +359,10 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 - [ ] Các màn loan sử dụng repository/backend đúng chuẩn.
 - [ ] Chatbot gọi backend thật và hỗ trợ component điều hướng.
 - [ ] Các link/hotline/terms/contracts điều hướng đúng.
+- [ ] Sandbox chọn được MOCK/REMOTE và mọi repository tuân thủ mode này.
+- [ ] Mỗi màn có nút Help đều có guide riêng hoặc đã tắt Help hợp lý.
+- [ ] Biometric 2FA optional hoạt động thật và được dùng trong LoanFlow khi user bật.
+- [ ] NFC CCCD hoặc upload giấy tờ chỉ cần một phương thức thành công để hoàn thiện phần định danh giấy tờ.
+- [ ] Payment hỗ trợ xác minh thẻ qua API, QR payment và trạng thái giao dịch.
+- [ ] Loan search filter hỗ trợ lãi suất, hot, new, ưu đãi và các tham số cần thiết.
 - [ ] `documents/PROJECT_STRUCTURE.md` được đọc trước khi triển khai các task này.
