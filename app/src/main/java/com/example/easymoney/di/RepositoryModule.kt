@@ -58,4 +58,16 @@ abstract class RepositoryModule {
     abstract fun bindEventRepository(
         eventRepositoryImpl: EventRepositoryImpl
     ): EventRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTransactionHistoryRepository(
+        transactionHistoryRepositoryImpl: TransactionHistoryRepositoryImpl
+    ): TransactionHistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChatBotRepository(
+        chatBotRepositoryImpl: ChatBotRepositoryImpl
+    ): ChatBotRepository
 }

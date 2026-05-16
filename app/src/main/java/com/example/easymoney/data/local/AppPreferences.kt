@@ -54,6 +54,11 @@ class AppPreferences @Inject constructor(
         get() = prefs.getString(KEY_REFRESH_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_REFRESH_TOKEN, value).apply()
 
+    // Workflow #34 — Biometric 2FA optional toggle.
+    var isBiometric2FAEnabled: Boolean
+        get() = prefs.getBoolean("biometric_2fa_enabled", false)
+        set(value) = prefs.edit().putBoolean("biometric_2fa_enabled", value).apply()
+
     fun clearAuthData() {
         prefs.edit()
             .remove(KEY_ACCESS_TOKEN)

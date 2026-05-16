@@ -39,16 +39,17 @@ interface LoanRepository {
 
     suspend fun checkEligibility(packageId: String): Resource<EligibilityResult>
     
-    suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata>
-    
-    suspend fun getProvinces(): Resource<List<MasterDataItem>>
-    suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>>
-    suspend fun getWards(districtId: String): Resource<List<MasterDataItem>>
-    suspend fun getProfessions(): Resource<List<MasterDataItem>>
-    suspend fun getPositions(): Resource<List<MasterDataItem>>
-    suspend fun getEducationLevels(): Resource<List<MasterDataItem>>
-    suspend fun getMaritalStatuses(): Resource<List<MasterDataItem>>
-    suspend fun getRelationships(): Resource<List<MasterDataItem>>
+    // Workflow #30 — Master data nhận tham số ngôn ngữ; default "vi".
+    suspend fun getMasterDataMetadata(lang: String = "vi"): Resource<MasterDataMetadata>
+
+    suspend fun getProvinces(lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getDistricts(provinceId: String, lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getWards(districtId: String, lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getProfessions(lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getPositions(lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getEducationLevels(lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getMaritalStatuses(lang: String = "vi"): Resource<List<MasterDataItem>>
+    suspend fun getRelationships(lang: String = "vi"): Resource<List<MasterDataItem>>
 
     // Application
     suspend fun submitApplication(request: LoanApplicationRequest): Resource<Unit>

@@ -30,9 +30,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.easymoney.R
 import java.util.concurrent.Executors
 
 /**
@@ -71,8 +73,12 @@ fun FaceCaptureModule(
         }
     }
 
+    val statusInitial = stringResource(R.string.face_capture_status_initial)
+    val statusConfirming = stringResource(R.string.face_capture_status_confirming)
+    val statusBlink = stringResource(R.string.face_capture_status_blink)
+    val statusNoFace = stringResource(R.string.face_capture_status_no_face)
     var isFaceDetected by remember { mutableStateOf(false) }
-    var livenessStatus by remember { mutableStateOf("Vui lòng đưa khuôn mặt vào khung hình") }
+    var livenessStatus by remember { mutableStateOf(statusInitial) }
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
         if (hasCameraPermission) {
@@ -99,13 +105,13 @@ fun FaceCaptureModule(
                                         val rightEye = metadata["rightEyeOpen"] as? Float ?: -1f
                                         // Check for blink (liveness)
                                         if (leftEye < 0.2f && rightEye < 0.2f) {
-                                            livenessStatus = "Đang xác nhận..."
+                                            livenessStatus = statusConfirming
                                             onResult(FaceCaptureResult(null, metadata, true))
                                         } else {
-                                            livenessStatus = "Hãy nháy mắt để xác nhận"
+                                            livenessStatus = statusBlink
                                         }
                                     } else {
-                                        livenessStatus = "Không tìm thấy khuôn mặt"
+                                        livenessStatus = statusNoFace
                                     }
                                 })
                             }
@@ -172,7 +178,7 @@ fun FaceCaptureModule(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Quyền truy cập Camera bị từ chối",
+                    text = stringResource(R.string.face_capture_camera_denied),
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -188,7 +194,7 @@ fun FaceCaptureModule(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Đóng",
+                contentDescription = stringResource(R.string.face_capture_close),
                 tint = Color.White
             )
         }

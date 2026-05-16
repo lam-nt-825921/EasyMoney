@@ -88,7 +88,7 @@ fun LoanDetailScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Dành cho khách hàng có điểm tín dụng từ ${loanPackage.eligibleCreditScore}",
+                                text = stringResource(R.string.loan_detail_eligibility_note, loanPackage.eligibleCreditScore.toString()),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = TextSecondary
                             )
@@ -105,9 +105,9 @@ fun LoanDetailScreen(
 
                     // Conditions Card
                     DetailSection(title = "Điều kiện đăng ký") {
-                        ConditionItem(text = "Công dân Việt Nam từ 20 - 60 tuổi")
-                        ConditionItem(text = "Có thu nhập ổn định từ 5 triệu đồng/tháng")
-                        ConditionItem(text = "Có lịch sử tín dụng tốt (không nợ xấu)")
+                        ConditionItem(text = stringResource(R.string.loan_detail_condition_age))
+                        ConditionItem(text = stringResource(R.string.loan_detail_condition_income))
+                        ConditionItem(text = stringResource(R.string.loan_detail_condition_credit))
                     }
 
                     // Illustration Card
@@ -123,7 +123,7 @@ fun LoanDetailScreen(
                             Icon(Icons.Default.Info, contentDescription = null, tint = TealPrimary)
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Ví dụ: Vay 10tr trong 6 tháng với lãi suất 12%/năm, mỗi tháng bạn trả khoảng 1.725.000đ.",
+                                text = stringResource(R.string.loan_detail_example_note),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = TealPrimary
                             )

@@ -1,34 +1,65 @@
 package com.example.easymoney.domain.repository
 
+import android.util.Log
+import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.data.local.DataSourceMode
 import com.example.easymoney.data.sample.SAMPLE_REWARD_CATALOG
+import com.example.easymoney.data.sample.sampleUserRewards
 import com.example.easymoney.domain.common.Resource
-import com.example.easymoney.domain.model.*
+import com.example.easymoney.domain.model.RewardCatalogItem
+import com.example.easymoney.domain.model.UserRewards
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
-class RewardRepositoryImpl @Inject constructor() : RewardRepository {
+private const val TAG = "DataSource"
+private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
+
+class RewardRepositoryImpl @Inject constructor(
+    private val appPreferences: AppPreferences
+) : RewardRepository {
 
     override suspend fun getRewardCatalogItems(): Resource<List<RewardCatalogItem>> {
-        delay(800)
-        return Resource.Success(SAMPLE_REWARD_CATALOG)
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "RewardRepository.getRewardCatalogItems mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(800)
+                Resource.Success(SAMPLE_REWARD_CATALOG, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real /rewards/catalog endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun getRewardsCatalog(): Resource<UserRewards> {
-        delay(500)
-        return Resource.Success(
-            UserRewards(
-                totalPoints = 1250,
-                history = listOf(
-                    PointHistory("h1", 500, "Hoàn thành eKYC", System.currentTimeMillis() - 86400000 * 2),
-                    PointHistory("h2", 200, "Thanh toán đúng hạn", System.currentTimeMillis() - 86400000),
-                    PointHistory("h3", 550, "Tham gia sự kiện hè", System.currentTimeMillis())
-                )
-            )
-        )
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "RewardRepository.getRewardsCatalog mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(500)
+                Resource.Success(sampleUserRewards(), isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real /rewards/user endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun redeemReward(itemId: String): Resource<Unit> {
-        delay(800)
-        return Resource.Success(Unit)
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "RewardRepository.redeemReward mode=$mode itemId=$itemId")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(800)
+                Resource.Success(Unit, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real POST /rewards/redeem endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 }

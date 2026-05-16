@@ -19,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.easymoney.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,12 +63,18 @@ fun LoanListScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.FilterList, contentDescription = null, tint = TealPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Bộ lọc khoản vay", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.loan_list_filter_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text(text = "Hạn mức mong muốn: %,dđ".format(uiState.maxAmount ?: 100_000_000L).replace(',', '.'), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = stringResource(
+                        R.string.loan_list_filter_amount,
+                        "%,dđ".format(uiState.maxAmount ?: 100_000_000L).replace(',', '.')
+                    ),
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Slider(
                     value = (uiState.maxAmount ?: 100_000_000L).toFloat(),
                     onValueChange = { viewModel.updateFilters(max = it.toLong()) },
@@ -78,12 +86,42 @@ fun LoanListScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Chỉ hiện gói đủ điều kiện", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.loan_list_filter_eligible_only), style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = uiState.eligibleOnly,
                         onCheckedChange = { viewModel.updateFilters(eligibleOnly = it) },
                         colors = SwitchDefaults.colors(checkedTrackColor = TealPrimary)
                     )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Workflow #29 — filter chips: hot / new / promotional
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterChip(
+                        selected = uiState.hotOnly,
+                        onClick = { viewModel.updateFilters(hotOnly = !uiState.hotOnly) },
+                        label = { Text(stringResource(R.string.loan_list_filter_hot)) }
+                    )
+                    FilterChip(
+                        selected = uiState.newOnly,
+                        onClick = { viewModel.updateFilters(newOnly = !uiState.newOnly) },
+                        label = { Text(stringResource(R.string.loan_list_filter_new)) }
+                    )
+                    FilterChip(
+                        selected = uiState.promotionalOnly,
+                        onClick = { viewModel.updateFilters(promotionalOnly = !uiState.promotionalOnly) },
+                        label = { Text(stringResource(R.string.loan_list_filter_promotional)) }
+                    )
+                    if (uiState.isAnyFilterActive()) {
+                        TextButton(onClick = { viewModel.resetFilters() }) {
+                            Text(stringResource(R.string.loan_list_filter_reset))
+                        }
+                    }
                 }
             }
         }

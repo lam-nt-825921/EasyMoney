@@ -81,7 +81,8 @@ sealed class AppDestination(
     data object ConfirmInformation : AppDestination(
         route = "confirm_information",
         title = "Xác nhận thông tin",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_confirm_information"
     )
 
     data object LoanFlow : AppDestination(
@@ -160,7 +161,8 @@ sealed class AppDestination(
         route = "contract?contractId={contractId}",
         title = "Hợp đồng của bạn",
         showBackButton = true,
-        showHelpButton = true
+        showHelpButton = true,
+        guideXmlName = "guide_contract"
     ) {
         const val BASE_ROUTE = "contract"
         const val CONTRACT_ID_ARG = "contractId"
@@ -179,7 +181,8 @@ sealed class AppDestination(
     data object EventDetail : AppDestination(
         route = "event_detail/{id}",
         title = "Chi tiết sự kiện",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_event_detail"
     ) {
         const val BASE_ROUTE = "event_detail"
         const val ID_ARG = "id"
@@ -189,13 +192,15 @@ sealed class AppDestination(
     data object Rewards : AppDestination(
         route = "rewards",
         title = "Đổi điểm thưởng",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_rewards"
     )
 
     data object LoanList : AppDestination(
         route = "loan_list",
         title = "Gói vay ưu đãi",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_loan_list"
     )
 
     data object LoanDetail : AppDestination(
@@ -212,31 +217,36 @@ sealed class AppDestination(
     data object Profile : AppDestination(
         route = "profile",
         title = "Hồ sơ cá nhân",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_profile"
     )
 
     data object MoneyManagement : AppDestination(
         route = "money_management",
         title = "Quản lý nguồn tiền",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_money_management"
     )
 
     data object PaymentCards : AppDestination(
         route = "payment_cards",
         title = "Thẻ thanh toán",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_payment_cards"
     )
 
     data object GeneralSettings : AppDestination(
         route = "general_settings",
         title = "Cài đặt",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_general_settings"
     )
 
     data object SecuritySettings : AppDestination(
         route = "security_settings",
         title = "Bảo mật tài khoản",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_security_settings"
     )
 
     data object ChatBot : AppDestination(
@@ -250,19 +260,22 @@ sealed class AppDestination(
         route = "identity_verification",
         title = "Định danh tài khoản",
         showBackButton = true,
-        showHelpButton = true
+        showHelpButton = true,
+        guideXmlName = "guide_identity_verification"
     )
 
     data object TopUp : AppDestination(
         route = "top_up",
         title = "Nạp tiền",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_top_up"
     )
 
     data object Withdraw : AppDestination(
         route = "withdraw",
         title = "Rút tiền",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_withdraw"
     )
 
     data object Terms : AppDestination(
@@ -276,25 +289,29 @@ sealed class AppDestination(
         route = "loan_management",
         title = "Quản lý khoản vay",
         showBackButton = true,
-        showHelpButton = true
+        showHelpButton = true,
+        guideXmlName = "guide_loan_management"
     )
 
     data object EditPersonalInfo : AppDestination(
         route = "edit_personal_info",
         title = "Thông tin cá nhân",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_edit_personal_info"
     )
 
     data object EditJobInfo : AppDestination(
         route = "edit_job_info",
         title = "Công việc & Thu nhập",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_edit_job_info"
     )
 
     data object EditContactInfo : AppDestination(
         route = "edit_contact_info",
         title = "Thông tin người liên hệ",
-        showBackButton = true
+        showBackButton = true,
+        guideXmlName = "guide_edit_contact_info"
     )
 }
 

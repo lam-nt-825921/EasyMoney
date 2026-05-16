@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.easymoney.R
 import java.io.File
 
 /**
@@ -78,13 +80,13 @@ fun DocumentUploadModule(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Tải hồ sơ/giấy tờ",
+                    text = stringResource(R.string.document_upload_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Vui lòng chọn nguồn tải file",
+                    text = stringResource(R.string.document_upload_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -96,13 +98,13 @@ fun DocumentUploadModule(
                 ) {
                     UploadOptionButton(
                         icon = Icons.Default.CameraAlt,
-                        label = "Chụp ảnh",
+                        label = stringResource(R.string.document_upload_camera),
                         onClick = { cameraLauncher.launch(null) },
                         modifier = Modifier.weight(1f)
                     )
                     UploadOptionButton(
                         icon = Icons.Default.PhotoLibrary,
-                        label = "Thư viện",
+                        label = stringResource(R.string.document_upload_gallery),
                         onClick = { filePickerLauncher.launch("image/*") },
                         modifier = Modifier.weight(1f)
                     )
@@ -111,7 +113,7 @@ fun DocumentUploadModule(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 TextButton(onClick = onDismiss) {
-                    Text("Hủy bỏ")
+                    Text(stringResource(R.string.document_upload_cancel))
                 }
             }
         }

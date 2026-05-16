@@ -6,6 +6,7 @@ import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.MasterDataItem
 import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.utils.UiText
+import com.example.easymoney.utils.currentAppLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,7 +61,7 @@ class LoanInformationFormViewModel @Inject constructor(
     private fun loadMasterData() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            when (val result = loanRepository.getMasterDataMetadata()) {
+            when (val result = loanRepository.getMasterDataMetadata(currentAppLanguage())) {
                 is Resource.Success -> {
                     val metadata = result.data
                     _uiState.update {
@@ -101,14 +102,14 @@ class LoanInformationFormViewModel @Inject constructor(
 
     private fun loadDistricts(provinceId: String) {
         viewModelScope.launch {
-            val result = loanRepository.getDistricts(provinceId)
+            val result = loanRepository.getDistricts(provinceId, currentAppLanguage())
             if (result is Resource.Success) _uiState.update { it.copy(districts = result.data) }
         }
     }
 
     private fun loadWards(districtId: String) {
         viewModelScope.launch {
-            val result = loanRepository.getWards(districtId)
+            val result = loanRepository.getWards(districtId, currentAppLanguage())
             if (result is Resource.Success) _uiState.update { it.copy(wards = result.data) }
         }
     }

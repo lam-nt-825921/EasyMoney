@@ -279,4 +279,57 @@
     <string name="security_item_device_subtitle">1 thiết bị đang đăng nhập</string>
     <string name="biometric_auth_failed">Xác thực thất bại</string>
     <string name="biometric_auth_subtitle">Vui lòng xác thực để tiếp tục</string>
+
+    <!-- Workflow #28 — Loan screens i18n -->
+    <string name="loan_success_back_home">Về trang chủ</string>
+    <string name="loan_success_title">Gửi đăng ký vay thành công</string>
+    <string name="loan_success_message">Easy Money đã nhận được hồ sơ của bạn. Quá trình xét duyệt cần tối đa 5 phút để hoàn tất. Hệ thống sẽ gửi tin nhắn SMS cho bạn khi có kết quả</string>
+    <string name="loan_detail_eligibility_note">Dành cho khách hàng có điểm tín dụng từ %s</string>
+    <string name="loan_detail_condition_age">Công dân Việt Nam từ 20 - 60 tuổi</string>
+    <string name="loan_detail_condition_income">Có thu nhập ổn định từ 5 triệu đồng/tháng</string>
+    <string name="loan_detail_condition_credit">Có lịch sử tín dụng tốt (không nợ xấu)</string>
+    <string name="loan_detail_example_note">Ví dụ: Vay 10tr trong 6 tháng với lãi suất 12%%/năm, mỗi tháng bạn trả khoảng 1.725.000đ.</string>
+    <string name="loan_list_filter_title">Bộ lọc khoản vay</string>
+    <string name="loan_list_filter_amount">Hạn mức mong muốn: %s</string>
+    <string name="loan_list_filter_eligible_only">Chỉ hiện gói đủ điều kiện</string>
+    <string name="loan_list_filter_hot">Hot</string>
+    <string name="loan_list_filter_new">Mới</string>
+    <string name="loan_list_filter_promotional">Khuyến mãi</string>
+    <string name="loan_list_filter_keyword_hint">Tìm theo tên gói</string>
+    <string name="loan_list_filter_reset">Xoá bộ lọc</string>
+    <string name="loan_confirm_button">Xác nhận</string>
+    <string name="loan_breakdown_total_estimate">Tổng tiền tạm tính</string>
+    <string name="loan_breakdown_total_payment">Tổng tiền phải trả\n(tạm tính)</string>
+    <string name="loan_config_total_payment">Tổng tiền phải trả</string>
+
+    <!-- Workflow #27 — Account screen defaults -->
+    <string name="account_default_user_name">Khách hàng</string>
+
+    <!-- Workflow #26 — component string resources -->
+    <string name="loan_exit_dialog_title">Huỷ đăng ký</string>
+    <string name="loan_exit_dialog_message">Bạn sắp hoàn tất đăng ký khoản vay. Nếu quay lại, bạn sẽ phải đăng ký lại từ đầu.</string>
+    <string name="loan_exit_dialog_cancel">Huỷ đăng ký</string>
+    <string name="loan_exit_dialog_continue">Tiếp tục</string>
+    <string name="loan_bottom_insurance_label">Bảo hiểm người vay</string>
+    <string name="loan_bottom_next">Tiếp tục</string>
+    <string name="loan_bottom_loading">Đang tải</string>
+    <string name="loan_stepper_step1">Chọn khoản vay</string>
+    <string name="loan_stepper_step2">Điền thông tin</string>
+    <string name="loan_stepper_step3">Xác nhận</string>
+    <string name="document_upload_title">Tải hồ sơ/giấy tờ</string>
+    <string name="document_upload_subtitle">Vui lòng chọn nguồn tải file</string>
+    <string name="document_upload_camera">Chụp ảnh</string>
+    <string name="document_upload_gallery">Thư viện</string>
+    <string name="document_upload_cancel">Huỷ bỏ</string>
+    <string name="face_capture_camera_denied">Quyền truy cập Camera bị từ chối</string>
+    <string name="face_capture_close">Đóng</string>
+    <string name="face_capture_status_initial">Vui lòng đưa khuôn mặt vào khung hình</string>
+    <string name="face_capture_status_confirming">Đang xác nhận…</string>
+    <string name="face_capture_status_blink">Hãy nháy mắt để xác nhận</string>
+    <string name="face_capture_status_no_face">Không tìm thấy khuôn mặt</string>
+    <string name="nfc_status_waiting">Đang chờ thẻ…</string>
+    <string name="nfc_status_unsupported">Thiết bị không hỗ trợ NFC</string>
+    <string name="nfc_status_disabled">Vui lòng bật NFC trong cài đặt</string>
+    <string name="nfc_status_reading">Đã tìm thấy thẻ, đang đọc dữ liệu…</string>
+    <string name="nfc_button_cancel">Huỷ</string>
 </resources>

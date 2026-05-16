@@ -21,11 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 
 @Composable
 fun LoanStepper(
@@ -63,9 +65,9 @@ fun LoanStepper(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            StepItem(1, "Chọn khoản vay", currentStep >= 1, itemWidth, activeColor, inactiveColor)
-            StepItem(2, "Điền thông tin", currentStep >= 2, itemWidth, activeColor, inactiveColor)
-            StepItem(3, "Xác nhận", currentStep >= 3, itemWidth, activeColor, inactiveColor)
+            StepItem(1, stringResource(R.string.loan_stepper_step1), currentStep >= 1, itemWidth, activeColor, inactiveColor)
+            StepItem(2, stringResource(R.string.loan_stepper_step2), currentStep >= 2, itemWidth, activeColor, inactiveColor)
+            StepItem(3, stringResource(R.string.loan_stepper_step3), currentStep >= 3, itemWidth, activeColor, inactiveColor)
         }
     }
 }

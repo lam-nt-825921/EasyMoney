@@ -10,7 +10,12 @@ data class LoanPackageModel(
     val overdueCost: Double,
     val eligibleCreditScore: Int,
     val isEligible: Boolean = true,
-    val ineligibilityReason: String? = null
+    val ineligibilityReason: String? = null,
+    // Workflow #29 — filter metadata
+    val isHot: Boolean = false,
+    val isNew: Boolean = false,
+    val isPromotional: Boolean = false,
+    val badges: List<String> = emptyList()
 ) {
     fun getTenorList(defaultTenors: List<Int> = listOf(6, 12, 18, 24)): List<Int> {
         return try {

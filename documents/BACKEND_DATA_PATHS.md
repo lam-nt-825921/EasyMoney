@@ -69,28 +69,28 @@
 | `login_1` | `Login1ViewModel` | `LoanRepository` | MOCK + REMOTE |
 | `register_1` | `Register1ViewModel` | `LoanRepository` | MOCK + REMOTE |
 | `quick_login_1` | `QuickLogin1ViewModel` | `LoanRepository` | MOCK + REMOTE |
-| `home` | `HomeViewModel` | `HomeRepository` | MOCK only |
-| `history` | `TransactionHistoryViewModel` | `LoanRepository` | MOCK only |
+| `home` | `HomeViewModel` | `HomeRepository` | MOCK + REMOTE stub |
+| `history` | `TransactionHistoryViewModel` | `LoanRepository` | MOCK + REMOTE stub |
 | `notifications` | `NotificationViewModel` | `NotificationRepository` | MOCK + REMOTE |
-| `account` | `AccountViewModel` | `AccountRepository`, `UserRepository` | MOCK only |
+| `account` | `AccountViewModel` | `AccountRepository`, `UserRepository` | MOCK + REMOTE stub |
 | `loan_list` | `LoanListViewModel` | `LoanRepository.getMyLoanPackages()` | MOCK + REMOTE |
 | `loan_detail/{id}` | `LoanDetailViewModel` | `LoanRepository` | MOCK + REMOTE |
 | `loan_information` | `LoanFlowViewModel` | `LoanRepository` | MOCK + REMOTE |
 | `confirm_information` | `ConfirmInformationViewModel` | `LoanRepository` | MOCK + REMOTE |
 | `identity_verification` | `IdentityVerificationViewModel` | `LoanRepository` (master + ekyc) | MOCK + REMOTE |
-| `event_detail/{id}` | `EventDetailViewModel` | `EventRepository` | MOCK only |
-| `rewards` | `RewardViewModel` | `RewardRepository` | MOCK only |
-| `profile` | `ProfileViewModel` | `UserRepository` | MOCK only |
-| `money_management` | `MoneyManagementViewModel` | `PaymentRepository` | MOCK only |
-| `payment_cards` | `PaymentCardsViewModel` | `PaymentRepository` | MOCK only |
+| `event_detail/{id}` | `EventDetailViewModel` | `EventRepository` | MOCK + REMOTE stub |
+| `rewards` | `RewardViewModel` | `RewardRepository` | MOCK + REMOTE stub |
+| `profile` | `ProfileViewModel` | `UserRepository` | MOCK + REMOTE stub |
+| `money_management` | `MoneyManagementViewModel` | `PaymentRepository` | MOCK + REMOTE stub |
+| `payment_cards` | `PaymentCardsViewModel` | `PaymentRepository` | MOCK + REMOTE stub |
 | `general_settings` | `GeneralSettingsViewModel` | `AppPreferences` | n/a |
-| `security_settings` | `SecuritySettingsViewModel` | `UserRepository` | MOCK only |
-| `chatbot` | `ChatBotViewModel` (chưa tồn tại) | `ChatBotRepository` (chưa tồn tại) | MOCK only |
+| `security_settings` | `SecuritySettingsViewModel` | `UserRepository` | MOCK + REMOTE stub |
+| `chatbot` | `ChatBotViewModel` (chưa tồn tại) | `ChatBotRepository` (chưa tồn tại) | MOCK + REMOTE stub |
 | `sandbox` | `SandBoxViewModel` | `NotificationRepository`, `AppPreferences` | n/a (dev tool) |
-| `contract` | `ContractViewModel` | `LoanRepository` | MOCK only |
+| `contract` | `ContractViewModel` | `LoanRepository` | MOCK + REMOTE stub |
 | `esign_success` | — | — | static |
 
-> "MOCK only" nghĩa là repository hiện trả mock cứng — chưa có nhánh REMOTE. Khi backend có endpoint sẽ thêm nhánh tương ứng.
+> "MOCK + REMOTE stub" nghĩa là repository hiện trả mock cứng — chưa có nhánh REMOTE. Khi backend có endpoint sẽ thêm nhánh tương ứng.
 
 ---
 
@@ -110,4 +110,34 @@ Mode lưu ở `AppPreferences.dataSourceMode: DataSourceMode` (`MOCK` hoặc `RE
 ### Repos đã hỗ trợ branch
 - ✅ `LoanRepositoryImpl.isRemote()` → toàn bộ auth, loan, ekyc, otp
 - ✅ `NotificationRepositoryImpl.refreshNotifications()`
-- ❌ `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl`, `AccountRepositoryImpl` — chưa có nhánh REMOTE (chờ endpoint backend)
+- ✅ `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl` (workflow #20) — branch MOCK/REMOTE bằng `appPreferences.dataSourceMode`; nhánh REMOTE hiện trả `Resource.Error("Endpoint REMOTE chưa sẵn sàng")` với TODO chờ backend
+- 🔒 `AccountRepositoryImpl` — backed by Room (local-only), không thuộc trục MOCK/REMOTE; thông tin tài khoản sẽ sync từ backend trong workflow tương lai
+
+---
+
+## Workflow #38 — Repository API audit (cập nhật 2026-05-16)
+
+Bảng tổng hợp trạng thái endpoint của mỗi repository sau khi hoàn thành P0..P3.
+
+| Repository | Endpoint expected | Endpoint implemented (REMOTE) | MOCK | Status |
+|---|---|---|---|---|
+| `LoanRepository` | `/api/v1/auth/*`, `/api/v1/loan/*`, `/api/v1/master/*`, `/api/v1/ekyc/*`, `/api/v1/otp/*` | ✅ Tất cả qua `LoanApiService` | ✅ | **Hoàn thiện** |
+| `NotificationRepository` | `/api/v1/notifications`, `register-fcm`, `mark-read` | 🟡 Một phần (`getNotifications`, `triggerFcmTest`); `registerFcmToken` + `markAsRead` còn TODO | ✅ Room DB | **Một phần** |
+| `HomeRepository` | `/home/banners`, `/home/hot-loans`, `/ekyc/status` | ❌ Chưa có; REMOTE branch trả `Resource.Error` | ✅ `data/sample/SampleHome.kt` | **MOCK only** |
+| `EventRepository` | `/events/{id}`, `POST /events/{id}/join` | ❌ Chưa có | ✅ `data/sample/SampleEvents.kt` | **MOCK only** |
+| `RewardRepository` | `/rewards/catalog`, `/rewards/user`, `POST /rewards/redeem` | ❌ Chưa có | ✅ `data/sample/SampleRewardCatalog.kt`, `SampleUserRewards.kt` | **MOCK only** |
+| `UserRepository` | `GET/PUT /users/me`, `PATCH /users/me/notification-settings` | ❌ Chưa có | ✅ `data/sample/SampleUserProfile.kt` | **MOCK only** |
+| `PaymentRepository` | `/payment/wallet`, `/payment/cards`, `/payment/topup`, `/payment/withdraw`, `POST /payment/cards/verify`, `POST /payments/qr`, `GET /payments/qr/{id}/status` | ❌ Chưa có; QR/verify được thêm contract ở workflow #36 | ✅ `data/sample/SamplePayment.kt` + in-memory state | **MOCK only** |
+| `AccountRepository` | (Local-only, không có endpoint) | — | ✅ Room | **Local** |
+| `TransactionHistoryRepository` | `GET /transactions` | ❌ Chưa có | ✅ `data/sample/SampleTransactionHistory.kt` | **MOCK only** |
+| `ChatBotRepository` | `POST /chat/message` (text + card + action component) | ❌ Chưa có | ✅ `data/sample/SampleChatResponses.kt` (rule-based) | **MOCK only** |
+
+### Backend endpoint còn cần bổ sung
+- Master data `?lang=vi|en` query (workflow #30) — `LoanApiService` đã thêm `@Query("lang")`; backend cần serve label theo locale.
+- QR payment polling — workflow #36 contract đã định nghĩa, đợi backend.
+- Notification mark-read API — workflow #14 + #38 audit (`markAsRead` đang local-only).
+- ChatBot streaming/component response — workflow #32.
+
+### Không còn UI mock disguise
+Sau workflow #22 + #27, các màn UI sau đã không tự dựng mock; đều consume qua repository → ViewModel:
+`AccountScreen`, `TransactionHistoryScreen`, `EventDetailScreen`, `LoanListScreen`, `LoanDetailScreen`, `HomeScreen`, `ChatBotScreen`, `RewardScreen`, `LoanManagementScreen`.

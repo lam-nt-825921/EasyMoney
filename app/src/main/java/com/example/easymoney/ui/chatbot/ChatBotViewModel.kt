@@ -2,9 +2,9 @@ package com.example.easymoney.ui.chatbot
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.easymoney.navigation.AppDestination
+import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.repository.ChatBotRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,11 +16,14 @@ import javax.inject.Inject
 data class ChatBotUiState(
     val messages: List<ChatMessage> = emptyList(),
     val input: String = "",
-    val isThinking: Boolean = false
+    val isThinking: Boolean = false,
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
-class ChatBotViewModel @Inject constructor() : ViewModel() {
+class ChatBotViewModel @Inject constructor(
+    private val chatBotRepository: ChatBotRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatBotUiState())
     val uiState: StateFlow<ChatBotUiState> = _uiState.asStateFlow()
@@ -37,56 +40,18 @@ class ChatBotViewModel @Inject constructor() : ViewModel() {
         val text = _uiState.value.input.trim()
         if (text.isEmpty()) return
         appendUser(text)
-        _uiState.update { it.copy(input = "") }
-        respond(text)
-    }
-
-    private fun respond(userText: String) {
+        _uiState.update { it.copy(input = "", isThinking = true, errorMessage = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isThinking = true) }
-            delay(600)
-            val lower = userText.lowercase()
-            val reply = when {
-                "vay" in lower || "khoản vay" in lower -> ChatMessage.Card(
-                    id = newId(),
-                    role = ChatRole.BOT,
-                    title = "Gói vay phù hợp",
-                    body = "Bạn có thể xem các gói vay ưu đãi đang được áp dụng.",
-                    actions = listOf(
-                        ChatActionButton("Xem gói vay", ChatActionTarget.NavigateRoute(AppDestination.LoanList.route))
-                    )
-                )
-                "đổi điểm" in lower || "thưởng" in lower -> ChatMessage.Card(
-                    id = newId(),
-                    role = ChatRole.BOT,
-                    title = "Đổi điểm thưởng",
-                    body = "Mở danh sách quà có thể đổi.",
-                    actions = listOf(
-                        ChatActionButton("Mở đổi điểm", ChatActionTarget.NavigateRoute(AppDestination.Rewards.route))
-                    )
-                )
-                "hotline" in lower || "tổng đài" in lower -> ChatMessage.Action(
-                    id = newId(),
-                    role = ChatRole.BOT,
-                    label = "Gọi tổng đài 19001234",
-                    target = ChatActionTarget.DialPhone("19001234")
-                )
-                "hợp đồng" in lower || "quản lý" in lower -> ChatMessage.Card(
-                    id = newId(),
-                    role = ChatRole.BOT,
-                    title = "Quản lý khoản vay",
-                    body = "Xem các hợp đồng đã duyệt.",
-                    actions = listOf(
-                        ChatActionButton("Mở quản lý", ChatActionTarget.NavigateRoute(AppDestination.LoanManagement.route))
-                    )
-                )
-                else -> ChatMessage.Text(
-                    newId(), ChatRole.BOT,
-                    "Tôi chưa rõ câu hỏi. Thử hỏi về \"khoản vay\", \"đổi điểm\", \"hotline\" hoặc \"hợp đồng\"."
-                )
+            when (val result = chatBotRepository.sendMessage(text)) {
+                is Resource.Success -> {
+                    appendBot(result.data)
+                    _uiState.update { it.copy(isThinking = false) }
+                }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isThinking = false, errorMessage = result.message)
+                }
+                Resource.Loading -> Unit
             }
-            appendBot(reply)
-            _uiState.update { it.copy(isThinking = false) }
         }
     }
 
