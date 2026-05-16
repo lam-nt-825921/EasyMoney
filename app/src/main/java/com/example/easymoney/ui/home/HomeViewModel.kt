@@ -59,38 +59,4 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    fun checkLoanEligibility(packageId: String, skipDetail: Boolean = false) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(eligibilityState = EligibilityUiState.Checking) }
-            when (val result = loanRepository.checkEligibility(packageId)) {
-                is Resource.Success -> {
-                    val eligibility = result.data
-                    if (eligibility.isEligible) {
-                        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Success(packageId, skipDetail)) }
-                    } else {
-                        when (eligibility.action) {
-                            "NAVIGATE_PROFILE" -> {
-                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.MissingInfo(eligibility.message ?: "")) }
-                            }
-                            "SHOW_REJECT" -> {
-                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.Rejected(eligibility.message ?: "")) }
-                            }
-                            else -> {
-                                _uiState.update { it.copy(eligibilityState = EligibilityUiState.Error("Unknown error")) }
-                            }
-                        }
-                    }
-                }
-                is Resource.Error -> {
-                    _uiState.update { it.copy(eligibilityState = EligibilityUiState.Error(result.message ?: "Network error")) }
-                }
-                else -> {}
-            }
-        }
-    }
-
-    fun resetEligibilityState() {
-        _uiState.update { it.copy(eligibilityState = EligibilityUiState.Idle) }
-    }
 }

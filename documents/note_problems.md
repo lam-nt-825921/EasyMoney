@@ -351,9 +351,9 @@ Tài liệu này dùng để gom các vấn đề còn tồn đọng thành yêu
 
 ## Checklist nghiệm thu tổng
 
-- [ ] Home banner điều hướng sang detail thay vì check điều kiện trực tiếp.
-- [ ] Check đủ điều kiện chỉ diễn ra tại nút Đăng ký trong detail.
-- [ ] `GeneralSettingsScreen` đổi được giữa `vi` và `en`.
+- [x] Home banner điều hướng sang detail thay vì check điều kiện trực tiếp.
+- [x] Check đủ điều kiện chỉ diễn ra tại nút Đăng ký trong detail.
+- [x] `GeneralSettingsScreen` đổi được giữa `vi` và `en`.
 - [ ] `values-en/strings.xml` được hoàn thiện.
 - [ ] Không còn mock trực tiếp ở UI cho các màn đã liệt kê.
 - [ ] Các màn loan sử dụng repository/backend đúng chuẩn.

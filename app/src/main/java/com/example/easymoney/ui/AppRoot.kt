@@ -33,7 +33,9 @@ import com.example.easymoney.ui.components.TopBarMode
 @Composable
 fun AppRoot(
     isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    onDarkThemeChange: (Boolean) -> Unit,
+    appNotificationsEnabled: Boolean,
+    onAppNotificationsChange: (Boolean) -> Unit
 ) {
     // Yêu cầu quyền thông báo trên Android 13+
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -124,7 +126,9 @@ fun AppRoot(
             AppNavHost(
                 navController = appState.navController,
                 isDarkTheme = isDarkTheme,
-                onToggleTheme = onToggleTheme,
+                onDarkThemeChange = onDarkThemeChange,
+                appNotificationsEnabled = appNotificationsEnabled,
+                onAppNotificationsChange = onAppNotificationsChange,
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding)

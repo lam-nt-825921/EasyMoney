@@ -17,7 +17,7 @@ val SAMPLE_BANNERS: List<Banner> = listOf(
         "https://img.freepik.com/free-vector/flat-design-business-banner-template_23-2149151551.jpg",
         "Vay nhanh 24/7",
         "LOAN",
-        "lp1"
+        "1"
     ),
     Banner(
         "b3",
@@ -29,9 +29,8 @@ val SAMPLE_BANNERS: List<Banner> = listOf(
 )
 
 val SAMPLE_HOT_LOANS: List<LoanProduct> = listOf(
-    LoanProduct("lp1", "Vay tiêu dùng nhanh", 1.5, 50_000_000, true, "HOT", "Giải ngân trong 30 phút"),
-    LoanProduct("lp2", "Vay tín chấp ưu đãi", 1.2, 100_000_000, false, "NEW", "Không cần tài sản thế chấp"),
-    LoanProduct("lp3", "Vay sinh viên", 0.8, 10_000_000, true, "CHO BẠN", "Hỗ trợ học phí lãi suất thấp")
+    LoanProduct("1", "Vay tiêu dùng nhanh", 1.5, 50_000_000, true, "HOT", "Giải ngân trong 30 phút"),
+    LoanProduct("2", "Vay tín chấp ưu đãi", 1.2, 100_000_000, false, "NEW", "Không cần tài sản thế chấp")
 )
 
 val SAMPLE_EKYC_STATUS: EKycStatus = EKycStatus(

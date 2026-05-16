@@ -20,6 +20,5 @@ data class HomeUiState(
     val eKycStatus: EKycStatus? = null,
     val rewardPoints: Int = 0,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null,
-    val eligibilityState: EligibilityUiState = EligibilityUiState.Idle
+    val errorMessage: String? = null
 )

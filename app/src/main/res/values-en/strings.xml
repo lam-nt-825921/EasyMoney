@@ -171,6 +171,7 @@
     <string name="settings_item_language_value">English</string>
     <string name="settings_item_dark_mode">Dark mode</string>
     <string name="settings_item_dark_mode_off">Off</string>
+    <string name="settings_item_dark_mode_on">On</string>
     <string name="settings_group_notifications">Notifications</string>
     <string name="settings_item_notify">App notifications</string>
     <string name="settings_item_notify_sub">Receive news and offers</string>
@@ -178,6 +179,9 @@
     <string name="settings_item_terms">Terms of use</string>
     <string name="settings_item_version">App version</string>
     <string name="settings_item_version_value">v1.0.26 (Build 20260509)</string>
+    <string name="settings_language_dialog_title">Choose language</string>
+    <string name="settings_language_vi">Tiếng Việt</string>
+    <string name="settings_language_en">English</string>
 
     <string name="profile_save_changes">Save changes</string>
     <string name="profile_label_fullname">Full name</string>
@@ -279,7 +283,6 @@
     <string name="security_item_device_subtitle">1 device logged in</string>
     <string name="biometric_auth_failed">Authentication failed</string>
     <string name="biometric_auth_subtitle">Please authenticate to continue</string>
-
     <!-- Workflow #28 — Loan screens i18n -->
     <string name="loan_success_back_home">Back to home</string>
     <string name="loan_success_title">Loan registration submitted</string>

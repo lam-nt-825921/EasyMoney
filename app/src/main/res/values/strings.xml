@@ -171,6 +171,7 @@
     <string name="settings_item_language_value">Tiếng Việt</string>
     <string name="settings_item_dark_mode">Chế độ tối</string>
     <string name="settings_item_dark_mode_off">Tắt</string>
+    <string name="settings_item_dark_mode_on">Bật</string>
     <string name="settings_group_notifications">Thông báo</string>
     <string name="settings_item_notify">Thông báo ứng dụng</string>
     <string name="settings_item_notify_sub">Nhận tin tức và ưu đãi</string>
@@ -178,6 +179,9 @@
     <string name="settings_item_terms">Điều khoản sử dụng</string>
     <string name="settings_item_version">Phiên bản ứng dụng</string>
     <string name="settings_item_version_value">v1.0.26 (Build 20260509)</string>
+    <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
+    <string name="settings_language_vi">Tiếng Việt</string>
+    <string name="settings_language_en">English</string>
 
     <string name="profile_save_changes">Lưu thay đổi</string>
     <string name="profile_label_fullname">Họ và tên</string>
@@ -279,7 +283,6 @@
     <string name="security_item_device_subtitle">1 thiết bị đang đăng nhập</string>
     <string name="biometric_auth_failed">Xác thực thất bại</string>
     <string name="biometric_auth_subtitle">Vui lòng xác thực để tiếp tục</string>
-
     <!-- Workflow #28 — Loan screens i18n -->
     <string name="loan_success_back_home">Về trang chủ</string>
     <string name="loan_success_title">Gửi đăng ký vay thành công</string>

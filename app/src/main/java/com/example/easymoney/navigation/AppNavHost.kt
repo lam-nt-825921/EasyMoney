@@ -47,7 +47,9 @@ import com.example.easymoney.ui.security.SecuritySettingsScreen
 fun AppNavHost(
     navController: NavHostController,
     isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit,
+    onDarkThemeChange: (Boolean) -> Unit,
+    appNotificationsEnabled: Boolean,
+    onAppNotificationsChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val loginViewModel: LoginViewModel = hiltViewModel()
@@ -82,14 +84,6 @@ fun AppNavHost(
 
             HomeScreen(
                 uiState = uiState,
-                onLoanRegistrationClick = { packageId, skipDetail -> 
-                    if (skipDetail) {
-                        val packageName = uiState.hotLoans.find { it.id == packageId }?.name
-                        navController.navigate(AppDestination.Onboarding.createRoute(packageId, packageName))
-                    } else {
-                        navController.navigate(AppDestination.LoanDetail.createRoute(packageId)) 
-                    }
-                },
                 onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 onBannerClick = { type, id ->
                     when (type) {
@@ -112,9 +106,8 @@ fun AppNavHost(
                     android.util.Log.d("Analytics", "event=home_banner_click banner=loan_management")
                     navController.navigate(AppDestination.LoanManagement.route)
                 },
-                onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
                 isDarkTheme = isDarkTheme,
-                onToggleTheme = onToggleTheme,
+                onToggleTheme = { onDarkThemeChange(!isDarkTheme) },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -380,7 +373,13 @@ fun AppNavHost(
         }
 
         composable(AppDestination.GeneralSettings.route) {
-            GeneralSettingsScreen(onBack = { navController.popBackStack() })
+            GeneralSettingsScreen(
+                isDarkTheme = isDarkTheme,
+                onDarkThemeChange = onDarkThemeChange,
+                appNotificationsEnabled = appNotificationsEnabled,
+                onAppNotificationsChange = onAppNotificationsChange,
+                onTermsClick = { navController.navigate(AppDestination.Terms.route) }
+            )
         }
 
         composable(AppDestination.ChatBot.route) {

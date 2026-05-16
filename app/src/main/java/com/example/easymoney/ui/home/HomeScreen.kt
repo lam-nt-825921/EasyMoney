@@ -7,25 +7,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
 import com.example.easymoney.ui.home.components.*
-import com.example.easymoney.ui.theme.EasyMoneyTheme
 
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onLoanRegistrationClick: (String, Boolean) -> Unit,
     onToggleSandbox: () -> Unit,
     onBannerClick: (String, String) -> Unit,
     onRedeemClick: () -> Unit,
@@ -33,24 +28,11 @@ fun HomeScreen(
     onLoanProductClick: (String) -> Unit,
     onConsultLoanClick: () -> Unit,
     onManageLoanClick: () -> Unit,
-    onNavigateToProfile: () -> Unit,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel()
+    modifier: Modifier = Modifier
 ) {
     val isLoading = uiState.isLoading
-
-    // Handle Eligibility results
-    LaunchedEffect(uiState.eligibilityState) {
-        when (val state = uiState.eligibilityState) {
-            is EligibilityUiState.Success -> {
-                onLoanRegistrationClick(state.packageId, state.skipDetail)
-                viewModel.resetEligibilityState()
-            }
-            else -> {}
-        }
-    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -118,49 +100,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
-
-        if (uiState.eligibilityState is EligibilityUiState.Checking) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-    }
-
-    // Eligibility Dialogs
-    if (uiState.eligibilityState is EligibilityUiState.MissingInfo) {
-        val state = uiState.eligibilityState as EligibilityUiState.MissingInfo
-        AlertDialog(
-            onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text(stringResource(id = R.string.dialog_incomplete_profile_title)) },
-            text = { Text(state.message) },
-            confirmButton = {
-                Button(onClick = { 
-                    viewModel.resetEligibilityState()
-                    onNavigateToProfile() 
-                }) {
-                    Text(stringResource(id = R.string.dialog_incomplete_profile_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.resetEligibilityState() }) {
-                    Text(stringResource(id = R.string.dialog_button_close))
-                }
-            }
-        )
-    }
-
-    if (uiState.eligibilityState is EligibilityUiState.Rejected) {
-        val state = uiState.eligibilityState as EligibilityUiState.Rejected
-        AlertDialog(
-            onDismissRequest = { viewModel.resetEligibilityState() },
-            title = { Text(stringResource(id = R.string.dialog_ineligible_title)) },
-            text = { Text(state.message) },
-            confirmButton = {
-                Button(onClick = { viewModel.resetEligibilityState() }) {
-                    Text(stringResource(id = R.string.dialog_button_understand))
-                }
-            }
-        )
     }
 }
 
