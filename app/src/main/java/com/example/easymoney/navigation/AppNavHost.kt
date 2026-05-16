@@ -304,7 +304,9 @@ fun AppNavHost(
                         popUpTo(AppDestination.Contract.BASE_ROUTE) { inclusive = true }
                     }
                 },
-                onCancel = { navController.popBackStack() }
+                onCancel = { navController.popBackStack() },
+                // Workflow #31 — link "điều khoản" trong hợp đồng điều hướng sang Terms.
+                onTermsClick = { navController.navigate(AppDestination.Terms.route) }
             )
         }
 

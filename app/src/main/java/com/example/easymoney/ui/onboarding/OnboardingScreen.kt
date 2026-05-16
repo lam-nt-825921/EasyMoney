@@ -374,8 +374,13 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 					color = MaterialTheme.colorScheme.primary,
 					textDecoration = TextDecoration.Underline,
 					modifier = Modifier.clickable {
-						val target = providerInfo?.supportUrl ?: "tel:${hotline.replace(" ", "")}"
-						LinkHandler.openUrl(context, target)
+						// Workflow #31 — ưu tiên supportUrl, fallback dialer cho hotline.
+						val supportUrl = providerInfo?.supportUrl
+						if (!supportUrl.isNullOrBlank()) {
+							LinkHandler.openUrl(context, supportUrl)
+						} else {
+							LinkHandler.dial(context, hotline)
+						}
 					}
 				)
 

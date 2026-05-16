@@ -19,14 +19,21 @@ interface LoanApiService {
     @GET("api/v1/loan/package/my")
     suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
 
+    // Workflow #30 — Master data nhận query ?lang=vi|en
     @GET("api/v1/master/metadata")
-    suspend fun getMasterDataMetadata(): ApiResponse<MasterDataMetadataDto>
+    suspend fun getMasterDataMetadata(@Query("lang") lang: String = "vi"): ApiResponse<MasterDataMetadataDto>
 
     @GET("api/v1/master/districts/{provinceId}")
-    suspend fun getDistricts(@Path("provinceId") provinceId: String): ApiResponse<List<MasterDataItemDto>>
+    suspend fun getDistricts(
+        @Path("provinceId") provinceId: String,
+        @Query("lang") lang: String = "vi"
+    ): ApiResponse<List<MasterDataItemDto>>
 
     @GET("api/v1/master/wards/{districtId}")
-    suspend fun getWards(@Path("districtId") districtId: String): ApiResponse<List<MasterDataItemDto>>
+    suspend fun getWards(
+        @Path("districtId") districtId: String,
+        @Query("lang") lang: String = "vi"
+    ): ApiResponse<List<MasterDataItemDto>>
 
     // --- eKYC ---
     @Multipart

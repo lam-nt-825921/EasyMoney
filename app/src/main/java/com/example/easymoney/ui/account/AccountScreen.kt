@@ -38,6 +38,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +48,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.easymoney.R
 import com.example.easymoney.ui.theme.LocalDarkMode
 
@@ -69,9 +72,11 @@ fun AccountScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToSupport: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AccountViewModel = hiltViewModel()
 ) {
     val scheme = MaterialTheme.colorScheme
+    val accountState by viewModel.state.collectAsStateWithLifecycle()
 
     val accountMenuItems = listOf(
         MenuItem(Icons.Default.AccountBalanceWallet, R.string.account_money_management, onNavigateToMoneyManagement),
@@ -91,7 +96,11 @@ fun AccountScreen(
             .background(scheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        UserProfileHeader(onClick = onNavigateToProfile)
+        UserProfileHeader(
+            fullName = accountState.fullName.ifBlank { stringResource(R.string.account_default_user_name) },
+            phoneNumber = accountState.phoneNumber,
+            onClick = onNavigateToProfile
+        )
         
         Spacer(modifier = Modifier.height(20.dp))
         
@@ -114,7 +123,11 @@ fun AccountScreen(
 }
 
 @Composable
-private fun UserProfileHeader(onClick: () -> Unit) {
+private fun UserProfileHeader(
+    fullName: String,
+    phoneNumber: String,
+    onClick: () -> Unit
+) {
     val scheme = MaterialTheme.colorScheme
     val isDarkMode = LocalDarkMode.current
     
@@ -149,7 +162,7 @@ private fun UserProfileHeader(onClick: () -> Unit) {
             Spacer(modifier = Modifier.width(20.dp))
             Column {
                 Text(
-                    text = "Nguyễn Lê Minh",
+                    text = fullName,
                     style = MaterialTheme.typography.headlineSmall,
                     color = if (isDarkMode) scheme.onSurface else Color.White,
                     fontWeight = FontWeight.ExtraBold
@@ -164,7 +177,7 @@ private fun UserProfileHeader(onClick: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "0987 654 321",
+                        text = phoneNumber,
                         style = MaterialTheme.typography.bodyLarge,
                         color = (if (isDarkMode) scheme.onSurfaceVariant else Color.White).copy(alpha = 0.8f),
                         fontWeight = FontWeight.Medium

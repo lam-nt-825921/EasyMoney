@@ -46,9 +46,9 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata> {
+    suspend fun getMasterDataMetadata(lang: String = "vi"): Resource<MasterDataMetadata> {
         return try {
-            val response = apiService.getMasterDataMetadata()
+            val response = apiService.getMasterDataMetadata(lang)
             if (response.status == "success") {
                 val dto = response.data
                 val metadata = MasterDataMetadata(
@@ -70,18 +70,18 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>> {
+    suspend fun getDistricts(provinceId: String, lang: String = "vi"): Resource<List<MasterDataItem>> {
         return try {
-            val response = apiService.getDistricts(provinceId)
+            val response = apiService.getDistricts(provinceId, lang)
             Resource.Success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Error")
         }
     }
 
-    suspend fun getWards(districtId: String): Resource<List<MasterDataItem>> {
+    suspend fun getWards(districtId: String, lang: String = "vi"): Resource<List<MasterDataItem>> {
         return try {
-            val response = apiService.getWards(districtId)
+            val response = apiService.getWards(districtId, lang)
             Resource.Success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Error")

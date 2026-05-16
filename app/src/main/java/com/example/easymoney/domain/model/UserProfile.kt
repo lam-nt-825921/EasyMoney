@@ -50,8 +50,17 @@ data class ContactInfo(
 data class IdentityVerificationStatus(
     val isFaceVerified: Boolean = false,
     val isNfcVerified: Boolean = false,
+    // Workflow #35 — document upload là phương thức thay thế cho NFC để xác thực giấy tờ.
+    val isDocumentUploadVerified: Boolean = false,
     val isBiometricEnabled: Boolean = false
-)
+) {
+    /**
+     * Workflow #35 — Phần định danh giấy tờ tính là hoàn thiện nếu một trong hai
+     * (NFC hoặc upload giấy tờ) đã pass. Biometric là 2FA optional, không tính.
+     */
+    val isIdentityDocumentVerified: Boolean
+        get() = isNfcVerified || isDocumentUploadVerified
+}
 
 data class EKycStatus(
     val isIdentified: Boolean,

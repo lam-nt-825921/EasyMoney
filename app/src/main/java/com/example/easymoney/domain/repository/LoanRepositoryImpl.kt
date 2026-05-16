@@ -127,7 +127,9 @@ class LoanRepositoryImpl @Inject constructor(
             maxAmount = 100_000_000L,
             interest = 12.0,
             overdueCost = 5.0,
-            eligibleCreditScore = 600
+            eligibleCreditScore = 600,
+            isHot = true,
+            badges = listOf("HOT")
         ),
         LoanPackageModel(
             id = "2",
@@ -137,7 +139,10 @@ class LoanRepositoryImpl @Inject constructor(
             maxAmount = 50_000_000L,
             interest = 10.5,
             overdueCost = 4.0,
-            eligibleCreditScore = 550
+            eligibleCreditScore = 550,
+            isNew = true,
+            isPromotional = true,
+            badges = listOf("NEW", "PROMO")
         )
     )
 
@@ -240,8 +245,8 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     // ========== Master Data Mock ==========
-    override suspend fun getMasterDataMetadata(): Resource<MasterDataMetadata> {
-        if (isRemote()) return remoteDataSource?.getMasterDataMetadata() ?: Resource.Error("Remote data source not available")
+    override suspend fun getMasterDataMetadata(lang: String): Resource<MasterDataMetadata> {
+        if (isRemote()) return remoteDataSource?.getMasterDataMetadata(lang) ?: Resource.Error("Remote data source not available")
         
         val currentTime = System.currentTimeMillis()
 
@@ -310,16 +315,16 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(metadata, isFromMock = true)
     }
 
-    override suspend fun getProvinces(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getProvinces(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.provinces, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading
         }
     }
 
-    override suspend fun getDistricts(provinceId: String): Resource<List<MasterDataItem>> {
-        if (isRemote()) return remoteDataSource?.getDistricts(provinceId) ?: Resource.Error("Remote data source not available")
+    override suspend fun getDistricts(provinceId: String, lang: String): Resource<List<MasterDataItem>> {
+        if (isRemote()) return remoteDataSource?.getDistricts(provinceId, lang) ?: Resource.Error("Remote data source not available")
         
         delay(200)
         val data = when(provinceId) {
@@ -330,8 +335,8 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(data, isFromMock = true)
     }
 
-    override suspend fun getWards(districtId: String): Resource<List<MasterDataItem>> {
-        if (isRemote()) return remoteDataSource?.getWards(districtId) ?: Resource.Error("Remote data source not available")
+    override suspend fun getWards(districtId: String, lang: String): Resource<List<MasterDataItem>> {
+        if (isRemote()) return remoteDataSource?.getWards(districtId, lang) ?: Resource.Error("Remote data source not available")
         
         delay(200)
         val data = when(districtId) {
@@ -342,40 +347,40 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(data, isFromMock = true)
     }
 
-    override suspend fun getProfessions(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getProfessions(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.professions, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading
         }
     }
 
-    override suspend fun getPositions(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getPositions(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.positions, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading
         }
     }
 
-    override suspend fun getEducationLevels(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getEducationLevels(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.educationLevels, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading
         }
     }
 
-    override suspend fun getMaritalStatuses(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getMaritalStatuses(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.maritalStatuses, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading
         }
     }
 
-    override suspend fun getRelationships(): Resource<List<MasterDataItem>> {
-        return when (val result = getMasterDataMetadata()) {
+    override suspend fun getRelationships(lang: String): Resource<List<MasterDataItem>> {
+        return when (val result = getMasterDataMetadata(lang)) {
             is Resource.Success -> Resource.Success(result.data.relationships, isFromMock = true)
             is Resource.Error -> Resource.Error(result.message)
             else -> Resource.Loading

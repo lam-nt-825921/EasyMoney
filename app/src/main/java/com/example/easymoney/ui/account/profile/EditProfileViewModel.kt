@@ -7,6 +7,7 @@ import com.example.easymoney.domain.model.*
 import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.ui.loan.information.form.FormSheetType
+import com.example.easymoney.utils.currentAppLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,11 +64,12 @@ class EditProfileViewModel @Inject constructor(
 
     private fun loadMasterData() {
         viewModelScope.launch {
-            val professions = loanRepository.getProfessions()
-            val positions = loanRepository.getPositions()
-            val education = loanRepository.getEducationLevels()
-            val marital = loanRepository.getMaritalStatuses()
-            val relationships = loanRepository.getRelationships()
+            val lang = currentAppLanguage()
+            val professions = loanRepository.getProfessions(lang)
+            val positions = loanRepository.getPositions(lang)
+            val education = loanRepository.getEducationLevels(lang)
+            val marital = loanRepository.getMaritalStatuses(lang)
+            val relationships = loanRepository.getRelationships(lang)
 
             _uiState.update { state ->
                 state.copy(

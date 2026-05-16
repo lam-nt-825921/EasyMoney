@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,7 @@ fun LoanRegistrationSuccessScreen(
                     )
                 ) {
                     Text(
-                        text = "Về trang chủ",
+                        text = stringResource(R.string.loan_success_back_home),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -80,7 +81,7 @@ fun LoanRegistrationSuccessScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Gửi đăng ký vay thành công",
+                text = stringResource(R.string.loan_success_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -90,7 +91,7 @@ fun LoanRegistrationSuccessScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Easy Money đã nhận được hồ sơ của bạn. Quá trình xét duyệt cần tối đa 5 phút để hoàn tất. Hệ thống sẽ gửi tin nhắn SMS cho bạn khi có kết quả",
+                text = stringResource(R.string.loan_success_message),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

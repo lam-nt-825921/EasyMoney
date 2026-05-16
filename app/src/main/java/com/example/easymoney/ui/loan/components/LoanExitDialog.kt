@@ -7,11 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.easymoney.R
 
 @Composable
 fun LoanExitDialog(
@@ -29,7 +30,7 @@ fun LoanExitDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Huỷ đăng ký",
+                    text = stringResource(R.string.loan_exit_dialog_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -38,7 +39,7 @@ fun LoanExitDialog(
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 Text(
-                    text = "Bạn sắp hoàn tất đăng ký khoản vay. Nếu quay lại, bạn sẽ phải đăng ký lại từ đầu.",
+                    text = stringResource(R.string.loan_exit_dialog_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -56,7 +57,7 @@ fun LoanExitDialog(
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {
                         Text(
-                            "Huỷ đăng ký", 
+                            stringResource(R.string.loan_exit_dialog_cancel),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
                         )
@@ -72,7 +73,7 @@ fun LoanExitDialog(
                         )
                     ) {
                         Text(
-                            "Tiếp tục", 
+                            stringResource(R.string.loan_exit_dialog_continue),
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )

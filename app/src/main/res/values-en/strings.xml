@@ -279,4 +279,57 @@
     <string name="security_item_device_subtitle">1 device logged in</string>
     <string name="biometric_auth_failed">Authentication failed</string>
     <string name="biometric_auth_subtitle">Please authenticate to continue</string>
+
+    <!-- Workflow #28 — Loan screens i18n -->
+    <string name="loan_success_back_home">Back to home</string>
+    <string name="loan_success_title">Loan registration submitted</string>
+    <string name="loan_success_message">Easy Money has received your application. Review typically takes up to 5 minutes; you will get an SMS once a decision is made.</string>
+    <string name="loan_detail_eligibility_note">For customers with credit score from %s</string>
+    <string name="loan_detail_condition_age">Vietnamese citizens aged 20 – 60</string>
+    <string name="loan_detail_condition_income">Stable income from 5 million VND/month</string>
+    <string name="loan_detail_condition_credit">Good credit history (no bad debt)</string>
+    <string name="loan_detail_example_note">Example: Borrow 10M VND for 6 months at 12%%/year, monthly payment ≈ 1,725,000 VND.</string>
+    <string name="loan_list_filter_title">Loan filters</string>
+    <string name="loan_list_filter_amount">Desired limit: %s</string>
+    <string name="loan_list_filter_eligible_only">Show only eligible packages</string>
+    <string name="loan_list_filter_hot">Hot</string>
+    <string name="loan_list_filter_new">New</string>
+    <string name="loan_list_filter_promotional">Promo</string>
+    <string name="loan_list_filter_keyword_hint">Search by package name</string>
+    <string name="loan_list_filter_reset">Reset filters</string>
+    <string name="loan_confirm_button">Confirm</string>
+    <string name="loan_breakdown_total_estimate">Estimated total</string>
+    <string name="loan_breakdown_total_payment">Total to repay\n(estimated)</string>
+    <string name="loan_config_total_payment">Total to repay</string>
+
+    <!-- Workflow #27 — Account screen defaults -->
+    <string name="account_default_user_name">Customer</string>
+
+    <!-- Workflow #26 — component string resources -->
+    <string name="loan_exit_dialog_title">Cancel registration</string>
+    <string name="loan_exit_dialog_message">You are about to finish registering this loan. If you go back, you will have to start over.</string>
+    <string name="loan_exit_dialog_cancel">Cancel registration</string>
+    <string name="loan_exit_dialog_continue">Continue</string>
+    <string name="loan_bottom_insurance_label">Borrower insurance</string>
+    <string name="loan_bottom_next">Continue</string>
+    <string name="loan_bottom_loading">Loading</string>
+    <string name="loan_stepper_step1">Choose loan</string>
+    <string name="loan_stepper_step2">Fill information</string>
+    <string name="loan_stepper_step3">Confirm</string>
+    <string name="document_upload_title">Upload documents</string>
+    <string name="document_upload_subtitle">Please choose a source</string>
+    <string name="document_upload_camera">Take photo</string>
+    <string name="document_upload_gallery">Gallery</string>
+    <string name="document_upload_cancel">Cancel</string>
+    <string name="face_capture_camera_denied">Camera permission denied</string>
+    <string name="face_capture_close">Close</string>
+    <string name="face_capture_status_initial">Please place your face inside the frame</string>
+    <string name="face_capture_status_confirming">Confirming…</string>
+    <string name="face_capture_status_blink">Please blink to confirm</string>
+    <string name="face_capture_status_no_face">No face detected</string>
+    <string name="nfc_status_waiting">Waiting for card…</string>
+    <string name="nfc_status_unsupported">Device does not support NFC</string>
+    <string name="nfc_status_disabled">Please enable NFC in settings</string>
+    <string name="nfc_status_reading">Card detected, reading data…</string>
+    <string name="nfc_button_cancel">Cancel</string>
 </resources>

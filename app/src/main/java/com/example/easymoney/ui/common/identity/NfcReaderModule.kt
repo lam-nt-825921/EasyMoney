@@ -9,7 +9,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.easymoney.R
 
 /**
  * Shared Module for Reading Chip-based Identity Cards (CCCD) via NFC.
@@ -22,19 +24,23 @@ fun NfcReaderModule(
 ) {
     val context = LocalContext.current
     val nfcAdapter = remember { NfcAdapter.getDefaultAdapter(context) }
-    var status by remember { mutableStateOf("Đang chờ thẻ...") }
+    val statusWaiting = stringResource(R.string.nfc_status_waiting)
+    val statusUnsupported = stringResource(R.string.nfc_status_unsupported)
+    val statusDisabled = stringResource(R.string.nfc_status_disabled)
+    val statusReading = stringResource(R.string.nfc_status_reading)
+    var status by remember { mutableStateOf(statusWaiting) }
 
     if (nfcAdapter == null) {
-        status = "Thiết bị không hỗ trợ NFC"
+        status = statusUnsupported
     } else if (!nfcAdapter.isEnabled) {
-        status = "Vui lòng bật NFC trong cài đặt"
+        status = statusDisabled
     }
 
     DisposableEffect(Unit) {
         val callback = NfcAdapter.ReaderCallback { tag: Tag ->
             val isoDep = IsoDep.get(tag)
             if (isoDep != null) {
-                status = "Đã tìm thấy thẻ, đang đọc dữ liệu..."
+                status = statusReading
                 try {
                     isoDep.connect()
                     // Here we would perform the PACE/BAC handshake and read EF.COM, EF.SOD, EF.DG1, etc.
@@ -74,7 +80,7 @@ fun NfcReaderModule(
             Text(text = status, style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(32.dp))
             Button(onClick = onDismiss) {
-                Text("Hủy")
+                Text(stringResource(R.string.nfc_button_cancel))
             }
         }
     }

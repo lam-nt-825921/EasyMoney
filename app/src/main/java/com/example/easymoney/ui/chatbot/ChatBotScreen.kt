@@ -55,6 +55,16 @@ fun ChatBotScreen(
                     Text(stringResource(R.string.chatbot_typing), style = MaterialTheme.typography.bodySmall)
                 }
             }
+            uiState.errorMessage?.let { err ->
+                item {
+                    // Workflow #33 — surface chatbot error inline.
+                    Text(
+                        text = err,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
 
         InputRow(

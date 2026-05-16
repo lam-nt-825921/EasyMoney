@@ -8,7 +8,10 @@ import com.example.easymoney.data.sample.SAMPLE_PAYMENT_CARDS
 import com.example.easymoney.data.sample.sampleWalletInfo
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.PaymentCard
+import com.example.easymoney.domain.model.QrPayment
+import com.example.easymoney.domain.model.QrPaymentStatus
 import com.example.easymoney.domain.model.WalletInfo
+import java.util.UUID
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
@@ -116,6 +119,73 @@ class PaymentRepositoryImpl @Inject constructor(
             }
             DataSourceMode.REMOTE -> {
                 // TODO(workflow_20): wire POST /payment/withdraw
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
+    }
+
+    // Workflow #36 — track QR payments tạo trong MOCK (mô phỏng pending → success).
+    private val mockQrPayments: MutableMap<String, QrPayment> = mutableMapOf()
+
+    override suspend fun verifyCard(card: PaymentCard): Resource<Unit> {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "PaymentRepository.verifyCard mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(600)
+                // Đơn giản: trim cardNumber + bank chính là valid.
+                if (card.cardNumber.isBlank() || card.bankName.isBlank()) {
+                    Resource.Error("Thông tin thẻ không hợp lệ")
+                } else {
+                    Resource.Success(Unit, isFromMock = true)
+                }
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_36): POST /payment/cards/verify
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
+    }
+
+    override suspend fun createQrPayment(amount: Long): Resource<QrPayment> {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "PaymentRepository.createQrPayment mode=$mode amount=$amount")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(400)
+                val id = UUID.randomUUID().toString()
+                val qr = QrPayment(
+                    id = id,
+                    qrContent = "easymoney://pay?amount=$amount&txId=$id",
+                    amount = amount,
+                    status = QrPaymentStatus.PENDING,
+                    expiresAt = System.currentTimeMillis() + 5 * 60_000L
+                )
+                mockQrPayments[id] = qr
+                Resource.Success(qr, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_36): POST /payments/qr
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
+    }
+
+    override suspend fun getQrPaymentStatus(qrPaymentId: String): Resource<QrPayment> {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "PaymentRepository.getQrPaymentStatus mode=$mode id=$qrPaymentId")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(500)
+                val qr = mockQrPayments[qrPaymentId]
+                    ?: return Resource.Error("Giao dịch QR không tồn tại")
+                // Mô phỏng: sau 1 lần poll → SUCCESS.
+                val updated = qr.copy(status = QrPaymentStatus.SUCCESS)
+                mockQrPayments[qrPaymentId] = updated
+                Resource.Success(updated, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_36): GET /payments/qr/{id}/status
                 Resource.Error(REMOTE_NOT_READY)
             }
         }

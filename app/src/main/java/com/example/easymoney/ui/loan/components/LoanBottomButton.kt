@@ -10,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 import com.example.easymoney.ui.common.loading.InlineButtonLoading
 
 @Composable
@@ -40,7 +42,7 @@ fun LoanBottomButton(
                 colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
             )
             Text(
-                text = "Bảo hiểm người vay",
+                text = stringResource(R.string.loan_bottom_insurance_label),
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 4.dp)
@@ -69,9 +71,9 @@ fun LoanBottomButton(
             )
         ) {
             if (isLoading) {
-                InlineButtonLoading(label = "Đang tải")
+                InlineButtonLoading(label = stringResource(R.string.loan_bottom_loading))
             } else {
-                Text("Tiếp tục", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.loan_bottom_next), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

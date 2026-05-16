@@ -112,3 +112,32 @@ Mode lưu ở `AppPreferences.dataSourceMode: DataSourceMode` (`MOCK` hoặc `RE
 - ✅ `NotificationRepositoryImpl.refreshNotifications()`
 - ✅ `HomeRepositoryImpl`, `EventRepositoryImpl`, `RewardRepositoryImpl`, `UserRepositoryImpl`, `PaymentRepositoryImpl` (workflow #20) — branch MOCK/REMOTE bằng `appPreferences.dataSourceMode`; nhánh REMOTE hiện trả `Resource.Error("Endpoint REMOTE chưa sẵn sàng")` với TODO chờ backend
 - 🔒 `AccountRepositoryImpl` — backed by Room (local-only), không thuộc trục MOCK/REMOTE; thông tin tài khoản sẽ sync từ backend trong workflow tương lai
+
+---
+
+## Workflow #38 — Repository API audit (cập nhật 2026-05-16)
+
+Bảng tổng hợp trạng thái endpoint của mỗi repository sau khi hoàn thành P0..P3.
+
+| Repository | Endpoint expected | Endpoint implemented (REMOTE) | MOCK | Status |
+|---|---|---|---|---|
+| `LoanRepository` | `/api/v1/auth/*`, `/api/v1/loan/*`, `/api/v1/master/*`, `/api/v1/ekyc/*`, `/api/v1/otp/*` | ✅ Tất cả qua `LoanApiService` | ✅ | **Hoàn thiện** |
+| `NotificationRepository` | `/api/v1/notifications`, `register-fcm`, `mark-read` | 🟡 Một phần (`getNotifications`, `triggerFcmTest`); `registerFcmToken` + `markAsRead` còn TODO | ✅ Room DB | **Một phần** |
+| `HomeRepository` | `/home/banners`, `/home/hot-loans`, `/ekyc/status` | ❌ Chưa có; REMOTE branch trả `Resource.Error` | ✅ `data/sample/SampleHome.kt` | **MOCK only** |
+| `EventRepository` | `/events/{id}`, `POST /events/{id}/join` | ❌ Chưa có | ✅ `data/sample/SampleEvents.kt` | **MOCK only** |
+| `RewardRepository` | `/rewards/catalog`, `/rewards/user`, `POST /rewards/redeem` | ❌ Chưa có | ✅ `data/sample/SampleRewardCatalog.kt`, `SampleUserRewards.kt` | **MOCK only** |
+| `UserRepository` | `GET/PUT /users/me`, `PATCH /users/me/notification-settings` | ❌ Chưa có | ✅ `data/sample/SampleUserProfile.kt` | **MOCK only** |
+| `PaymentRepository` | `/payment/wallet`, `/payment/cards`, `/payment/topup`, `/payment/withdraw`, `POST /payment/cards/verify`, `POST /payments/qr`, `GET /payments/qr/{id}/status` | ❌ Chưa có; QR/verify được thêm contract ở workflow #36 | ✅ `data/sample/SamplePayment.kt` + in-memory state | **MOCK only** |
+| `AccountRepository` | (Local-only, không có endpoint) | — | ✅ Room | **Local** |
+| `TransactionHistoryRepository` | `GET /transactions` | ❌ Chưa có | ✅ `data/sample/SampleTransactionHistory.kt` | **MOCK only** |
+| `ChatBotRepository` | `POST /chat/message` (text + card + action component) | ❌ Chưa có | ✅ `data/sample/SampleChatResponses.kt` (rule-based) | **MOCK only** |
+
+### Backend endpoint còn cần bổ sung
+- Master data `?lang=vi|en` query (workflow #30) — `LoanApiService` đã thêm `@Query("lang")`; backend cần serve label theo locale.
+- QR payment polling — workflow #36 contract đã định nghĩa, đợi backend.
+- Notification mark-read API — workflow #14 + #38 audit (`markAsRead` đang local-only).
+- ChatBot streaming/component response — workflow #32.
+
+### Không còn UI mock disguise
+Sau workflow #22 + #27, các màn UI sau đã không tự dựng mock; đều consume qua repository → ViewModel:
+`AccountScreen`, `TransactionHistoryScreen`, `EventDetailScreen`, `LoanListScreen`, `LoanDetailScreen`, `HomeScreen`, `ChatBotScreen`, `RewardScreen`, `LoanManagementScreen`.

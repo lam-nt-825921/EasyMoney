@@ -25,10 +25,22 @@ data class LoanDiscoveryUiState(
     val maxAmount: Long? = null,
     val tenor: Int? = null,
     val eligibleOnly: Boolean = false,
-    
+    // Workflow #29 — extended filters
+    val minInterest: Double? = null,
+    val maxInterest: Double? = null,
+    val hotOnly: Boolean = false,
+    val newOnly: Boolean = false,
+    val promotionalOnly: Boolean = false,
+    val keyword: String = "",
+
     // Eligibility
     val eligibilityState: EligibilityUiState = EligibilityUiState.Idle
-)
+) {
+    fun isAnyFilterActive(): Boolean =
+        eligibleOnly || hotOnly || newOnly || promotionalOnly ||
+            keyword.isNotBlank() || minInterest != null || maxInterest != null ||
+            tenor != null || minAmount != null
+}
 
 @HiltViewModel
 class LoanDiscoveryViewModel @Inject constructor(
@@ -49,7 +61,18 @@ class LoanDiscoveryViewModel @Inject constructor(
                 eligibleOnly = state.eligibleOnly
             )) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(packages = result.data, isLoading = false) }
+                    // Workflow #29 — apply extended filters client-side over repo result.
+                    // REMOTE mode sẽ chuyển filter sang query params (TODO trong LoanRepository).
+                    val filtered = result.data.filter { pkg ->
+                        (!state.hotOnly || pkg.isHot) &&
+                            (!state.newOnly || pkg.isNew) &&
+                            (!state.promotionalOnly || pkg.isPromotional) &&
+                            (state.minInterest == null || pkg.interest >= state.minInterest) &&
+                            (state.maxInterest == null || pkg.interest <= state.maxInterest) &&
+                            (state.keyword.isBlank() ||
+                                pkg.packageName.contains(state.keyword, ignoreCase = true))
+                    }
+                    _uiState.update { it.copy(packages = filtered, isLoading = false) }
                 }
                 is Resource.Error -> {
                     _uiState.update { it.copy(errorMessage = result.message, isLoading = false) }
@@ -63,14 +86,45 @@ class LoanDiscoveryViewModel @Inject constructor(
         min: Long? = null,
         max: Long? = null,
         tenor: Int? = null,
-        eligibleOnly: Boolean? = null
+        eligibleOnly: Boolean? = null,
+        minInterest: Double? = null,
+        maxInterest: Double? = null,
+        hotOnly: Boolean? = null,
+        newOnly: Boolean? = null,
+        promotionalOnly: Boolean? = null,
+        keyword: String? = null
     ) {
         _uiState.update { it.copy(
             minAmount = min ?: it.minAmount,
             maxAmount = max ?: it.maxAmount,
             tenor = tenor ?: it.tenor,
-            eligibleOnly = eligibleOnly ?: it.eligibleOnly
+            eligibleOnly = eligibleOnly ?: it.eligibleOnly,
+            minInterest = minInterest ?: it.minInterest,
+            maxInterest = maxInterest ?: it.maxInterest,
+            hotOnly = hotOnly ?: it.hotOnly,
+            newOnly = newOnly ?: it.newOnly,
+            promotionalOnly = promotionalOnly ?: it.promotionalOnly,
+            keyword = keyword ?: it.keyword
         ) }
+        loadPackages()
+    }
+
+    /** Workflow #29 — Reset all filters về mặc định. */
+    fun resetFilters() {
+        _uiState.update {
+            it.copy(
+                minAmount = null,
+                maxAmount = null,
+                tenor = null,
+                eligibleOnly = false,
+                minInterest = null,
+                maxInterest = null,
+                hotOnly = false,
+                newOnly = false,
+                promotionalOnly = false,
+                keyword = ""
+            )
+        }
         loadPackages()
     }
 
