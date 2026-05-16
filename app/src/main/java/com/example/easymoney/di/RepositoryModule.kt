@@ -58,4 +58,10 @@ abstract class RepositoryModule {
     abstract fun bindEventRepository(
         eventRepositoryImpl: EventRepositoryImpl
     ): EventRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTransactionHistoryRepository(
+        transactionHistoryRepositoryImpl: TransactionHistoryRepositoryImpl
+    ): TransactionHistoryRepository
 }

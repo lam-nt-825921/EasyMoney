@@ -1,53 +1,66 @@
 package com.example.easymoney.domain.repository
 
+import android.util.Log
+import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.sample.SAMPLE_USER_PROFILE
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.UserProfile
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
-import com.example.easymoney.domain.model.*
+private const val TAG = "DataSource"
+private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
 
-class UserRepositoryImpl @Inject constructor() : UserRepository {
-    private var profile = UserProfile(
-        personalInfo = PersonalInfo(
-            fullName = "Nguyễn Văn A",
-            phoneNumber = "0987654321",
-            gender = "Nam",
-            dateOfBirth = "1995-05-20",
-            nationalId = "001200012345",
-            issueDate = "2021-12-01"
-        ),
-        addressInfo = AddressInfo(
-            permanentAddress = "123 Đường Láng, Đống Đa, Hà Nội",
-            currentAddress = "123 Đường Láng, Đống Đa, Hà Nội"
-        ),
-        jobInfo = JobInfo(
-            jobTitle = "Kỹ sư phần mềm",
-            monthlyIncome = 25000000,
-            companyName = "Tech Corp"
-        ),
-        identityStatus = IdentityVerificationStatus(
-            isFaceVerified = false,
-            isNfcVerified = false,
-            isBiometricEnabled = true
-        ),
-        verificationStatus = ProfileVerificationStatus.INCOMPLETE,
-        statusMessage = "Vui lòng hoàn thiện eKYC để kích hoạt hạn mức 100 triệu"
-    )
+class UserRepositoryImpl @Inject constructor(
+    private val appPreferences: AppPreferences
+) : UserRepository {
+
+    private var profile: UserProfile = SAMPLE_USER_PROFILE
 
     override suspend fun getProfile(): Resource<UserProfile> {
-        delay(300)
-        return Resource.Success(profile)
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "UserRepository.getProfile mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(300)
+                Resource.Success(profile, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real GET /users/me endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun updateProfile(updatedProfile: UserProfile): Resource<Unit> {
-        delay(500)
-        profile = updatedProfile
-        return Resource.Success(Unit)
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "UserRepository.updateProfile mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(500)
+                profile = updatedProfile
+                Resource.Success(Unit, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real PUT /users/me endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun updateNotificationSettings(enabled: Boolean): Resource<Unit> {
-        delay(200)
-        return Resource.Success(Unit)
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "UserRepository.updateNotificationSettings mode=$mode enabled=$enabled")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(200)
+                Resource.Success(Unit, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real PATCH /users/me/notification-settings
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 }

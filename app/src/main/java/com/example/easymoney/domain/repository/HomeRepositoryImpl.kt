@@ -1,43 +1,67 @@
 package com.example.easymoney.domain.repository
 
+import android.util.Log
+import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.sample.SAMPLE_BANNERS
+import com.example.easymoney.data.sample.SAMPLE_EKYC_STATUS
+import com.example.easymoney.data.sample.SAMPLE_HOT_LOANS
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.Banner
-import com.example.easymoney.domain.model.LoanProduct
 import com.example.easymoney.domain.model.EKycStatus
+import com.example.easymoney.domain.model.LoanProduct
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
-class HomeRepositoryImpl @Inject constructor() : HomeRepository {
+private const val TAG = "DataSource"
+private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
+
+class HomeRepositoryImpl @Inject constructor(
+    private val appPreferences: AppPreferences
+) : HomeRepository {
+
     override suspend fun getBanners(): Resource<List<Banner>> {
-        delay(500)
-        return Resource.Success(
-            listOf(
-                Banner("b1", "https://img.freepik.com/free-vector/horizontal-banner-template-with-finance-concept_23-2149156382.jpg", "Ưu đãi lãi suất 0%", "EVENT", "e1"),
-                Banner("b2", "https://img.freepik.com/free-vector/flat-design-business-banner-template_23-2149151551.jpg", "Vay nhanh 24/7", "LOAN", "lp1"),
-                Banner("b3", "https://img.freepik.com/free-vector/gradient-finance-horizontal-banner-template_23-2149156381.jpg", "Hạng thành viên mới", "WEB", "https://example.com/loyalty")
-            )
-        )
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "HomeRepository.getBanners mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(500)
+                Resource.Success(SAMPLE_BANNERS, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real /home/banners endpoint khi backend sẵn sàng
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun getHotLoans(): Resource<List<LoanProduct>> {
-        delay(500)
-        return Resource.Success(
-            listOf(
-                LoanProduct("lp1", "Vay tiêu dùng nhanh", 1.5, 50000000, true, "HOT", "Giải ngân trong 30 phút"),
-                LoanProduct("lp2", "Vay tín chấp ưu đãi", 1.2, 100000000, false, "NEW", "Không cần tài sản thế chấp"),
-                LoanProduct("lp3", "Vay sinh viên", 0.8, 10000000, true, "CHO BẠN", "Hỗ trợ học phí lãi suất thấp")
-            )
-        )
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "HomeRepository.getHotLoans mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(500)
+                Resource.Success(SAMPLE_HOT_LOANS, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real /home/hot-loans endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 
     override suspend fun getEKycStatus(): Resource<EKycStatus> {
-        delay(300)
-        return Resource.Success(
-            EKycStatus(
-                isIdentified = false,
-                missingDocuments = listOf("ID_CARD_FRONT", "ID_CARD_BACK", "FACE_VIDEO"),
-                message = "Bạn cần hoàn thiện eKYC để kích hoạt hạn mức 100 triệu"
-            )
-        )
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "HomeRepository.getEKycStatus mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(300)
+                Resource.Success(SAMPLE_EKYC_STATUS, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                // TODO(workflow_20): wire real /ekyc/status endpoint
+                Resource.Error(REMOTE_NOT_READY)
+            }
+        }
     }
 }

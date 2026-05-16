@@ -81,15 +81,12 @@ fun HomeScreen(
                     }
                 }
 
-                // Banner Carousel
+                // Banner Carousel — workflow #21: banner LOAN điều hướng thẳng sang LoanDetail,
+                // không kiểm tra eligibility tại Home.
                 BannerCarousel(
                     banners = uiState.banners,
-                    onBannerClick = { banner -> 
-                        if (banner.targetType == "LOAN") {
-                            viewModel.checkLoanEligibility(banner.targetId ?: "1")
-                        } else {
-                            onBannerClick(banner.targetType, banner.targetId ?: "")
-                        }
+                    onBannerClick = { banner ->
+                        onBannerClick(banner.targetType, banner.targetId ?: "")
                     }
                 )
 
@@ -108,15 +105,15 @@ fun HomeScreen(
                 // Consult Loan (Chat bot)
                 WideBanner(onClick = onConsultLoanClick)
 
-                // Hot Loans Section
+                // Hot Loans Section — workflow #21: click → LoanDetail (eligibility check chỉ tại đó).
                 HotLoansSection(
                     loans = uiState.hotLoans,
-                    onLoanClick = { product -> viewModel.checkLoanEligibility(product.id) },
+                    onLoanClick = { product -> onLoanProductClick(product.id) },
                     onSeeAllClick = { onLoanProductClick("ALL") }
                 )
 
-                // Bottom Banner
-                MainBanner(onRegistrationClick = { viewModel.checkLoanEligibility("1", skipDetail = true) })
+                // Bottom Banner — workflow #21: điều hướng sang LoanDetail thay vì skip detail.
+                MainBanner(onRegistrationClick = { onLoanProductClick("1") })
                 
                 Spacer(modifier = Modifier.height(20.dp))
             }
