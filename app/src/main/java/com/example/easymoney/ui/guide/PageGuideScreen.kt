@@ -23,6 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 
 import androidx.compose.ui.unit.sp
@@ -54,7 +56,7 @@ fun PageGuideScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = title ?: "Hướng dẫn sử dụng",
+            text = title ?: stringResource(id = R.string.guide_title_default),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.primary

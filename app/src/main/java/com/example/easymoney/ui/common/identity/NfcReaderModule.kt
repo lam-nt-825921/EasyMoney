@@ -28,6 +28,7 @@ fun NfcReaderModule(
     val statusUnsupported = stringResource(R.string.nfc_status_unsupported)
     val statusDisabled = stringResource(R.string.nfc_status_disabled)
     val statusReading = stringResource(R.string.nfc_status_reading)
+    val statusReadError = stringResource(R.string.nfc_status_read_error)
     var status by remember { mutableStateOf(statusWaiting) }
 
     if (nfcAdapter == null) {
@@ -49,7 +50,7 @@ fun NfcReaderModule(
                     // Mock success result
                     onResult(NfcResult(rawData = "MOCK_CHIP_DATA", isSuccess = true))
                 } catch (e: Exception) {
-                    status = "Lỗi khi đọc thẻ: ${e.message}"
+                    status = statusReadError.format(e.message.orEmpty())
                 } finally {
                     isoDep.close()
                 }

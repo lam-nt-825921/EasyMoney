@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Danh sách gói vay"
+        android:text="@string/guide_loan_list_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Dùng bộ lọc theo hạn mức, kỳ hạn, lãi suất để tìm gói phù hợp. Bấm vào gói để xem chi tiết và đăng ký."
+        android:text="@string/guide_loan_list_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

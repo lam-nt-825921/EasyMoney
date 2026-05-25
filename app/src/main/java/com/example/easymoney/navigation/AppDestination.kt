@@ -1,6 +1,8 @@
 package com.example.easymoney.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import com.example.easymoney.R
 import com.example.easymoney.ui.components.TopBarMode
 import com.example.easymoney.ui.components.SystemBarMode
 import com.example.easymoney.ui.components.ScreenColorMode
@@ -10,7 +12,7 @@ import com.example.easymoney.ui.components.ScreenColorMode
  */
 sealed class AppDestination(
     val route: String,
-    val title: String,
+    @StringRes val titleResId: Int? = null,
     val showBackButton: Boolean,
     val showHelpButton: Boolean = true,
     val guideXmlName: String? = null,
@@ -24,7 +26,6 @@ sealed class AppDestination(
 ) {
     data object Welcome : AppDestination(
         route = "welcome",
-        title = "",
         showBackButton = false,
         showHelpButton = false,
         defaultTopBarMode = TopBarMode.HIDDEN
@@ -32,7 +33,6 @@ sealed class AppDestination(
 
     data object Login1 : AppDestination(
         route = "login_1",
-        title = "",
         showBackButton = true,
         showHelpButton = false,
         defaultTopBarMode = TopBarMode.NO_TITLE
@@ -40,7 +40,6 @@ sealed class AppDestination(
 
     data object Register1 : AppDestination(
         route = "register_1",
-        title = "",
         showBackButton = true,
         showHelpButton = false,
         defaultTopBarMode = TopBarMode.NO_TITLE
@@ -48,7 +47,6 @@ sealed class AppDestination(
 
     data object QuickLogin1 : AppDestination(
         route = "quick_login_1",
-        title = "",
         showBackButton = false,
         showHelpButton = false,
         defaultTopBarMode = TopBarMode.HIDDEN
@@ -56,7 +54,6 @@ sealed class AppDestination(
 
     data object Onboarding : AppDestination(
         route = "onboarding?packageId={packageId}&packageName={packageName}",
-        title = "",
         showBackButton = true,
         guideXmlName = "guide_onboarding"
     ) {
@@ -80,21 +77,20 @@ sealed class AppDestination(
 
     data object ConfirmInformation : AppDestination(
         route = "confirm_information",
-        title = "Xác nhận thông tin",
+        titleResId = R.string.nav_confirm_information,
         showBackButton = true,
         guideXmlName = "guide_confirm_information"
     )
 
     data object LoanFlow : AppDestination(
         route = "loan_information",
-        title = "Thông tin khoản vay",
+        titleResId = R.string.nav_loan_information,
         showBackButton = true,
         showHelpButton = false
     )
 
     data object Home : AppDestination(
         route = "home",
-        title = "",
         showBackButton = false,
         showHelpButton = true,
         guideXmlName = "guide_home",
@@ -103,7 +99,7 @@ sealed class AppDestination(
 
     data object TransactionHistory : AppDestination(
         route = "history",
-        title = "Lịch sử giao dịch",
+        titleResId = R.string.nav_transaction_history,
         showBackButton = false,
         showHelpButton = false,
         isMainTab = true
@@ -111,7 +107,7 @@ sealed class AppDestination(
 
     data object Notifications : AppDestination(
         route = "notifications",
-        title = "Thông báo",
+        titleResId = R.string.nav_notifications,
         showBackButton = false,
         showHelpButton = false,
         isMainTab = true
@@ -119,7 +115,7 @@ sealed class AppDestination(
 
     data object Account : AppDestination(
         route = "account",
-        title = "Tài khoản",
+        titleResId = R.string.nav_account,
         showBackButton = false,
         showHelpButton = false,
         isMainTab = true
@@ -127,7 +123,7 @@ sealed class AppDestination(
 
     data object PageGuide : AppDestination(
         route = "page_guide?xml={xml}&title={title}",
-        title = "Hướng dẫn",
+        titleResId = R.string.nav_page_guide,
         showBackButton = true,
         showHelpButton = false
     ) {
@@ -152,14 +148,14 @@ sealed class AppDestination(
 
     data object Sandbox : AppDestination(
         route = "sandbox",
-        title = "Sandbox Developer",
+        titleResId = R.string.nav_sandbox,
         showBackButton = true,
         showHelpButton = false
     )
 
     data object Contract : AppDestination(
         route = "contract?contractId={contractId}",
-        title = "Hợp đồng của bạn",
+        titleResId = R.string.nav_contract,
         showBackButton = true,
         showHelpButton = true,
         guideXmlName = "guide_contract"
@@ -172,7 +168,7 @@ sealed class AppDestination(
 
     data object EsignSuccess : AppDestination(
         route = "esign_success",
-        title = "Ký hợp đồng thành công",
+        titleResId = R.string.nav_esign_success,
         showBackButton = false,
         showHelpButton = false
     )
@@ -180,7 +176,7 @@ sealed class AppDestination(
     // New Destinations from Phase 1
     data object EventDetail : AppDestination(
         route = "event_detail/{id}",
-        title = "Chi tiết sự kiện",
+        titleResId = R.string.nav_event_detail,
         showBackButton = true,
         guideXmlName = "guide_event_detail"
     ) {
@@ -191,21 +187,21 @@ sealed class AppDestination(
 
     data object Rewards : AppDestination(
         route = "rewards",
-        title = "Đổi điểm thưởng",
+        titleResId = R.string.nav_rewards,
         showBackButton = true,
         guideXmlName = "guide_rewards"
     )
 
     data object LoanList : AppDestination(
         route = "loan_list",
-        title = "Gói vay ưu đãi",
+        titleResId = R.string.nav_loan_list,
         showBackButton = true,
         guideXmlName = "guide_loan_list"
     )
 
     data object LoanDetail : AppDestination(
         route = "loan_detail/{id}",
-        title = "Chi tiết gói vay",
+        titleResId = R.string.nav_loan_detail,
         showBackButton = true,
         guideXmlName = "guide_loan_detail"
     ) {
@@ -216,49 +212,49 @@ sealed class AppDestination(
 
     data object Profile : AppDestination(
         route = "profile",
-        title = "Hồ sơ cá nhân",
+        titleResId = R.string.nav_profile,
         showBackButton = true,
         guideXmlName = "guide_profile"
     )
 
     data object MoneyManagement : AppDestination(
         route = "money_management",
-        title = "Quản lý nguồn tiền",
+        titleResId = R.string.nav_money_management,
         showBackButton = true,
         guideXmlName = "guide_money_management"
     )
 
     data object PaymentCards : AppDestination(
         route = "payment_cards",
-        title = "Thẻ thanh toán",
+        titleResId = R.string.nav_payment_cards,
         showBackButton = true,
         guideXmlName = "guide_payment_cards"
     )
 
     data object GeneralSettings : AppDestination(
         route = "general_settings",
-        title = "Cài đặt",
+        titleResId = R.string.nav_general_settings,
         showBackButton = true,
         guideXmlName = "guide_general_settings"
     )
 
     data object SecuritySettings : AppDestination(
         route = "security_settings",
-        title = "Bảo mật tài khoản",
+        titleResId = R.string.nav_security_settings,
         showBackButton = true,
         guideXmlName = "guide_security_settings"
     )
 
     data object ChatBot : AppDestination(
         route = "chatbot",
-        title = "Tư vấn tài chính",
+        titleResId = R.string.nav_chatbot,
         showBackButton = true,
         showHelpButton = false
     )
 
     data object IdentityVerification : AppDestination(
         route = "identity_verification",
-        title = "Định danh tài khoản",
+        titleResId = R.string.nav_identity_verification,
         showBackButton = true,
         showHelpButton = true,
         guideXmlName = "guide_identity_verification"
@@ -266,28 +262,28 @@ sealed class AppDestination(
 
     data object TopUp : AppDestination(
         route = "top_up",
-        title = "Nạp tiền",
+        titleResId = R.string.nav_top_up,
         showBackButton = true,
         guideXmlName = "guide_top_up"
     )
 
     data object Withdraw : AppDestination(
         route = "withdraw",
-        title = "Rút tiền",
+        titleResId = R.string.nav_withdraw,
         showBackButton = true,
         guideXmlName = "guide_withdraw"
     )
 
     data object Terms : AppDestination(
         route = "terms",
-        title = "Điều khoản và chính sách",
+        titleResId = R.string.nav_terms,
         showBackButton = true,
         showHelpButton = false
     )
 
     data object LoanManagement : AppDestination(
         route = "loan_management",
-        title = "Quản lý khoản vay",
+        titleResId = R.string.nav_loan_management,
         showBackButton = true,
         showHelpButton = true,
         guideXmlName = "guide_loan_management"
@@ -295,21 +291,21 @@ sealed class AppDestination(
 
     data object EditPersonalInfo : AppDestination(
         route = "edit_personal_info",
-        title = "Thông tin cá nhân",
+        titleResId = R.string.nav_edit_personal_info,
         showBackButton = true,
         guideXmlName = "guide_edit_personal_info"
     )
 
     data object EditJobInfo : AppDestination(
         route = "edit_job_info",
-        title = "Công việc & Thu nhập",
+        titleResId = R.string.nav_edit_job_info,
         showBackButton = true,
         guideXmlName = "guide_edit_job_info"
     )
 
     data object EditContactInfo : AppDestination(
         route = "edit_contact_info",
-        title = "Thông tin người liên hệ",
+        titleResId = R.string.nav_edit_contact_info,
         showBackButton = true,
         guideXmlName = "guide_edit_contact_info"
     )

@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chi tiết sự kiện"
+        android:text="@string/guide_event_detail_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Xem nội dung, thời gian áp dụng và điều kiện tham gia. Bấm Tham gia ngay để đăng ký nếu đủ điều kiện."
+        android:text="@string/guide_event_detail_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

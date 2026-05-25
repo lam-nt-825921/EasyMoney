@@ -205,8 +205,29 @@ class LoanRepositoryImpl @Inject constructor(
         minAmount: Long?,
         maxAmount: Long?,
         tenor: Int?,
-        eligibleOnly: Boolean
+        eligibleOnly: Boolean,
+        keyword: String,
+        minInterest: Double?,
+        maxInterest: Double?,
+        hotOnly: Boolean,
+        newOnly: Boolean,
+        promotionalOnly: Boolean
     ): Resource<List<LoanPackageModel>> {
+        if (isRemote()) {
+            return remoteDataSource?.getLoanPackages(
+                minAmount = minAmount,
+                maxAmount = maxAmount,
+                tenor = tenor,
+                eligibleOnly = eligibleOnly,
+                keyword = keyword,
+                minInterest = minInterest,
+                maxInterest = maxInterest,
+                hotOnly = hotOnly,
+                newOnly = newOnly,
+                promotionalOnly = promotionalOnly
+            ) ?: Resource.Error("Remote data source not available")
+        }
+
         delay(800)
         var filtered = mockLoanPackages.map { pkg ->
             // Mock eligibility based on ID for demo
@@ -221,6 +242,12 @@ class LoanRepositoryImpl @Inject constructor(
         if (maxAmount != null) filtered = filtered.filter { it.minAmount <= maxAmount }
         if (tenor != null) filtered = filtered.filter { it.getTenorList().contains(tenor) }
         if (eligibleOnly) filtered = filtered.filter { it.isEligible }
+        if (keyword.isNotBlank()) filtered = filtered.filter { it.packageName.contains(keyword, ignoreCase = true) }
+        if (minInterest != null) filtered = filtered.filter { it.interest >= minInterest }
+        if (maxInterest != null) filtered = filtered.filter { it.interest <= maxInterest }
+        if (hotOnly) filtered = filtered.filter { it.isHot }
+        if (newOnly) filtered = filtered.filter { it.isNew }
+        if (promotionalOnly) filtered = filtered.filter { it.isPromotional }
 
         return Resource.Success(data = filtered, isFromMock = true)
     }
@@ -476,9 +503,40 @@ class LoanRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getContractContent(loanId: String): Resource<String> {
+    override suspend fun getContractContent(loanId: String, lang: String): Resource<String> {
+        if (isRemote()) {
+            return remoteDataSource?.getContractContent(loanId, lang)
+                ?: Resource.Error("Remote data source not available")
+        }
+
         delay(800)
-        val content = """
+        val content = if (lang.startsWith("en", ignoreCase = true)) {
+            """
+            EASY MONEY CONSUMER LOAN AGREEMENT
+            Contract No.: $loanId/EM
+
+            Lender: Easy Money Finance Company
+            Borrower: Nguyen Duc Minh
+
+            This agreement records the consumer loan approved for application code $loanId.
+
+            ARTICLE 1: LOAN PURPOSE
+            The lender agrees to provide the borrower with a consumer credit facility for lawful personal needs.
+
+            ARTICLE 2: LOAN AMOUNT, TERM, INTEREST, AND FEES
+            The approved amount, repayment term, interest rate, and applicable fees are displayed in the loan package and repayment schedule accepted by the borrower before signing.
+
+            ARTICLE 3: REPAYMENT OBLIGATIONS
+            The borrower is responsible for paying principal, interest, and fees fully and on time according to the agreed repayment schedule.
+
+            ARTICLE 4: INFORMATION AND VERIFICATION
+            The borrower confirms that submitted personal, contact, employment, income, and identity verification information is accurate. Easy Money may use this information to evaluate, manage, and service the loan as permitted by law.
+
+            ARTICLE 5: CONTRACT EFFECT
+            This agreement takes effect from the signing date and remains valid until the borrower completes all repayment obligations or the contract is closed under Easy Money policy.
+            """.trimIndent()
+        } else {
+            """
             CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
             Độc lập - Tự do - Hạnh phúc
             
@@ -490,21 +548,21 @@ class LoanRepositoryImpl @Inject constructor(
             
             Nội dung chi tiết cho khoản vay có mã số: $loanId.
             
-            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. 
-            
-            Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
-            
             ĐIỀU 1: ĐỐI TƯỢNG HỢP ĐỒNG
             Bên cho vay đồng ý cung cấp cho Bên vay một khoản tín dụng với mục đích tiêu dùng cá nhân cho mã hồ sơ $loanId.
             
-            ĐIỀU 2: LÃI SUẤT VÀ PHÍ
-            Lãi suất được áp dụng theo quy định của Tổ chức tài chính Easy Money tại từng thời điểm.
+            ĐIỀU 2: SỐ TIỀN VAY, THỜI HẠN, LÃI SUẤT VÀ PHÍ
+            Số tiền vay, thời hạn trả nợ, lãi suất và phí áp dụng được thể hiện tại gói vay và lịch trả nợ mà Bên vay đã xác nhận trước khi ký.
             
             ĐIỀU 3: QUYỀN VÀ NGHĨA VỤ
             Bên vay có trách nhiệm thanh toán đầy đủ và đúng hạn các khoản nợ gốc và lãi theo lịch trả nợ đã thỏa thuận.
+
+            ĐIỀU 4: THÔNG TIN VÀ XÁC THỰC
+            Bên vay xác nhận các thông tin cá nhân, liên hệ, nghề nghiệp, thu nhập và định danh đã cung cấp là chính xác. Easy Money được sử dụng thông tin này để thẩm định, quản lý và phục vụ khoản vay theo quy định pháp luật.
             
             Hợp đồng này có hiệu lực kể từ ngày ký cho đến khi Bên vay hoàn thành mọi nghĩa vụ trả nợ.
-        """.trimIndent()
+            """.trimIndent()
+        }
         return Resource.Success(content, isFromMock = true)
     }
 

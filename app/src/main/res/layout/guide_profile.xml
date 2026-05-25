@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hồ sơ cá nhân"
+        android:text="@string/guide_profile_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Cập nhật thông tin cá nhân, địa chỉ, công việc và tình trạng định danh. Hồ sơ đầy đủ giúp nâng hạn mức và tốc độ phê duyệt."
+        android:text="@string/guide_profile_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

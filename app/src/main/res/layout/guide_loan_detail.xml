@@ -16,35 +16,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="1. Tên gói vay: Tên thương hiệu và đối tượng khách hàng phù hợp."
+        android:text="@string/guide_loan_detail_name"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="2. Thông số vay: Xem chi tiết khoảng hạn mức, kỳ hạn và lãi suất chính xác."
+        android:text="@string/guide_loan_detail_specs"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="3. Điều kiện đăng ký: Các yêu cầu cơ bản về độ tuổi, thu nhập và lịch sử tín dụng để được duyệt vay."
+        android:text="@string/guide_loan_detail_conditions"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="4. Ví dụ minh họa: Giúp bạn hình dung số tiền cần trả hàng tháng dựa trên một khoản vay mẫu."
+        android:text="@string/guide_loan_detail_example"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Bấm 'Đăng ký vay ngay' để hệ thống kiểm tra điều kiện hồ sơ của bạn."
+        android:text="@string/guide_loan_detail_register"
         android:textSize="14sp"
         android:textStyle="bold" />
 

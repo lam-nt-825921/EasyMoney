@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -24,8 +23,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.easymoney.R
 import com.example.easymoney.domain.model.TransactionItem
-import com.example.easymoney.ui.theme.TextPrimary
-import com.example.easymoney.ui.theme.TextSecondary
 import kotlin.math.abs
 
 @Composable
@@ -38,19 +35,19 @@ fun TransactionHistoryScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FA))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         when {
             state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             state.errorMessage != null -> Text(
                 text = state.errorMessage.orEmpty(),
                 modifier = Modifier.align(Alignment.Center),
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             state.groups.isEmpty() -> Text(
                 text = stringResource(R.string.history_balance_label, "0"),
                 modifier = Modifier.align(Alignment.Center),
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -74,7 +71,7 @@ private fun TransactionDateHeader(date: String) {
     Text(
         text = date,
         style = MaterialTheme.typography.labelMedium,
-        color = TextSecondary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -84,8 +81,16 @@ private fun TransactionDateHeader(date: String) {
 @Composable
 private fun TransactionItemRow(item: TransactionItem) {
     val isPositive = item.amount >= 0
-    val amountColor = if (isPositive) Color(0xFF2E7D32) else Color(0xFFC62828)
-    val iconBg = if (isPositive) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+    val amountColor = if (isPositive) {
+        MaterialTheme.colorScheme.tertiary
+    } else {
+        MaterialTheme.colorScheme.error
+    }
+    val iconBg = if (isPositive) {
+        MaterialTheme.colorScheme.tertiaryContainer
+    } else {
+        MaterialTheme.colorScheme.errorContainer
+    }
     val amountText = if (isPositive) "+${formatAmount(item.amount)}đ" else "-${formatAmount(item.amount)}đ"
 
     Surface(
@@ -93,7 +98,7 @@ private fun TransactionItemRow(item: TransactionItem) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp
     ) {
         Row(
@@ -119,7 +124,7 @@ private fun TransactionItemRow(item: TransactionItem) {
                 Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -127,14 +132,14 @@ private fun TransactionItemRow(item: TransactionItem) {
                 Text(
                     text = item.transactionCode,
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = stringResource(R.string.history_balance_label, formatAmount(item.balance)),
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -148,7 +153,7 @@ private fun TransactionItemRow(item: TransactionItem) {
                 Text(
                     text = item.time,
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

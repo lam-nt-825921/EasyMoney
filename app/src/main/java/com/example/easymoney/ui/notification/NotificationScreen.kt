@@ -17,19 +17,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.data.local.entity.NotificationEntity
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
+
+private data class NotificationTabSpec(
+    val type: String,
+    val titleResId: Int
+)
 
 @Composable
 fun NotificationScreen(
@@ -39,7 +45,13 @@ fun NotificationScreen(
     viewModel: NotificationViewModel = hiltViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val tabs = remember { listOf("Biến động số dư", "Khuyến mại", "Nhắc nhở") }
+    val tabs = remember {
+        listOf(
+            NotificationTabSpec("transaction", R.string.notification_tab_balance),
+            NotificationTabSpec("promotion", R.string.notification_tab_promotion),
+            NotificationTabSpec("reminder", R.string.notification_tab_reminder)
+        )
+    }
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
     val scheme = MaterialTheme.colorScheme
@@ -60,7 +72,7 @@ fun NotificationScreen(
             contentColor = scheme.primary,
             divider = {}
         ) {
-            tabs.forEachIndexed { index, title ->
+            tabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = {
@@ -70,7 +82,7 @@ fun NotificationScreen(
                     },
                     text = {
                         Text(
-                            text = title,
+                            text = stringResource(tab.titleResId),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Medium,
                             color = if (pagerState.currentPage == index) scheme.primary else scheme.onSurfaceVariant
@@ -85,11 +97,11 @@ fun NotificationScreen(
             modifier = Modifier.fillMaxSize(),
             beyondViewportPageCount = 1
         ) { page ->
-            val tabTitle = tabs.getOrNull(page) ?: ""
+            val tabType = tabs.getOrNull(page)?.type ?: "transaction"
             
             // Optimize Flow collection to avoid creating new flows on every recomposition
-            val notificationFlow = remember(tabTitle, viewModel) {
-                viewModel.getNotificationsByType(tabTitle)
+            val notificationFlow = remember(tabType, viewModel) {
+                viewModel.getNotificationsByType(tabType)
             }
             val notificationGroups by notificationFlow.collectAsState(initial = emptyList())
 
@@ -112,7 +124,7 @@ fun NotificationScreen(
             ) {
                 filteredData.forEach { group ->
                     item(key = "header_${group.monthLabel}_$page") {
-                        MonthHeader(label = group.monthLabel)
+                        MonthHeader(label = stringResource(R.string.notification_month_label, group.monthLabel))
                     }
                     items(
                         items = group.items, 
@@ -181,7 +193,7 @@ private fun NotificationSearchBar(query: String, onQueryChange: (String) -> Unit
                 decorationBox = { inner ->
                     if (query.isEmpty()) {
                         Text(
-                            text = "Tìm kiếm thông báo",
+                            text = stringResource(R.string.notification_search_hint),
                             style = MaterialTheme.typography.bodyLarge,
                             color = scheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -212,8 +224,8 @@ private fun BalanceChangeItem(item: NotificationEntity, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val amount = item.amount ?: 0L
     val isPositive = amount >= 0
-    val amountColor = if (isPositive) Color(0xFF2E7D32) else Color(0xFFC62828)
-    val iconBg = (if (isPositive) Color(0xFF2E7D32) else Color(0xFFC62828)).copy(alpha = 0.1f)
+    val amountColor = if (isPositive) scheme.primary else scheme.error
+    val iconBg = amountColor.copy(alpha = 0.1f)
     
     // Proper way to handle locales in Compose with safety
     val configuration = LocalConfiguration.current
@@ -236,8 +248,12 @@ private fun BalanceChangeItem(item: NotificationEntity, onClick: () -> Unit) {
     
     val amountText = remember(amount, isPositive, locale) {
         val formatted = formatAmount(amount, locale)
-        if (isPositive) "+${formatted}đ" else "-${formatted}đ"
+        formatted
     }
+    val amountDisplay = stringResource(
+        if (isPositive) R.string.notification_amount_positive else R.string.notification_amount_negative,
+        amountText
+    )
 
     Surface(
         modifier = Modifier
@@ -270,7 +286,7 @@ private fun BalanceChangeItem(item: NotificationEntity, onClick: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = amountText,
+                    text = amountDisplay,
                     style = MaterialTheme.typography.titleMedium,
                     color = amountColor,
                     fontWeight = FontWeight.Bold

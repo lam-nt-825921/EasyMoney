@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hợp đồng vay"
+        android:text="@string/guide_contract_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Đọc kỹ điều khoản hợp đồng. Bấm vào liên kết để xem chi tiết. Sau khi đồng ý, bấm Ký hợp đồng để chuyển sang luồng eSign."
+        android:text="@string/guide_contract_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

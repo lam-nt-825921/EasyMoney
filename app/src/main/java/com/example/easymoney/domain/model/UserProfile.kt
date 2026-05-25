@@ -9,6 +9,7 @@ enum class ProfileVerificationStatus {
 }
 
 data class UserProfile(
+    val avatarUri: String = "",
     val personalInfo: PersonalInfo = PersonalInfo(),
     val addressInfo: AddressInfo = AddressInfo(),
     val jobInfo: JobInfo = JobInfo(),

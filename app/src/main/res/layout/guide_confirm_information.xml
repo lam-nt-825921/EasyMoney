@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Xác nhận thông tin"
+        android:text="@string/guide_confirm_information_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Kiểm tra kỹ thông tin cá nhân, khoản vay và phương thức nhận tiền trước khi bấm Xác nhận. Khi xác nhận, hồ sơ sẽ được gửi cho hệ thống thẩm định."
+        android:text="@string/guide_confirm_information_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

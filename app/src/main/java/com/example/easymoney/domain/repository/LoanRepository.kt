@@ -34,7 +34,13 @@ interface LoanRepository {
         minAmount: Long? = null,
         maxAmount: Long? = null,
         tenor: Int? = null,
-        eligibleOnly: Boolean = false
+        eligibleOnly: Boolean = false,
+        keyword: String = "",
+        minInterest: Double? = null,
+        maxInterest: Double? = null,
+        hotOnly: Boolean = false,
+        newOnly: Boolean = false,
+        promotionalOnly: Boolean = false
     ): Resource<List<LoanPackageModel>>
 
     suspend fun checkEligibility(packageId: String): Resource<EligibilityResult>
@@ -72,7 +78,7 @@ interface LoanRepository {
     /**
      * Lấy nội dung hợp đồng vay vốn theo ID khoản vay
      */
-    suspend fun getContractContent(loanId: String): Resource<String>
+    suspend fun getContractContent(loanId: String, lang: String = "vi"): Resource<String>
 
     /**
      * Gửi mã OTP tới SĐT của người dùng (Backend tự xác định SĐT)

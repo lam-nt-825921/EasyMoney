@@ -84,6 +84,23 @@ fun LoanListScreen(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(
+                        R.string.loan_list_filter_interest,
+                        uiState.maxInterest ?: 30.0
+                    ),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Slider(
+                    value = (uiState.maxInterest ?: 30.0).toFloat(),
+                    onValueChange = { viewModel.updateFilters(maxInterest = it.toDouble()) },
+                    valueRange = 0f..30f,
+                    steps = 5,
+                    colors = SliderDefaults.colors(thumbColor = TealPrimary, activeTrackColor = TealPrimary)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(text = stringResource(R.string.loan_list_filter_eligible_only), style = MaterialTheme.typography.bodyMedium)
@@ -131,7 +148,7 @@ fun LoanListScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (uiState.errorMessage != null) {
                 Text(
-                    text = uiState.errorMessage ?: "Lỗi tải dữ liệu",
+                    text = uiState.errorMessage ?: stringResource(R.string.loan_detail_load_error),
                     modifier = Modifier.align(Alignment.Center),
                     color = MaterialTheme.colorScheme.error
                 )
@@ -204,7 +221,10 @@ fun LoanPackageCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (loanPackage.isEligible) "Đủ điều kiện" else "Chưa phù hợp",
+                            text = stringResource(
+                                if (loanPackage.isEligible) R.string.loan_list_eligible
+                                else R.string.loan_list_not_suitable
+                            ),
                             style = MaterialTheme.typography.labelSmall,
                             color = if (loanPackage.isEligible) Color(0xFF2E7D32) else Color(0xFFC62828)
                         )
@@ -216,12 +236,12 @@ fun LoanPackageCard(
             
             Row(modifier = Modifier.fillMaxWidth()) {
                 InfoColumn(
-                    label = "Hạn mức lên tới",
+                    label = stringResource(R.string.loan_list_label_max_amount),
                     value = "%,dđ".format(loanPackage.maxAmount).replace(',', '.'),
                     modifier = Modifier.weight(1f)
                 )
                 InfoColumn(
-                    label = "Lãi suất từ",
+                    label = stringResource(R.string.loan_list_label_interest_from),
                     value = "${loanPackage.interest}%/năm",
                     modifier = Modifier.weight(1f)
                 )
@@ -231,9 +251,9 @@ fun LoanPackageCard(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = when(loanPackage.ineligibilityReason) {
-                        "MISSING_PROFILE" -> "Cần hoàn thiện hồ sơ"
-                        "LOW_CREDIT_SCORE" -> "Điểm tín dụng chưa đủ"
-                        else -> "Không đủ điều kiện"
+                        "MISSING_PROFILE" -> stringResource(R.string.loan_list_reason_missing_profile)
+                        "LOW_CREDIT_SCORE" -> stringResource(R.string.loan_list_reason_low_credit)
+                        else -> stringResource(R.string.loan_list_reason_ineligible)
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = Color(0xFFC62828),

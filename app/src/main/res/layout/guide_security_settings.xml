@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bảo mật tài khoản"
+        android:text="@string/guide_security_settings_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Đổi mật khẩu, bật xác thực sinh trắc học 2FA. Khi bật 2FA, một số thao tác quan trọng sẽ yêu cầu xác thực bằng vân tay hoặc khuôn mặt."
+        android:text="@string/guide_security_settings_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

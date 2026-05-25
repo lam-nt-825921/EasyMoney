@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Quản lý nguồn tiền"
+        android:text="@string/guide_money_management_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Xem số dư, lịch sử dòng tiền và bật/tắt tự động thanh toán. Bấm Nạp/Rút để chuyển sang màn tương ứng."
+        android:text="@string/guide_money_management_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

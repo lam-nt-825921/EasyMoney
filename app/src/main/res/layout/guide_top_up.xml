@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nạp tiền"
+        android:text="@string/guide_top_up_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Chọn thẻ nguồn, nhập số tiền cần nạp và xác nhận. Số dư ví sẽ cập nhật sau khi giao dịch thành công."
+        android:text="@string/guide_top_up_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

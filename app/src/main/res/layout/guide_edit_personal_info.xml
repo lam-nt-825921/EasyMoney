@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sửa thông tin cá nhân"
+        android:text="@string/guide_edit_personal_info_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Cập nhật họ tên, ngày sinh, giới tính, CCCD. Một số trường bắt buộc — không thể lưu nếu để trống."
+        android:text="@string/guide_edit_personal_info_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

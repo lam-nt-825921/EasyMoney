@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sửa công việc &amp; thu nhập"
+        android:text="@string/guide_edit_job_info_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Khai báo nghề nghiệp, chức vụ, thu nhập hằng tháng. Thông tin chính xác giúp đánh giá hạn mức tốt hơn."
+        android:text="@string/guide_edit_job_info_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

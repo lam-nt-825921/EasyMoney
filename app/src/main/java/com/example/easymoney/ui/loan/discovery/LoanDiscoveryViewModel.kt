@@ -58,21 +58,16 @@ class LoanDiscoveryViewModel @Inject constructor(
                 minAmount = state.minAmount,
                 maxAmount = state.maxAmount,
                 tenor = state.tenor,
-                eligibleOnly = state.eligibleOnly
+                eligibleOnly = state.eligibleOnly,
+                keyword = state.keyword,
+                minInterest = state.minInterest,
+                maxInterest = state.maxInterest,
+                hotOnly = state.hotOnly,
+                newOnly = state.newOnly,
+                promotionalOnly = state.promotionalOnly
             )) {
                 is Resource.Success -> {
-                    // Workflow #29 — apply extended filters client-side over repo result.
-                    // REMOTE mode sẽ chuyển filter sang query params (TODO trong LoanRepository).
-                    val filtered = result.data.filter { pkg ->
-                        (!state.hotOnly || pkg.isHot) &&
-                            (!state.newOnly || pkg.isNew) &&
-                            (!state.promotionalOnly || pkg.isPromotional) &&
-                            (state.minInterest == null || pkg.interest >= state.minInterest) &&
-                            (state.maxInterest == null || pkg.interest <= state.maxInterest) &&
-                            (state.keyword.isBlank() ||
-                                pkg.packageName.contains(state.keyword, ignoreCase = true))
-                    }
-                    _uiState.update { it.copy(packages = filtered, isLoading = false) }
+                    _uiState.update { it.copy(packages = result.data, isLoading = false) }
                 }
                 is Resource.Error -> {
                     _uiState.update { it.copy(errorMessage = result.message, isLoading = false) }

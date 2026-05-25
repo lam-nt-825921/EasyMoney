@@ -16,35 +16,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="1. Thông tin cá nhân: Hiển thị tên và lời chào dành cho bạn."
+        android:text="@string/guide_home_profile"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="2. Banner quảng cáo: Cập nhật các sự kiện ưu đãi và gói vay mới nhất. Bấm để xem chi tiết."
+        android:text="@string/guide_home_banner"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="3. Điểm thưởng: Theo dõi số điểm tích lũy và đổi các phần quà giá trị."
+        android:text="@string/guide_home_rewards"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="4. Chức năng chính:\n- Quản lý khoản vay: Xem các hợp đồng đang thực hiện.\n- Gợi ý khoản vay: Tìm kiếm gói vay phù hợp với hồ sơ của bạn."
+        android:text="@string/guide_home_features"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="5. Tư vấn tài chính: Trò chuyện với chuyên gia tư vấn (Chatbot) để được hỗ trợ 24/7."
+        android:text="@string/guide_home_chatbot"
         android:textSize="14sp" />
 
 </LinearLayout>

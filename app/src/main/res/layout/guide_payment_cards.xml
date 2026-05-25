@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Thẻ thanh toán"
+        android:text="@string/guide_payment_cards_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Thêm thẻ mới hoặc xóa thẻ đã liên kết. Thẻ phải được xác minh qua ngân hàng trước khi sử dụng."
+        android:text="@string/guide_payment_cards_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

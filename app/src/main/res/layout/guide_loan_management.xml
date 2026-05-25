@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Quản lý khoản vay"
+        android:text="@string/guide_loan_management_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Xem các hợp đồng đã được duyệt. Mỗi hợp đồng có hai lựa chọn: hủy hoặc tiến hành ký. Ký xong sẽ chuyển sang luồng eSign."
+        android:text="@string/guide_loan_management_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

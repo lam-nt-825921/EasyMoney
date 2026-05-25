@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sửa người liên hệ"
+        android:text="@string/guide_edit_contact_info_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Thêm hoặc đổi người liên hệ khẩn cấp. Số điện thoại phải hợp lệ và thuộc về người thân/đồng nghiệp."
+        android:text="@string/guide_edit_contact_info_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

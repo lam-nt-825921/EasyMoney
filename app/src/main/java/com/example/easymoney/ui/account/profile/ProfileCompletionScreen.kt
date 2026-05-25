@@ -15,14 +15,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.domain.model.ProfileVerificationStatus
 import com.example.easymoney.ui.common.identity.*
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ProfileCompletionScreen(
@@ -45,7 +47,7 @@ fun ProfileCompletionScreen(
             // Status Banner
             ProfileStatusBanner(
                 status = uiState.profile.verificationStatus,
-                message = uiState.profile.statusMessage ?: "Thông tin tài khoản"
+                message = uiState.profile.statusMessage ?: stringResource(R.string.profile_completion_status_default)
             )
 
             Column(
@@ -63,37 +65,41 @@ fun ProfileCompletionScreen(
 
                 // Personal Info Section
                 ProfileSectionCard(
-                    title = "Thông tin cá nhân",
+                    title = stringResource(R.string.profile_section_personal),
                     icon = Icons.Default.Person,
                     isCompleted = uiState.profile.personalInfo.fullName.isNotBlank(),
                     onClick = onNavigateToEditPersonalInfo
                 ) {
-                    InfoItem("Họ và tên", uiState.profile.personalInfo.fullName)
-                    InfoItem("Số điện thoại", uiState.profile.personalInfo.phoneNumber)
-                    InfoItem("Số CCCD", uiState.profile.personalInfo.nationalId)
+                    InfoItem(stringResource(R.string.profile_label_fullname), uiState.profile.personalInfo.fullName)
+                    InfoItem(stringResource(R.string.profile_label_phone), uiState.profile.personalInfo.phoneNumber)
+                    InfoItem(stringResource(R.string.profile_label_id_number), uiState.profile.personalInfo.nationalId)
                 }
 
                 // Job & Income Section
                 ProfileSectionCard(
-                    title = "Công việc & Thu nhập",
+                    title = stringResource(R.string.profile_section_job_income),
                     icon = Icons.Default.Work,
                     isCompleted = uiState.profile.jobInfo.jobTitle.isNotBlank(),
                     onClick = onNavigateToEditJobInfo
                 ) {
-                    InfoItem("Nghề nghiệp", uiState.profile.jobInfo.jobTitle)
-                    InfoItem("Thu nhập hàng tháng", "%,d VNĐ".format(uiState.profile.jobInfo.monthlyIncome))
+                    val income = NumberFormat.getNumberInstance(Locale.getDefault()).format(uiState.profile.jobInfo.monthlyIncome)
+                    InfoItem(stringResource(R.string.profile_label_job_title), uiState.profile.jobInfo.jobTitle)
+                    InfoItem(
+                        stringResource(R.string.profile_label_income),
+                        stringResource(R.string.profile_income_value, income, stringResource(R.string.profile_unit_currency_short))
+                    )
                 }
 
                 // Contact Info Section
                 ProfileSectionCard(
-                    title = "Người liên hệ",
+                    title = stringResource(R.string.profile_section_contact),
                     icon = Icons.Default.ContactPhone,
                     isCompleted = uiState.profile.contactInfo.contactName.isNotBlank(),
                     onClick = onNavigateToEditContactInfo
                 ) {
-                    InfoItem("Họ và tên", uiState.profile.contactInfo.contactName)
-                    InfoItem("Mối quan hệ", uiState.profile.contactInfo.relationship)
-                    InfoItem("Số điện thoại", uiState.profile.contactInfo.phoneNumber)
+                    InfoItem(stringResource(R.string.profile_label_fullname), uiState.profile.contactInfo.contactName)
+                    InfoItem(stringResource(R.string.profile_label_relationship), uiState.profile.contactInfo.relationship)
+                    InfoItem(stringResource(R.string.profile_label_phone), uiState.profile.contactInfo.phoneNumber)
                 }
             }
         }
@@ -103,7 +109,7 @@ fun ProfileCompletionScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.9f))
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.9f))
             ) {
                 when (module) {
                     IdentityModule.FACE_CAPTURE -> {
@@ -125,7 +131,7 @@ fun ProfileCompletionScreen(
                     }
                     IdentityModule.DOCUMENT_UPLOAD -> {
                         DocumentUploadModule(
-                            onResult = { viewModel.closeModule() },
+                            onResult = { viewModel.onDocumentUploadResult(it) },
                             onDismiss = { viewModel.closeModule() },
                             onError = { /* Show toast */ }
                         )
@@ -137,7 +143,11 @@ fun ProfileCompletionScreen(
                     onClick = { viewModel.closeModule() },
                     modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.dialog_button_close),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
         }
@@ -149,18 +159,19 @@ fun ProfileStatusBanner(
     status: ProfileVerificationStatus,
     message: String
 ) {
+    val scheme = MaterialTheme.colorScheme
     val (bgColor, textColor, icon) = when (status) {
         ProfileVerificationStatus.VERIFIED -> Triple(
-            Color(0xFFE8F5E9), Color(0xFF2E7D32), Icons.Default.CheckCircle
+            scheme.primaryContainer, scheme.onPrimaryContainer, Icons.Default.CheckCircle
         )
         ProfileVerificationStatus.PENDING -> Triple(
-            Color(0xFFE3F2FD), Color(0xFF1565C0), Icons.Default.History
+            scheme.secondaryContainer, scheme.onSecondaryContainer, Icons.Default.History
         )
         ProfileVerificationStatus.INCOMPLETE -> Triple(
-            Color(0xFFFFF3E0), Color(0xFFEF6C00), Icons.Default.Info
+            scheme.tertiaryContainer, scheme.onTertiaryContainer, Icons.Default.Info
         )
         ProfileVerificationStatus.REJECTED, ProfileVerificationStatus.EXPIRED -> Triple(
-            Color(0xFFFFEBEE), Color(0xFFC62828), Icons.Default.Error
+            scheme.errorContainer, scheme.onErrorContainer, Icons.Default.Error
         )
     }
 
@@ -199,33 +210,40 @@ fun IdentitySection(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Xác thực danh tính",
+                text = stringResource(R.string.identity_section_title),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.identity_document_alternative_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
             
             IdentityTaskItem(
-                title = "Xác thực khuôn mặt (eKYC)",
+                title = stringResource(R.string.ekyc_step_face),
                 isDone = status.isFaceVerified,
                 onClick = onFaceClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(
-                title = "Quét thẻ chip CCCD (NFC)",
+                title = stringResource(R.string.ekyc_step_nfc),
                 isDone = status.isNfcVerified,
                 onClick = onNfcClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(
-                title = "Sinh trắc học thiết bị",
+                title = stringResource(R.string.ekyc_step_bio),
                 isDone = status.isBiometricEnabled,
                 onClick = onBiometricClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(
-                title = "Tải hồ sơ/giấy tờ",
-                isDone = false,
+                title = stringResource(R.string.ekyc_step_docs),
+                isDone = status.isDocumentUploadVerified,
                 onClick = onDocumentClick
             )
         }
@@ -248,7 +266,7 @@ fun IdentityTaskItem(
         Icon(
             imageVector = if (isDone) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
             contentDescription = null,
-            tint = if (isDone) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -282,7 +300,7 @@ fun ProfileSectionCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 if (isCompleted) {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -293,7 +311,7 @@ fun ProfileSectionCard(
                 modifier = Modifier.align(Alignment.End),
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text(text = if (isCompleted) "Chỉnh sửa" else "Bổ sung ngay")
+                Text(text = stringResource(if (isCompleted) R.string.action_edit else R.string.action_complete_now))
             }
         }
     }
@@ -303,6 +321,6 @@ fun ProfileSectionCard(
 fun InfoItem(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text(text = value.ifBlank { "Chưa cập nhật" }, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+        Text(text = value.ifBlank { stringResource(R.string.profile_value_not_updated) }, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
     }
 }

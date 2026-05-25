@@ -16,35 +16,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Đây là màn hình tóm tắt thông tin gói vay trước khi bạn tiến hành đăng ký."
+        android:text="@string/guide_onboarding_intro"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="1. Lý do lựa chọn: Các ưu điểm vượt trội của dịch vụ (nhanh, đơn giản, tin cậy)."
+        android:text="@string/guide_onboarding_reasons"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="2. Thông tin sản phẩm: Hiển thị hạn mức tối đa, kỳ hạn và lãi suất tham khảo."
+        android:text="@string/guide_onboarding_product"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="3. Thông tin đơn vị cho vay: Tên tổ chức tài chính và thông tin liên hệ chính thức."
+        android:text="@string/guide_onboarding_provider"
         android:textSize="14sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Vui lòng đọc kỹ điều khoản sử dụng trước khi bấm 'Trải nghiệm ngay' để bắt đầu luồng đăng ký hồ sơ."
+        android:text="@string/guide_onboarding_terms"
         android:textSize="14sp"
         android:textStyle="italic" />
 

@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cài đặt chung"
+        android:text="@string/guide_general_settings_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Đổi ngôn ngữ, bật/tắt thông báo, đổi chủ đề tối/sáng. Thay đổi được áp dụng ngay sau khi chọn."
+        android:text="@string/guide_general_settings_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

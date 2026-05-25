@@ -19,6 +19,21 @@ interface LoanApiService {
     @GET("api/v1/loan/package/my")
     suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
 
+    @GET("api/v1/loan/package")
+    suspend fun getLoanPackages(
+        @Query("minAmount") minAmount: Long? = null,
+        @Query("maxAmount") maxAmount: Long? = null,
+        @Query("tenor") tenor: Int? = null,
+        @Query("eligibleOnly") eligibleOnly: Boolean = false,
+        @Query("keyword") keyword: String? = null,
+        @Query("minInterest") minInterest: Double? = null,
+        @Query("maxInterest") maxInterest: Double? = null,
+        @Query("hotOnly") hotOnly: Boolean = false,
+        @Query("newOnly") newOnly: Boolean = false,
+        @Query("promotionalOnly") promotionalOnly: Boolean = false,
+        @Query("lang") lang: String = "vi"
+    ): ApiResponse<List<LoanPackageModel>>
+
     // Workflow #30 — Master data nhận query ?lang=vi|en
     @GET("api/v1/master/metadata")
     suspend fun getMasterDataMetadata(@Query("lang") lang: String = "vi"): ApiResponse<MasterDataMetadataDto>
@@ -50,6 +65,13 @@ interface LoanApiService {
     @POST("api/v1/otp/verify")
     suspend fun verifyOtp(@Body request: OtpVerifyRequest): ApiResponse<Unit>
 
+    // --- Contracts ---
+    @GET("api/v1/contracts/{contractId}")
+    suspend fun getContractContent(
+        @Path("contractId") contractId: String,
+        @Query("lang") lang: String = "vi"
+    ): ApiResponse<ContractContentDto>
+
     // --- Notifications ---
     @GET("api/v1/notifications")
     suspend fun getNotifications(): ApiResponse<List<NotificationDto>>
@@ -75,6 +97,12 @@ data class FcmTestRequest(
 
 data class OtpRequest(val purpose: String)
 data class OtpVerifyRequest(val otp: String, val purpose: String)
+
+data class ContractContentDto(
+    @SerializedName("contractId") val contractId: String,
+    @SerializedName("content") val content: String,
+    @SerializedName("lang") val lang: String
+)
 
 data class LoginRequestDto(
     @SerializedName("phone") val phone: String,

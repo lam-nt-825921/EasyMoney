@@ -13,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +32,10 @@ fun DocumentUploadModule(
     maxFileSizeBytes: Long = 5 * 1024 * 1024 // Default 5MB
 ) {
     val context = LocalContext.current
+    val fileTooLargeMessage = stringResource(
+        R.string.document_upload_file_too_large,
+        maxFileSizeBytes / (1024 * 1024)
+    )
 
     // File Picker Launcher
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -41,7 +44,7 @@ fun DocumentUploadModule(
         uri?.let {
             val fileInfo = getFileInfo(context, it)
             if (fileInfo.size > maxFileSizeBytes) {
-                onError("File quá lớn. Vui lòng chọn file dưới ${maxFileSizeBytes / (1024 * 1024)}MB")
+                onError(fileTooLargeMessage)
             } else {
                 onResult(
                     DocumentResult(

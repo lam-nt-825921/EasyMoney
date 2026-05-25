@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,9 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.easymoney.R
-import com.example.easymoney.ui.theme.TealPrimary
-import com.example.easymoney.ui.theme.TextPrimary
-import com.example.easymoney.ui.theme.TextSecondary
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,7 +37,7 @@ fun EventDetailScreen(
             state.errorMessage != null -> Text(
                 text = state.errorMessage.orEmpty(),
                 modifier = Modifier.align(Alignment.Center),
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             state.event != null -> {
                 val event = state.event!!
@@ -54,13 +50,13 @@ fun EventDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
-                            .background(TealPrimary.copy(alpha = 0.1f)),
+                            .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
-                            tint = TealPrimary,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(64.dp)
                         )
                     }
@@ -70,21 +66,21 @@ fun EventDetailScreen(
                             text = event.title,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Surface(
-                            color = Color(0xFFF2F4F7),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = stringResource(
                                     R.string.event_time_label,
-                                    event.expiryDate?.let(::formatExpiry) ?: ""
+                                    event.expiryDate?.let(::formatExpiryDate) ?: ""
                                 ),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = TextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Spacer(modifier = Modifier.height(24.dp))
@@ -92,7 +88,7 @@ fun EventDetailScreen(
                             text = event.content,
                             style = MaterialTheme.typography.bodyLarge,
                             lineHeight = 24.sp,
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(100.dp))
                     }
@@ -103,7 +99,7 @@ fun EventDetailScreen(
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth(),
                     shadowElevation = 8.dp,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Button(
                         onClick = { viewModel.joinEvent() },
@@ -112,7 +108,10 @@ fun EventDetailScreen(
                             .padding(16.dp)
                             .height(52.dp),
                         shape = RoundedCornerShape(26.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Text(stringResource(R.string.event_join_now), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
@@ -122,7 +121,7 @@ fun EventDetailScreen(
     }
 }
 
-private fun formatExpiry(timestamp: Long): String {
+private fun formatExpiryDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return "Đến ${sdf.format(Date(timestamp))}"
+    return sdf.format(Date(timestamp))
 }

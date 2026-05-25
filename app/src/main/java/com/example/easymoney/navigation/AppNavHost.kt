@@ -369,7 +369,11 @@ fun AppNavHost(
         }
 
         composable(AppDestination.Profile.route) {
-            ProfileScreen(onBack = { navController.popBackStack() })
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onEditProfile = { navController.navigate(AppDestination.IdentityVerification.route) },
+                onVerifyIdentity = { navController.navigate(AppDestination.IdentityVerification.route) }
+            )
         }
 
         composable(AppDestination.GeneralSettings.route) {

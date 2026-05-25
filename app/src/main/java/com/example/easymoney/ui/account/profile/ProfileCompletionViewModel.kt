@@ -85,6 +85,21 @@ class ProfileCompletionViewModel @Inject constructor(
         closeModule()
     }
 
+    fun onDocumentUploadResult(result: DocumentResult) {
+        if (result.fileUri != null || result.isFromCamera) {
+            updateIdentityStatus { it.copy(isDocumentUploadVerified = true) }
+        }
+        closeModule()
+    }
+
+    fun updateAvatar(uri: String) {
+        val updatedProfile = _uiState.value.profile.copy(avatarUri = uri)
+        viewModelScope.launch {
+            userRepository.updateProfile(updatedProfile)
+            _uiState.update { it.copy(profile = updatedProfile) }
+        }
+    }
+
     private fun updateIdentityStatus(update: (com.example.easymoney.domain.model.IdentityVerificationStatus) -> com.example.easymoney.domain.model.IdentityVerificationStatus) {
         val currentProfile = _uiState.value.profile
         val newStatus = update(currentProfile.identityStatus)

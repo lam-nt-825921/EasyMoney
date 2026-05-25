@@ -19,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.easymoney.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +67,7 @@ fun AppNavigationBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(id = R.string.common_back)
                     )
                 }
             }
@@ -75,7 +77,7 @@ fun AppNavigationBar(
                 IconButton(onClick = onHelpClick) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Help",
+                        contentDescription = stringResource(id = R.string.common_help),
                         modifier = Modifier.size(22.dp)
                     )
                 }

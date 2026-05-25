@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Đổi điểm thưởng"
+        android:text="@string/guide_rewards_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Dùng điểm tích lũy để đổi voucher hoặc ưu đãi. Bấm vào quà bạn muốn đổi, xác nhận và làm theo hướng dẫn."
+        android:text="@string/guide_rewards_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

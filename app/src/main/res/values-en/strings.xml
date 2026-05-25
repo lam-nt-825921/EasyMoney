@@ -134,6 +134,8 @@
     <!-- General -->
     <string name="common_points_unit">pts</string>
     <string name="common_loading">Loading...</string>
+    <string name="common_back">Back</string>
+    <string name="common_help">Help</string>
 
     <!-- Loan Management (workflow #12) -->
     <string name="loan_management_empty">You do not have any approved contracts</string>
@@ -148,10 +150,13 @@
     <string name="action_confirm">Confirm</string>
     <string name="action_dismiss">Cancel</string>
     <string name="action_retry">Retry</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_complete_now">Complete now</string>
 
     <!-- Terms (workflow #15) -->
     <string name="terms_title">Terms and Policies</string>
     <string name="terms_body_placeholder">The terms and policies of EasyMoney will be updated when the official documents are ready. Please contact the call center for details.</string>
+    <string name="terms_body">1. Scope\nThese terms apply to EasyMoney account registration, account usage, loan package browsing, loan application submission, electronic contract signing, and wallet/payment services in the application.\n\n2. User responsibilities\nYou must provide accurate information, update it when it changes, and protect your account, OTP, and biometric authentication methods. You are responsible for actions performed from a valid signed-in account.\n\n3. Profile and identity verification\nEasyMoney may request face verification, NFC chip ID scanning, or document image upload depending on the device and review flow. NFC and document upload are alternative methods; one successful document verification method is sufficient when required by the system.\n\n4. Loans and contracts\nLoan limit, term, interest, fees, repayment schedule, and payment obligations are shown before confirmation. The electronic contract becomes effective after you accept the terms, verify OTP, and complete signing in the application.\n\n5. Notifications and contact\nThe application may send notifications about application status, contracts, transactions, offers, and repayment reminders. You can change notification preferences in Settings.\n\n6. Security and data\nEasyMoney processes personal data to verify identity, review applications, manage loans, prevent fraud, and comply with legal requirements. Data is stored, transmitted, and permissioned according to system security policies.\n\n7. Support\nFor account, contract, loan, or transaction support, please contact hotline %1$s or official support channels in the application.</string>
     <string name="hotline_number">19001234</string>
 
     <!-- TopUp / Withdraw (workflow #8 / #9) -->
@@ -195,6 +200,22 @@
     <string name="profile_label_phone">Phone number</string>
     <string name="profile_label_relationship">Relationship</string>
     <string name="profile_unit_currency_short">VND</string>
+    <string name="profile_avatar_content_desc">Profile avatar</string>
+    <string name="profile_update_avatar">Update avatar</string>
+    <string name="profile_edit_button">Edit profile</string>
+    <string name="profile_label_permanent_address">Permanent address</string>
+    <string name="profile_label_current_address">Current address</string>
+    <string name="profile_label_job_title">Job</string>
+    <string name="profile_income_value">%1$s %2$s</string>
+    <string name="profile_value_not_updated">Not updated</string>
+    <string name="profile_completion_status_default">Account information</string>
+    <string name="identity_section_title">Identity verification</string>
+    <string name="identity_document_alternative_note">Verify documents with NFC or document upload. One successful method is enough.</string>
+    <string name="profile_summary_identity">ID: %1$s</string>
+    <string name="profile_manage_identity_title">Manage profile and identity</string>
+    <string name="profile_manage_identity_desc">Update personal, job, contact information and complete verification.</string>
+    <string name="profile_identity_prompt_title">Complete identity verification</string>
+    <string name="profile_identity_prompt_desc">Verify your face and documents to unlock the full limit. You can use NFC or document upload.</string>
 
     <string name="profile_section_basic">Basic Information</string>
     <string name="profile_section_address">Address</string>
@@ -229,6 +250,15 @@
     <string name="loan_detail_section_info">Detailed Information</string>
     <string name="loan_detail_section_conditions">Registration Conditions</string>
     <string name="loan_detail_register_now">Register now</string>
+    <string name="loan_detail_load_error">Unable to load data</string>
+    <string name="loan_detail_label_amount_limit">Loan limit</string>
+    <string name="loan_detail_label_tenor">Loan term</string>
+    <string name="loan_detail_label_interest">Promotional interest</string>
+    <string name="loan_detail_label_overdue_cost">Overdue fee</string>
+    <string name="loan_detail_amount_range">%1$s - %2$s VND</string>
+    <string name="loan_detail_tenor_months">%1$s months</string>
+    <string name="loan_detail_interest_year">%1$.2f%%/year</string>
+    <string name="loan_detail_overdue_day">%1$.2f%%/day</string>
 
     <!-- Loan Confirmation -->
     <string name="loan_review_section_loan">Loan Information</string>
@@ -243,6 +273,86 @@
 
     <!-- Guide -->
     <string name="guide_title_default">User Guide</string>
+    <string name="guide_title_for_screen">Guide: %1$s</string>
+    <string name="guide_confirm_information_title">Confirm information</string>
+    <string name="guide_confirm_information_message">Review your personal information, loan details, and receiving method before tapping Confirm. Once confirmed, the application is sent for review.</string>
+    <string name="guide_contract_title">Loan contract</string>
+    <string name="guide_contract_message">Read the contract terms carefully. Tap the link to view details. After accepting, tap Sign contract to continue to eSign.</string>
+    <string name="guide_default_updating_title">Guide content is being updated</string>
+    <string name="guide_default_updating_message">Guidance for this page will be added in a future version.</string>
+    <string name="guide_edit_contact_info_title">Edit contact person</string>
+    <string name="guide_edit_contact_info_message">Add or update your emergency contact. The phone number must be valid and belong to a relative or colleague.</string>
+    <string name="guide_edit_job_info_title">Edit job &amp; income</string>
+    <string name="guide_edit_job_info_message">Enter your profession, position, and monthly income. Accurate information helps improve limit assessment.</string>
+    <string name="guide_edit_personal_info_title">Edit personal information</string>
+    <string name="guide_edit_personal_info_message">Update full name, date of birth, gender, and ID number. Required fields cannot be left blank.</string>
+    <string name="guide_event_detail_title">Event details</string>
+    <string name="guide_event_detail_message">View event content, validity period, and participation conditions. Tap Join now to register if eligible.</string>
+    <string name="guide_general_settings_title">General settings</string>
+    <string name="guide_general_settings_message">Change language, notification settings, and light/dark theme. Changes apply immediately after selection.</string>
+    <string name="guide_home_profile">1. Personal information: Shows your name and greeting.</string>
+    <string name="guide_home_banner">2. Promotional banners: Shows latest offers, events, and loan packages. Tap to view details.</string>
+    <string name="guide_home_rewards">3. Reward points: Track accumulated points and redeem available benefits.</string>
+    <string name="guide_home_features">4. Main features:\n- Loan management: View active contracts.\n- Suggested loans: Find loan packages that fit your profile.</string>
+    <string name="guide_home_chatbot">5. Financial advisor: Chat with the chatbot for support.</string>
+    <string name="guide_identity_verification_title">Identity verification</string>
+    <string name="guide_identity_verification_message">Choose one method: scan the chip ID card with NFC or upload document images. One successful method is enough.</string>
+    <string name="guide_loan_detail_name">1. Package name: Shows the loan brand and suitable customer profile.</string>
+    <string name="guide_loan_detail_specs">2. Loan specs: Review eligible amount range, term, and interest details.</string>
+    <string name="guide_loan_detail_conditions">3. Registration conditions: Basic age, income, and credit-history requirements.</string>
+    <string name="guide_loan_detail_example">4. Example: Helps estimate monthly repayment from a sample loan.</string>
+    <string name="guide_loan_detail_register">Tap \'Register now\' for the system to check your eligibility.</string>
+    <string name="guide_loan_list_title">Loan package list</string>
+    <string name="guide_loan_list_message">Use filters for amount, term, and interest rate to find suitable packages. Tap a package to view details and register.</string>
+    <string name="guide_loan_management_title">Loan management</string>
+    <string name="guide_loan_management_message">View approved contracts. Each contract can be cancelled or signed. Signing continues to the eSign flow.</string>
+    <string name="guide_money_management_title">Money management</string>
+    <string name="guide_money_management_message">View balance, recent cash flow, and automatic payment status. Tap Top up or Withdraw to continue.</string>
+    <string name="guide_onboarding_intro">This screen summarizes the loan package before you start registration.</string>
+    <string name="guide_onboarding_reasons">1. Reasons to choose: Key service benefits such as speed, simplicity, and reliability.</string>
+    <string name="guide_onboarding_product">2. Product information: Shows max limit, term, and reference interest rate.</string>
+    <string name="guide_onboarding_provider">3. Loan provider: Official financial institution name and contact information.</string>
+    <string name="guide_onboarding_terms">Please read the terms carefully before tapping \'Start now\' to begin registration.</string>
+    <string name="guide_payment_cards_title">Payment cards</string>
+    <string name="guide_payment_cards_message">Add a new card or remove a linked card. Cards must be verified by the bank before use.</string>
+    <string name="guide_profile_title">Personal profile</string>
+    <string name="guide_profile_message">Update personal, address, job, and identity status information. A complete profile can improve limits and approval speed.</string>
+    <string name="guide_rewards_title">Rewards</string>
+    <string name="guide_rewards_message">Use accumulated points to redeem vouchers or offers. Tap a reward, confirm, and follow the instructions.</string>
+    <string name="guide_security_settings_title">Account security</string>
+    <string name="guide_security_settings_message">Change password and enable biometric 2FA. When 2FA is on, important actions may require fingerprint or face authentication.</string>
+    <string name="guide_top_up_title">Top up</string>
+    <string name="guide_top_up_message">Choose a source card, enter the amount, and confirm. Wallet balance updates after a successful transaction.</string>
+    <string name="guide_withdraw_title">Withdraw</string>
+    <string name="guide_withdraw_message">Choose a receiving card and enter an amount within your balance. If 2FA is enabled, biometric authentication is required before withdrawal.</string>
+    <!-- Navigation titles -->
+    <string name="nav_confirm_information">Confirm information</string>
+    <string name="nav_loan_information">Loan information</string>
+    <string name="nav_transaction_history">Transaction history</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_page_guide">Guide</string>
+    <string name="nav_sandbox">Sandbox Developer</string>
+    <string name="nav_contract">Your contract</string>
+    <string name="nav_esign_success">Contract signed</string>
+    <string name="nav_event_detail">Event details</string>
+    <string name="nav_rewards">Rewards</string>
+    <string name="nav_loan_list">Loan packages</string>
+    <string name="nav_loan_detail">Loan package details</string>
+    <string name="nav_profile">Personal profile</string>
+    <string name="nav_money_management">Money management</string>
+    <string name="nav_payment_cards">Payment cards</string>
+    <string name="nav_general_settings">Settings</string>
+    <string name="nav_security_settings">Account security</string>
+    <string name="nav_chatbot">Financial advisor</string>
+    <string name="nav_identity_verification">Identity verification</string>
+    <string name="nav_top_up">Top up</string>
+    <string name="nav_withdraw">Withdraw</string>
+    <string name="nav_terms">Terms and policies</string>
+    <string name="nav_loan_management">Loan management</string>
+    <string name="nav_edit_personal_info">Personal information</string>
+    <string name="nav_edit_job_info">Job &amp; income</string>
+    <string name="nav_edit_contact_info">Contact person</string>
     <!-- OTP Dialog -->
     <string name="otp_title">OTP Verification</string>
     <string name="otp_desc_1">Please enter the OTP sent to phone number </string>
@@ -262,6 +372,15 @@
     <string name="history_balance_label">Balance: %1$s VND</string>
     <string name="event_time_label">Time: %1$s</string>
     <string name="event_join_now">Join now</string>
+    <!-- Notification -->
+    <string name="notification_tab_balance">Balance</string>
+    <string name="notification_tab_promotion">Promotions</string>
+    <string name="notification_tab_reminder">Reminders</string>
+    <string name="notification_search_hint">Search notifications</string>
+    <string name="notification_month_label">%1$s</string>
+    <string name="notification_amount_positive">+%1$s VND</string>
+    <string name="notification_amount_negative">-%1$s VND</string>
+    <string name="notification_empty">No notifications yet</string>
     <!-- Rewards -->
     <string name="reward_current_points">Your current points</string>
     <string name="reward_featured_gifts">Featured financial gifts</string>
@@ -300,6 +419,14 @@
     <string name="loan_list_filter_promotional">Promo</string>
     <string name="loan_list_filter_keyword_hint">Search by package name</string>
     <string name="loan_list_filter_reset">Reset filters</string>
+    <string name="loan_list_filter_interest">Max interest: %1$.1f%%/year</string>
+    <string name="loan_list_eligible">Eligible</string>
+    <string name="loan_list_not_suitable">Not suitable</string>
+    <string name="loan_list_label_max_amount">Limit up to</string>
+    <string name="loan_list_label_interest_from">Interest from</string>
+    <string name="loan_list_reason_missing_profile">Complete your profile first</string>
+    <string name="loan_list_reason_low_credit">Credit score is not high enough</string>
+    <string name="loan_list_reason_ineligible">Not eligible</string>
     <string name="loan_confirm_button">Confirm</string>
     <string name="loan_breakdown_total_estimate">Estimated total</string>
     <string name="loan_breakdown_total_payment">Total to repay\n(estimated)</string>
@@ -324,6 +451,7 @@
     <string name="document_upload_camera">Take photo</string>
     <string name="document_upload_gallery">Gallery</string>
     <string name="document_upload_cancel">Cancel</string>
+    <string name="document_upload_file_too_large">File is too large. Please choose a file under %1$dMB</string>
     <string name="face_capture_camera_denied">Camera permission denied</string>
     <string name="face_capture_close">Close</string>
     <string name="face_capture_status_initial">Please place your face inside the frame</string>
@@ -334,5 +462,6 @@
     <string name="nfc_status_unsupported">Device does not support NFC</string>
     <string name="nfc_status_disabled">Please enable NFC in settings</string>
     <string name="nfc_status_reading">Card detected, reading data…</string>
+    <string name="nfc_status_read_error">Card read failed: %1$s</string>
     <string name="nfc_button_cancel">Cancel</string>
 </resources>

@@ -123,6 +123,50 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
+    suspend fun getLoanPackages(
+        minAmount: Long?,
+        maxAmount: Long?,
+        tenor: Int?,
+        eligibleOnly: Boolean,
+        keyword: String,
+        minInterest: Double?,
+        maxInterest: Double?,
+        hotOnly: Boolean,
+        newOnly: Boolean,
+        promotionalOnly: Boolean,
+        lang: String = "vi"
+    ): Resource<List<LoanPackageModel>> {
+        return try {
+            val response = apiService.getLoanPackages(
+                minAmount = minAmount,
+                maxAmount = maxAmount,
+                tenor = tenor,
+                eligibleOnly = eligibleOnly,
+                keyword = keyword.ifBlank { null },
+                minInterest = minInterest,
+                maxInterest = maxInterest,
+                hotOnly = hotOnly,
+                newOnly = newOnly,
+                promotionalOnly = promotionalOnly,
+                lang = lang
+            )
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Fetch loan packages failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun getContractContent(contractId: String, lang: String = "vi"): Resource<String> {
+        return try {
+            val response = apiService.getContractContent(contractId, lang)
+            if (response.status == "success") Resource.Success(response.data.content)
+            else Resource.Error(response.message ?: "Fetch contract failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
     suspend fun getNotifications(): Resource<List<NotificationDto>> {
         return try {
             val response = apiService.getNotifications()

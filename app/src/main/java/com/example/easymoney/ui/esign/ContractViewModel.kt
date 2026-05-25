@@ -2,6 +2,7 @@ package com.example.easymoney.ui.esign
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.LoanRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +27,7 @@ class ContractViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            when (val result = loanRepository.getContractContent(loanId)) {
+            when (val result = loanRepository.getContractContent(loanId, currentLanguageTag())) {
                 is Resource.Success -> {
                     _uiState.update { it.copy(
                         contractContent = result.data ?: "",
@@ -86,5 +88,11 @@ class ContractViewModel @Inject constructor(
     fun signContract(onSuccess: () -> Unit) {
         // Thay vì ký trực tiếp, bây giờ hiển thị OTP
         showOtpDialog()
+    }
+
+    private fun currentLanguageTag(): String {
+        return AppCompatDelegate.getApplicationLocales()[0]?.language
+            ?: Locale.getDefault().language
+            ?: "vi"
     }
 }

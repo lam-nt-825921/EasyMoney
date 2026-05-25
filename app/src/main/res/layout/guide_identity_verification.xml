@@ -9,7 +9,7 @@
         android:id="@+id/tvGuideTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Định danh tài khoản"
+        android:text="@string/guide_identity_verification_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary" />
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Chọn một trong hai cách: quét NFC trên thẻ CCCD hoặc tải ảnh giấy tờ. Chỉ cần một phương thức thành công là đủ."
+        android:text="@string/guide_identity_verification_message"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary" />
 

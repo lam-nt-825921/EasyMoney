@@ -14,17 +14,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.easymoney.ui.theme.TealPrimary
-import com.example.easymoney.ui.theme.TextPrimary
-import com.example.easymoney.ui.theme.TextSecondary
 import com.example.easymoney.ui.home.EligibilityUiState
 import com.example.easymoney.R
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun LoanDetailScreen(
@@ -54,18 +52,21 @@ fun LoanDetailScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FA))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else if (uiState.errorMessage != null) {
             Text(
-                text = uiState.errorMessage ?: "Lỗi tải dữ liệu",
+                text = uiState.errorMessage ?: stringResource(R.string.loan_detail_load_error),
                 modifier = Modifier.align(Alignment.Center),
                 color = MaterialTheme.colorScheme.error
             )
         } else {
             uiState.selectedPackage?.let { loanPackage ->
+                val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
+                val minAmount = numberFormat.format(loanPackage.minAmount)
+                val maxAmount = numberFormat.format(loanPackage.maxAmount)
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -76,7 +77,7 @@ fun LoanDetailScreen(
                     // Header Card
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 1.dp
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
@@ -84,27 +85,39 @@ fun LoanDetailScreen(
                                 text = loanPackage.packageName,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = TealPrimary
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = stringResource(R.string.loan_detail_eligibility_note, loanPackage.eligibleCreditScore.toString()),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
 
                     // Details Card
-                    DetailSection(title = "Thông tin chi tiết") {
-                        DetailItem(label = "Hạn mức vay", value = "%,d - %,dđ".format(loanPackage.minAmount, loanPackage.maxAmount).replace(',', '.'))
-                        DetailItem(label = "Thời hạn vay", value = "${loanPackage.tenorRange} tháng")
-                        DetailItem(label = "Lãi suất ưu đãi", value = "${loanPackage.interest}%/năm")
-                        DetailItem(label = "Phí quá hạn", value = "${loanPackage.overdueCost}%/ngày")
+                    DetailSection(title = stringResource(R.string.loan_detail_section_info)) {
+                        DetailItem(
+                            label = stringResource(R.string.loan_detail_label_amount_limit),
+                            value = stringResource(R.string.loan_detail_amount_range, minAmount, maxAmount)
+                        )
+                        DetailItem(
+                            label = stringResource(R.string.loan_detail_label_tenor),
+                            value = stringResource(R.string.loan_detail_tenor_months, loanPackage.tenorRange)
+                        )
+                        DetailItem(
+                            label = stringResource(R.string.loan_detail_label_interest),
+                            value = stringResource(R.string.loan_detail_interest_year, loanPackage.interest)
+                        )
+                        DetailItem(
+                            label = stringResource(R.string.loan_detail_label_overdue_cost),
+                            value = stringResource(R.string.loan_detail_overdue_day, loanPackage.overdueCost)
+                        )
                     }
 
                     // Conditions Card
-                    DetailSection(title = "Điều kiện đăng ký") {
+                    DetailSection(title = stringResource(R.string.loan_detail_section_conditions)) {
                         ConditionItem(text = stringResource(R.string.loan_detail_condition_age))
                         ConditionItem(text = stringResource(R.string.loan_detail_condition_income))
                         ConditionItem(text = stringResource(R.string.loan_detail_condition_credit))
@@ -113,19 +126,23 @@ fun LoanDetailScreen(
                     // Illustration Card
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFFE0F2F1),
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Info, contentDescription = null, tint = TealPrimary)
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = stringResource(R.string.loan_detail_example_note),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = TealPrimary
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
@@ -139,7 +156,7 @@ fun LoanDetailScreen(
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth(),
                     shadowElevation = 8.dp,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Button(
                         onClick = { viewModel.checkEligibility(packageId) },
@@ -148,7 +165,10 @@ fun LoanDetailScreen(
                             .padding(16.dp)
                             .height(52.dp),
                         shape = RoundedCornerShape(26.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Text(stringResource(id = R.string.loan_detail_register_now), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
@@ -157,7 +177,12 @@ fun LoanDetailScreen(
         }
 
         if (uiState.eligibilityState is EligibilityUiState.Checking) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         }
@@ -208,7 +233,7 @@ private fun DetailSection(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -216,7 +241,7 @@ private fun DetailSection(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(16.dp))
             content()
@@ -232,8 +257,8 @@ private fun DetailItem(label: String, value: String) {
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -248,10 +273,10 @@ private fun ConditionItem(text: String) {
         Box(
             modifier = Modifier
                 .size(6.dp)
-                .background(TealPrimary, RoundedCornerShape(3.dp))
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(3.dp))
         )
         Spacer(modifier = Modifier.width(12.dp))
-        Text(text = text, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+        Text(text = text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

@@ -17,8 +17,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.graphics.compositeOver
+import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.navigation.AppNavHost
 import com.example.easymoney.navigation.rememberAppState
@@ -54,6 +56,7 @@ fun AppRoot(
     val navBackStackEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val destination = appState.currentDestination()
+    val destinationTitle = destination.titleResId?.let { stringResource(id = it) }.orEmpty()
     val canNavigateBack = appState.navController.previousBackStackEntry != null
     val topBarController = remember { AppTopBarController() }
     val loginGradientTopColor = MaterialTheme.colorScheme.primary
@@ -81,14 +84,19 @@ fun AppRoot(
 
                     // Only render top bar if not HIDDEN
                     if (resolvedTopBarMode != TopBarMode.HIDDEN) {
-                        val resolvedTitle = topBarOverride?.title ?: destination.title
+                        val resolvedTitle = topBarOverride?.title ?: destinationTitle
                         val resolvedShowBack = topBarOverride?.showBackButton ?: (destination.showBackButton && canNavigateBack)
                         val resolvedShowHelp = topBarOverride?.showHelpButton ?: destination.showHelpButton
                         val resolvedOnBack = topBarOverride?.onBackClick ?: { appState.popBackStack(); Unit }
+                        val resolvedGuideTitle = if (destinationTitle.isNotEmpty()) {
+                            stringResource(id = R.string.guide_title_for_screen, destinationTitle)
+                        } else {
+                            stringResource(id = R.string.guide_title_default)
+                        }
                         val resolvedOnHelp = topBarOverride?.onHelpClick ?: {
                             appState.navigateTo(AppDestination.PageGuide.createRoute(
                                 xmlName = destination.guideXmlName,
-                                title = if (destination.title.isNotEmpty()) "Hướng dẫn ${destination.title}" else "Hướng dẫn sử dụng"
+                                title = resolvedGuideTitle
                             ))
                         }
                         val resolvedBackground = topBarOverride?.backgroundColor ?: topBarBackgroundColor

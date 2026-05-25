@@ -4,18 +4,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.example.easymoney.R
-import com.example.easymoney.ui.theme.TealPrimary
-
-private val unselectedColor = Color(0xFF98A2B3)
 
 @Composable
 fun HomeBottomBar(
@@ -25,8 +21,8 @@ fun HomeBottomBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        containerColor = Color.White,
-        contentColor = TealPrimary
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary
     ) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
@@ -43,7 +39,7 @@ fun HomeBottomBar(
             colors = navItemColors()
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = null) },
+            icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null) },
             label = {
                 Text(
                     text = stringResource(id = R.string.home_nav_history_short),
@@ -89,9 +85,9 @@ fun HomeBottomBar(
 
 @Composable
 private fun navItemColors() = NavigationBarItemDefaults.colors(
-    selectedIconColor = TealPrimary,
-    selectedTextColor = TealPrimary,
-    unselectedIconColor = unselectedColor,
-    unselectedTextColor = unselectedColor,
-    indicatorColor = Color(0xFFE8F4F6) // TealSecondary as subtle indicator
+    selectedIconColor = MaterialTheme.colorScheme.primary,
+    selectedTextColor = MaterialTheme.colorScheme.primary,
+    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    indicatorColor = MaterialTheme.colorScheme.secondary
 )

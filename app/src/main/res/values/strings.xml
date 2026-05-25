@@ -134,6 +134,8 @@
     <!-- General -->
     <string name="common_points_unit">điểm</string>
     <string name="common_loading">Đang tải...</string>
+    <string name="common_back">Quay lại</string>
+    <string name="common_help">Trợ giúp</string>
 
     <!-- Loan Management (workflow #12) -->
     <string name="loan_management_empty">Bạn chưa có hợp đồng nào được duyệt</string>
@@ -148,10 +150,13 @@
     <string name="action_confirm">Xác nhận</string>
     <string name="action_dismiss">Hủy</string>
     <string name="action_retry">Thử lại</string>
+    <string name="action_edit">Chỉnh sửa</string>
+    <string name="action_complete_now">Bổ sung ngay</string>
 
     <!-- Terms (workflow #15) -->
     <string name="terms_title">Điều khoản và chính sách</string>
     <string name="terms_body_placeholder">Nội dung điều khoản và chính sách dịch vụ EasyMoney sẽ được cập nhật khi tài liệu chính thức sẵn sàng. Vui lòng liên hệ tổng đài để biết chi tiết.</string>
+    <string name="terms_body">1. Phạm vi áp dụng\nCác điều khoản này áp dụng cho việc đăng ký, sử dụng tài khoản EasyMoney, tra cứu gói vay, gửi hồ sơ vay, ký hợp đồng điện tử và sử dụng các dịch vụ ví/thanh toán trong ứng dụng.\n\n2. Trách nhiệm của người dùng\nBạn cần cung cấp thông tin chính xác, cập nhật kịp thời khi thông tin thay đổi, bảo mật tài khoản, OTP và phương thức xác thực sinh trắc học. Bạn chịu trách nhiệm với các thao tác được thực hiện từ tài khoản đã đăng nhập hợp lệ.\n\n3. Hồ sơ và định danh\nEasyMoney có thể yêu cầu xác thực khuôn mặt, quét NFC CCCD hoặc tải ảnh giấy tờ tùy thiết bị và quy trình thẩm định. NFC và tải giấy tờ là hai phương thức thay thế cho nhau; chỉ cần một phương thức xác minh giấy tờ thành công theo yêu cầu của hệ thống.\n\n4. Khoản vay và hợp đồng\nThông tin hạn mức, kỳ hạn, lãi suất, phí, lịch trả nợ và nghĩa vụ thanh toán được hiển thị trước khi bạn xác nhận. Hợp đồng điện tử có hiệu lực sau khi bạn đồng ý điều khoản, xác thực OTP và hoàn tất ký theo hướng dẫn trên ứng dụng.\n\n5. Thông báo và liên hệ\nỨng dụng có thể gửi thông báo về trạng thái hồ sơ, hợp đồng, giao dịch, ưu đãi và nhắc thanh toán. Bạn có thể thay đổi tùy chọn thông báo trong phần Cài đặt.\n\n6. Bảo mật và dữ liệu\nEasyMoney xử lý dữ liệu cá nhân nhằm xác thực danh tính, thẩm định hồ sơ, quản lý khoản vay, phòng chống gian lận và đáp ứng yêu cầu pháp luật. Dữ liệu được lưu trữ, truyền tải và phân quyền theo chính sách bảo mật của hệ thống.\n\n7. Hỗ trợ\nKhi cần hỗ trợ về tài khoản, hợp đồng, khoản vay hoặc giao dịch, vui lòng liên hệ tổng đài %1$s hoặc các kênh hỗ trợ chính thức trong ứng dụng.</string>
     <string name="hotline_number">19001234</string>
 
     <!-- TopUp / Withdraw (workflow #8 / #9) -->
@@ -195,6 +200,22 @@
     <string name="profile_label_phone">Số điện thoại</string>
     <string name="profile_label_relationship">Mối quan hệ</string>
     <string name="profile_unit_currency_short">đ</string>
+    <string name="profile_avatar_content_desc">Ảnh đại diện hồ sơ</string>
+    <string name="profile_update_avatar">Cập nhật ảnh đại diện</string>
+    <string name="profile_edit_button">Chỉnh sửa hồ sơ</string>
+    <string name="profile_label_permanent_address">Địa chỉ thường trú</string>
+    <string name="profile_label_current_address">Địa chỉ hiện tại</string>
+    <string name="profile_label_job_title">Công việc</string>
+    <string name="profile_income_value">%1$s%2$s</string>
+    <string name="profile_value_not_updated">Chưa cập nhật</string>
+    <string name="profile_completion_status_default">Thông tin tài khoản</string>
+    <string name="identity_section_title">Xác thực danh tính</string>
+    <string name="identity_document_alternative_note">Có thể xác minh giấy tờ bằng NFC hoặc tải hồ sơ/giấy tờ. Chỉ cần một phương thức thành công.</string>
+    <string name="profile_summary_identity">CCCD: %1$s</string>
+    <string name="profile_manage_identity_title">Quản lý hồ sơ và định danh</string>
+    <string name="profile_manage_identity_desc">Cập nhật thông tin cá nhân, công việc, người liên hệ và hoàn tất xác thực.</string>
+    <string name="profile_identity_prompt_title">Hoàn thiện định danh</string>
+    <string name="profile_identity_prompt_desc">Xác thực khuôn mặt và giấy tờ để kích hoạt đầy đủ hạn mức. Có thể dùng NFC hoặc tải giấy tờ.</string>
 
     <string name="profile_section_basic">Thông tin cơ bản</string>
     <string name="profile_section_address">Địa chỉ</string>
@@ -229,6 +250,15 @@
     <string name="loan_detail_section_info">Thông tin chi tiết</string>
     <string name="loan_detail_section_conditions">Điều kiện đăng ký</string>
     <string name="loan_detail_register_now">Đăng ký vay ngay</string>
+    <string name="loan_detail_load_error">Lỗi tải dữ liệu</string>
+    <string name="loan_detail_label_amount_limit">Hạn mức vay</string>
+    <string name="loan_detail_label_tenor">Thời hạn vay</string>
+    <string name="loan_detail_label_interest">Lãi suất ưu đãi</string>
+    <string name="loan_detail_label_overdue_cost">Phí quá hạn</string>
+    <string name="loan_detail_amount_range">%1$s - %2$sđ</string>
+    <string name="loan_detail_tenor_months">%1$s tháng</string>
+    <string name="loan_detail_interest_year">%1$.2f%%/năm</string>
+    <string name="loan_detail_overdue_day">%1$.2f%%/ngày</string>
 
     <!-- Loan Confirmation -->
     <string name="loan_review_section_loan">Thông tin khoản vay</string>
@@ -243,6 +273,86 @@
 
     <!-- Guide -->
     <string name="guide_title_default">Hướng dẫn sử dụng</string>
+    <string name="guide_title_for_screen">Hướng dẫn %1$s</string>
+    <string name="guide_confirm_information_title">Xác nhận thông tin</string>
+    <string name="guide_confirm_information_message">Kiểm tra kỹ thông tin cá nhân, khoản vay và phương thức nhận tiền trước khi bấm Xác nhận. Khi xác nhận, hồ sơ sẽ được gửi cho hệ thống thẩm định.</string>
+    <string name="guide_contract_title">Hợp đồng vay</string>
+    <string name="guide_contract_message">Đọc kỹ điều khoản hợp đồng. Bấm vào liên kết để xem chi tiết. Sau khi đồng ý, bấm Ký hợp đồng để chuyển sang luồng eSign.</string>
+    <string name="guide_default_updating_title">Thông tin hướng dẫn đang cập nhật</string>
+    <string name="guide_default_updating_message">Nội dung hướng dẫn của trang này sẽ được bổ sung trong phiên bản tiếp theo.</string>
+    <string name="guide_edit_contact_info_title">Sửa người liên hệ</string>
+    <string name="guide_edit_contact_info_message">Thêm hoặc đổi người liên hệ khẩn cấp. Số điện thoại phải hợp lệ và thuộc về người thân/đồng nghiệp.</string>
+    <string name="guide_edit_job_info_title">Sửa công việc &amp; thu nhập</string>
+    <string name="guide_edit_job_info_message">Khai báo nghề nghiệp, chức vụ, thu nhập hằng tháng. Thông tin chính xác giúp đánh giá hạn mức tốt hơn.</string>
+    <string name="guide_edit_personal_info_title">Sửa thông tin cá nhân</string>
+    <string name="guide_edit_personal_info_message">Cập nhật họ tên, ngày sinh, giới tính, CCCD. Một số trường bắt buộc - không thể lưu nếu để trống.</string>
+    <string name="guide_event_detail_title">Chi tiết sự kiện</string>
+    <string name="guide_event_detail_message">Xem nội dung, thời gian áp dụng và điều kiện tham gia. Bấm Tham gia ngay để đăng ký nếu đủ điều kiện.</string>
+    <string name="guide_general_settings_title">Cài đặt chung</string>
+    <string name="guide_general_settings_message">Đổi ngôn ngữ, bật/tắt thông báo, đổi chủ đề tối/sáng. Thay đổi được áp dụng ngay sau khi chọn.</string>
+    <string name="guide_home_profile">1. Thông tin cá nhân: Hiển thị tên và lời chào dành cho bạn.</string>
+    <string name="guide_home_banner">2. Banner quảng cáo: Cập nhật các sự kiện ưu đãi và gói vay mới nhất. Bấm để xem chi tiết.</string>
+    <string name="guide_home_rewards">3. Điểm thưởng: Theo dõi số điểm tích lũy và đổi các phần quà giá trị.</string>
+    <string name="guide_home_features">4. Chức năng chính:\n- Quản lý khoản vay: Xem các hợp đồng đang thực hiện.\n- Gợi ý khoản vay: Tìm kiếm gói vay phù hợp với hồ sơ của bạn.</string>
+    <string name="guide_home_chatbot">5. Tư vấn tài chính: Trò chuyện với chuyên gia tư vấn (Chatbot) để được hỗ trợ 24/7.</string>
+    <string name="guide_identity_verification_title">Định danh tài khoản</string>
+    <string name="guide_identity_verification_message">Chọn một trong hai cách: quét NFC trên thẻ CCCD hoặc tải ảnh giấy tờ. Chỉ cần một phương thức thành công là đủ.</string>
+    <string name="guide_loan_detail_name">1. Tên gói vay: Tên thương hiệu và đối tượng khách hàng phù hợp.</string>
+    <string name="guide_loan_detail_specs">2. Thông số vay: Xem chi tiết khoảng hạn mức, kỳ hạn và lãi suất chính xác.</string>
+    <string name="guide_loan_detail_conditions">3. Điều kiện đăng ký: Các yêu cầu cơ bản về độ tuổi, thu nhập và lịch sử tín dụng để được duyệt vay.</string>
+    <string name="guide_loan_detail_example">4. Ví dụ minh họa: Giúp bạn hình dung số tiền cần trả hàng tháng dựa trên một khoản vay mẫu.</string>
+    <string name="guide_loan_detail_register">Bấm \'Đăng ký vay ngay\' để hệ thống kiểm tra điều kiện hồ sơ của bạn.</string>
+    <string name="guide_loan_list_title">Danh sách gói vay</string>
+    <string name="guide_loan_list_message">Dùng bộ lọc theo hạn mức, kỳ hạn, lãi suất để tìm gói phù hợp. Bấm vào gói để xem chi tiết và đăng ký.</string>
+    <string name="guide_loan_management_title">Quản lý khoản vay</string>
+    <string name="guide_loan_management_message">Xem các hợp đồng đã được duyệt. Mỗi hợp đồng có hai lựa chọn: hủy hoặc tiến hành ký. Ký xong sẽ chuyển sang luồng eSign.</string>
+    <string name="guide_money_management_title">Quản lý nguồn tiền</string>
+    <string name="guide_money_management_message">Xem số dư, lịch sử dòng tiền và bật/tắt tự động thanh toán. Bấm Nạp/Rút để chuyển sang màn tương ứng.</string>
+    <string name="guide_onboarding_intro">Đây là màn hình tóm tắt thông tin gói vay trước khi bạn tiến hành đăng ký.</string>
+    <string name="guide_onboarding_reasons">1. Lý do lựa chọn: Các ưu điểm vượt trội của dịch vụ (nhanh, đơn giản, tin cậy).</string>
+    <string name="guide_onboarding_product">2. Thông tin sản phẩm: Hiển thị hạn mức tối đa, kỳ hạn và lãi suất tham khảo.</string>
+    <string name="guide_onboarding_provider">3. Thông tin đơn vị cho vay: Tên tổ chức tài chính và thông tin liên hệ chính thức.</string>
+    <string name="guide_onboarding_terms">Vui lòng đọc kỹ điều khoản sử dụng trước khi bấm \'Trải nghiệm ngay\' để bắt đầu luồng đăng ký hồ sơ.</string>
+    <string name="guide_payment_cards_title">Thẻ thanh toán</string>
+    <string name="guide_payment_cards_message">Thêm thẻ mới hoặc xóa thẻ đã liên kết. Thẻ phải được xác minh qua ngân hàng trước khi sử dụng.</string>
+    <string name="guide_profile_title">Hồ sơ cá nhân</string>
+    <string name="guide_profile_message">Cập nhật thông tin cá nhân, địa chỉ, công việc và tình trạng định danh. Hồ sơ đầy đủ giúp nâng hạn mức và tốc độ phê duyệt.</string>
+    <string name="guide_rewards_title">Đổi điểm thưởng</string>
+    <string name="guide_rewards_message">Dùng điểm tích lũy để đổi voucher hoặc ưu đãi. Bấm vào quà bạn muốn đổi, xác nhận và làm theo hướng dẫn.</string>
+    <string name="guide_security_settings_title">Bảo mật tài khoản</string>
+    <string name="guide_security_settings_message">Đổi mật khẩu, bật xác thực sinh trắc học 2FA. Khi bật 2FA, một số thao tác quan trọng sẽ yêu cầu xác thực bằng vân tay hoặc khuôn mặt.</string>
+    <string name="guide_top_up_title">Nạp tiền</string>
+    <string name="guide_top_up_message">Chọn thẻ nguồn, nhập số tiền cần nạp và xác nhận. Số dư ví sẽ cập nhật sau khi giao dịch thành công.</string>
+    <string name="guide_withdraw_title">Rút tiền</string>
+    <string name="guide_withdraw_message">Chọn thẻ nhận, nhập số tiền không quá số dư. Nếu bạn đã bật 2FA, cần xác thực sinh trắc học trước khi rút.</string>
+    <!-- Navigation titles -->
+    <string name="nav_confirm_information">Xác nhận thông tin</string>
+    <string name="nav_loan_information">Thông tin khoản vay</string>
+    <string name="nav_transaction_history">Lịch sử giao dịch</string>
+    <string name="nav_notifications">Thông báo</string>
+    <string name="nav_account">Tài khoản</string>
+    <string name="nav_page_guide">Hướng dẫn</string>
+    <string name="nav_sandbox">Sandbox Developer</string>
+    <string name="nav_contract">Hợp đồng của bạn</string>
+    <string name="nav_esign_success">Ký hợp đồng thành công</string>
+    <string name="nav_event_detail">Chi tiết sự kiện</string>
+    <string name="nav_rewards">Đổi điểm thưởng</string>
+    <string name="nav_loan_list">Gói vay ưu đãi</string>
+    <string name="nav_loan_detail">Chi tiết gói vay</string>
+    <string name="nav_profile">Hồ sơ cá nhân</string>
+    <string name="nav_money_management">Quản lý nguồn tiền</string>
+    <string name="nav_payment_cards">Thẻ thanh toán</string>
+    <string name="nav_general_settings">Cài đặt</string>
+    <string name="nav_security_settings">Bảo mật tài khoản</string>
+    <string name="nav_chatbot">Tư vấn tài chính</string>
+    <string name="nav_identity_verification">Định danh tài khoản</string>
+    <string name="nav_top_up">Nạp tiền</string>
+    <string name="nav_withdraw">Rút tiền</string>
+    <string name="nav_terms">Điều khoản và chính sách</string>
+    <string name="nav_loan_management">Quản lý khoản vay</string>
+    <string name="nav_edit_personal_info">Thông tin cá nhân</string>
+    <string name="nav_edit_job_info">Công việc &amp; Thu nhập</string>
+    <string name="nav_edit_contact_info">Thông tin người liên hệ</string>
     <!-- OTP Dialog -->
     <string name="otp_title">Xác thực OTP</string>
     <string name="otp_desc_1">Vui lòng nhập mã OTP được gửi về SĐT </string>
@@ -262,6 +372,15 @@
     <string name="history_balance_label">Số dư: %1$sđ</string>
     <string name="event_time_label">Thời gian: %1$s</string>
     <string name="event_join_now">Tham gia ngay</string>
+    <!-- Notification -->
+    <string name="notification_tab_balance">Biến động số dư</string>
+    <string name="notification_tab_promotion">Khuyến mại</string>
+    <string name="notification_tab_reminder">Nhắc nhở</string>
+    <string name="notification_search_hint">Tìm kiếm thông báo</string>
+    <string name="notification_month_label">Tháng %1$s</string>
+    <string name="notification_amount_positive">+%1$sđ</string>
+    <string name="notification_amount_negative">-%1$sđ</string>
+    <string name="notification_empty">Chưa có thông báo nào</string>
     <!-- Rewards -->
     <string name="reward_current_points">Điểm hiện có của bạn</string>
     <string name="reward_featured_gifts">Quà tặng tài chính nổi bật</string>
@@ -300,6 +419,14 @@
     <string name="loan_list_filter_promotional">Khuyến mãi</string>
     <string name="loan_list_filter_keyword_hint">Tìm theo tên gói</string>
     <string name="loan_list_filter_reset">Xoá bộ lọc</string>
+    <string name="loan_list_filter_interest">Lãi suất tối đa: %1$.1f%%/năm</string>
+    <string name="loan_list_eligible">Đủ điều kiện</string>
+    <string name="loan_list_not_suitable">Chưa phù hợp</string>
+    <string name="loan_list_label_max_amount">Hạn mức lên tới</string>
+    <string name="loan_list_label_interest_from">Lãi suất từ</string>
+    <string name="loan_list_reason_missing_profile">Cần hoàn thiện hồ sơ</string>
+    <string name="loan_list_reason_low_credit">Điểm tín dụng chưa đủ</string>
+    <string name="loan_list_reason_ineligible">Không đủ điều kiện</string>
     <string name="loan_confirm_button">Xác nhận</string>
     <string name="loan_breakdown_total_estimate">Tổng tiền tạm tính</string>
     <string name="loan_breakdown_total_payment">Tổng tiền phải trả\n(tạm tính)</string>
@@ -324,6 +451,7 @@
     <string name="document_upload_camera">Chụp ảnh</string>
     <string name="document_upload_gallery">Thư viện</string>
     <string name="document_upload_cancel">Huỷ bỏ</string>
+    <string name="document_upload_file_too_large">File quá lớn. Vui lòng chọn file dưới %1$dMB</string>
     <string name="face_capture_camera_denied">Quyền truy cập Camera bị từ chối</string>
     <string name="face_capture_close">Đóng</string>
     <string name="face_capture_status_initial">Vui lòng đưa khuôn mặt vào khung hình</string>
@@ -334,5 +462,6 @@
     <string name="nfc_status_unsupported">Thiết bị không hỗ trợ NFC</string>
     <string name="nfc_status_disabled">Vui lòng bật NFC trong cài đặt</string>
     <string name="nfc_status_reading">Đã tìm thấy thẻ, đang đọc dữ liệu…</string>
+    <string name="nfc_status_read_error">Lỗi khi đọc thẻ: %1$s</string>
     <string name="nfc_button_cancel">Huỷ</string>
 </resources>

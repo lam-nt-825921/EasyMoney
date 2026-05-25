@@ -34,10 +34,8 @@ class NotificationViewModel @Inject constructor(
     }
 
     fun getNotificationsByType(type: String): Flow<List<NotificationGroup>> {
-        val mappedType = when(type) {
-            "Biến động số dư" -> "transaction"
-            "Khuyến mại" -> "promotion"
-            "Nhắc nhở" -> "reminder"
+        val mappedType = when (type) {
+            "transaction", "promotion", "reminder" -> type
             else -> "transaction"
         }
 
@@ -45,7 +43,7 @@ class NotificationViewModel @Inject constructor(
             .map { list ->
                 try {
                     list.groupBy { entity ->
-                        val sdf = SimpleDateFormat("'Tháng' MM/yyyy", Locale("vi", "VN"))
+                        val sdf = SimpleDateFormat("MM/yyyy", Locale.getDefault())
                         sdf.format(Date(entity.timestamp))
                     }.map { (label, items) ->
                         NotificationGroup(label, items)
