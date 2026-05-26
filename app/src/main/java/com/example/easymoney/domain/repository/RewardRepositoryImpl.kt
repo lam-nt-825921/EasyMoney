@@ -3,6 +3,7 @@ package com.example.easymoney.domain.repository
 import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.remote.RewardRemoteDataSource
 import com.example.easymoney.data.sample.SAMPLE_REWARD_CATALOG
 import com.example.easymoney.data.sample.sampleUserRewards
 import com.example.easymoney.domain.common.Resource
@@ -12,10 +13,10 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
-private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
 
 class RewardRepositoryImpl @Inject constructor(
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val remoteDataSource: RewardRemoteDataSource
 ) : RewardRepository {
 
     override suspend fun getRewardCatalogItems(): Resource<List<RewardCatalogItem>> {
@@ -26,10 +27,7 @@ class RewardRepositoryImpl @Inject constructor(
                 delay(800)
                 Resource.Success(SAMPLE_REWARD_CATALOG, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real /rewards/catalog endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getRewardCatalogItems()
         }
     }
 
@@ -41,10 +39,7 @@ class RewardRepositoryImpl @Inject constructor(
                 delay(500)
                 Resource.Success(sampleUserRewards(), isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real /rewards/user endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getRewardsCatalog()
         }
     }
 
@@ -56,10 +51,7 @@ class RewardRepositoryImpl @Inject constructor(
                 delay(800)
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real POST /rewards/redeem endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.redeemReward(itemId)
         }
     }
 }

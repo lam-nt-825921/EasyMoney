@@ -78,7 +78,21 @@ interface LoanApiService {
 
     @POST("api/v1/test/fcm/trigger")
     suspend fun triggerFcmTest(@Body request: FcmTestRequest): ApiResponse<Unit>
+
+    // Workflow #46 — FCM token đăng ký + mark read
+    @POST("api/v1/notifications/fcm-token")
+    suspend fun registerFcmToken(@Body request: FcmTokenRequest): ApiResponse<Unit>
+
+    @POST("api/v1/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: Long): ApiResponse<Unit>
+
+    @POST("api/v1/notifications/read-all")
+    suspend fun markAllNotificationsRead(): ApiResponse<Unit>
 }
+
+data class FcmTokenRequest(
+    @SerializedName("fcmToken") val fcmToken: String
+)
 
 data class FcmTestRequest(
     @SerializedName("fcmToken")

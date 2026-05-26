@@ -21,12 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.ButtonDefaults
@@ -68,9 +67,8 @@ fun AccountScreen(
     onNavigateToPaymentCards: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToRewards: () -> Unit,
-    onNavigateToSecurity: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToSupport: () -> Unit,
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AccountViewModel = hiltViewModel()
@@ -85,8 +83,7 @@ fun AccountScreen(
     )
 
     val supportMenuItems = listOf(
-        MenuItem(Icons.Default.HelpOutline, R.string.account_support_center, onNavigateToSupport),
-        MenuItem(Icons.Default.Security, R.string.account_security, onNavigateToSecurity),
+        MenuItem(Icons.Default.Lock, R.string.account_change_password, onNavigateToChangePassword),
         MenuItem(Icons.Default.Settings, R.string.account_settings, onNavigateToSettings),
     )
 

@@ -1,5 +1,6 @@
 package com.example.easymoney.ui.account.profile
 
+import android.nfc.NfcAdapter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,9 +14,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -203,6 +208,10 @@ fun IdentitySection(
     onBiometricClick: () -> Unit,
     onDocumentClick: () -> Unit
 ) {
+    // Workflow #40 — 3 CTA cấp 1: eKYC, Device Biometrics, Căn cước công dân.
+    // CCCD mở bottom sheet với 2 phương thức thay thế: NFC hoặc tải giấy tờ.
+    var showCccdSheet by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -222,17 +231,11 @@ fun IdentitySection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             IdentityTaskItem(
                 title = stringResource(R.string.ekyc_step_face),
                 isDone = status.isFaceVerified,
                 onClick = onFaceClick
-            )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-            IdentityTaskItem(
-                title = stringResource(R.string.ekyc_step_nfc),
-                isDone = status.isNfcVerified,
-                onClick = onNfcClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(
@@ -242,10 +245,125 @@ fun IdentitySection(
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(
-                title = stringResource(R.string.ekyc_step_docs),
-                isDone = status.isDocumentUploadVerified,
-                onClick = onDocumentClick
+                title = stringResource(R.string.identity_cta_cccd),
+                isDone = status.isIdentityDocumentVerified,
+                onClick = { showCccdSheet = true }
             )
+        }
+    }
+
+    if (showCccdSheet) {
+        CccdMethodBottomSheet(
+            onDismiss = { showCccdSheet = false },
+            onUploadClick = {
+                showCccdSheet = false
+                onDocumentClick()
+            },
+            onNfcClick = {
+                showCccdSheet = false
+                onNfcClick()
+            }
+        )
+    }
+}
+
+/**
+ * Workflow #40 — Bottom sheet cho CTA Căn cước công dân. NFC và tải giấy tờ là hai
+ * phương thức thay thế nhau; chỉ cần một thành công. NFC bị disable nếu thiết bị
+ * không hỗ trợ.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CccdMethodBottomSheet(
+    onDismiss: () -> Unit,
+    onUploadClick: () -> Unit,
+    onNfcClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val isNfcSupported = remember { NfcAdapter.getDefaultAdapter(context) != null }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp).padding(bottom = 16.dp)) {
+            Text(
+                text = stringResource(R.string.identity_cccd_sheet_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.identity_cccd_sheet_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CccdMethodOption(
+                icon = Icons.Default.UploadFile,
+                title = stringResource(R.string.ekyc_step_docs),
+                enabled = true,
+                onClick = onUploadClick
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CccdMethodOption(
+                icon = Icons.Default.Nfc,
+                title = stringResource(R.string.ekyc_step_nfc),
+                subtitle = if (!isNfcSupported) stringResource(R.string.nfc_status_unsupported) else null,
+                enabled = isNfcSupported,
+                onClick = onNfcClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun CccdMethodOption(
+    icon: ImageVector,
+    title: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    subtitle: String? = null
+) {
+    val contentColor = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    OutlinedCard(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (enabled) MaterialTheme.colorScheme.primary else contentColor,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = contentColor
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+            if (enabled) {
+                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }

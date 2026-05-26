@@ -3,6 +3,7 @@ package com.example.easymoney.domain.repository
 import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.remote.PaymentRemoteDataSource
 import com.example.easymoney.data.sample.SAMPLE_INITIAL_BALANCE
 import com.example.easymoney.data.sample.SAMPLE_PAYMENT_CARDS
 import com.example.easymoney.data.sample.sampleWalletInfo
@@ -16,10 +17,10 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
-private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
 
 class PaymentRepositoryImpl @Inject constructor(
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val remoteDataSource: PaymentRemoteDataSource
 ) : PaymentRepository {
 
     private var isAutoDeduction = true
@@ -34,10 +35,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 delay(300)
                 Resource.Success(cards.toList(), isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire GET /payment/cards
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getPaymentCards()
         }
     }
 
@@ -50,10 +48,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 cards.add(card)
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire POST /payment/cards với card verification
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.addPaymentCard(card)
         }
     }
 
@@ -66,10 +61,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 cards.removeAll { it.id == cardId }
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire DELETE /payment/cards/{id}
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.deletePaymentCard(cardId)
         }
     }
 
@@ -81,10 +73,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 delay(300)
                 Resource.Success(sampleWalletInfo(balance, isAutoDeduction), isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire GET /payment/wallet
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getWalletInfo()
         }
     }
 
@@ -97,10 +86,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 balance += amount
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire POST /payment/topup
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.topUp(amount, cardId)
         }
     }
 
@@ -117,10 +103,7 @@ class PaymentRepositoryImpl @Inject constructor(
                     Resource.Success(Unit, isFromMock = true)
                 }
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire POST /payment/withdraw
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.withdraw(amount, cardId, biometricToken)
         }
     }
 
@@ -140,10 +123,7 @@ class PaymentRepositoryImpl @Inject constructor(
                     Resource.Success(Unit, isFromMock = true)
                 }
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_36): POST /payment/cards/verify
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.verifyCard(card)
         }
     }
 
@@ -164,10 +144,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 mockQrPayments[id] = qr
                 Resource.Success(qr, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_36): POST /payments/qr
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.createQrPayment(amount)
         }
     }
 
@@ -184,10 +161,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 mockQrPayments[qrPaymentId] = updated
                 Resource.Success(updated, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_36): GET /payments/qr/{id}/status
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getQrPaymentStatus(qrPaymentId)
         }
     }
 
@@ -200,10 +174,7 @@ class PaymentRepositoryImpl @Inject constructor(
                 isAutoDeduction = enabled
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire PATCH /payment/auto-deduction
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.toggleAutoDeduction(enabled)
         }
     }
 }
