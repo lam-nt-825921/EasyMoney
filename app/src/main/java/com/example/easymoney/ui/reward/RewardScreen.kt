@@ -38,7 +38,7 @@ fun RewardScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FA))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Points Banner
         Box(
@@ -119,22 +119,28 @@ fun RewardScreen(
             if (item != null) {
                 AlertDialog(
                     onDismissRequest = viewModel::onCancelRedeem,
-                    title = { Text("Xác nhận đổi quà") },
+                    title = { Text(stringResource(R.string.reward_confirm_title)) },
                     text = {
                         Column {
                             Text(item.title, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(4.dp))
-                            Text("Trừ ${item.points} điểm. Số dư sau: ${uiState.totalPoints - item.points} điểm.")
+                            Text(
+                                stringResource(
+                                    R.string.reward_confirm_message,
+                                    item.points,
+                                    uiState.totalPoints - item.points
+                                )
+                            )
                         }
                     },
                     confirmButton = {
                         TextButton(onClick = viewModel::onConfirmRedeem, enabled = !uiState.isRedeeming) {
-                            Text("Xác nhận")
+                            Text(stringResource(R.string.action_confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = viewModel::onCancelRedeem) {
-                            Text("Hủy")
+                            Text(stringResource(R.string.action_dismiss))
                         }
                     }
                 )
@@ -144,10 +150,10 @@ fun RewardScreen(
         uiState.redeemSuccessMessage?.let { msg ->
             AlertDialog(
                 onDismissRequest = viewModel::consumeMessages,
-                title = { Text("Đổi quà thành công") },
+                title = { Text(stringResource(R.string.reward_success_title)) },
                 text = { Text(msg) },
                 confirmButton = {
-                    TextButton(onClick = viewModel::consumeMessages) { Text("OK") }
+                    TextButton(onClick = viewModel::consumeMessages) { Text(stringResource(R.string.action_ok)) }
                 }
             )
         }
@@ -156,10 +162,10 @@ fun RewardScreen(
             LaunchedEffect(msg) { /* could show snackbar */ }
             AlertDialog(
                 onDismissRequest = viewModel::consumeMessages,
-                title = { Text("Thông báo") },
+                title = { Text(stringResource(R.string.reward_notice_title)) },
                 text = { Text(msg) },
                 confirmButton = {
-                    TextButton(onClick = viewModel::consumeMessages) { Text("OK") }
+                    TextButton(onClick = viewModel::consumeMessages) { Text(stringResource(R.string.action_ok)) }
                 }
             )
         }

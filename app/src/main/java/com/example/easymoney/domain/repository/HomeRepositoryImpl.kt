@@ -3,6 +3,7 @@ package com.example.easymoney.domain.repository
 import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.remote.HomeRemoteDataSource
 import com.example.easymoney.data.sample.SAMPLE_BANNERS
 import com.example.easymoney.data.sample.SAMPLE_EKYC_STATUS
 import com.example.easymoney.data.sample.SAMPLE_HOT_LOANS
@@ -14,10 +15,10 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
-private const val REMOTE_NOT_READY = "Endpoint REMOTE chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
 
 class HomeRepositoryImpl @Inject constructor(
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val remoteDataSource: HomeRemoteDataSource
 ) : HomeRepository {
 
     override suspend fun getBanners(): Resource<List<Banner>> {
@@ -28,10 +29,7 @@ class HomeRepositoryImpl @Inject constructor(
                 delay(500)
                 Resource.Success(SAMPLE_BANNERS, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real /home/banners endpoint khi backend sẵn sàng
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getBanners()
         }
     }
 
@@ -43,10 +41,7 @@ class HomeRepositoryImpl @Inject constructor(
                 delay(500)
                 Resource.Success(SAMPLE_HOT_LOANS, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real /home/hot-loans endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getHotLoans()
         }
     }
 
@@ -58,10 +53,7 @@ class HomeRepositoryImpl @Inject constructor(
                 delay(300)
                 Resource.Success(SAMPLE_EKYC_STATUS, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_20): wire real /ekyc/status endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.getEKycStatus()
         }
     }
 }

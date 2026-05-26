@@ -195,6 +195,31 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
+    // Workflow #46 — FCM token + mark read
+    suspend fun registerFcmToken(token: String): Resource<Unit> = try {
+        val response = apiService.registerFcmToken(FcmTokenRequest(token))
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Register FCM token failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
+    }
+
+    suspend fun markNotificationRead(id: Long): Resource<Unit> = try {
+        val response = apiService.markNotificationRead(id)
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Mark read failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
+    }
+
+    suspend fun markAllNotificationsRead(): Resource<Unit> = try {
+        val response = apiService.markAllNotificationsRead()
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Mark all read failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
+    }
+
     private fun com.example.easymoney.data.remote.dto.MasterDataItemDto.toDomain() = MasterDataItem(
         id = this.id,
         name = this.name,

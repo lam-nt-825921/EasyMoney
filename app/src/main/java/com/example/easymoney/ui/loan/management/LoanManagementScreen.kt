@@ -1,5 +1,6 @@
 package com.example.easymoney.ui.loan.management
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,12 +36,17 @@ fun LoanManagementScreen(
                 Text(
                     text = stringResource(R.string.loan_management_empty),
                     modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             is LoanManagementUiState.Error -> {
                 Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(state.message, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
                     Spacer(Modifier.height(12.dp))
                     Button(onClick = { viewModel.load() }) {
                         Text(stringResource(R.string.action_retry))
@@ -90,8 +96,11 @@ private fun ContractCard(
     onSign: () -> Unit
 ) {
     Card(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -121,12 +130,18 @@ private fun ContractCard(
 
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Hủy = destructive/secondary
                 OutlinedButton(
                     onClick = onCancel,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
                 ) {
                     Text(stringResource(R.string.loan_management_cancel))
                 }
+                // Ký hợp đồng = primary action
                 Button(
                     onClick = onSign,
                     modifier = Modifier.weight(1f)

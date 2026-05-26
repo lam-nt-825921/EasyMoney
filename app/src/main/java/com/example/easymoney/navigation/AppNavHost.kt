@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
@@ -41,6 +42,7 @@ import com.example.easymoney.ui.esign.ContractScreen
 import com.example.easymoney.ui.esign.EsignSuccessScreen
 import com.example.easymoney.ui.payment.MoneyManagementScreen
 import com.example.easymoney.ui.payment.PaymentCardsScreen
+import com.example.easymoney.ui.account.changepassword.ChangePasswordScreen
 import com.example.easymoney.ui.security.SecuritySettingsScreen
 
 @Composable
@@ -81,6 +83,7 @@ fun AppNavHost(
         composable(AppDestination.Home.route) {
             val viewModel: HomeViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
+            val context = LocalContext.current
 
             HomeScreen(
                 uiState = uiState,
@@ -89,7 +92,8 @@ fun AppNavHost(
                     when (type) {
                         "EVENT" -> navController.navigate(AppDestination.EventDetail.createRoute(id))
                         "LOAN" -> navController.navigate(AppDestination.LoanDetail.createRoute(id))
-                        "WEB" -> { /* Open URL in custom tab or webview */ }
+                        // Workflow #51 — banner WEB mở URL (targetId) qua LinkHandler.
+                        "WEB" -> com.example.easymoney.utils.LinkHandler.openUrl(context, id)
                     }
                 },
                 onRedeemClick = { navController.navigate(AppDestination.Rewards.route) },
@@ -148,9 +152,8 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToRewards = { navController.navigate(AppDestination.Rewards.route) },
-                onNavigateToSecurity = { navController.navigate(AppDestination.SecuritySettings.route) },
+                onNavigateToChangePassword = { navController.navigate(AppDestination.ChangePassword.route) },
                 onNavigateToSettings = { navController.navigate(AppDestination.GeneralSettings.route) },
-                onNavigateToSupport = { /* Open web center */ },
                 onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
                 modifier = Modifier.fillMaxSize()
             )
@@ -267,7 +270,13 @@ fun AppNavHost(
         composable(AppDestination.SecuritySettings.route) {
             SecuritySettingsScreen(
                 onBack = { navController.popBackStack() },
-                onChangePassword = { /* Handle change password */ }
+                onChangePassword = { navController.navigate(AppDestination.ChangePassword.route) }
+            )
+        }
+
+        composable(AppDestination.ChangePassword.route) {
+            ChangePasswordScreen(
+                onPasswordChanged = { navController.popBackStack() }
             )
         }
 

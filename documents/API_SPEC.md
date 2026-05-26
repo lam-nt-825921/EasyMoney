@@ -26,17 +26,19 @@ Base URL mặc định trong app: `https://easymoney.lamgd.dev/`. Các path bên
 
 ## 0.1. Repository coverage
 
+> Audit workflow #43 (2026-05-26): đã rà soát 10 repository impl. `LoanRepository` + `NotificationRepository` có REMOTE thật một phần; 7 repository (`Home`, `Event`, `Reward`, `User`, `Payment`, `TransactionHistory`, `ChatBot`) còn trả `REMOTE_NOT_READY` ở nhánh REMOTE và chỉ chạy MOCK qua `data/sample`. Mỗi endpoint còn thiếu liệt kê ở cột "Endpoint cần có" và chi tiết DTO ở mục 14. Đây là input cho workflow #44/#45.
+
 | Repository | MOCK | REMOTE hiện tại | Endpoint cần có | Trạng thái |
 |---|---:|---|---|---|
 | `LoanRepository` | Có | Auth, loan package, master data, face capture, OTP, contract content qua `LoanRemoteDataSource`; một số hàm vẫn mock/local | `/auth/*`, `/loan/package*`, `/master/*`, `/ekyc/capture/face`, `/otp/*`, `/contracts/*`, cần thêm application/eligibility/contracts approved/cancel/provider info/my info | Một phần |
-| `NotificationRepository` | Room/local | `GET /notifications`, `POST /test/fcm/trigger`; mark-read/token local/TODO | `/notifications/fcm-token`, `/notifications/{id}/read`, `/notifications/read-all` | Một phần |
-| `HomeRepository` | `data/sample` | Trả `REMOTE_NOT_READY` | `/home/banners`, `/home/hot-loans`, `/ekyc/status` | Stub |
-| `EventRepository` | `data/sample` | Trả `REMOTE_NOT_READY` | `/events/{id}`, `POST /events/{id}/join` | Stub |
-| `RewardRepository` | `data/sample` | Trả `REMOTE_NOT_READY` | `/rewards/catalog`, `/rewards/user`, `/rewards/{itemId}/redeem` | Stub |
-| `UserRepository` | `data/sample`/in-memory | Trả `REMOTE_NOT_READY` | `/user/profile`, `/user/profile/avatar`, `/user/notification-settings` | Stub |
-| `PaymentRepository` | `data/sample`/in-memory | Trả `REMOTE_NOT_READY` | `/payment/wallet`, `/payment/cards`, `/payment/cards/verify`, `/payment/topup`, `/payment/withdraw`, `/payment/auto-deduction`, `/payments/qr`, `/payments/qr/{id}/status` | Stub |
-| `TransactionHistoryRepository` | `data/sample` | Trả `REMOTE_NOT_READY` | `/transactions` | Stub |
-| `ChatBotRepository` | `data/sample` rule-based | Trả `REMOTE_NOT_READY` | `/chat/message` | Stub |
+| `NotificationRepository` | Room/local | **REMOTE wired** (#46): `GET /notifications`, `POST /test/fcm/trigger`, `POST /notifications/fcm-token`, `POST /notifications/{id}/read`, `POST /notifications/read-all`. List vẫn đọc Room cache; REMOTE sync read-status. | (đã khai báo ở trên) | REMOTE wired, chờ backend |
+| `HomeRepository` | `data/sample` | **REMOTE wired** (#45) qua `HomeApiService`/`HomeRemoteDataSource` | `GET /home/banners`, `GET /home/hot-loans`, `GET /ekyc/status` | REMOTE wired, chờ backend |
+| `EventRepository` | `data/sample` | **REMOTE wired** (#45) qua `EventApiService`/`EventRemoteDataSource` | `GET /events/{id}`, `POST /events/{id}/join` | REMOTE wired, chờ backend |
+| `RewardRepository` | `data/sample` | **REMOTE wired** (#45) qua `RewardApiService`/`RewardRemoteDataSource` | `GET /rewards/catalog`, `GET /rewards/user`, `POST /rewards/{itemId}/redeem` | REMOTE wired, chờ backend |
+| `UserRepository` | `data/sample`/in-memory | **REMOTE wired** (#44) qua `UserApiService`/`UserRemoteDataSource`: `GET /user/profile`, `PATCH /user/profile`, `PATCH /user/notification-settings`, `POST /auth/change-password`. | (đã khai báo ở trên) | REMOTE wired, chờ backend |
+| `PaymentRepository` | `data/sample`/in-memory | **REMOTE wired** (#47) qua `PaymentApiService`/`PaymentRemoteDataSource` | `GET /payment/wallet`, `GET/POST/DELETE /payment/cards`, `POST /payment/cards/verify`, `POST /payment/topup`, `POST /payment/withdraw`, `PATCH /payment/auto-deduction`, `POST /payments/qr`, `GET /payments/qr/{id}/status` | REMOTE wired, chờ backend |
+| `TransactionHistoryRepository` | `data/sample` | **REMOTE wired** (#45) qua `TransactionHistoryApiService`/`TransactionHistoryRemoteDataSource` | `GET /transactions` | REMOTE wired, chờ backend |
+| `ChatBotRepository` | `data/sample` rule-based | **REMOTE wired** (#48) qua `ChatApiService`/`ChatRemoteDataSource`; response text/card/action map qua `ChatResponseDto` | `POST /chat/message` | REMOTE wired, chờ backend |
 | `AccountRepository` | Room | Local-only | sync backend nếu cần sau này | Local |
 
 ## 0.2. DTO/domain mapping đang có

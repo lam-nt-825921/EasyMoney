@@ -3,6 +3,7 @@ package com.example.easymoney.domain.repository
 import android.util.Log
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.DataSourceMode
+import com.example.easymoney.data.remote.ChatRemoteDataSource
 import com.example.easymoney.data.sample.sampleChatReply
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.ui.chatbot.ChatMessage
@@ -10,10 +11,10 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
-private const val REMOTE_NOT_READY = "Endpoint REMOTE chatbot chưa sẵn sàng — vui lòng chuyển Sandbox sang MOCK"
 
 class ChatBotRepositoryImpl @Inject constructor(
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val remoteDataSource: ChatRemoteDataSource
 ) : ChatBotRepository {
 
     override suspend fun sendMessage(text: String): Resource<ChatMessage> {
@@ -24,10 +25,7 @@ class ChatBotRepositoryImpl @Inject constructor(
                 delay(600)
                 Resource.Success(sampleChatReply(text), isFromMock = true)
             }
-            DataSourceMode.REMOTE -> {
-                // TODO(workflow_32): wire real POST /chat/message endpoint
-                Resource.Error(REMOTE_NOT_READY)
-            }
+            DataSourceMode.REMOTE -> remoteDataSource.sendMessage(text)
         }
     }
 }

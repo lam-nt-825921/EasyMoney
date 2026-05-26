@@ -114,6 +114,7 @@
     <string name="account_transaction_history">Lịch sử giao dịch</string>
     <string name="account_support_center">Trung tâm hỗ trợ</string>
     <string name="account_security">Bảo mật tài khoản</string>
+    <string name="account_change_password">Đổi mật khẩu</string>
     <string name="account_settings">Cài đặt</string>
     <string name="account_logout">Đăng xuất</string>
 
@@ -130,6 +131,16 @@
     <!-- Security & Bio -->
     <string name="security_biometric_auth">Xác thực sinh trắc học</string>
     <string name="security_change_password">Đổi mật khẩu</string>
+
+    <!-- Change Password -->
+    <string name="change_password_old_label">Mật khẩu hiện tại</string>
+    <string name="change_password_new_label">Mật khẩu mới</string>
+    <string name="change_password_confirm_label">Xác nhận mật khẩu mới</string>
+    <string name="change_password_submit">Xác nhận</string>
+    <string name="change_password_error_empty">Vui lòng nhập đầy đủ các trường</string>
+    <string name="change_password_error_too_short">Mật khẩu mới phải có ít nhất 6 ký tự</string>
+    <string name="change_password_error_same">Mật khẩu mới phải khác mật khẩu hiện tại</string>
+    <string name="change_password_error_mismatch">Xác nhận mật khẩu không khớp</string>
 
     <!-- General -->
     <string name="common_points_unit">điểm</string>
@@ -228,6 +239,9 @@
     <string name="ekyc_step_nfc">Quét thẻ chip CCCD (NFC)</string>
     <string name="ekyc_step_bio">Sinh trắc học thiết bị</string>
     <string name="ekyc_step_docs">Tải hồ sơ/giấy tờ</string>
+    <string name="identity_cta_cccd">Căn cước công dân</string>
+    <string name="identity_cccd_sheet_title">Xác minh Căn cước công dân</string>
+    <string name="identity_cccd_sheet_desc">Chọn một trong hai cách dưới đây. Chỉ cần một phương thức thành công.</string>
 
     <!-- Dialogs -->
     <string name="dialog_incomplete_profile_title">Hồ sơ chưa hoàn thiện</string>
@@ -341,6 +355,7 @@
     <string name="nav_loan_detail">Chi tiết gói vay</string>
     <string name="nav_profile">Hồ sơ cá nhân</string>
     <string name="nav_money_management">Quản lý nguồn tiền</string>
+    <string name="nav_change_password">Đổi mật khẩu</string>
     <string name="nav_payment_cards">Thẻ thanh toán</string>
     <string name="nav_general_settings">Cài đặt</string>
     <string name="nav_security_settings">Bảo mật tài khoản</string>

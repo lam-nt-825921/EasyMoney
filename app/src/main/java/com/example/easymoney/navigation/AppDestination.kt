@@ -245,6 +245,13 @@ sealed class AppDestination(
         guideXmlName = "guide_security_settings"
     )
 
+    data object ChangePassword : AppDestination(
+        route = "change_password",
+        titleResId = R.string.nav_change_password,
+        showBackButton = true,
+        showHelpButton = false
+    )
+
     data object ChatBot : AppDestination(
         route = "chatbot",
         titleResId = R.string.nav_chatbot,
@@ -333,6 +340,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.PaymentCards.route -> AppDestination.PaymentCards
     route == AppDestination.GeneralSettings.route -> AppDestination.GeneralSettings
     route == AppDestination.SecuritySettings.route -> AppDestination.SecuritySettings
+    route == AppDestination.ChangePassword.route -> AppDestination.ChangePassword
     route == AppDestination.ChatBot.route -> AppDestination.ChatBot
     route == AppDestination.IdentityVerification.route -> AppDestination.IdentityVerification
     route == AppDestination.LoanManagement.route -> AppDestination.LoanManagement
