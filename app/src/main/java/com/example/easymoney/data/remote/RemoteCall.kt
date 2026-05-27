@@ -15,8 +15,8 @@ suspend fun <T> safeApiCall(
     if (response.status == "success") {
         Resource.Success(response.data)
     } else {
-        Resource.Error(response.message ?: failMessage)
+        Resource.Error(userFriendlyErrorMessage(response.message, failMessage))
     }
 } catch (e: Exception) {
-    Resource.Error(e.message ?: "Network error")
+    Resource.Error(userFriendlyErrorMessage(e, failMessage))
 }

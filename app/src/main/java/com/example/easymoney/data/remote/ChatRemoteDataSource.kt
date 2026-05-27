@@ -15,9 +15,9 @@ class ChatRemoteDataSource @Inject constructor(
         if (response.status == "success") {
             Resource.Success(response.data.toDomain())
         } else {
-            Resource.Error(response.message ?: "Send message failed")
+            Resource.Error(userFriendlyErrorMessage(response.message, "Send message failed"))
         }
     } catch (e: Exception) {
-        Resource.Error(e.message ?: "Network error")
+        Resource.Error(userFriendlyErrorMessage(e, "Send message failed"))
     }
 }

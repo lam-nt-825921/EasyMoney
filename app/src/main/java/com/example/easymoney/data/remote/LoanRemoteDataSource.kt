@@ -19,9 +19,9 @@ class LoanRemoteDataSource @Inject constructor(
             if (response.status == "success") {
                 val data = response.data
                 Resource.Success(AuthToken(data.accessToken, data.refreshToken, data.expiresIn))
-            } else Resource.Error(response.message ?: "Login failed")
+            } else Resource.Error(userFriendlyErrorMessage(response.message, "Login failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Login failed"))
         }
     }
 
@@ -31,9 +31,9 @@ class LoanRemoteDataSource @Inject constructor(
             if (response.status == "success") {
                 val data = response.data
                 Resource.Success(AuthToken(data.accessToken, data.refreshToken, data.expiresIn))
-            } else Resource.Error(response.message ?: "Register failed")
+            } else Resource.Error(userFriendlyErrorMessage(response.message, "Register failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Register failed"))
         }
     }
 
@@ -41,9 +41,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.getMyPackage()
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Unknown error")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Unknown error"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e))
         }
     }
 
@@ -51,9 +51,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.getLoanPackageById(id)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Fetch loan package failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch loan package failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch loan package failed"))
         }
     }
 
@@ -74,10 +74,10 @@ class LoanRemoteDataSource @Inject constructor(
                 )
                 Resource.Success(metadata)
             } else {
-                Resource.Error(response.message ?: "API Error")
+                Resource.Error(userFriendlyErrorMessage(response.message, "API Error"))
             }
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "API Error"))
         }
     }
 
@@ -86,7 +86,7 @@ class LoanRemoteDataSource @Inject constructor(
             val response = apiService.getDistricts(provinceId, lang)
             Resource.Success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error")
+            Resource.Error(userFriendlyErrorMessage(e))
         }
     }
 
@@ -95,7 +95,7 @@ class LoanRemoteDataSource @Inject constructor(
             val response = apiService.getWards(districtId, lang)
             Resource.Success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error")
+            Resource.Error(userFriendlyErrorMessage(e))
         }
     }
 
@@ -108,9 +108,9 @@ class LoanRemoteDataSource @Inject constructor(
             
             val response = apiService.captureFace(facePart, metadataBody)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Capture failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Capture failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error during capture")
+            Resource.Error(userFriendlyErrorMessage(e, "Capture failed"))
         }
     }
 
@@ -118,9 +118,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.sendOtp(OtpRequest(purpose))
             if (response.status == "success") Resource.Success(Unit)
-            else Resource.Error(response.message ?: "OTP send failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "OTP send failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "OTP send failed"))
         }
     }
 
@@ -128,9 +128,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.verifyOtp(OtpVerifyRequest(otp, purpose))
             if (response.status == "success") Resource.Success(Unit)
-            else Resource.Error(response.message ?: "OTP verify failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "OTP verify failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "OTP verify failed"))
         }
     }
 
@@ -162,9 +162,9 @@ class LoanRemoteDataSource @Inject constructor(
                 lang = lang
             )
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Fetch loan packages failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch loan packages failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch loan packages failed"))
         }
     }
 
@@ -172,9 +172,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.checkEligibility(packageId)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Check eligibility failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Check eligibility failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Check eligibility failed"))
         }
     }
 
@@ -182,9 +182,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.getApplicableVouchers(packageId, loanAmount)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Fetch vouchers failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch vouchers failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch vouchers failed"))
         }
     }
 
@@ -192,9 +192,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.quoteLoan(packageId, request)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Quote loan failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Quote loan failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Quote loan failed"))
         }
     }
 
@@ -202,9 +202,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.submitApplication(request)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Submit loan failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Submit loan failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Submit loan failed"))
         }
     }
 
@@ -212,9 +212,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.matchEkyc(packageId)
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Match eKYC failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Match eKYC failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Match eKYC failed"))
         }
     }
 
@@ -222,9 +222,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.getContractContent(contractId, lang)
             if (response.status == "success") Resource.Success(response.data.content)
-            else Resource.Error(response.message ?: "Fetch contract failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch contract failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch contract failed"))
         }
     }
 
@@ -232,9 +232,9 @@ class LoanRemoteDataSource @Inject constructor(
         return try {
             val response = apiService.getNotifications()
             if (response.status == "success") Resource.Success(response.data)
-            else Resource.Error(response.message ?: "Fetch notifications failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch notifications failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch notifications failed"))
         }
     }
 
@@ -250,9 +250,9 @@ class LoanRemoteDataSource @Inject constructor(
             val request = FcmTestRequest(token, delay, title, content, type, amount)
             val response = apiService.triggerFcmTest(request)
             if (response.status == "success") Resource.Success(Unit)
-            else Resource.Error(response.message ?: "Trigger failed")
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Trigger failed"))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Network error")
+            Resource.Error(userFriendlyErrorMessage(e, "Trigger failed"))
         }
     }
 
@@ -260,25 +260,25 @@ class LoanRemoteDataSource @Inject constructor(
     suspend fun registerFcmToken(token: String): Resource<Unit> = try {
         val response = apiService.registerFcmToken(FcmTokenRequest(token))
         if (response.status == "success") Resource.Success(Unit)
-        else Resource.Error(response.message ?: "Register FCM token failed")
+        else Resource.Error(userFriendlyErrorMessage(response.message, "Register FCM token failed"))
     } catch (e: Exception) {
-        Resource.Error(e.message ?: "Network error")
+        Resource.Error(userFriendlyErrorMessage(e, "Register FCM token failed"))
     }
 
     suspend fun markNotificationRead(id: Long): Resource<Unit> = try {
         val response = apiService.markNotificationRead(id)
         if (response.status == "success") Resource.Success(Unit)
-        else Resource.Error(response.message ?: "Mark read failed")
+        else Resource.Error(userFriendlyErrorMessage(response.message, "Mark read failed"))
     } catch (e: Exception) {
-        Resource.Error(e.message ?: "Network error")
+        Resource.Error(userFriendlyErrorMessage(e, "Mark read failed"))
     }
 
     suspend fun markAllNotificationsRead(): Resource<Unit> = try {
         val response = apiService.markAllNotificationsRead()
         if (response.status == "success") Resource.Success(Unit)
-        else Resource.Error(response.message ?: "Mark all read failed")
+        else Resource.Error(userFriendlyErrorMessage(response.message, "Mark all read failed"))
     } catch (e: Exception) {
-        Resource.Error(e.message ?: "Network error")
+        Resource.Error(userFriendlyErrorMessage(e, "Mark all read failed"))
     }
 
     private fun com.example.easymoney.data.remote.dto.MasterDataItemDto.toDomain() = MasterDataItem(

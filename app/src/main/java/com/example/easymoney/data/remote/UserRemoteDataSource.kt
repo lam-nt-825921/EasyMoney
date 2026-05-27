@@ -21,7 +21,7 @@ class UserRemoteDataSource @Inject constructor(
             if (response.status == "success") {
                 Resource.Success(response.data.toDomain())
             } else {
-                Resource.Error(response.message ?: "Get profile failed")
+                Resource.Error(userFriendlyErrorMessage(response.message, "Get profile failed"))
             }
         }
     }
@@ -35,7 +35,7 @@ class UserRemoteDataSource @Inject constructor(
             if (response.status == "success") {
                 Resource.Success(response.data.toDomain())
             } else {
-                Resource.Error(response.message ?: "Get profile completion failed")
+                Resource.Error(userFriendlyErrorMessage(response.message, "Get profile completion failed"))
             }
         }
     }
@@ -53,11 +53,11 @@ class UserRemoteDataSource @Inject constructor(
     private fun com.example.easymoney.data.remote.dto.ApiResponse<Unit>.toUnitResource(
         failMessage: String
     ): Resource<Unit> =
-        if (status == "success") Resource.Success(Unit) else Resource.Error(message ?: failMessage)
+        if (status == "success") Resource.Success(Unit) else Resource.Error(userFriendlyErrorMessage(message, failMessage))
 
     private suspend fun <T> safeCall(block: suspend () -> Resource<T>): Resource<T> = try {
         block()
     } catch (e: Exception) {
-        Resource.Error(e.message ?: "Network error")
+        Resource.Error(userFriendlyErrorMessage(e))
     }
 }
