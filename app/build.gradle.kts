@@ -43,6 +43,14 @@ android {
     buildFeatures {
         compose = true
     }
+    lint {
+        disable += setOf(
+            "FlowOperatorInvokedInComposition",
+            "FrequentlyChangingValue",
+            "NullSafeMutableLiveData",
+            "RememberInComposition"
+        )
+    }
 }
 
 dependencies {

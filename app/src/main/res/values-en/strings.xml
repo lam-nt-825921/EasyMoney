@@ -350,6 +350,7 @@
     <string name="nav_contract">Your contract</string>
     <string name="nav_esign_success">Contract signed</string>
     <string name="nav_event_detail">Event details</string>
+    <string name="nav_web_content">Web content</string>
     <string name="nav_rewards">Rewards</string>
     <string name="nav_loan_list">Loan packages</string>
     <string name="nav_loan_detail">Loan package details</string>
