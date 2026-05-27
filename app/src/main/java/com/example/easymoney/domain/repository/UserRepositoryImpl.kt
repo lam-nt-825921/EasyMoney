@@ -19,6 +19,8 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     private var profile: UserProfile = SAMPLE_USER_PROFILE
+    private var cachedProfileCompletion: ProfileCompletion? = null
+    private var cachedProfileCompletionIsFromMock: Boolean = false
 
     /** Mock-mode current password used to validate change-password requests offline. */
     private var mockCurrentPassword: String = MOCK_DEFAULT_PASSWORD
@@ -35,26 +37,42 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getProfileCompletion(): Resource<ProfileCompletion> {
+    override fun getCachedProfileCompletion(): ProfileCompletion? = cachedProfileCompletion
+
+    override suspend fun getProfileCompletion(forceRefresh: Boolean): Resource<ProfileCompletion> {
+        if (!forceRefresh) {
+            cachedProfileCompletion?.let {
+                return Resource.Success(it, isFromMock = cachedProfileCompletionIsFromMock)
+            }
+        }
+
         val mode = appPreferences.dataSourceMode
-        Log.d(TAG, "UserRepository.getProfileCompletion mode=$mode")
+        Log.d(TAG, "UserRepository.getProfileCompletion mode=$mode forceRefresh=$forceRefresh")
         return when (mode) {
             DataSourceMode.MOCK -> {
                 delay(200)
-                Resource.Success(
-                    ProfileCompletion(
-                        isProfileCompleted = profile.isProfileCompleted,
-                        canApplyLoan = profile.isProfileCompleted,
-                        completionPercent = if (profile.isProfileCompleted) 100 else 75,
-                        missingFields = profile.missingFields,
-                        nextAction = if (profile.isProfileCompleted) "APPLY_LOAN" else "IDENTITY_VERIFICATION",
-                        statusMessage = profile.statusMessage
-                            ?: if (profile.isProfileCompleted) "Hồ sơ đã hoàn thiện, bạn có thể đăng ký vay." else "Bạn cần hoàn thiện hồ sơ trước khi đăng ký vay."
-                    ),
-                    isFromMock = true
-                )
+                val completion = deriveProfileCompletionFromProfile(profile)
+                cachedProfileCompletion = completion
+                cachedProfileCompletionIsFromMock = true
+                Resource.Success(completion, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> remoteDataSource.getProfileCompletion()
+            DataSourceMode.REMOTE -> {
+                when (val result = remoteDataSource.getProfileCompletion()) {
+                    is Resource.Success -> {
+                        cachedProfileCompletion = result.data
+                        cachedProfileCompletionIsFromMock = result.isFromMock
+                        result
+                    }
+                    is Resource.Error -> {
+                        Resource.Error(
+                            message = result.message,
+                            throwable = result.throwable,
+                            data = cachedProfileCompletion
+                        )
+                    }
+                    Resource.Loading -> result
+                }
+            }
         }
     }
 
@@ -65,9 +83,19 @@ class UserRepositoryImpl @Inject constructor(
             DataSourceMode.MOCK -> {
                 delay(500)
                 profile = updatedProfile
+                updateCachedCompletionFromProfile(updatedProfile, isFromMock = true)
                 Resource.Success(Unit, isFromMock = true)
             }
-            DataSourceMode.REMOTE -> remoteDataSource.updateProfile(updatedProfile)
+            DataSourceMode.REMOTE -> {
+                when (val result = remoteDataSource.updateProfile(updatedProfile)) {
+                    is Resource.Success -> {
+                        updateCachedCompletionFromProfile(updatedProfile, isFromMock = false)
+                        result
+                    }
+                    is Resource.Error -> result
+                    Resource.Loading -> result
+                }
+            }
         }
     }
 
@@ -98,6 +126,44 @@ class UserRepositoryImpl @Inject constructor(
             }
             DataSourceMode.REMOTE -> remoteDataSource.changePassword(oldPassword, newPassword)
         }
+    }
+
+    private fun deriveProfileCompletionFromProfile(profile: UserProfile): ProfileCompletion {
+        val isIdentityDocumentVerified = profile.identityStatus.isIdentityDocumentVerified
+        val isIdentityComplete = profile.identityStatus.isFaceVerified && isIdentityDocumentVerified
+        val isCompleted = profile.isProfileCompleted || isIdentityComplete
+        val missingFields = buildList {
+            addAll(profile.missingFields)
+            if (!profile.identityStatus.isFaceVerified && none { it == "FACE_VERIFICATION" }) {
+                add("FACE_VERIFICATION")
+            }
+            if (!isIdentityDocumentVerified && none { it == "IDENTITY_DOCUMENT" }) {
+                add("IDENTITY_DOCUMENT")
+            }
+        }
+        val completionPercent = when {
+            isCompleted -> 100
+            profile.identityStatus.isFaceVerified || isIdentityDocumentVerified -> 75
+            else -> 50
+        }
+
+        return ProfileCompletion(
+            isProfileCompleted = isCompleted,
+            canApplyLoan = isCompleted,
+            completionPercent = completionPercent,
+            missingFields = missingFields,
+            nextAction = if (isCompleted) "APPLY_LOAN" else "IDENTITY_VERIFICATION",
+            statusMessage = profile.statusMessage ?: if (isCompleted) {
+                "Hồ sơ đã hoàn thiện, bạn có thể đăng ký vay."
+            } else {
+                "Bạn cần hoàn thiện xác thực khuôn mặt và Căn cước công dân trước khi đăng ký vay."
+            }
+        )
+    }
+
+    private fun updateCachedCompletionFromProfile(profile: UserProfile, isFromMock: Boolean) {
+        cachedProfileCompletion = deriveProfileCompletionFromProfile(profile)
+        cachedProfileCompletionIsFromMock = isFromMock
     }
 }
 

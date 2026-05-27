@@ -185,6 +185,9 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = userRepository.updateProfile(_uiState.value.profile)
+            if (result is Resource.Success) {
+                userRepository.getProfileCompletion(forceRefresh = true)
+            }
             _uiState.update { 
                 it.copy(
                     isLoading = false, 

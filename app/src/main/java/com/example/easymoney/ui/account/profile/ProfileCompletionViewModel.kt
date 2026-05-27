@@ -95,8 +95,11 @@ class ProfileCompletionViewModel @Inject constructor(
     fun updateAvatar(uri: String) {
         val updatedProfile = _uiState.value.profile.copy(avatarUri = uri)
         viewModelScope.launch {
-            userRepository.updateProfile(updatedProfile)
-            _uiState.update { it.copy(profile = updatedProfile) }
+            val result = userRepository.updateProfile(updatedProfile)
+            if (result is Resource.Success) {
+                userRepository.getProfileCompletion(forceRefresh = true)
+                _uiState.update { it.copy(profile = updatedProfile) }
+            }
         }
     }
 
@@ -106,8 +109,11 @@ class ProfileCompletionViewModel @Inject constructor(
         val updatedProfile = currentProfile.copy(identityStatus = newStatus)
         
         viewModelScope.launch {
-            userRepository.updateProfile(updatedProfile)
-            _uiState.update { it.copy(profile = updatedProfile) }
+            val result = userRepository.updateProfile(updatedProfile)
+            if (result is Resource.Success) {
+                userRepository.getProfileCompletion(forceRefresh = true)
+                _uiState.update { it.copy(profile = updatedProfile) }
+            }
         }
     }
 }

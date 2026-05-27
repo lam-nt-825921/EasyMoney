@@ -7,6 +7,7 @@ import com.example.easymoney.domain.model.LoginRequest
 import com.example.easymoney.domain.model.RegisterRequest
 import com.example.easymoney.domain.model.RememberedAccount
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.utils.UiText
 import com.example.easymoney.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,8 @@ data class LoginUiState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoanRepository
+    private val repository: LoanRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -69,6 +71,7 @@ class LoginViewModel @Inject constructor(
                     // Ở đây mock tạm phone là name nếu chưa có
                     repository.saveRememberedAccount(RememberedAccount(phone, fullName = "User $phone"))
                 }
+                userRepository.getProfileCompletion(forceRefresh = true)
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
             } else if (result is Resource.Error) {
                 _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString(result.message)) }
@@ -85,6 +88,7 @@ class LoginViewModel @Inject constructor(
             val result = repository.register(RegisterRequest(phone, fullName, password))
             
             if (result is Resource.Success) {
+                userRepository.getProfileCompletion(forceRefresh = true)
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
             } else if (result is Resource.Error) {
                 _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString(result.message)) }

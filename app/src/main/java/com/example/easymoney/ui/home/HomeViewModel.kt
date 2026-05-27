@@ -29,6 +29,9 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        userRepository.getCachedProfileCompletion()?.let { cachedCompletion ->
+            _uiState.update { it.copy(profileCompletion = cachedCompletion) }
+        }
         loadHomeData()
     }
 
@@ -57,10 +60,39 @@ class HomeViewModel @Inject constructor(
                     banners = if (bannersRes is Resource.Success) bannersRes.data else state.banners,
                     hotLoans = if (hotLoansRes is Resource.Success) hotLoansRes.data else state.hotLoans,
                     eKycStatus = if (eKycRes is Resource.Success) eKycRes.data else state.eKycStatus,
-                    profileCompletion = if (profileCompletionRes is Resource.Success) profileCompletionRes.data else state.profileCompletion,
+                    profileCompletion = when (profileCompletionRes) {
+                        is Resource.Success -> profileCompletionRes.data
+                        is Resource.Error -> profileCompletionRes.data ?: state.profileCompletion
+                        else -> state.profileCompletion
+                    },
+                    profileCompletionErrorMessage = if (profileCompletionRes is Resource.Error) profileCompletionRes.message else null,
                     rewardPoints = if (rewardsRes is Resource.Success) rewardsRes.data.totalPoints else state.rewardPoints,
                     errorMessage = if (userRes is Resource.Error) userRes.message else null
                 )
+            }
+        }
+    }
+
+    fun refreshProfileCompletion() {
+        viewModelScope.launch {
+            when (val result = userRepository.getProfileCompletion(forceRefresh = true)) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            profileCompletion = result.data,
+                            profileCompletionErrorMessage = null
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            profileCompletion = result.data ?: it.profileCompletion,
+                            profileCompletionErrorMessage = result.message
+                        )
+                    }
+                }
+                Resource.Loading -> Unit
             }
         }
     }

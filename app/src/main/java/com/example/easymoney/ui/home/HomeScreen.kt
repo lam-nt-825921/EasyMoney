@@ -66,6 +66,10 @@ fun HomeScreen(
                     }
                 }
 
+                uiState.profileCompletionErrorMessage?.let { message ->
+                    ProfileCompletionRefreshError(message = message)
+                }
+
                 // Banner Carousel — workflow #21: banner LOAN điều hướng thẳng sang LoanDetail,
                 // không kiểm tra eligibility tại Home.
                 BannerCarousel(
@@ -103,6 +107,22 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileCompletionRefreshError(message: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        )
     }
 }
 

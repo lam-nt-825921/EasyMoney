@@ -20,6 +20,7 @@ data class HomeUiState(
     val hotLoans: List<LoanProduct> = emptyList(),
     val eKycStatus: EKycStatus? = null,
     val profileCompletion: ProfileCompletion? = null,
+    val profileCompletionErrorMessage: String? = null,
     val rewardPoints: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null
