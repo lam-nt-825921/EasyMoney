@@ -89,11 +89,14 @@ class UserRepositoryImpl @Inject constructor(
             DataSourceMode.REMOTE -> {
                 when (val result = remoteDataSource.updateProfile(updatedProfile)) {
                     is Resource.Success -> {
-                        updateCachedCompletionFromProfile(updatedProfile, isFromMock = false)
-                        result
+                        updateCachedCompletionFromProfile(result.data, isFromMock = false)
+                        Resource.Success(Unit, isFromMock = false)
                     }
-                    is Resource.Error -> result
-                    Resource.Loading -> result
+                    is Resource.Error -> Resource.Error<Unit>(
+                        message = result.message,
+                        throwable = result.throwable
+                    )
+                    Resource.Loading -> Resource.Loading
                 }
             }
         }

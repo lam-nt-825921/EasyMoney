@@ -45,7 +45,7 @@ fun TransactionHistoryScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             state.groups.isEmpty() -> Text(
-                text = stringResource(R.string.history_balance_label, "0"),
+                text = stringResource(R.string.history_empty_state),
                 modifier = Modifier.align(Alignment.Center),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

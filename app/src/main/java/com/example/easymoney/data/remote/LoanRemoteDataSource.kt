@@ -1,5 +1,6 @@
 package com.example.easymoney.data.remote
 
+import com.example.easymoney.data.remote.dto.UserProfileDto
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.*
 import com.example.easymoney.domain.repository.EligibilityResult
@@ -44,6 +45,16 @@ class LoanRemoteDataSource @Inject constructor(
             else Resource.Error(userFriendlyErrorMessage(response.message, "Unknown error"))
         } catch (e: Exception) {
             Resource.Error(userFriendlyErrorMessage(e))
+        }
+    }
+
+    suspend fun getProfile(): Resource<UserProfileDto> {
+        return try {
+            val response = apiService.getProfile()
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch profile failed"))
+        } catch (e: Exception) {
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch profile failed"))
         }
     }
 
@@ -101,12 +112,7 @@ class LoanRemoteDataSource @Inject constructor(
 
     suspend fun captureFace(imageFile: File, metadataJson: String): Resource<EkycCaptureResponse> {
         return try {
-            val imageBody = imageFile.asRequestBody("image/jpeg".toMediaType())
-            val facePart = MultipartBody.Part.createFormData("face_image", imageFile.name, imageBody)
-            
-            val metadataBody = metadataJson.toRequestBody("application/json".toMediaType())
-            
-            val response = apiService.captureFace(facePart, metadataBody)
+            val response = apiService.captureFaceMock(FaceCaptureMockRequest())
             if (response.status == "success") Resource.Success(response.data)
             else Resource.Error(userFriendlyErrorMessage(response.message, "Capture failed"))
         } catch (e: Exception) {
@@ -116,7 +122,7 @@ class LoanRemoteDataSource @Inject constructor(
 
     suspend fun sendOtp(purpose: String): Resource<Unit> {
         return try {
-            val response = apiService.sendOtp(OtpRequest(purpose))
+            val response = apiService.sendOtp(OtpRequest("0384473136",purpose))
             if (response.status == "success") Resource.Success(Unit)
             else Resource.Error(userFriendlyErrorMessage(response.message, "OTP send failed"))
         } catch (e: Exception) {
@@ -228,6 +234,79 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
+    suspend fun startEkycSession(supportsNfc: Boolean): Resource<String> {
+        return try {
+            val response = apiService.createEkycSession(
+                EkycSessionRequest(device = mapOf("supportsNfc" to supportsNfc))
+            )
+            if (response.status == "success") Resource.Success(response.data.sessionId)
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Create eKYC session failed"))
+        } catch (e: Exception) {
+            Resource.Error(userFriendlyErrorMessage(e, "Create eKYC session failed"))
+        }
+    }
+
+    suspend fun uploadIdentityDocument(): Resource<Unit> = try {
+        val metadata = """{"flow":"PROFILE_COMPLETION","document_type":"VN_CCCD"}"""
+            .toRequestBody("application/json".toMediaType())
+        val response = apiService.uploadIdentityDocument(metadata)
+        if (response.status == "success" && response.data.status == "VERIFIED") {
+            Resource.Success(Unit)
+        } else {
+            Resource.Error(userFriendlyErrorMessage(response.message ?: "Xác thực giấy tờ không thành công.", "Upload document failed"))
+        }
+    } catch (e: Exception) {
+        Resource.Error(userFriendlyErrorMessage(e, "Upload document failed"))
+    }
+
+    suspend fun submitNfcIdentity(sessionId: String?, nfcData: Map<String, String>): Resource<Unit> = try {
+        val response = apiService.submitNfcIdentity(
+            DocumentNfcRequest(
+                sessionId = sessionId.orEmpty().ifBlank { "mobile_${System.currentTimeMillis()}" },
+                nfc = nfcData
+            )
+        )
+        if (response.status == "success" && response.data.status == "VERIFIED") {
+            Resource.Success(Unit)
+        } else {
+            Resource.Error(userFriendlyErrorMessage(response.message ?: "Xác thực NFC không thành công.", "NFC verification failed"))
+        }
+    } catch (e: Exception) {
+        Resource.Error(userFriendlyErrorMessage(e, "NFC verification failed"))
+    }
+
+    suspend fun getApprovedContracts(): Resource<List<LoanContractModel>> {
+        return try {
+            val response = apiService.getApprovedContracts()
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch contracts failed"))
+        } catch (e: Exception) {
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch contracts failed"))
+        }
+    }
+
+    suspend fun cancelContract(contractId: String): Resource<Unit> = unitCall("Cancel contract failed") {
+        apiService.cancelContract(contractId)
+    }
+
+    suspend fun signContract(contractId: String): Resource<Unit> = unitCall("Sign contract failed") {
+        apiService.signContract(contractId)
+    }
+
+    suspend fun getDebts(): Resource<List<LoanDebtModel>> {
+        return try {
+            val response = apiService.getDebts()
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(userFriendlyErrorMessage(response.message, "Fetch debts failed"))
+        } catch (e: Exception) {
+            Resource.Error(userFriendlyErrorMessage(e, "Fetch debts failed"))
+        }
+    }
+
+    suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String? = null): Resource<Unit> = unitCall("Repay debt failed") {
+        apiService.repayDebt(debtId, RepayDebtRequest(repayType.apiValue, cardId))
+    }
+
     suspend fun getNotifications(): Resource<List<NotificationDto>> {
         return try {
             val response = apiService.getNotifications()
@@ -279,6 +358,17 @@ class LoanRemoteDataSource @Inject constructor(
         else Resource.Error(userFriendlyErrorMessage(response.message, "Mark all read failed"))
     } catch (e: Exception) {
         Resource.Error(userFriendlyErrorMessage(e, "Mark all read failed"))
+    }
+
+    private suspend fun unitCall(
+        failMessage: String,
+        call: suspend () -> com.example.easymoney.data.remote.dto.ApiResponse<Map<String, Any>>
+    ): Resource<Unit> = try {
+        val response = call()
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(userFriendlyErrorMessage(response.message, failMessage))
+    } catch (e: Exception) {
+        Resource.Error(userFriendlyErrorMessage(e, failMessage))
     }
 
     private fun com.example.easymoney.data.remote.dto.MasterDataItemDto.toDomain() = MasterDataItem(

@@ -12,5 +12,23 @@ data class LoanContractModel(
 )
 
 enum class ContractStatus {
-    APPROVED, CANCELLED, SIGNED
+    APPROVED, CANCELLED, SIGNED, DISBURSED
+}
+
+data class LoanDebtModel(
+    val id: Long,
+    val applicationId: String,
+    val totalAmount: Long,
+    val remainingPrincipal: Long,
+    val monthlyPayment: Long,
+    val interestRate: Double,
+    val totalMonths: Int,
+    val monthsPaid: Int,
+    val status: String,
+    val createdAt: String
+)
+
+enum class RepayType(val apiValue: String) {
+    MONTHLY("MONTHLY"),
+    FULL_EARLY("FULL_EARLY")
 }

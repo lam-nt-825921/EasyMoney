@@ -5,6 +5,8 @@ import com.example.easymoney.domain.model.ApplicableVoucher
 import com.example.easymoney.domain.model.EkycMatchResponse
 import com.example.easymoney.domain.model.EkycCaptureResponse
 import com.example.easymoney.domain.model.LoanApplicationRequest
+import com.example.easymoney.domain.model.LoanContractModel
+import com.example.easymoney.domain.model.LoanDebtModel
 import com.example.easymoney.domain.model.LoanPackageModel
 import com.example.easymoney.domain.model.LoanQuote
 import com.example.easymoney.domain.model.LoanQuoteRequest
@@ -25,6 +27,9 @@ interface LoanApiService {
 
     @GET("api/v1/loan/package/my")
     suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
+
+    @GET("api/v1/user/profile")
+    suspend fun getProfile(): ApiResponse<UserProfileDto>
 
     @GET("api/v1/loan/package/{id}")
     suspend fun getLoanPackageById(@Path("id") id: String): ApiResponse<LoanPackageModel>
@@ -89,6 +94,21 @@ interface LoanApiService {
         @Part("meta") metadata: RequestBody
     ): ApiResponse<EkycCaptureResponse>
 
+    @POST("api/v1/ekyc/session")
+    suspend fun createEkycSession(@Body request: EkycSessionRequest): ApiResponse<EkycSessionResponse>
+
+    @POST("api/v1/ekyc/capture/face-base64")
+    suspend fun captureFaceMock(@Body request: FaceCaptureMockRequest): ApiResponse<EkycCaptureResponse>
+
+    @Multipart
+    @POST("api/v1/ekyc/document/upload")
+    suspend fun uploadIdentityDocument(
+        @Part("meta") metadata: RequestBody
+    ): ApiResponse<DocumentUploadResponse>
+
+    @POST("api/v1/ekyc/document/nfc")
+    suspend fun submitNfcIdentity(@Body request: DocumentNfcRequest): ApiResponse<DocumentUploadResponse>
+
     // --- OTP ---
     @POST("api/v1/otp/send")
     suspend fun sendOtp(@Body request: OtpRequest): ApiResponse<Unit>
@@ -102,6 +122,24 @@ interface LoanApiService {
         @Path("contractId") contractId: String,
         @Query("lang") lang: String = "vi"
     ): ApiResponse<ContractContentDto>
+
+    @GET("api/v1/loan/contracts/approved")
+    suspend fun getApprovedContracts(): ApiResponse<List<LoanContractModel>>
+
+    @POST("api/v1/loan/contracts/{contractId}/cancel")
+    suspend fun cancelContract(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
+
+    @POST("api/v1/loan/contracts/{contractId}/sign")
+    suspend fun signContract(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
+
+    @GET("api/v1/loan/debts")
+    suspend fun getDebts(): ApiResponse<List<LoanDebtModel>>
+
+    @POST("api/v1/loan/debts/{debtId}/repay")
+    suspend fun repayDebt(
+        @Path("debtId") debtId: Long,
+        @Body request: RepayDebtRequest
+    ): ApiResponse<Map<String, Any>>
 
     // --- Notifications ---
     @GET("api/v1/notifications")
@@ -140,8 +178,50 @@ data class FcmTestRequest(
     val amount: Long? = null
 )
 
-data class OtpRequest(val purpose: String)
+data class OtpRequest(
+    @SerializedName("phone") val phone: String,
+    @SerializedName("purpose") val purpose: String
+)
 data class OtpVerifyRequest(val otp: String, val purpose: String)
+data class RepayDebtRequest(
+    val repayType: String,
+    val cardId: String? = null,
+    val paymentMethod: String = if (cardId.isNullOrBlank()) "WALLET" else "CARD"
+)
+
+data class EkycSessionRequest(
+    val flow: String = "PROFILE_COMPLETION",
+    val lang: String = "vi",
+    val device: Map<String, Boolean>? = null
+)
+
+data class EkycSessionResponse(
+    val sessionId: String,
+    val status: String,
+    val requiredSteps: List<String>,
+    val completedSteps: List<String>,
+    val availableDocumentMethods: List<String>
+)
+
+data class FaceCaptureMockRequest(
+    val qualityScore: Double = 0.9,
+    val precheckPassed: Boolean = true
+)
+
+data class DocumentUploadResponse(
+    val documentId: String,
+    val method: String,
+    val status: String,
+    val extracted: Map<String, Any> = emptyMap(),
+    val matchResult: Map<String, Any> = emptyMap()
+)
+
+data class DocumentNfcRequest(
+    val sessionId: String,
+    val selfieCaptureId: String? = null,
+    val documentType: String = "VN_CCCD",
+    val nfc: Map<String, String>
+)
 
 data class ContractContentDto(
     @SerializedName("contractId") val contractId: String,
@@ -174,6 +254,8 @@ data class NotificationDto(
     val amount: Long? = null,
     val balanceAfter: Long? = null,
     val transactionCode: String? = null,
+    val targetId: String? = null,
+    val targetType: String? = null,
     val timestamp: Long,
     val isRead: Boolean
 )

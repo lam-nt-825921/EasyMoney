@@ -79,7 +79,7 @@ fun EkycIntroScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Chụp CCCD/CMND",
+                text = "Xác thực khuôn mặt",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -104,16 +104,12 @@ fun EkycIntroScreen(
                 modifier = Modifier.padding(top = 4.dp, start = 2.dp, end = 2.dp)
             ) {
                 EkycInstructionText(
+                    step = "Lưu ý",
+                    content = "Vui lòng giữ điện thoại trước mặt và thực hiện theo hướng dẫn trên màn hình để xác thực."
+                )
+                EkycInstructionText(
                     step = "Bước 1",
-                    content = "Chụp mặt trước CMND/CCCD của bạn"
-                )
-                EkycInstructionText(
-                    step = "Bước 2",
-                    content = "Chụp mặt sau CMND/CCCD của bạn"
-                )
-                EkycInstructionText(
-                    step = "Bước 3",
-                    content = "Chụp ảnh chân dung của bạn"
+                    content = "Chụp ảnh chân dung của bạn trong môi trường đủ ánh sáng."
                 )
             }
 

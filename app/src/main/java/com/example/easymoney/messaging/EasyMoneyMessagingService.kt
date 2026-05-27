@@ -44,6 +44,8 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
             val type = data["type"] ?: "transaction"
             val amount = data["amount"]?.toLongOrNull()
             val transactionCode = data["transactionCode"]
+            val targetId = data["targetId"] ?: data["target_id"]
+            val targetType = data["targetType"] ?: data["target_type"]
             val userId = "user_123" // Trong thực tế lấy từ Session/Auth
 
             // 1. Lưu vào Database local ngay lập tức
@@ -55,6 +57,8 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
                     type = type,
                     amount = amount,
                     transactionCode = transactionCode,
+                    targetId = targetId,
+                    targetType = targetType,
                     timestamp = System.currentTimeMillis(),
                     isRead = false
                 )

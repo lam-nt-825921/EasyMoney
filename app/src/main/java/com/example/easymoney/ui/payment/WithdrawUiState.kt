@@ -9,6 +9,7 @@ data class WithdrawUiState(
     val selectedCardId: String? = null,
     val isSubmitting: Boolean = false,
     val errorMessage: String? = null,
+    val shouldNavigateToAddCard: Boolean = false,
     val successMessage: String? = null
 ) {
     val amountValue: Long? get() = amountText.toLongOrNull()

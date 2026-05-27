@@ -37,7 +37,7 @@ class WithdrawViewModel @Inject constructor(
     }
 
     fun onAmountChange(value: String) {
-        _uiState.update { it.copy(amountText = value.filter { c -> c.isDigit() }.take(12), errorMessage = null) }
+        _uiState.update { it.copy(amountText = value.filter { c -> c.isDigit() }.take(12), errorMessage = null, shouldNavigateToAddCard = false) }
     }
 
     fun onSelectCard(id: String) {
@@ -50,6 +50,12 @@ class WithdrawViewModel @Inject constructor(
         when {
             amount == null || amount <= 0 -> _uiState.update { it.copy(errorMessage = "Số tiền không hợp lệ") }
             amount > state.balance -> _uiState.update { it.copy(errorMessage = "Số dư không đủ") }
+            state.cards.isEmpty() -> _uiState.update {
+                it.copy(
+                    errorMessage = "Bạn chưa thêm thẻ ngân hàng. Vui lòng thêm thẻ để tiếp tục.",
+                    shouldNavigateToAddCard = true
+                )
+            }
             state.selectedCardId == null -> _uiState.update { it.copy(errorMessage = "Chưa chọn đích đến") }
             else -> submit(amount, state.selectedCardId)
         }
@@ -70,13 +76,30 @@ class WithdrawViewModel @Inject constructor(
                         )
                     }
                 }
-                is Resource.Error -> _uiState.update { it.copy(isSubmitting = false, errorMessage = res.message) }
+                is Resource.Error -> _uiState.update {
+                    it.copy(
+                        isSubmitting = false,
+                        errorMessage = res.message.removeNavigationMarker(),
+                        shouldNavigateToAddCard = res.message.shouldNavigateToAddCard()
+                    )
+                }
                 is Resource.Loading -> Unit
             }
         }
     }
 
     fun consumeMessages() {
-        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, successMessage = null, shouldNavigateToAddCard = false) }
+    }
+
+    fun consumeAddCardNavigation() {
+        _uiState.update { it.copy(shouldNavigateToAddCard = false) }
     }
 }
+
+private fun String.shouldNavigateToAddCard(): Boolean =
+    contains("NAVIGATE_ADD_CARD", ignoreCase = true) ||
+        contains("chưa thêm thẻ", ignoreCase = true)
+
+private fun String.removeNavigationMarker(): String =
+    replace(" | NAVIGATE_ADD_CARD", "").replace("NAVIGATE_ADD_CARD", "").trim()

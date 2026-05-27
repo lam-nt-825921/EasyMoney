@@ -9,7 +9,8 @@ import com.example.easymoney.domain.model.LoanApplicationRequest
 enum class LoanSubState {
     CONFIG,             // Step 1: Cấu hình khoản vay
     EKYC_INTRO,         // Step 2: Hướng dẫn eKYC
-    EKYC_CAPTURE,       // Step 2: Chụp ảnh eKYC
+    EKYC_DOCUMENT,      // Step 2: Chụp ảnh giấy tờ (CMND/CCCD)
+    EKYC_CAPTURE,       // Step 2: Chụp ảnh khuôn mặt
     CUSTOMER_FORM,      // Step 2: Điền form thông tin
     CONFIRM_FORM,       // Step 3: Xác nhận thông tin & Ký hợp đồng
     REGISTRATION_SUCCESS // Màn hình thông báo gửi thành công

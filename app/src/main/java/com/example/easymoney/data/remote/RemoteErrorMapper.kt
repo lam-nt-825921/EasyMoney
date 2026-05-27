@@ -7,12 +7,34 @@ import retrofit2.HttpException
 
 fun userFriendlyErrorMessage(throwable: Throwable, fallback: String = NETWORK_ERROR_MESSAGE): String {
     return when (throwable) {
-        is HttpException -> userFriendlyHttpMessage(throwable.code())
+        is HttpException -> userFriendlyHttpExceptionMessage(throwable)
         is UnknownHostException -> NO_INTERNET_MESSAGE
         is SocketTimeoutException -> TIMEOUT_MESSAGE
         is IOException -> NETWORK_ERROR_MESSAGE
         else -> userFriendlyErrorMessage(throwable.message ?: fallback, fallback)
     }
+}
+
+private fun userFriendlyHttpExceptionMessage(exception: HttpException): String {
+    val body = exception.response()?.errorBody()?.string().orEmpty()
+    if (body.isNotBlank()) {
+        extractBackendDetailMessage(body)?.let { return it }
+    }
+    return userFriendlyHttpMessage(exception.code())
+}
+
+private fun extractBackendDetailMessage(body: String): String? {
+    if ("CARD_REQUIRED" in body || "NAVIGATE_ADD_CARD" in body) {
+        val message = Regex(""""message"\s*:\s*"([^"]+)"""")
+            .find(body)
+            ?.groupValues
+            ?.getOrNull(1)
+        return listOfNotNull(message, "NAVIGATE_ADD_CARD").joinToString(" | ")
+    }
+    return Regex(""""detail"\s*:\s*"([^"]+)"""")
+        .find(body)
+        ?.groupValues
+        ?.getOrNull(1)
 }
 
 fun userFriendlyErrorMessage(rawMessage: String?, fallback: String = UNKNOWN_ERROR_MESSAGE): String {

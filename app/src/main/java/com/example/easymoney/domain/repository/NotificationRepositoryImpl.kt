@@ -91,6 +91,8 @@ class NotificationRepositoryImpl @Inject constructor(
                         amount = dto.amount,
                         balanceAfter = dto.balanceAfter,
                         transactionCode = dto.transactionCode,
+                        targetId = dto.targetId,
+                        targetType = dto.targetType,
                         timestamp = if (dto.timestamp > 0) dto.timestamp else System.currentTimeMillis(),
                         isRead = dto.isRead
                     )

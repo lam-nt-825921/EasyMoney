@@ -384,7 +384,7 @@
     <string name="esign_success_desc">Bạn hãy đợi chờ trong giây lát để hệ thống thực hiện giải ngân.</string>
     <!-- History Strings -->
     
-    <!-- Event Strings -->
+    <string name="history_empty_state">Chưa có giao dịch</string>
     <string name="history_balance_label">Số dư: %1$sđ</string>
     <string name="event_time_label">Thời gian: %1$s</string>
     <string name="event_join_now">Tham gia ngay</string>
@@ -426,7 +426,7 @@
     <string name="loan_detail_condition_age">Công dân Việt Nam từ 20 - 60 tuổi</string>
     <string name="loan_detail_condition_income">Có thu nhập ổn định từ 5 triệu đồng/tháng</string>
     <string name="loan_detail_condition_credit">Có lịch sử tín dụng tốt (không nợ xấu)</string>
-    <string name="loan_detail_example_note">Ví dụ: Vay 10tr trong 6 tháng với lãi suất 12%%/năm, mỗi tháng bạn trả khoảng 1.725.000đ.</string>
+    <string name="loan_detail_example_note" formatted="false">Ví dụ: Vay 10tr trong 6 tháng với lãi suất 12%/năm, mỗi tháng bạn trả khoảng 1.725.000đ.</string>
     <string name="loan_list_filter_title">Bộ lọc khoản vay</string>
     <string name="loan_list_filter_amount">Hạn mức mong muốn: %s</string>
     <string name="loan_list_filter_eligible_only">Chỉ hiện gói đủ điều kiện</string>

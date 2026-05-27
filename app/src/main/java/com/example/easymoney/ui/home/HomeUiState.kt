@@ -18,6 +18,7 @@ data class HomeUiState(
     val userName: String = "",
     val banners: List<Banner> = emptyList(),
     val hotLoans: List<LoanProduct> = emptyList(),
+    val recommendedLoan: LoanProduct? = null,
     val eKycStatus: EKycStatus? = null,
     val profileCompletion: ProfileCompletion? = null,
     val profileCompletionErrorMessage: String? = null,

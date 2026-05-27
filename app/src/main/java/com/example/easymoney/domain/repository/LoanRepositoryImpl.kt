@@ -187,7 +187,7 @@ class LoanRepositoryImpl @Inject constructor(
     )
 
     private val mockLoanProviderInfo = LoanProviderInfoModel(
-        organizationName = "Tổ chức tài chính EASY MONEY",
+        organizationName = "easyMoney",
         hotline = "9999 9999",
         address = "114 Xuân Thủy, Phường Cầu Giấy, Thành phố Hà Nội."
     )
@@ -223,7 +223,12 @@ class LoanRepositoryImpl @Inject constructor(
 
     override suspend fun getMyInfo(): Resource<MyInfoModel> {
         if (isRemote()) {
-            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thông tin cá nhân khoản vay.")
+            val result = remoteDataSource?.getProfile() ?: Resource.Error("Remote source error")
+            return when (result) {
+                is Resource.Success -> Resource.Success(result.data.toMyInfoModel())
+                is Resource.Error -> Resource.Error(result.message)
+                Resource.Loading -> Resource.Loading
+            }
         }
 
         delay(2000) // Tăng delay lên 2s để test skeleton
@@ -231,9 +236,36 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(data = mockMyInfo, isFromMock = true)
     }
 
+    private fun com.example.easymoney.data.remote.dto.UserProfileDto.toMyInfoModel(): MyInfoModel {
+        val p = personalInfo
+        val a = addressInfo
+        
+        // Parse address parts if they are in the string "Ward, District, Province"
+        val addressParts = a?.permanentAddress?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+        val province = addressParts.getOrNull(addressParts.size - 1)
+        val district = addressParts.getOrNull(addressParts.size - 2)
+        val ward = addressParts.getOrNull(addressParts.size - 3)
+        val detail = if (addressParts.size >= 4) addressParts.dropLast(3).joinToString(", ") else addressParts.firstOrNull()
+
+        return MyInfoModel(
+            fullName = p?.fullName.orEmpty(),
+            gender = p?.gender.orEmpty(),
+            dateOfBirth = p?.dateOfBirth.orEmpty(),
+            phoneNumber = p?.phoneNumber.orEmpty(),
+            nationalId = p?.nationalId.orEmpty(),
+            issueDate = p?.issueDate.orEmpty(),
+            permanentProvince = province,
+            permanentDistrict = district,
+            permanentWard = ward,
+            permanentDetail = detail ?: a?.permanentAddress
+        )
+    }
+
     override suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel> {
         if (isRemote()) {
-            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thông tin đơn vị cho vay.")
+            // Placeholder: Backend endpoint for provider info might not be ready, 
+            // but we use the default "easyMoney" as requested.
+            return Resource.Success(data = mockLoanProviderInfo, isFromMock = false)
         }
 
         delay(300)
@@ -619,6 +651,32 @@ class LoanRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun startEkycSession(supportsNfc: Boolean): Resource<String> {
+        if (isRemote()) {
+            return remoteDataSource?.startEkycSession(supportsNfc)
+                ?: Resource.Error("Remote data source not available")
+        }
+        return Resource.Success("mock_ekyc_session_${System.currentTimeMillis()}", isFromMock = true)
+    }
+
+    override suspend fun uploadIdentityDocument(): Resource<Unit> {
+        if (isRemote()) {
+            return remoteDataSource?.uploadIdentityDocument()
+                ?: Resource.Error("Remote data source not available")
+        }
+        delay(500)
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
+    override suspend fun submitNfcIdentity(sessionId: String?, nfcData: Map<String, String>): Resource<Unit> {
+        if (isRemote()) {
+            return remoteDataSource?.submitNfcIdentity(sessionId, nfcData)
+                ?: Resource.Error("Remote data source not available")
+        }
+        delay(500)
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
     override suspend fun getContractContent(loanId: String, lang: String): Resource<String> {
         if (isRemote()) {
             return remoteDataSource?.getContractContent(loanId, lang)
@@ -708,7 +766,8 @@ class LoanRepositoryImpl @Inject constructor(
 
     override suspend fun getApprovedContracts(): Resource<List<LoanContractModel>> {
         if (isRemote()) {
-            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho danh sách hợp đồng đã duyệt.")
+            return remoteDataSource?.getApprovedContracts()
+                ?: Resource.Error("Remote data source not available")
         }
 
         delay(500)
@@ -720,11 +779,79 @@ class LoanRepositoryImpl @Inject constructor(
 
     override suspend fun cancelContract(contractId: String): Resource<Unit> {
         if (isRemote()) {
-            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thao tác hủy hợp đồng.")
+            return remoteDataSource?.cancelContract(contractId)
+                ?: Resource.Error("Remote data source not available")
         }
 
         delay(400)
         cancelledContractIds.add(contractId)
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
+    private val mockDebts = mutableListOf<LoanDebtModel>()
+
+    override suspend fun signContract(contractId: String): Resource<Unit> {
+        if (isRemote()) {
+            return remoteDataSource?.signContract(contractId)
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        delay(500)
+        cancelledContractIds.remove(contractId)
+        if (mockDebts.none { it.applicationId == contractId }) {
+            mockDebts.add(
+                LoanDebtModel(
+                    id = System.currentTimeMillis(),
+                    applicationId = contractId,
+                    totalAmount = 12_000_000,
+                    remainingPrincipal = 10_000_000,
+                    monthlyPayment = 1_000_000,
+                    interestRate = 1.5,
+                    totalMonths = 12,
+                    monthsPaid = 0,
+                    status = "ACTIVE",
+                    createdAt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).format(Date())
+                )
+            )
+        }
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
+    override suspend fun getDebts(): Resource<List<LoanDebtModel>> {
+        if (isRemote()) {
+            return remoteDataSource?.getDebts()
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        delay(400)
+        return Resource.Success(mockDebts.toList(), isFromMock = true)
+    }
+
+    override suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String?): Resource<Unit> {
+        if (isRemote()) {
+            return remoteDataSource?.repayDebt(debtId, repayType, cardId)
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        delay(500)
+        val index = mockDebts.indexOfFirst { it.id == debtId }
+        if (index < 0) return Resource.Error("Khoản nợ không tồn tại.")
+        val debt = mockDebts[index]
+        mockDebts[index] = when (repayType) {
+            RepayType.MONTHLY -> {
+                val paid = debt.monthsPaid + 1
+                debt.copy(
+                    monthsPaid = paid,
+                    remainingPrincipal = (debt.remainingPrincipal - debt.monthlyPayment).coerceAtLeast(0),
+                    status = if (paid >= debt.totalMonths) "PAID" else debt.status
+                )
+            }
+            RepayType.FULL_EARLY -> debt.copy(
+                monthsPaid = debt.totalMonths,
+                remainingPrincipal = 0,
+                status = "PAID"
+            )
+        }
         return Resource.Success(Unit, isFromMock = true)
     }
 
@@ -740,9 +867,10 @@ class LoanRepositoryImpl @Inject constructor(
             "image_width": ${request.imageWidth},
             "image_height": ${request.imageHeight},
             "precheck_passed": ${request.precheckPassed},
+            "precheckPassed": ${request.precheckPassed},
             "precheck_reasons": [${request.precheckReasons.joinToString(",") { "\"$it\"" }}]
             ${if (request.faceBoundingBox != null) ""","face_bbox": ${request.faceBoundingBox}""" else ""}
-            ${if (request.qualityScore != null) ""","quality_score": ${request.qualityScore}""" else ""}
+            ${if (request.qualityScore != null) ""","quality_score": ${request.qualityScore},"qualityScore": ${request.qualityScore}""" else ""}
         }"""
     }
 }

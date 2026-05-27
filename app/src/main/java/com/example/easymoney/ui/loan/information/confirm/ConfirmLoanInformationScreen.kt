@@ -68,6 +68,7 @@ fun ConfirmLoanInformationScreen(
         ) {
             // Section: Thông tin khoản vay
             ReviewSection(title = "Thông tin khoản vay") {
+                ReviewRow("Đơn vị cho vay", "easyMoney")
                 ReviewRow("Số tiền vay mong muốn", formatCurrency(loanData?.loanAmount ?: 0L))
                 ReviewRow("Kỳ hạn vay", "${loanData?.tenorMonth ?: 0} tháng")
                 ReviewRow("Bảo hiểm khoản vay", if (loanData?.hasInsurance == true) "Có tham gia" else "Không tham gia")

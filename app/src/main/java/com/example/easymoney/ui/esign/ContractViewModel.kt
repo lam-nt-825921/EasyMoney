@@ -61,15 +61,23 @@ class ContractViewModel @Inject constructor(
         _uiState.update { it.copy(showOtpDialog = false, otpError = null) }
     }
 
-    fun verifyOtp(otp: String, onSuccess: () -> Unit) {
+    fun verifyOtp(otp: String, contractId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isOtpVerifying = true, otpError = null) }
             val result = loanRepository.verifyOtp(otp)
             
             when (result) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isOtpVerifying = false, showOtpDialog = false, signSuccess = true) }
-                    onSuccess()
+                    when (val signResult = loanRepository.signContract(contractId)) {
+                        is Resource.Success -> {
+                            _uiState.update { it.copy(isOtpVerifying = false, showOtpDialog = false, signSuccess = true) }
+                            onSuccess()
+                        }
+                        is Resource.Error -> {
+                            _uiState.update { it.copy(isOtpVerifying = false, otpError = signResult.message) }
+                        }
+                        Resource.Loading -> Unit
+                    }
                 }
                 is Resource.Error -> {
                     _uiState.update { it.copy(isOtpVerifying = false, otpError = result.message) }

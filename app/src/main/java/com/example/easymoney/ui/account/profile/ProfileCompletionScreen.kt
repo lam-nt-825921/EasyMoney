@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
 import com.example.easymoney.domain.model.ProfileVerificationStatus
 import com.example.easymoney.ui.common.identity.*
+import com.example.easymoney.ui.loan.information.ekyc.EkycFaceCaptureScreen
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -41,6 +42,8 @@ fun ProfileCompletionScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val supportsNfc = remember { NfcAdapter.getDefaultAdapter(context) != null }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -62,10 +65,10 @@ fun ProfileCompletionScreen(
                 // Identity Verification Section
                 IdentitySection(
                     status = uiState.profile.identityStatus,
-                    onFaceClick = { viewModel.openModule(IdentityModule.FACE_CAPTURE) },
-                    onNfcClick = { viewModel.openModule(IdentityModule.NFC_READER) },
+                    onFaceClick = { viewModel.openModule(IdentityModule.FACE_CAPTURE, supportsNfc = supportsNfc) },
+                    onNfcClick = { viewModel.openModule(IdentityModule.NFC_READER, supportsNfc = supportsNfc) },
                     onBiometricClick = { viewModel.openModule(IdentityModule.BIOMETRIC) },
-                    onDocumentClick = { viewModel.openModule(IdentityModule.DOCUMENT_UPLOAD) }
+                    onDocumentClick = { viewModel.openModule(IdentityModule.DOCUMENT_UPLOAD, supportsNfc = supportsNfc) }
                 )
 
                 // Personal Info Section
@@ -118,9 +121,11 @@ fun ProfileCompletionScreen(
             ) {
                 when (module) {
                     IdentityModule.FACE_CAPTURE -> {
-                        FaceCaptureModule(
-                            onResult = { viewModel.onFaceCaptureResult(it) },
-                            onDismiss = { viewModel.closeModule() }
+                        EkycFaceCaptureScreen(
+                            onBackToIntro = { viewModel.closeModule() },
+                            onSuccess = { viewModel.onFaceCaptureUploaded() },
+                            onNavigateToError = { viewModel.onIdentityError(it) },
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                     IdentityModule.NFC_READER -> {
@@ -155,6 +160,28 @@ fun ProfileCompletionScreen(
                     )
                 }
             }
+        }
+
+        if (uiState.isSubmittingIdentity) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        uiState.errorMessage?.let { message ->
+            AlertDialog(
+                onDismissRequest = viewModel::clearError,
+                title = { Text(stringResource(R.string.dialog_error_title)) },
+                text = { Text(message) },
+                confirmButton = {
+                    TextButton(onClick = viewModel::clearError) {
+                        Text(stringResource(R.string.dialog_button_close))
+                    }
+                }
+            )
         }
     }
 }

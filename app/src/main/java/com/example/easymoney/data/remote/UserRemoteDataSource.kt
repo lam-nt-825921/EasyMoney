@@ -26,8 +26,14 @@ class UserRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateProfile(profile: UserProfile): Resource<Unit> = safeCall {
-        apiService.updateProfile(profile.toDto()).toUnitResource("Update profile failed")
+    suspend fun updateProfile(profile: UserProfile): Resource<UserProfile> = safeCall {
+        apiService.updateProfile(profile.toDto()).let { response ->
+            if (response.status == "success") {
+                Resource.Success(response.data.toDomain())
+            } else {
+                Resource.Error(userFriendlyErrorMessage(response.message, "Update profile failed"))
+            }
+        }
     }
 
     suspend fun getProfileCompletion(): Resource<ProfileCompletion> = safeCall {

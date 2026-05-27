@@ -101,8 +101,13 @@ fun HomeScreen(
                     onSeeAllClick = { onLoanProductClick("ALL") }
                 )
 
-                // Bottom Banner — workflow #21: điều hướng sang LoanDetail thay vì skip detail.
-                MainBanner(onRegistrationClick = { onLoanProductClick("1") })
+                uiState.recommendedLoan?.let { loan ->
+                    MainBanner(
+                        title = loan.name,
+                        description = loan.description,
+                        onRegistrationClick = { onLoanProductClick(loan.id) }
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(20.dp))
             }

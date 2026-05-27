@@ -18,7 +18,8 @@ import java.util.Locale
 @Composable
 fun WithdrawScreen(
     viewModel: WithdrawViewModel = hiltViewModel(),
-    onWithdrawSuccess: () -> Unit = {}
+    onWithdrawSuccess: () -> Unit = {},
+    onNavigateToAddCard: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -26,6 +27,13 @@ fun WithdrawScreen(
         if (uiState.successMessage != null) {
             onWithdrawSuccess()
             viewModel.consumeMessages()
+        }
+    }
+
+    LaunchedEffect(uiState.shouldNavigateToAddCard) {
+        if (uiState.shouldNavigateToAddCard) {
+            viewModel.consumeAddCardNavigation()
+            onNavigateToAddCard()
         }
     }
 
@@ -48,16 +56,31 @@ fun WithdrawScreen(
 
         Spacer(Modifier.height(16.dp))
         Text(stringResource(R.string.withdraw_select_dest), style = MaterialTheme.typography.titleMedium)
-        uiState.cards.forEach { card ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+        if (uiState.cards.isEmpty()) {
+            Text(
+                "Bạn chưa thêm thẻ ngân hàng.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            OutlinedButton(
+                onClick = onNavigateToAddCard,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
             ) {
-                RadioButton(
-                    selected = card.id == uiState.selectedCardId,
-                    onClick = { viewModel.onSelectCard(card.id) }
-                )
-                Text("${card.bankName} ${card.cardNumber}")
+                Text("Thêm thẻ")
+            }
+        } else {
+            uiState.cards.forEach { card ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = card.id == uiState.selectedCardId,
+                        onClick = { viewModel.onSelectCard(card.id) }
+                    )
+                    Text("${card.bankName} ${card.cardNumber}")
+                }
             }
         }
 

@@ -77,6 +77,9 @@ interface LoanRepository {
         imageFile: File,
         metadataJson: String
     ): Resource<EkycCaptureResponse>
+    suspend fun startEkycSession(supportsNfc: Boolean): Resource<String>
+    suspend fun uploadIdentityDocument(): Resource<Unit>
+    suspend fun submitNfcIdentity(sessionId: String?, nfcData: Map<String, String>): Resource<Unit>
 
     /**
      * Lấy nội dung hợp đồng vay vốn theo ID khoản vay
@@ -96,4 +99,7 @@ interface LoanRepository {
     // Workflow #12 — Loan management
     suspend fun getApprovedContracts(): Resource<List<LoanContractModel>>
     suspend fun cancelContract(contractId: String): Resource<Unit>
+    suspend fun signContract(contractId: String): Resource<Unit>
+    suspend fun getDebts(): Resource<List<LoanDebtModel>>
+    suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String? = null): Resource<Unit>
 }

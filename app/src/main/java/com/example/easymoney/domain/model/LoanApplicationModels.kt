@@ -18,28 +18,44 @@ data class LoanApplicationRequest(
     val ekycMatchKey: String? = null,
     @SerializedName("voucherId")
     val voucherId: String? = null,
-    
+
     // Address
+    @SerializedName("permanentProvince")
     val permanentProvince: String,
+    @SerializedName("permanentDistrict")
     val permanentDistrict: String,
+    @SerializedName("permanentWard")
     val permanentWard: String,
+    @SerializedName("permanentDetail")
     val permanentDetail: String,
-    
+
+    @SerializedName("currentProvince")
     val currentProvince: String,
+    @SerializedName("currentDistrict")
     val currentDistrict: String,
+    @SerializedName("currentWard")
     val currentWard: String,
+    @SerializedName("currentDetail")
     val currentDetail: String,
-    
+
     // Personal Info
+    @SerializedName("monthlyIncome")
     val monthlyIncome: Long,
+    @SerializedName("profession")
     val profession: String,
+    @SerializedName("position")
     val position: String,
+    @SerializedName("education")
     val education: String,
+    @SerializedName("maritalStatus")
     val maritalStatus: String,
-    
+
     // Emergency Contact
+    @SerializedName("contactName")
     val contactName: String,
+    @SerializedName("contactRelationship")
     val contactRelationship: String,
+    @SerializedName("contactPhone")
     val contactPhone: String
 )
 

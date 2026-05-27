@@ -15,6 +15,7 @@ data class NotificationEntity(
     val balanceAfter: Long? = null,
     val transactionCode: String? = null,
     val targetId: String? = null,
+    val targetType: String? = null,
     val timestamp: Long,
     val isRead: Boolean = false
 )

@@ -41,6 +41,8 @@ private data class NotificationTabSpec(
 fun NotificationScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToEvent: (String) -> Unit,
+    onNavigateToLoanPackage: (String) -> Unit,
+    onNavigateToLoanDebt: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: NotificationViewModel = hiltViewModel()
 ) {
@@ -131,14 +133,12 @@ fun NotificationScreen(
                         key = { "${it.id}_$page" } // Use unique key to prevent LazyColumn crashes
                     ) { item ->
                         val onItemClick = {
-                            when (page) {
-                                0 -> onNavigateToHistory()
-                                1 -> {
-                                    if (!item.targetId.isNullOrBlank()) {
-                                        onNavigateToEvent(item.targetId)
-                                    }
-                                }
-                                else -> {}
+                            viewModel.markAsRead(item.id)
+                            when (item.resolvedTargetType()) {
+                                "TRANSACTION" -> onNavigateToHistory()
+                                "LOAN_PACKAGE" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToLoanPackage)
+                                "LOAN_DEBT" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToLoanDebt)
+                                "EVENT" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToEvent)
                             }
                         }
                         
@@ -157,6 +157,17 @@ fun NotificationScreen(
                 }
             }
         }
+    }
+}
+
+private fun NotificationEntity.resolvedTargetType(): String {
+    val explicit = targetType?.trim().orEmpty()
+    if (explicit.isNotBlank()) return explicit.uppercase(Locale.US)
+    return when (type.lowercase(Locale.US)) {
+        "transaction" -> "TRANSACTION"
+        "promotion" -> "LOAN_PACKAGE"
+        "reminder" -> "LOAN_DEBT"
+        else -> ""
     }
 }
 

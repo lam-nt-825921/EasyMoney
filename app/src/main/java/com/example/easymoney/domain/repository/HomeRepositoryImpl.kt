@@ -46,6 +46,18 @@ class HomeRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getRecommendedLoan(): Resource<LoanProduct> {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "HomeRepository.getRecommendedLoan mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(300)
+                Resource.Success(SAMPLE_HOT_LOANS.first(), isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> remoteDataSource.getRecommendedLoan()
+        }
+    }
+
     override suspend fun getEKycStatus(): Resource<EKycStatus> {
         val mode = appPreferences.dataSourceMode
         Log.d(TAG, "HomeRepository.getEKycStatus mode=$mode")

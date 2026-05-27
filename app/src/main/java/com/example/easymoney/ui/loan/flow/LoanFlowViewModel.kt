@@ -104,24 +104,14 @@ class LoanFlowViewModel @Inject constructor(
             when (val result = loanRepository.matchEkyc(packageId)) {
                 is Resource.Success -> {
                     val match = result.data
-                    if (match.isMatched && match.canApplyLoan && !match.ekycMatchKey.isNullOrBlank()) {
-                        _uiState.update { state ->
-                            state.copy(
-                                isMatchingEkyc = false,
-                                currentStep = 2,
-                                subState = LoanSubState.CUSTOMER_FORM,
-                                draftApplication = state.draftApplication?.copy(ekycMatchKey = match.ekycMatchKey)
-                            )
-                        }
-                    } else {
-                        _uiState.update {
-                            it.copy(
-                                isMatchingEkyc = false,
-                                currentStep = 2,
-                                subState = LoanSubState.EKYC_INTRO,
-                                ekycMatchError = match.message
-                            )
-                        }
+                    // Always show EKYC Intro if required by flow, but store the key if already matched
+                    _uiState.update { state ->
+                        state.copy(
+                            isMatchingEkyc = false,
+                            currentStep = 2,
+                            subState = LoanSubState.EKYC_INTRO,
+                            draftApplication = state.draftApplication?.copy(ekycMatchKey = match.ekycMatchKey)
+                        )
                     }
                 }
                 is Resource.Error -> {
@@ -181,6 +171,7 @@ class LoanFlowViewModel @Inject constructor(
             val (nextStep, nextSubState) = when (currentState.subState) {
                 LoanSubState.CONFIG -> 2 to LoanSubState.EKYC_INTRO
                 LoanSubState.EKYC_INTRO -> 2 to LoanSubState.EKYC_CAPTURE
+                LoanSubState.EKYC_DOCUMENT -> 2 to LoanSubState.EKYC_CAPTURE
                 LoanSubState.EKYC_CAPTURE -> 2 to LoanSubState.CUSTOMER_FORM
                 LoanSubState.CUSTOMER_FORM -> 3 to LoanSubState.CONFIRM_FORM
                 LoanSubState.CONFIRM_FORM -> 3 to LoanSubState.REGISTRATION_SUCCESS
@@ -198,6 +189,7 @@ class LoanFlowViewModel @Inject constructor(
             val (prevStep, prevSubState) = when (currentState.subState) {
                 LoanSubState.CONFIG -> 1 to LoanSubState.CONFIG
                 LoanSubState.EKYC_INTRO -> 1 to LoanSubState.CONFIG
+                LoanSubState.EKYC_DOCUMENT -> 2 to LoanSubState.EKYC_INTRO
                 LoanSubState.EKYC_CAPTURE -> 2 to LoanSubState.EKYC_INTRO
                 LoanSubState.CUSTOMER_FORM -> 2 to LoanSubState.EKYC_INTRO
                 LoanSubState.CONFIRM_FORM -> 2 to LoanSubState.CUSTOMER_FORM
@@ -215,14 +207,44 @@ class LoanFlowViewModel @Inject constructor(
         _uiState.update { it.copy(ekycMatchError = null) }
     }
 
-    /**
-     * Xử lý kết quả từ FaceCaptureModule
-     */
-    fun onFaceCaptureResult(result: com.example.easymoney.ui.common.identity.FaceCaptureResult) {
-        if (result.livenessVerified) {
-            // Có thể lưu ảnh eKYC vào draftApplication nếu cần
+    fun onFaceCaptureUploaded() {
+        val packageId = _uiState.value.draftApplication?.packageId
+        if (packageId == null) {
             onNextStep()
+            return
         }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isMatchingEkyc = true, ekycMatchError = null) }
+            when (val matchResult = loanRepository.matchEkyc(packageId)) {
+                is Resource.Success -> {
+                    val match = matchResult.data
+                    if (match.isMatched && match.canApplyLoan && !match.ekycMatchKey.isNullOrBlank()) {
+                        _uiState.update { state ->
+                            state.copy(
+                                isMatchingEkyc = false,
+                                draftApplication = state.draftApplication?.copy(ekycMatchKey = match.ekycMatchKey)
+                            )
+                        }
+                        onNextStep()
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isMatchingEkyc = false,
+                                ekycMatchError = match.message
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update { it.copy(isMatchingEkyc = false, ekycMatchError = matchResult.message) }
+                }
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun onFaceCaptureError(message: String) {
+        _uiState.update { it.copy(isMatchingEkyc = false, ekycMatchError = message) }
     }
 
     fun toggleExitDialog(show: Boolean) {

@@ -19,7 +19,9 @@ data class PaymentUiState(
     val walletInfo: WalletInfo? = null,
     val cards: List<PaymentCard> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val actionMessage: String? = null,
+    val isSubmitting: Boolean = false
 )
 
 @HiltViewModel
@@ -35,7 +37,7 @@ class PaymentViewModel @Inject constructor(
     }
 
     fun loadData() {
-        _uiState.update { it.copy(isLoading = true) }
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
             val walletRes = paymentRepository.getWalletInfo()
             val cardsRes = paymentRepository.getPaymentCards()
@@ -44,7 +46,8 @@ class PaymentViewModel @Inject constructor(
                 state.copy(
                     isLoading = false,
                     walletInfo = if (walletRes is Resource.Success) walletRes.data else state.walletInfo,
-                    cards = if (cardsRes is Resource.Success) cardsRes.data else state.cards
+                    cards = if (cardsRes is Resource.Success) cardsRes.data else state.cards,
+                    errorMessage = (walletRes as? Resource.Error)?.message ?: (cardsRes as? Resource.Error)?.message
                 )
             }
         }
@@ -62,5 +65,48 @@ class PaymentViewModel @Inject constructor(
             paymentRepository.topUp(amount, cardId)
             loadData()
         }
+    }
+
+    fun addCard(cardNumber: String, bankName: String, cardType: String) {
+        val sanitizedNumber = cardNumber.filter { it.isDigit() }
+        when {
+            sanitizedNumber.length < 8 -> _uiState.update { it.copy(errorMessage = "Số thẻ không hợp lệ") }
+            bankName.isBlank() -> _uiState.update { it.copy(errorMessage = "Vui lòng nhập tên ngân hàng") }
+            else -> viewModelScope.launch {
+                _uiState.update { it.copy(isSubmitting = true, errorMessage = null, actionMessage = null) }
+                val card = PaymentCard(
+                    id = "card_${System.currentTimeMillis()}",
+                    cardNumber = sanitizedNumber,
+                    cardType = cardType.ifBlank { "NAPAS" },
+                    bankName = bankName.trim()
+                )
+                when (val result = paymentRepository.addPaymentCard(card)) {
+                    is Resource.Success -> {
+                        _uiState.update { it.copy(isSubmitting = false, actionMessage = "Thêm thẻ thành công") }
+                        loadData()
+                    }
+                    is Resource.Error -> _uiState.update { it.copy(isSubmitting = false, errorMessage = result.message) }
+                    Resource.Loading -> Unit
+                }
+            }
+        }
+    }
+
+    fun deleteCard(cardId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, actionMessage = null) }
+            when (val result = paymentRepository.deletePaymentCard(cardId)) {
+                is Resource.Success -> {
+                    _uiState.update { it.copy(isSubmitting = false, actionMessage = "Đã xóa thẻ") }
+                    loadData()
+                }
+                is Resource.Error -> _uiState.update { it.copy(isSubmitting = false, errorMessage = result.message) }
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun consumeMessages() {
+        _uiState.update { it.copy(errorMessage = null, actionMessage = null) }
     }
 }

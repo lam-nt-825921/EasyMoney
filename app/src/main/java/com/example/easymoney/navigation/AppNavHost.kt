@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.ui.account.AccountScreen
+import com.example.easymoney.ui.account.AccountViewModel
 import com.example.easymoney.ui.account.GeneralSettingsScreen
 import com.example.easymoney.ui.account.profile.ProfileCompletionScreen
 import com.example.easymoney.ui.account.profile.ProfileScreen
@@ -50,6 +51,8 @@ import com.example.easymoney.ui.esign.EsignSuccessScreen
 import com.example.easymoney.ui.payment.MoneyManagementScreen
 import com.example.easymoney.ui.payment.PaymentCardsScreen
 import com.example.easymoney.ui.account.changepassword.ChangePasswordScreen
+import com.example.easymoney.ui.history.TransactionHistoryViewModel
+import com.example.easymoney.ui.payment.PaymentViewModel
 import com.example.easymoney.ui.security.SecuritySettingsScreen
 import com.example.easymoney.ui.web.WebContentScreen
 
@@ -131,7 +134,7 @@ fun AppNavHost(
                 onConsultLoanClick = { navController.navigate(AppDestination.ChatBot.route) },
                 onManageLoanClick = {
                     android.util.Log.d("Analytics", "event=home_banner_click banner=loan_management")
-                    navController.navigate(AppDestination.LoanManagement.route)
+                    navController.navigate(AppDestination.LoanManagement.createRoute())
                 },
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = { onDarkThemeChange(!isDarkTheme) },
@@ -140,7 +143,25 @@ fun AppNavHost(
         }
 
         composable(AppDestination.TransactionHistory.route) {
-            TransactionHistoryScreen(modifier = Modifier.fillMaxSize())
+            val viewModel: TransactionHistoryViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.load()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
+            TransactionHistoryScreen(
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         composable(AppDestination.Notifications.route) {
@@ -153,12 +174,30 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToEvent = { id -> navController.navigate(AppDestination.EventDetail.createRoute(id)) },
+                onNavigateToLoanPackage = { id -> navController.navigate(AppDestination.LoanDetail.createRoute(id)) },
+                onNavigateToLoanDebt = { id -> navController.navigate(AppDestination.LoanManagement.createRoute(id)) },
                 modifier = Modifier.fillMaxSize()
             )
         }
 
         composable(AppDestination.Account.route) {
+            val viewModel: AccountViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadProfile()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             AccountScreen(
+                viewModel = viewModel,
                 onLogout = {
                     loginViewModel.logout()
                     navController.navigate(AppDestination.Welcome.route) {
@@ -304,7 +343,23 @@ fun AppNavHost(
 
         // --- ACCOUNT SUB-SCREENS ---
         composable(AppDestination.MoneyManagement.route) {
+            val viewModel: PaymentViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadData()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             MoneyManagementScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNavigateToTopUp = { navController.navigate(AppDestination.TopUp.route) },
                 onNavigateToWithdraw = { navController.navigate(AppDestination.Withdraw.route) }
@@ -312,7 +367,23 @@ fun AppNavHost(
         }
 
         composable(AppDestination.PaymentCards.route) {
+            val viewModel: PaymentViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadData()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             PaymentCardsScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onAddCard = { /* Handle add card form */ }
             )
@@ -458,7 +529,23 @@ fun AppNavHost(
         }
 
         composable(AppDestination.Profile.route) {
+            val viewModel: com.example.easymoney.ui.account.profile.ProfileCompletionViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadProfile()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             ProfileScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onEditProfile = { navController.navigate(AppDestination.IdentityVerification.route) },
                 onVerifyIdentity = { navController.navigate(AppDestination.IdentityVerification.route) }
@@ -493,15 +580,44 @@ fun AppNavHost(
 
         composable(AppDestination.Withdraw.route) {
             com.example.easymoney.ui.payment.WithdrawScreen(
-                onWithdrawSuccess = { navController.popBackStack() }
+                onWithdrawSuccess = { navController.popBackStack() },
+                onNavigateToAddCard = { navController.navigate(AppDestination.PaymentCards.route) }
             )
         }
 
-        composable(AppDestination.LoanManagement.route) {
+        composable(
+            route = AppDestination.LoanManagement.route,
+            arguments = listOf(
+                navArgument(AppDestination.LoanManagement.DEBT_ID_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val debtId = backStackEntry.arguments?.getString(AppDestination.LoanManagement.DEBT_ID_ARG)
+            val viewModel: com.example.easymoney.ui.loan.management.LoanManagementViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.load()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             com.example.easymoney.ui.loan.management.LoanManagementScreen(
+                viewModel = viewModel,
+                initialDebtId = debtId,
                 onSignContract = { contractId ->
                     navController.navigate(AppDestination.Contract.createRoute(contractId))
-                }
+                },
+                onNavigateToAddCard = { navController.navigate(AppDestination.PaymentCards.route) }
             )
         }
 

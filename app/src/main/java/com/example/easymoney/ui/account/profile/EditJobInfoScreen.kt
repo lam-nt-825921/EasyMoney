@@ -1,6 +1,7 @@
 package com.example.easymoney.ui.account.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,22 +10,26 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.ui.loan.information.form.FormSheetType
 import com.example.easymoney.ui.loan.information.form.SimpleSelectionBottomSheet
-
-import androidx.compose.ui.res.stringResource
-import com.example.easymoney.R
+import com.example.easymoney.ui.loan.information.form.ThousandsSeparatorTransformation
 
 @Composable
 fun EditJobInfoScreen(
@@ -34,14 +39,103 @@ fun EditJobInfoScreen(
     val uiState by viewModel.uiState.collectAsState()
     val jobInfo = uiState.profile.jobInfo
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) onBack()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            bottomBar = {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 86.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                }
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.profile_section_job),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            FormCard {
+                InputField(
+                    label = stringResource(id = R.string.profile_label_income),
+                    value = if (jobInfo.monthlyIncome == 0L) "" else jobInfo.monthlyIncome.toString(),
+                    onValueChange = { newValue -> 
+                        val cleanValue = newValue.filter { it.isDigit() }
+                        viewModel.updateJobInfo(income = cleanValue.toLongOrNull() ?: 0L) 
+                    },
+                    suffix = "đ",
+                    keyboardType = KeyboardType.Number,
+                    visualTransformation = ThousandsSeparatorTransformation(),
+                    imeAction = ImeAction.Done,
+                    onImeAction = { focusManager.clearFocus() }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SelectorItem(
+                    label = stringResource(id = R.string.profile_section_job),
+                    value = jobInfo.jobTitle.ifBlank { stringResource(id = R.string.error_select_profession) },
+                    onClick = { viewModel.onShowSheet(FormSheetType.PROFESSION) }
+                )
+
+                // Visibility logic for Company Name and Position based on profession ID 'p1' (Office Worker)
+                if (uiState.selectedProfession?.id == "p1" || (uiState.selectedProfession == null && jobInfo.jobTitle == "Nhân viên văn phòng công ty")) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    InputField(
+                        label = stringResource(id = R.string.profile_label_company),
+                        value = jobInfo.companyName,
+                        onValueChange = { viewModel.updateJobInfo(company = it) },
+                        placeholder = "Nhập tên công ty",
+                        imeAction = ImeAction.Done,
+                        onImeAction = { focusManager.clearFocus() }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SelectorItem(
+                        label = stringResource(id = R.string.error_select_position),
+                        value = jobInfo.position.ifBlank { stringResource(id = R.string.error_select_position) },
+                        onClick = { viewModel.onShowSheet(FormSheetType.POSITION) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SelectorItem(
+                    label = stringResource(id = R.string.error_select_education),
+                    value = uiState.profile.education.ifBlank { stringResource(id = R.string.error_select_education) },
+                    onClick = { viewModel.onShowSheet(FormSheetType.EDUCATION) }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SelectorItem(
+                    label = stringResource(id = R.string.error_select_marital_status),
+                    value = uiState.profile.maritalStatus.ifBlank { stringResource(id = R.string.error_select_marital_status) },
+                    onClick = { viewModel.onShowSheet(FormSheetType.MARITAL_STATUS) }
+                )
+            }
+        }
+
+        // Bottom Action
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            shadowElevation = 8.dp,
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
                 Button(
                     onClick = {
                         focusManager.clearFocus()
@@ -49,69 +143,16 @@ fun EditJobInfoScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .imePadding()
-                        .padding(16.dp)
                         .height(54.dp),
-                    shape = RoundedCornerShape(27.dp)
+                    shape = RoundedCornerShape(27.dp),
+                    enabled = !uiState.isLoading
                 ) {
-                    Text(stringResource(id = R.string.profile_save_changes), fontWeight = FontWeight.Bold)
-                }
-            }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(MaterialTheme.colorScheme.background)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = { focusManager.clearFocus() })
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                    } else {
+                        Text(text = stringResource(id = R.string.profile_save_changes), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                SelectorField(
-                    label = stringResource(id = R.string.profile_section_job),
-                    value = jobInfo.jobTitle.ifBlank { stringResource(id = R.string.error_select_profession) },
-                    onClick = { viewModel.onShowSheet(FormSheetType.PROFESSION) }
-                )
-
-                OutlinedTextField(
-                    value = if (jobInfo.monthlyIncome == 0L) "" else jobInfo.monthlyIncome.toString(),
-                    onValueChange = { viewModel.updateJobInfo(income = it.toLongOrNull() ?: 0L) },
-                    label = { Text(stringResource(id = R.string.profile_label_income)) },
-                    suffix = { Text(stringResource(id = R.string.profile_unit_currency_short)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = jobInfo.companyName,
-                    onValueChange = { viewModel.updateJobInfo(company = it) },
-                    label = { Text(stringResource(id = R.string.profile_label_company)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                SelectorField(
-                    label = stringResource(id = R.string.error_select_position),
-                    value = jobInfo.position.ifBlank { stringResource(id = R.string.error_select_position) },
-                    onClick = { viewModel.onShowSheet(FormSheetType.POSITION) }
-                )
-
-                SelectorField(
-                    label = stringResource(id = R.string.error_select_education),
-                    value = uiState.profile.education.ifBlank { stringResource(id = R.string.error_select_education) },
-                    onClick = { viewModel.onShowSheet(FormSheetType.EDUCATION) }
-                )
-
-                SelectorField(
-                    label = stringResource(id = R.string.profile_label_relationship),
-                    value = uiState.profile.maritalStatus.ifBlank { stringResource(id = R.string.error_select_marital_status) },
-                    onClick = { viewModel.onShowSheet(FormSheetType.MARITAL_STATUS) }
-                )
+                }
             }
         }
 
@@ -131,11 +172,18 @@ fun EditJobInfoScreen(
                 FormSheetType.MARITAL_STATUS -> uiState.maritalStatuses
                 else -> emptyList()
             }
+            val selectedId = when (uiState.activeSheet) {
+                FormSheetType.PROFESSION -> uiState.selectedProfession?.id
+                FormSheetType.POSITION -> uiState.selectedPosition?.id
+                FormSheetType.EDUCATION -> uiState.selectedEducation?.id
+                FormSheetType.MARITAL_STATUS -> uiState.selectedMaritalStatus?.id
+                else -> null
+            }
             
             SimpleSelectionBottomSheet(
                 title = title,
                 items = items,
-                selectedId = null,
+                selectedId = selectedId,
                 onItemSelected = { viewModel.onSelectItem(it) },
                 onDismiss = { viewModel.onDismissSheet() }
             )
@@ -144,26 +192,62 @@ fun EditJobInfoScreen(
 }
 
 @Composable
-fun SelectorField(label: String, value: String, onClick: () -> Unit) {
+private fun FormCard(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) { content() }
+    }
+}
+
+@Composable
+private fun InputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String? = null,
+    suffix: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    imeAction: ImeAction = ImeAction.Next,
+    onImeAction: () -> Unit = {}
+) {
+    val focusManager = LocalFocusManager.current
+    
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(modifier = Modifier.height(4.dp))
-        OutlinedCard(
-            onClick = onClick,
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(4.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = value, style = MaterialTheme.typography.bodyLarge)
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null
-                )
-            }
+            placeholder = { if (placeholder != null) Text(placeholder, color = MaterialTheme.colorScheme.outline) },
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+            keyboardActions = KeyboardActions(onDone = { onImeAction() }, onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }),
+            visualTransformation = visualTransformation,
+            suffix = { if (suffix != null) Text(suffix, fontWeight = FontWeight.Bold) },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
+}
+
+@Composable
+private fun SelectorItem(label: String, value: String, onClick: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(text = value, style = MaterialTheme.typography.bodyLarge, color = if (value.contains("Chọn")) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }

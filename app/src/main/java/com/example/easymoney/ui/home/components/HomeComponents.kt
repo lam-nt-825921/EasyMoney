@@ -361,7 +361,11 @@ fun HomeLoadingContent() {
 }
 
 @Composable
-fun MainBanner(onRegistrationClick: () -> Unit) {
+fun MainBanner(
+    title: String,
+    description: String?,
+    onRegistrationClick: () -> Unit
+) {
     val homeColors = LocalHomeColors.current
     val scheme = MaterialTheme.colorScheme
 
@@ -400,13 +404,25 @@ fun MainBanner(onRegistrationClick: () -> Unit) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = stringResource(id = R.string.home_main_banner_title),
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = homeColors.mainBannerTitle,
                     fontWeight = FontWeight.ExtraBold,
-                    lineHeight = 28.sp
+                    lineHeight = 28.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(18.dp))
+                description?.takeIf { it.isNotBlank() }?.let {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = homeColors.mainBannerTitle.copy(alpha = 0.78f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(modifier = Modifier.height(14.dp))
                 Button(
                     onClick = onRegistrationClick,
                     shape = RoundedCornerShape(16.dp),

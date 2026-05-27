@@ -317,12 +317,17 @@ sealed class AppDestination(
     )
 
     data object LoanManagement : AppDestination(
-        route = "loan_management",
+        route = "loan_management?debtId={debtId}",
         titleResId = R.string.nav_loan_management,
         showBackButton = true,
         showHelpButton = true,
         guideXmlName = "guide_loan_management"
-    )
+    ) {
+        const val BASE_ROUTE = "loan_management"
+        const val DEBT_ID_ARG = "debtId"
+        fun createRoute(debtId: String? = null): String =
+            if (debtId.isNullOrBlank()) BASE_ROUTE else "$BASE_ROUTE?debtId=${Uri.encode(debtId)}"
+    }
 
     data object EditPersonalInfo : AppDestination(
         route = "edit_personal_info",
@@ -371,7 +376,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.ChangePassword.route -> AppDestination.ChangePassword
     route == AppDestination.ChatBot.route -> AppDestination.ChatBot
     route == AppDestination.IdentityVerification.route -> AppDestination.IdentityVerification
-    route == AppDestination.LoanManagement.route -> AppDestination.LoanManagement
+    route?.startsWith(AppDestination.LoanManagement.BASE_ROUTE) == true -> AppDestination.LoanManagement
     route == AppDestination.Terms.route -> AppDestination.Terms
     route == AppDestination.TopUp.route -> AppDestination.TopUp
     route == AppDestination.Withdraw.route -> AppDestination.Withdraw

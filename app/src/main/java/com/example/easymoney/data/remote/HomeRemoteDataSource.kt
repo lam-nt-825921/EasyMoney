@@ -17,6 +17,9 @@ class HomeRemoteDataSource @Inject constructor(
     suspend fun getHotLoans(): Resource<List<LoanProduct>> =
         safeApiCall("Get hot loans failed") { apiService.getHotLoans() }
 
+    suspend fun getRecommendedLoan(): Resource<LoanProduct> =
+        safeApiCall("Get recommended loan failed") { apiService.getRecommendedLoan() }
+
     suspend fun getEKycStatus(): Resource<EKycStatus> =
         safeApiCall("Get eKYC status failed") { apiService.getEKycStatus() }
 

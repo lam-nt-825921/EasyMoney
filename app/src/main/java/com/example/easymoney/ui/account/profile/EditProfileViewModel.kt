@@ -29,6 +29,13 @@ data class EditProfileUiState(
     val maritalStatuses: List<MasterDataItem> = emptyList(),
     val relationships: List<MasterDataItem> = emptyList(),
 
+    // Selected Items (to track IDs)
+    val selectedProfession: MasterDataItem? = null,
+    val selectedPosition: MasterDataItem? = null,
+    val selectedEducation: MasterDataItem? = null,
+    val selectedMaritalStatus: MasterDataItem? = null,
+    val selectedRelationship: MasterDataItem? = null,
+
     // UI State for BottomSheets
     val activeSheet: FormSheetType = FormSheetType.NONE
 )
@@ -102,7 +109,17 @@ class EditProfileViewModel @Inject constructor(
                 FormSheetType.RELATIONSHIP -> state.profile.copy(contactInfo = state.profile.contactInfo.copy(relationship = item.name))
                 else -> state.profile
             }
-            state.copy(profile = updatedProfile, activeSheet = FormSheetType.NONE)
+            
+            val updatedState = when (currentSheet) {
+                FormSheetType.PROFESSION -> state.copy(selectedProfession = item)
+                FormSheetType.POSITION -> state.copy(selectedPosition = item)
+                FormSheetType.EDUCATION -> state.copy(selectedEducation = item)
+                FormSheetType.MARITAL_STATUS -> state.copy(selectedMaritalStatus = item)
+                FormSheetType.RELATIONSHIP -> state.copy(selectedRelationship = item)
+                else -> state
+            }
+            
+            updatedState.copy(profile = updatedProfile, activeSheet = FormSheetType.NONE)
         }
     }
 

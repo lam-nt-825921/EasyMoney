@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.UserProfile
+import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.ui.common.identity.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,9 @@ data class ProfileCompletionUiState(
     val profile: UserProfile = UserProfile(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val activeModule: IdentityModule? = null
+    val activeModule: IdentityModule? = null,
+    val ekycSessionId: String? = null,
+    val isSubmittingIdentity: Boolean = false
 )
 
 enum class IdentityModule {
@@ -30,7 +33,8 @@ enum class IdentityModule {
 
 @HiltViewModel
 class ProfileCompletionViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val loanRepository: LoanRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileCompletionUiState())
@@ -55,25 +59,82 @@ class ProfileCompletionViewModel @Inject constructor(
         }
     }
 
-    fun openModule(module: IdentityModule) {
-        _uiState.update { it.copy(activeModule = module) }
+    fun openModule(module: IdentityModule, supportsNfc: Boolean = false) {
+        if (module == IdentityModule.NFC_READER || module == IdentityModule.DOCUMENT_UPLOAD || module == IdentityModule.FACE_CAPTURE) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isSubmittingIdentity = true, errorMessage = null) }
+                val currentSession = _uiState.value.ekycSessionId
+                val sessionId = if (currentSession.isNullOrBlank()) {
+                    when (val result = loanRepository.startEkycSession(supportsNfc)) {
+                        is Resource.Success -> result.data
+                        is Resource.Error -> {
+                            _uiState.update { it.copy(isSubmittingIdentity = false, errorMessage = result.message) }
+                            return@launch
+                        }
+                        Resource.Loading -> null
+                    }
+                } else {
+                    currentSession
+                }
+                _uiState.update {
+                    it.copy(
+                        activeModule = module,
+                        ekycSessionId = sessionId,
+                        isSubmittingIdentity = false
+                    )
+                }
+            }
+        } else {
+            _uiState.update { it.copy(activeModule = module) }
+        }
     }
 
     fun closeModule() {
         _uiState.update { it.copy(activeModule = null) }
     }
 
-    fun onFaceCaptureResult(result: FaceCaptureResult) {
-        if (result.livenessVerified) {
-            updateIdentityStatus { it.copy(isFaceVerified = true) }
-        }
+    fun onFaceCaptureUploaded() {
         closeModule()
+        refreshAfterIdentityVerification()
+    }
+
+    fun onIdentityError(message: String) {
+        _uiState.update { it.copy(errorMessage = message, isSubmittingIdentity = false) }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     fun onNfcResult(result: NfcResult) {
         if (result.isSuccess) {
-            updateIdentityStatus { it.copy(isNfcVerified = true) }
-            // Update personal info from NFC raw data if needed
+            val nfcData = result.extractedInfo
+            val missingRequiredFields = listOf("national_id", "full_name", "date_of_birth")
+                .filter { nfcData[it].isNullOrBlank() }
+
+            if (missingRequiredFields.isNotEmpty()) {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "Không đọc được đủ dữ liệu CCCD từ NFC. Vui lòng thử lại hoặc dùng tải giấy tờ.",
+                        isSubmittingIdentity = false
+                    )
+                }
+                closeModule()
+                return
+            }
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isSubmittingIdentity = true, errorMessage = null) }
+                when (val submitResult = loanRepository.submitNfcIdentity(_uiState.value.ekycSessionId, nfcData)) {
+                    is Resource.Success -> refreshAfterIdentityVerification()
+                    is Resource.Error -> _uiState.update {
+                        it.copy(isSubmittingIdentity = false, errorMessage = submitResult.message)
+                    }
+                    Resource.Loading -> Unit
+                }
+            }
+        } else {
+            _uiState.update { it.copy(errorMessage = "Không đọc được dữ liệu NFC.") }
         }
         closeModule()
     }
@@ -87,7 +148,16 @@ class ProfileCompletionViewModel @Inject constructor(
 
     fun onDocumentUploadResult(result: DocumentResult) {
         if (result.fileUri != null || result.isFromCamera) {
-            updateIdentityStatus { it.copy(isDocumentUploadVerified = true) }
+            viewModelScope.launch {
+                _uiState.update { it.copy(isSubmittingIdentity = true, errorMessage = null) }
+                when (val uploadResult = loanRepository.uploadIdentityDocument()) {
+                    is Resource.Success -> refreshAfterIdentityVerification()
+                    is Resource.Error -> _uiState.update {
+                        it.copy(isSubmittingIdentity = false, errorMessage = uploadResult.message)
+                    }
+                    Resource.Loading -> Unit
+                }
+            }
         }
         closeModule()
     }
@@ -113,6 +183,26 @@ class ProfileCompletionViewModel @Inject constructor(
             if (result is Resource.Success) {
                 userRepository.getProfileCompletion(forceRefresh = true)
                 _uiState.update { it.copy(profile = updatedProfile) }
+            }
+        }
+    }
+
+    private fun refreshAfterIdentityVerification() {
+        viewModelScope.launch {
+            userRepository.getProfileCompletion(forceRefresh = true)
+            when (val profileResult = userRepository.getProfile()) {
+                is Resource.Success -> _uiState.update {
+                    it.copy(
+                        profile = profileResult.data,
+                        isSubmittingIdentity = false,
+                        errorMessage = null,
+                        activeModule = null
+                    )
+                }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isSubmittingIdentity = false, errorMessage = profileResult.message, activeModule = null)
+                }
+                Resource.Loading -> Unit
             }
         }
     }

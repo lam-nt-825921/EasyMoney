@@ -21,25 +21,25 @@ interface PaymentApiService {
     suspend fun getPaymentCards(): ApiResponse<List<PaymentCard>>
 
     @POST("api/v1/payment/cards")
-    suspend fun addPaymentCard(@Body card: PaymentCard): ApiResponse<Unit>
+    suspend fun addPaymentCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
 
     @DELETE("api/v1/payment/cards/{id}")
-    suspend fun deletePaymentCard(@Path("id") cardId: String): ApiResponse<Unit>
+    suspend fun deletePaymentCard(@Path("id") cardId: String): ApiResponse<Map<String, Any>>
 
     @POST("api/v1/payment/cards/verify")
-    suspend fun verifyCard(@Body card: PaymentCard): ApiResponse<Unit>
+    suspend fun verifyCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
 
     @GET("api/v1/payment/wallet")
     suspend fun getWalletInfo(): ApiResponse<WalletInfo>
 
     @POST("api/v1/payment/topup")
-    suspend fun topUp(@Body request: TopUpRequest): ApiResponse<Unit>
+    suspend fun topUp(@Body request: TopUpRequest): ApiResponse<Map<String, Any>>
 
     @POST("api/v1/payment/withdraw")
-    suspend fun withdraw(@Body request: WithdrawRequest): ApiResponse<Unit>
+    suspend fun withdraw(@Body request: WithdrawRequest): ApiResponse<Map<String, Any>>
 
     @PATCH("api/v1/payment/auto-deduction")
-    suspend fun toggleAutoDeduction(@Body request: AutoDeductionRequest): ApiResponse<Unit>
+    suspend fun toggleAutoDeduction(@Body request: AutoDeductionRequest): ApiResponse<Map<String, Any>>
 
     @POST("api/v1/payments/qr")
     suspend fun createQrPayment(@Body request: CreateQrRequest): ApiResponse<QrPayment>

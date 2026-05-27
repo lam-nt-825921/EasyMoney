@@ -385,6 +385,7 @@
     <!-- History Strings -->
     
     <!-- Event Strings -->
+    <string name="history_empty_state">No transactions yet</string>
     <string name="history_balance_label">Balance: %1$s VND</string>
     <string name="event_time_label">Time: %1$s</string>
     <string name="event_join_now">Join now</string>
@@ -426,7 +427,7 @@
     <string name="loan_detail_condition_age">Vietnamese citizens aged 20 – 60</string>
     <string name="loan_detail_condition_income">Stable income from 5 million VND/month</string>
     <string name="loan_detail_condition_credit">Good credit history (no bad debt)</string>
-    <string name="loan_detail_example_note">Example: Borrow 10M VND for 6 months at 12%%/year, monthly payment ≈ 1,725,000 VND.</string>
+    <string name="loan_detail_example_note" formatted="false">Example: Borrow 10M VND for 6 months at 12%/year, monthly payment ≈ 1,725,000 VND.</string>
     <string name="loan_list_filter_title">Loan filters</string>
     <string name="loan_list_filter_amount">Desired limit: %s</string>
     <string name="loan_list_filter_eligible_only">Show only eligible packages</string>

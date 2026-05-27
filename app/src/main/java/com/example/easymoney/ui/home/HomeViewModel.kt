@@ -40,6 +40,7 @@ class HomeViewModel @Inject constructor(
             val userJob = async { userRepository.getProfile() }
             val bannersJob = async { homeRepository.getBanners() }
             val hotLoansJob = async { homeRepository.getHotLoans() }
+            val recommendedLoanJob = async { homeRepository.getRecommendedLoan() }
             val eKycJob = async { homeRepository.getEKycStatus() }
             val profileCompletionJob = async { userRepository.getProfileCompletion() }
             val rewardsJob = async { rewardRepository.getRewardsCatalog() }
@@ -47,6 +48,7 @@ class HomeViewModel @Inject constructor(
             val userRes = userJob.await()
             val bannersRes = bannersJob.await()
             val hotLoansRes = hotLoansJob.await()
+            val recommendedLoanRes = recommendedLoanJob.await()
             val eKycRes = eKycJob.await()
             val profileCompletionRes = profileCompletionJob.await()
             val rewardsRes = rewardsJob.await()
@@ -61,6 +63,7 @@ class HomeViewModel @Inject constructor(
                     },
                     banners = if (bannersRes is Resource.Success) bannersRes.data else state.banners,
                     hotLoans = if (hotLoansRes is Resource.Success) hotLoansRes.data else state.hotLoans,
+                    recommendedLoan = if (recommendedLoanRes is Resource.Success) recommendedLoanRes.data else state.recommendedLoan,
                     eKycStatus = if (eKycRes is Resource.Success) eKycRes.data else state.eKycStatus,
                     profileCompletion = when (profileCompletionRes) {
                         is Resource.Success -> profileCompletionRes.data

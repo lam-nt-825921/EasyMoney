@@ -45,7 +45,7 @@ fun ContractScreen(
         OtpDialog(
             phoneNumber = uiState.userPhone,
             onDismiss = viewModel::hideOtpDialog,
-            onConfirm = { otp -> viewModel.verifyOtp(otp, onSignSuccess) },
+            onConfirm = { otp -> viewModel.verifyOtp(otp, loanId, onSignSuccess) },
             onResendOtp = viewModel::resendOtp,
             onMaxAttemptsReached = {
                 viewModel.hideOtpDialog()

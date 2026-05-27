@@ -97,13 +97,19 @@ fun ProfileScreen(
                         stringResource(id = R.string.profile_unit_currency_short)
                     )
                 )
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_company), value = profile.jobInfo.companyName)
+                if (profile.jobInfo.jobTitle == "Nhân viên văn phòng công ty" || profile.jobInfo.companyName.isNotBlank()) {
+                    ProfileInfoItem(label = stringResource(id = R.string.profile_label_company), value = profile.jobInfo.companyName)
+                }
             }
 
             ProfileInfoGroup(title = stringResource(id = R.string.profile_section_contact)) {
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_contact_name), value = profile.contactInfo.contactName)
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_relationship), value = profile.contactInfo.relationship)
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_phone), value = profile.contactInfo.phoneNumber)
+                if (profile.contactInfo.contactName.isBlank() && profile.contactInfo.phoneNumber.isBlank()) {
+                    ProfileInfoItem(label = "Tóm tắt", value = "Chưa thêm liên hệ")
+                } else {
+                    ProfileInfoItem(label = stringResource(id = R.string.profile_label_contact_name), value = profile.contactInfo.contactName)
+                    ProfileInfoItem(label = stringResource(id = R.string.profile_label_relationship), value = profile.contactInfo.relationship)
+                    ProfileInfoItem(label = stringResource(id = R.string.profile_label_phone), value = profile.contactInfo.phoneNumber)
+                }
             }
             
             Spacer(modifier = Modifier.height(32.dp))

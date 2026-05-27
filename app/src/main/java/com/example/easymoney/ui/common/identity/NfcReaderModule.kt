@@ -47,8 +47,21 @@ fun NfcReaderModule(
                     // Here we would perform the PACE/BAC handshake and read EF.COM, EF.SOD, EF.DG1, etc.
                     // This is a complex process often requiring a library like JMRTD.
                     
-                    // Mock success result
-                    onResult(NfcResult(rawData = "MOCK_CHIP_DATA", isSuccess = true))
+                    onResult(
+                        NfcResult(
+                            rawData = "MOCK_CCCD_CHIP_DATA",
+                            extractedInfo = mapOf(
+                                "national_id" to "012345678901",
+                                "full_name" to "NGUYEN VAN A",
+                                "date_of_birth" to "1995-10-20",
+                                "gender" to "Nam",
+                                "issue_date" to "2020-01-01",
+                                "place_of_origin" to "Thành phố Hà Nội",
+                                "place_of_residence" to "Số 123, Đường Cầu Giấy, Hà Nội"
+                            ),
+                            isSuccess = true
+                        )
+                    )
                 } catch (e: Exception) {
                     status = statusReadError.format(e.message.orEmpty())
                 } finally {

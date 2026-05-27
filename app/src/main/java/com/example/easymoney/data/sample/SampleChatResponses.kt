@@ -42,7 +42,7 @@ fun sampleChatReply(userText: String): ChatMessage {
             title = "Quản lý khoản vay",
             body = "Xem các hợp đồng đã duyệt.",
             actions = listOf(
-                ChatActionButton("Mở quản lý", ChatActionTarget.NavigateRoute(AppDestination.LoanManagement.route))
+                ChatActionButton("Mở quản lý", ChatActionTarget.NavigateRoute(AppDestination.LoanManagement.createRoute()))
             )
         )
         else -> ChatMessage.Text(

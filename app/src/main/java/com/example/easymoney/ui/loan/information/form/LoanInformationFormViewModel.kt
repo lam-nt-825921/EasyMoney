@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.MasterDataItem
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.utils.UiText
 import com.example.easymoney.utils.currentAppLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoanInformationFormViewModel @Inject constructor(
-    private val loanRepository: LoanRepository
+    private val loanRepository: LoanRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanInformationFormUiState())
@@ -26,6 +28,7 @@ class LoanInformationFormViewModel @Inject constructor(
     init {
         loadMyInfo()
         loadMasterData()
+        prefillFromProfile()
     }
 
     private fun loadMyInfo() {
@@ -85,6 +88,46 @@ class LoanInformationFormViewModel @Inject constructor(
                 is Resource.Loading -> {
                     _uiState.update { it.copy(isLoading = true) }
                 }
+            }
+        }
+    }
+
+    private fun prefillFromProfile() {
+        viewModelScope.launch {
+            when (val result = userRepository.getProfile()) {
+                is Resource.Success -> {
+                    val profile = result.data
+                    val permanentAddress = parseAddress(profile.addressInfo.permanentAddress)
+                    val currentAddress = parseAddress(profile.addressInfo.currentAddress)
+
+                    _uiState.update { state ->
+                        val hasPermanentAddress = state.hasPermanentAddress || permanentAddress.hasAnyValue()
+                        state.copy(
+                            permanentProvince = state.permanentProvince ?: permanentAddress.province,
+                            permanentDistrict = state.permanentDistrict ?: permanentAddress.district,
+                            permanentWard = state.permanentWard ?: permanentAddress.ward,
+                            permanentDetail = state.permanentDetail.ifBlank { permanentAddress.detail },
+                            hasPermanentAddress = hasPermanentAddress,
+                            isCurrentSameAsPermanent = if (currentAddress.hasAnyValue()) false else state.isCurrentSameAsPermanent,
+                            currentProvince = state.currentProvince ?: currentAddress.province,
+                            currentDistrict = state.currentDistrict ?: currentAddress.district,
+                            currentWard = state.currentWard ?: currentAddress.ward,
+                            currentDetail = state.currentDetail.ifBlank { currentAddress.detail },
+                            monthlyIncome = state.monthlyIncome.ifBlank {
+                                profile.jobInfo.monthlyIncome.takeIf { it > 0L }?.toString().orEmpty()
+                            },
+                            profession = state.profession ?: profile.jobInfo.jobTitle.toCachedItem(),
+                            position = state.position ?: profile.jobInfo.position.toCachedItem(),
+                            companyName = state.companyName.ifBlank { profile.jobInfo.companyName },
+                            education = state.education ?: profile.education.toCachedItem(),
+                            maritalStatus = state.maritalStatus ?: profile.maritalStatus.toCachedItem(),
+                            contactName = state.contactName.ifBlank { profile.contactInfo.contactName },
+                            contactRelationship = state.contactRelationship ?: profile.contactInfo.relationship.toCachedItem(),
+                            contactPhone = state.contactPhone.ifBlank { profile.contactInfo.phoneNumber }
+                        )
+                    }
+                }
+                else -> Unit
             }
         }
     }
@@ -202,5 +245,44 @@ class LoanInformationFormViewModel @Inject constructor(
 
     fun onContactPhoneChanged(value: String) {
         _uiState.update { it.copy(contactPhone = value) }
+    }
+
+    private fun parseAddress(rawAddress: String): CachedAddress {
+        val parts = rawAddress
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+
+        if (parts.isEmpty()) return CachedAddress()
+
+        val province = parts.getOrNull(parts.lastIndex).toCachedItem()
+        val district = parts.getOrNull(parts.lastIndex - 1).toCachedItem()
+        val ward = parts.getOrNull(parts.lastIndex - 2).toCachedItem()
+        val detail = if (parts.size >= 4) {
+            parts.dropLast(3).joinToString(", ")
+        } else {
+            parts.first()
+        }
+
+        return CachedAddress(
+            province = province,
+            district = district,
+            ward = ward,
+            detail = detail
+        )
+    }
+
+    private fun String?.toCachedItem(): MasterDataItem? {
+        val value = this?.trim().orEmpty()
+        return value.takeIf { it.isNotBlank() }?.let { MasterDataItem(id = it, name = it) }
+    }
+
+    private data class CachedAddress(
+        val province: MasterDataItem? = null,
+        val district: MasterDataItem? = null,
+        val ward: MasterDataItem? = null,
+        val detail: String = ""
+    ) {
+        fun hasAnyValue(): Boolean = province != null || district != null || ward != null || detail.isNotBlank()
     }
 }

@@ -30,7 +30,7 @@ import com.example.easymoney.ui.loan.components.LoanStepper
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationScreen
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationViewModel
 import com.example.easymoney.ui.loan.information.confirm.ConfirmLoanInformationScreen
-import com.example.easymoney.ui.common.identity.FaceCaptureModule
+import com.example.easymoney.ui.loan.information.ekyc.EkycFaceCaptureScreen
 import com.example.easymoney.ui.loan.information.ekyc.EkycIntroScreen
 import com.example.easymoney.ui.loan.information.form.LoanInformationFormScreen
 import com.example.easymoney.ui.loan.information.form.LoanInformationFormViewModel
@@ -137,9 +137,10 @@ fun LoanFlowScreen(
                         )
                     }
                     LoanSubState.EKYC_CAPTURE -> {
-                        FaceCaptureModule(
-                            onResult = { viewModel.onFaceCaptureResult(it) },
-                            onDismiss = { viewModel.updateSubState(LoanSubState.EKYC_INTRO) },
+                        EkycFaceCaptureScreen(
+                            onSuccess = { viewModel.onFaceCaptureUploaded() },
+                            onBackToIntro = { viewModel.updateSubState(LoanSubState.EKYC_INTRO) },
+                            onNavigateToError = { viewModel.onFaceCaptureError(it) },
                             modifier = Modifier.fillMaxSize()
                         )
                     }

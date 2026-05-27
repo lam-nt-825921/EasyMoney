@@ -23,7 +23,7 @@ interface UserApiService {
     suspend fun getProfileCompletion(): ApiResponse<ProfileCompletionDto>
 
     @PATCH("api/v1/user/profile")
-    suspend fun updateProfile(@Body body: UserProfileDto): ApiResponse<Unit>
+    suspend fun updateProfile(@Body body: UserProfileDto): ApiResponse<UserProfileDto>
 
     @PATCH("api/v1/user/notification-settings")
     suspend fun updateNotificationSettings(@Body body: NotificationSettingsRequestDto): ApiResponse<Unit>

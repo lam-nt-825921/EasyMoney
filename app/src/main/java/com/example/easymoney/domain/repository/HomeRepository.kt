@@ -9,6 +9,7 @@ import com.example.easymoney.domain.model.SupportLink
 interface HomeRepository {
     suspend fun getBanners(): Resource<List<Banner>>
     suspend fun getHotLoans(): Resource<List<LoanProduct>>
+    suspend fun getRecommendedLoan(): Resource<LoanProduct>
     suspend fun getEKycStatus(): Resource<EKycStatus>
     suspend fun getCustomerSupportLink(): Resource<SupportLink>
 }

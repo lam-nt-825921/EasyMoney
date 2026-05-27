@@ -19,6 +19,9 @@ interface HomeApiService {
     @GET("api/v1/home/hot-loans")
     suspend fun getHotLoans(): ApiResponse<List<LoanProduct>>
 
+    @GET("api/v1/home/recommended-loan")
+    suspend fun getRecommendedLoan(): ApiResponse<LoanProduct>
+
     @GET("api/v1/ekyc/status")
     suspend fun getEKycStatus(): ApiResponse<EKycStatus>
 

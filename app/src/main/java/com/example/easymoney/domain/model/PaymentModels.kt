@@ -4,7 +4,8 @@ data class PaymentCard(
     val id: String,
     val cardNumber: String, // Masked
     val cardType: String, // VISA, MASTER, NAPAS
-    val bankName: String
+    val bankName: String,
+    val balance: Long = 0
 )
 
 enum class FlowType {
