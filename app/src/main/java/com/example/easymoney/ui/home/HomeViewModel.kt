@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.HomeRepository
-import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -19,7 +18,6 @@ import com.example.easymoney.domain.repository.RewardRepository
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val loanRepository: LoanRepository,
     private val homeRepository: HomeRepository,
     private val rewardRepository: RewardRepository,
     private val userRepository: UserRepository
@@ -39,7 +37,7 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
-            val userJob = async { loanRepository.getMyInfo() }
+            val userJob = async { userRepository.getProfile() }
             val bannersJob = async { homeRepository.getBanners() }
             val hotLoansJob = async { homeRepository.getHotLoans() }
             val eKycJob = async { homeRepository.getEKycStatus() }
@@ -56,7 +54,11 @@ class HomeViewModel @Inject constructor(
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
-                    userName = if (userRes is Resource.Success) userRes.data.fullName else state.userName,
+                    userName = if (userRes is Resource.Success) {
+                        userRes.data.personalInfo.fullName.ifBlank { state.userName }
+                    } else {
+                        state.userName
+                    },
                     banners = if (bannersRes is Resource.Success) bannersRes.data else state.banners,
                     hotLoans = if (hotLoansRes is Resource.Success) hotLoansRes.data else state.hotLoans,
                     eKycStatus = if (eKycRes is Resource.Success) eKycRes.data else state.eKycStatus,

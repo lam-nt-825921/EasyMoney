@@ -195,12 +195,20 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMyInfo(): Resource<MyInfoModel> {
+        if (isRemote()) {
+            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thông tin cá nhân khoản vay.")
+        }
+
         delay(2000) // Tăng delay lên 2s để test skeleton
 
         return Resource.Success(data = mockMyInfo, isFromMock = true)
     }
 
     override suspend fun getLoanProviderInfo(): Resource<LoanProviderInfoModel> {
+        if (isRemote()) {
+            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thông tin đơn vị cho vay.")
+        }
+
         delay(300)
 
         return Resource.Success(data = mockLoanProviderInfo, isFromMock = true)
@@ -672,17 +680,25 @@ class LoanRepositoryImpl @Inject constructor(
     private val cancelledContractIds = mutableSetOf<String>()
 
     override suspend fun getApprovedContracts(): Resource<List<LoanContractModel>> {
+        if (isRemote()) {
+            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho danh sách hợp đồng đã duyệt.")
+        }
+
         delay(500)
         val contracts = SAMPLE_APPROVED_CONTRACTS.map { c ->
             if (c.id in cancelledContractIds) c.copy(status = ContractStatus.CANCELLED) else c
         }
-        return Resource.Success(contracts, isFromMock = !isRemote())
+        return Resource.Success(contracts, isFromMock = true)
     }
 
     override suspend fun cancelContract(contractId: String): Resource<Unit> {
+        if (isRemote()) {
+            return Resource.Error("Endpoint REMOTE chưa sẵn sàng cho thao tác hủy hợp đồng.")
+        }
+
         delay(400)
         cancelledContractIds.add(contractId)
-        return Resource.Success(Unit, isFromMock = !isRemote())
+        return Resource.Success(Unit, isFromMock = true)
     }
 
     private fun buildMetadataJson(request: EkycCaptureRequest): String {
