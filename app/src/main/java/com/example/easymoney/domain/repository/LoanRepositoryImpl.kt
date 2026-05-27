@@ -43,27 +43,54 @@ class LoanRepositoryImpl @Inject constructor(
 
     // ========== Auth ==========
     override suspend fun login(request: LoginRequest): Resource<AuthToken> {
-        if (isRemote()) return remoteDataSource?.login(request) ?: Resource.Error("Remote source error")
+        if (isRemote()) {
+            return when (val result = remoteDataSource?.login(request) ?: Resource.Error("Remote source error")) {
+                is Resource.Success -> {
+                    saveAuthToken(result.data)
+                    result
+                }
+                is Resource.Error -> result
+                Resource.Loading -> result
+            }
+        }
         
         delay(1000)
         return if (request.phone.isNotEmpty() && request.password == "123456") {
-            Resource.Success(AuthToken("mock_access_token", "mock_refresh_token", 3600), isFromMock = true)
+            val token = AuthToken("mock_access_token", "mock_refresh_token", 3600)
+            saveAuthToken(token)
+            Resource.Success(token, isFromMock = true)
         } else {
             Resource.Error("Số điện thoại hoặc mật khẩu không chính xác.")
         }
     }
 
     override suspend fun register(request: RegisterRequest): Resource<AuthToken> {
-        if (isRemote()) return remoteDataSource?.register(request) ?: Resource.Error("Remote source error")
+        if (isRemote()) {
+            return when (val result = remoteDataSource?.register(request) ?: Resource.Error("Remote source error")) {
+                is Resource.Success -> {
+                    saveAuthToken(result.data)
+                    result
+                }
+                is Resource.Error -> result
+                Resource.Loading -> result
+            }
+        }
         
         delay(1500)
-        return Resource.Success(AuthToken("mock_access_token", "mock_refresh_token", 3600), isFromMock = true)
+        val token = AuthToken("mock_access_token", "mock_refresh_token", 3600)
+        saveAuthToken(token)
+        return Resource.Success(token, isFromMock = true)
     }
 
     override suspend fun logout(): Resource<Unit> {
         delay(500)
         appPreferences?.clearAuthData()
         return Resource.Success(Unit)
+    }
+
+    private fun saveAuthToken(token: AuthToken) {
+        appPreferences?.accessToken = token.accessToken
+        appPreferences?.refreshToken = token.refreshToken
     }
 
     // ========== Remembered Accounts ==========

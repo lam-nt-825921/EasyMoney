@@ -1,6 +1,7 @@
 package com.example.easymoney.di
 
 import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.data.remote.AuthInterceptor
 import com.example.easymoney.data.remote.ChatApiService
 import com.example.easymoney.data.remote.EventApiService
 import com.example.easymoney.data.remote.HomeApiService
@@ -30,13 +31,18 @@ object NetworkModule {
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
+            redactHeader("Authorization")
         }
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }
