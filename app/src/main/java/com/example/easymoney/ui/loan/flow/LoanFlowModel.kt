@@ -33,5 +33,7 @@ data class LoanFlowModel(
 
     // Dữ liệu dùng chung giữa các bước
     val loanId: String? = null,
-    val draftApplication: LoanApplicationRequest? = null
+    val draftApplication: LoanApplicationRequest? = null,
+    val isMatchingEkyc: Boolean = false,
+    val ekycMatchError: String? = null
 )

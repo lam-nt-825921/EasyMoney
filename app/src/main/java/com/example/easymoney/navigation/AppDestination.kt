@@ -1,5 +1,6 @@
 package com.example.easymoney.navigation
 
+import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import com.example.easymoney.R
@@ -76,18 +77,28 @@ sealed class AppDestination(
     }
 
     data object ConfirmInformation : AppDestination(
-        route = "confirm_information",
+        route = "confirm_information?packageId={packageId}",
         titleResId = R.string.nav_confirm_information,
         showBackButton = true,
         guideXmlName = "guide_confirm_information"
-    )
+    ) {
+        const val BASE_ROUTE = "confirm_information"
+        const val PACKAGE_ID_ARG = "packageId"
+        fun createRoute(packageId: String? = null): String =
+            if (packageId.isNullOrBlank()) BASE_ROUTE else "$BASE_ROUTE?packageId=${Uri.encode(packageId)}"
+    }
 
     data object LoanFlow : AppDestination(
-        route = "loan_information",
+        route = "loan_information?packageId={packageId}",
         titleResId = R.string.nav_loan_information,
         showBackButton = true,
         showHelpButton = false
-    )
+    ) {
+        const val BASE_ROUTE = "loan_information"
+        const val PACKAGE_ID_ARG = "packageId"
+        fun createRoute(packageId: String? = null): String =
+            if (packageId.isNullOrBlank()) BASE_ROUTE else "$BASE_ROUTE?packageId=${Uri.encode(packageId)}"
+    }
 
     data object Home : AppDestination(
         route = "home",
@@ -185,6 +196,23 @@ sealed class AppDestination(
         fun createRoute(id: String) = "$BASE_ROUTE/$id"
     }
 
+    data object WebContent : AppDestination(
+        route = "web_content?url={url}&title={title}",
+        titleResId = R.string.nav_web_content,
+        showBackButton = true,
+        showHelpButton = false
+    ) {
+        const val BASE_ROUTE = "web_content"
+        const val URL_ARG = "url"
+        const val TITLE_ARG = "title"
+
+        fun createRoute(url: String, title: String? = null): String {
+            val encodedUrl = Uri.encode(url)
+            val encodedTitle = Uri.encode(title.orEmpty())
+            return "$BASE_ROUTE?url=$encodedUrl&title=$encodedTitle"
+        }
+    }
+
     data object Rewards : AppDestination(
         route = "rewards",
         titleResId = R.string.nav_rewards,
@@ -243,6 +271,13 @@ sealed class AppDestination(
         titleResId = R.string.nav_security_settings,
         showBackButton = true,
         guideXmlName = "guide_security_settings"
+    )
+
+    data object ChangePassword : AppDestination(
+        route = "change_password",
+        titleResId = R.string.nav_change_password,
+        showBackButton = true,
+        showHelpButton = false
     )
 
     data object ChatBot : AppDestination(
@@ -318,8 +353,8 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.QuickLogin1.route -> AppDestination.QuickLogin1
     route == AppDestination.Register1.route -> AppDestination.Register1
     route?.startsWith(AppDestination.Onboarding.BASE_ROUTE) == true -> AppDestination.Onboarding
-    route == AppDestination.ConfirmInformation.route -> AppDestination.ConfirmInformation
-    route == AppDestination.LoanFlow.route -> AppDestination.LoanFlow
+    route?.startsWith(AppDestination.ConfirmInformation.BASE_ROUTE) == true -> AppDestination.ConfirmInformation
+    route?.startsWith(AppDestination.LoanFlow.BASE_ROUTE) == true -> AppDestination.LoanFlow
     route == AppDestination.TransactionHistory.route -> AppDestination.TransactionHistory
     route == AppDestination.Notifications.route -> AppDestination.Notifications
     route == AppDestination.Account.route -> AppDestination.Account
@@ -333,6 +368,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.PaymentCards.route -> AppDestination.PaymentCards
     route == AppDestination.GeneralSettings.route -> AppDestination.GeneralSettings
     route == AppDestination.SecuritySettings.route -> AppDestination.SecuritySettings
+    route == AppDestination.ChangePassword.route -> AppDestination.ChangePassword
     route == AppDestination.ChatBot.route -> AppDestination.ChatBot
     route == AppDestination.IdentityVerification.route -> AppDestination.IdentityVerification
     route == AppDestination.LoanManagement.route -> AppDestination.LoanManagement
@@ -343,6 +379,7 @@ fun appDestinationFromRoute(route: String?): AppDestination = when {
     route == AppDestination.EditJobInfo.route -> AppDestination.EditJobInfo
     route == AppDestination.EditContactInfo.route -> AppDestination.EditContactInfo
     route?.startsWith(AppDestination.EventDetail.BASE_ROUTE) == true -> AppDestination.EventDetail
+    route?.startsWith(AppDestination.WebContent.BASE_ROUTE) == true -> AppDestination.WebContent
     route?.startsWith(AppDestination.LoanDetail.BASE_ROUTE) == true -> AppDestination.LoanDetail
     route?.startsWith(AppDestination.PageGuide.BASE_ROUTE) == true -> AppDestination.PageGuide
     else -> AppDestination.Home

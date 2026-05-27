@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.RewardCatalogItem
+import com.example.easymoney.domain.model.UserRewardVoucher
 import com.example.easymoney.domain.repository.RewardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +19,12 @@ typealias RewardItem = RewardCatalogItem
 data class RewardUiState(
     val totalPoints: Int = 1250,
     val rewards: List<RewardItem> = emptyList(),
+    val redeemedRewards: List<UserRewardVoucher> = emptyList(),
     val isLoading: Boolean = false,
     val pendingConfirmId: String? = null,
     val isRedeeming: Boolean = false,
     val redeemSuccessMessage: String? = null,
+    val latestRedeemedVoucher: UserRewardVoucher? = null,
     val errorMessage: String? = null
 )
 
@@ -40,6 +43,14 @@ class RewardViewModel @Inject constructor(
     private fun loadRewards() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+            when (val userResult = rewardRepository.getRewardsCatalog()) {
+                is Resource.Success -> _uiState.update {
+                    it.copy(totalPoints = userResult.data.totalPoints, redeemedRewards = userResult.data.vouchers)
+                }
+                is Resource.Error -> _uiState.update { it.copy(errorMessage = userResult.message) }
+                is Resource.Loading -> Unit
+            }
+
             when (val result = rewardRepository.getRewardCatalogItems()) {
                 is Resource.Success -> _uiState.update {
                     it.copy(rewards = result.data, isLoading = false)
@@ -73,8 +84,10 @@ class RewardViewModel @Inject constructor(
                     it.copy(
                         isRedeeming = false,
                         pendingConfirmId = null,
-                        totalPoints = it.totalPoints - item.points,
-                        redeemSuccessMessage = "Đổi thành công: ${item.title}"
+                        totalPoints = res.data.totalPoints,
+                        redeemedRewards = listOf(res.data.voucher) + it.redeemedRewards,
+                        latestRedeemedVoucher = res.data.voucher,
+                        redeemSuccessMessage = "Đổi thành công: ${res.data.voucher.title}"
                     )
                 }
                 is Resource.Error -> _uiState.update {
@@ -86,6 +99,6 @@ class RewardViewModel @Inject constructor(
     }
 
     fun consumeMessages() {
-        _uiState.update { it.copy(redeemSuccessMessage = null, errorMessage = null) }
+        _uiState.update { it.copy(redeemSuccessMessage = null, latestRedeemedVoucher = null, errorMessage = null) }
     }
 }

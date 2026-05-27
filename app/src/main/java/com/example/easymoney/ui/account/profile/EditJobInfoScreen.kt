@@ -1,9 +1,11 @@
 package com.example.easymoney.ui.account.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -11,7 +13,10 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +33,7 @@ fun EditJobInfoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val jobInfo = uiState.profile.jobInfo
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) onBack()
@@ -37,9 +43,13 @@ fun EditJobInfoScreen(
         Scaffold(
             bottomBar = {
                 Button(
-                    onClick = { viewModel.saveProfile() },
+                    onClick = {
+                        focusManager.clearFocus()
+                        viewModel.saveProfile()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .imePadding()
                         .padding(16.dp)
                         .height(54.dp),
                     shape = RoundedCornerShape(27.dp)
@@ -53,6 +63,9 @@ fun EditJobInfoScreen(
                     .fillMaxSize()
                     .padding(padding)
                     .background(MaterialTheme.colorScheme.background)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { focusManager.clearFocus() })
+                    }
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -76,6 +89,9 @@ fun EditJobInfoScreen(
                     value = jobInfo.companyName,
                     onValueChange = { viewModel.updateJobInfo(company = it) },
                     label = { Text(stringResource(id = R.string.profile_label_company)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.fillMaxWidth()
                 )
 

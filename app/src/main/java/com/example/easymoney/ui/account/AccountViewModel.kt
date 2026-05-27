@@ -3,6 +3,7 @@ package com.example.easymoney.ui.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.repository.HomeRepository
 import com.example.easymoney.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,12 +17,15 @@ data class AccountUiState(
     val isLoading: Boolean = true,
     val fullName: String = "",
     val phoneNumber: String = "",
+    val supportUrl: String? = null,
+    val supportTitle: String? = null,
     val errorMessage: String? = null
 )
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AccountUiState())
@@ -51,5 +55,25 @@ class AccountViewModel @Inject constructor(
                 Resource.Loading -> Unit
             }
         }
+    }
+
+    fun openCustomerSupport() {
+        viewModelScope.launch {
+            when (val result = homeRepository.getCustomerSupportLink()) {
+                is Resource.Success -> _state.update {
+                    it.copy(
+                        supportUrl = result.data.url,
+                        supportTitle = result.data.title,
+                        errorMessage = null
+                    )
+                }
+                is Resource.Error -> _state.update { it.copy(errorMessage = result.message) }
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun consumeSupportNavigation() {
+        _state.update { it.copy(supportUrl = null, supportTitle = null) }
     }
 }

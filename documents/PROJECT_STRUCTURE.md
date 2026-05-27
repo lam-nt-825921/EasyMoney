@@ -1,4 +1,4 @@
-# PROJECT_STRUCTURE - EasyMoney
+# PROJECT_STRUCTURE - EasyMoney (out of date - cần cập nhật lại)
 
 Cập nhật: 2026-05-26.
 

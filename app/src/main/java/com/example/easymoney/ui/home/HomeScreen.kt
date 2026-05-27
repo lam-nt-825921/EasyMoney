@@ -53,13 +53,16 @@ fun HomeScreen(
             if (isLoading) {
                 HomeLoadingContent()
             } else {
-                // eKYC Alert if not identified
-                uiState.eKycStatus?.let { status ->
-                    if (!status.isIdentified) {
+                uiState.profileCompletion?.let { completion ->
+                    if (!completion.canApplyLoan) {
                         EKycAlertSection(
-                            message = status.message ?: "",
+                            message = completion.statusMessage,
                             onVerifyClick = onVerifyEkycClick
                         )
+                    }
+                } ?: uiState.eKycStatus?.let { status ->
+                    if (!status.isIdentified) {
+                        EKycAlertSection(message = status.message ?: "", onVerifyClick = onVerifyEkycClick)
                     }
                 }
 

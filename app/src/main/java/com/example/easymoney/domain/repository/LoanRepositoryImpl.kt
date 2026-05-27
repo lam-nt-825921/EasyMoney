@@ -166,11 +166,16 @@ class LoanRepositoryImpl @Inject constructor(
     )
 
     override suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
-        delay(300)
-
         if (id.isBlank()) {
             return Resource.Error(message = "Loan package id is empty")
         }
+
+        if (isRemote()) {
+            return remoteDataSource?.getLoanPackageById(id)
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        delay(300)
 
         val packageData = mockLoanPackages.firstOrNull { it.id == id }
             ?: return Resource.Error(message = "Loan package not found")
@@ -253,6 +258,11 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun checkEligibility(packageId: String): Resource<EligibilityResult> {
+        if (isRemote()) {
+            return remoteDataSource?.checkEligibility(packageId)
+                ?: Resource.Error("Remote data source not available")
+        }
+
         delay(1000)
         return when (packageId) {
             "1" -> Resource.Success(EligibilityResult(true))
@@ -269,6 +279,68 @@ class LoanRepositoryImpl @Inject constructor(
                 action = "SHOW_REJECT"
             ))
         }
+    }
+
+    override suspend fun getApplicableVouchers(
+        packageId: String,
+        loanAmount: Long
+    ): Resource<List<ApplicableVoucher>> {
+        if (isRemote()) {
+            return remoteDataSource?.getApplicableVouchers(packageId, loanAmount)
+                ?: Resource.Error("Remote data source not available")
+        }
+        return Resource.Success(emptyList(), isFromMock = true)
+    }
+
+    override suspend fun quoteLoan(
+        packageId: String,
+        request: LoanQuoteRequest
+    ): Resource<LoanQuote> {
+        if (isRemote()) {
+            return remoteDataSource?.quoteLoan(packageId, request)
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        val pkg = mockLoanPackages.firstOrNull { it.id == packageId }
+            ?: return Resource.Error("Loan package not found")
+        val interest = (request.loanAmount * (pkg.interest / 100.0) * request.tenorMonth / 12.0).toLong()
+        val insurance = if (request.hasInsurance) (request.loanAmount * 0.01).toLong() else 0L
+        val total = request.loanAmount + interest + insurance
+        return Resource.Success(
+            LoanQuote(
+                packageId = packageId,
+                loanAmount = request.loanAmount,
+                tenorMonth = request.tenorMonth,
+                hasInsurance = request.hasInsurance,
+                originalInterestRate = pkg.interest,
+                finalInterestRate = pkg.interest,
+                monthlyPrincipal = request.loanAmount / request.tenorMonth.coerceAtLeast(1),
+                monthlyInterest = interest / request.tenorMonth.coerceAtLeast(1),
+                monthlyPayment = total / request.tenorMonth.coerceAtLeast(1),
+                totalInterest = interest,
+                insuranceFee = insurance,
+                discountAmount = 0,
+                totalPayment = total
+            ),
+            isFromMock = true
+        )
+    }
+
+    override suspend fun matchEkyc(packageId: String): Resource<EkycMatchResponse> {
+        if (isRemote()) {
+            return remoteDataSource?.matchEkyc(packageId)
+                ?: Resource.Error("Remote data source not available")
+        }
+        return Resource.Success(
+            EkycMatchResponse(
+                isMatched = true,
+                canApplyLoan = true,
+                message = "eKYC mock đã so khớp.",
+                packageId = packageId,
+                ekycMatchKey = "mock_ekyc_match_key"
+            ),
+            isFromMock = true
+        )
     }
 
     // ========== Master Data Mock ==========
@@ -415,6 +487,15 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun submitApplication(request: LoanApplicationRequest): Resource<Unit> {
+        if (isRemote()) {
+            return when (val result = remoteDataSource?.submitApplication(request)
+                ?: Resource.Error("Remote data source not available")) {
+                is Resource.Success -> Resource.Success(Unit)
+                is Resource.Error -> Resource.Error(result.message)
+                Resource.Loading -> Resource.Loading
+            }
+        }
+
         delay(1500)
         return Resource.Success(Unit, isFromMock = true)
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.HomeRepository
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,8 @@ import com.example.easymoney.domain.repository.RewardRepository
 class HomeViewModel @Inject constructor(
     private val loanRepository: LoanRepository,
     private val homeRepository: HomeRepository,
-    private val rewardRepository: RewardRepository
+    private val rewardRepository: RewardRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -38,12 +40,14 @@ class HomeViewModel @Inject constructor(
             val bannersJob = async { homeRepository.getBanners() }
             val hotLoansJob = async { homeRepository.getHotLoans() }
             val eKycJob = async { homeRepository.getEKycStatus() }
+            val profileCompletionJob = async { userRepository.getProfileCompletion() }
             val rewardsJob = async { rewardRepository.getRewardsCatalog() }
 
             val userRes = userJob.await()
             val bannersRes = bannersJob.await()
             val hotLoansRes = hotLoansJob.await()
             val eKycRes = eKycJob.await()
+            val profileCompletionRes = profileCompletionJob.await()
             val rewardsRes = rewardsJob.await()
 
             _uiState.update { state ->
@@ -53,6 +57,7 @@ class HomeViewModel @Inject constructor(
                     banners = if (bannersRes is Resource.Success) bannersRes.data else state.banners,
                     hotLoans = if (hotLoansRes is Resource.Success) hotLoansRes.data else state.hotLoans,
                     eKycStatus = if (eKycRes is Resource.Success) eKycRes.data else state.eKycStatus,
+                    profileCompletion = if (profileCompletionRes is Resource.Success) profileCompletionRes.data else state.profileCompletion,
                     rewardPoints = if (rewardsRes is Resource.Success) rewardsRes.data.totalPoints else state.rewardPoints,
                     errorMessage = if (userRes is Resource.Error) userRes.message else null
                 )

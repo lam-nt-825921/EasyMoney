@@ -2,10 +2,16 @@ package com.example.easymoney.ui.loan.flow
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -107,8 +113,14 @@ fun LoanFlowScreen(
                     onNextStep = {
                         // Hoist Step 1 data to Parent
                         val state = configViewModel.uiState.value
-                        viewModel.updateLoanConfig(state.loanAmount, state.selectedTenorMonth, state.isInsuranceSelected)
-                        viewModel.onNextStep()
+                        viewModel.updateLoanConfig(
+                            packageId = state.selectedPackage?.id,
+                            amount = state.loanAmount,
+                            tenor = state.selectedTenorMonth,
+                            hasInsurance = state.isInsuranceSelected,
+                            voucherId = state.selectedVoucherId
+                        )
+                        viewModel.continueAfterLoanConfig()
                     },
                     onBackClick = onBack,
                     modifier = Modifier.fillMaxSize()
@@ -173,6 +185,25 @@ fun LoanFlowScreen(
                 }
             }
         }
+    }
+
+    if (uiState.isMatchingEkyc) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    }
+
+    uiState.ekycMatchError?.let { message ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearEkycMatchError,
+            title = { Text("Cần hoàn thiện eKYC") },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearEkycMatchError) {
+                    Text("Tiếp tục")
+                }
+            }
+        )
     }
 }
 

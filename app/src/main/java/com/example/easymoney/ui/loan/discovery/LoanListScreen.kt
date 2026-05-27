@@ -51,7 +51,7 @@ fun LoanListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FA))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Filter Section
         Surface(

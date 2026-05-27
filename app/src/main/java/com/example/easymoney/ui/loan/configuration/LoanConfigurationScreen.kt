@@ -29,6 +29,7 @@ fun LoanConfigurationScreen(
         onAmountChanged = viewModel::onAmountChanged,
         onTenorSelected = viewModel::onTenorSelected,
         onInsuranceToggled = viewModel::onInsuranceToggled,
+        onVoucherSelected = viewModel::onVoucherSelected,
         onNextStep = onNextStep,
         modifier = modifier,
         isLoading = isLoading

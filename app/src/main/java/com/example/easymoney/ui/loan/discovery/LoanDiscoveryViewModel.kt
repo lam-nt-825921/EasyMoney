@@ -148,7 +148,7 @@ class LoanDiscoveryViewModel @Inject constructor(
                         _uiState.update { it.copy(eligibilityState = EligibilityUiState.Success(packageId)) }
                     } else {
                         when (eligibility.action) {
-                            "NAVIGATE_PROFILE" -> {
+                            "NAVIGATE_PROFILE", "NAVIGATE_IDENTITY_VERIFICATION" -> {
                                 _uiState.update { it.copy(eligibilityState = EligibilityUiState.MissingInfo(eligibility.message ?: "")) }
                             }
                             "SHOW_REJECT" -> {

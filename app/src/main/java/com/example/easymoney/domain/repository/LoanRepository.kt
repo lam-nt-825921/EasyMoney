@@ -44,6 +44,9 @@ interface LoanRepository {
     ): Resource<List<LoanPackageModel>>
 
     suspend fun checkEligibility(packageId: String): Resource<EligibilityResult>
+    suspend fun getApplicableVouchers(packageId: String, loanAmount: Long): Resource<List<ApplicableVoucher>>
+    suspend fun quoteLoan(packageId: String, request: LoanQuoteRequest): Resource<LoanQuote>
+    suspend fun matchEkyc(packageId: String): Resource<EkycMatchResponse>
     
     // Workflow #30 — Master data nhận tham số ngôn ngữ; default "vi".
     suspend fun getMasterDataMetadata(lang: String = "vi"): Resource<MasterDataMetadata>

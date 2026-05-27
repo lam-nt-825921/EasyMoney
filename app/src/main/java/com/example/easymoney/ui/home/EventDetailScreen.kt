@@ -27,6 +27,7 @@ import java.util.Locale
 fun EventDetailScreen(
     eventId: String,
     onBack: () -> Unit,
+    onOpenEventPage: (url: String, title: String) -> Unit,
     viewModel: EventDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -102,7 +103,12 @@ fun EventDetailScreen(
                     color = MaterialTheme.colorScheme.surface
                 ) {
                     Button(
-                        onClick = { viewModel.joinEvent() },
+                        onClick = {
+                            onOpenEventPage(
+                                event.actionUrl?.takeIf { it.isNotBlank() } ?: "/event/${event.id}",
+                                event.title
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)

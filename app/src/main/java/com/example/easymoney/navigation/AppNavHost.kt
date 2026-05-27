@@ -1,10 +1,13 @@
 package com.example.easymoney.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.ui.account.AccountScreen
 import com.example.easymoney.ui.account.GeneralSettingsScreen
 import com.example.easymoney.ui.account.profile.ProfileCompletionScreen
@@ -41,7 +45,9 @@ import com.example.easymoney.ui.esign.ContractScreen
 import com.example.easymoney.ui.esign.EsignSuccessScreen
 import com.example.easymoney.ui.payment.MoneyManagementScreen
 import com.example.easymoney.ui.payment.PaymentCardsScreen
+import com.example.easymoney.ui.account.changepassword.ChangePasswordScreen
 import com.example.easymoney.ui.security.SecuritySettingsScreen
+import com.example.easymoney.ui.web.WebContentScreen
 
 @Composable
 fun AppNavHost(
@@ -52,6 +58,8 @@ fun AppNavHost(
     onAppNotificationsChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appContext = LocalContext.current
+    val appPreferences = remember(appContext) { AppPreferences(appContext) }
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginUiState by loginViewModel.uiState.collectAsState()
 
@@ -81,6 +89,7 @@ fun AppNavHost(
         composable(AppDestination.Home.route) {
             val viewModel: HomeViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
+            val context = LocalContext.current
 
             HomeScreen(
                 uiState = uiState,
@@ -89,7 +98,8 @@ fun AppNavHost(
                     when (type) {
                         "EVENT" -> navController.navigate(AppDestination.EventDetail.createRoute(id))
                         "LOAN" -> navController.navigate(AppDestination.LoanDetail.createRoute(id))
-                        "WEB" -> { /* Open URL in custom tab or webview */ }
+                        // Workflow #51 — banner WEB mở URL (targetId) qua LinkHandler.
+                        "WEB" -> com.example.easymoney.utils.LinkHandler.openUrl(context, id)
                     }
                 },
                 onRedeemClick = { navController.navigate(AppDestination.Rewards.route) },
@@ -148,10 +158,17 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToRewards = { navController.navigate(AppDestination.Rewards.route) },
-                onNavigateToSecurity = { navController.navigate(AppDestination.SecuritySettings.route) },
+                onNavigateToChangePassword = { navController.navigate(AppDestination.ChangePassword.route) },
                 onNavigateToSettings = { navController.navigate(AppDestination.GeneralSettings.route) },
-                onNavigateToSupport = { /* Open web center */ },
                 onNavigateToProfile = { navController.navigate(AppDestination.Profile.route) },
+                onNavigateToSupport = { url, title ->
+                    navController.navigate(
+                        AppDestination.WebContent.createRoute(
+                            normalizeWebUrl(url, appPreferences.apiBaseUrl),
+                            title.ifBlank { "Chăm sóc khách hàng" }
+                        )
+                    )
+                },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -225,22 +242,42 @@ fun AppNavHost(
                     defaultValue = null
                 }
             )
-        ) {
+        ) { backStackEntry ->
+            val packageId = backStackEntry.arguments?.getString(AppDestination.Onboarding.PACKAGE_ID_ARG)
             OnboardingScreen(
-                onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.route) }
+                onContinueClick = { navController.navigate(AppDestination.ConfirmInformation.createRoute(packageId)) }
             )
         }
 
-        composable(AppDestination.ConfirmInformation.route) {
+        composable(
+            route = AppDestination.ConfirmInformation.route,
+            arguments = listOf(
+                navArgument(AppDestination.ConfirmInformation.PACKAGE_ID_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val packageId = backStackEntry.arguments?.getString(AppDestination.ConfirmInformation.PACKAGE_ID_ARG)
             val viewModel: ConfirmInfoViewModel = hiltViewModel()
             ConfirmInfoScreen(
                 viewModel = viewModel,
-                onContinue = { navController.navigate(AppDestination.LoanFlow.route) },
+                onContinue = { navController.navigate(AppDestination.LoanFlow.createRoute(packageId)) },
                 onEditInfo = { navController.navigate(AppDestination.IdentityVerification.route) }
             )
         }
 
-        composable(AppDestination.LoanFlow.route) {
+        composable(
+            route = AppDestination.LoanFlow.route,
+            arguments = listOf(
+                navArgument(AppDestination.LoanFlow.PACKAGE_ID_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
             LoanFlowScreen(
                 onBack = { navController.popBackStack() },
                 onCancel = { navController.popBackStack(AppDestination.Onboarding.route, inclusive = false) },
@@ -267,7 +304,13 @@ fun AppNavHost(
         composable(AppDestination.SecuritySettings.route) {
             SecuritySettingsScreen(
                 onBack = { navController.popBackStack() },
-                onChangePassword = { /* Handle change password */ }
+                onChangePassword = { navController.navigate(AppDestination.ChangePassword.route) }
+            )
+        }
+
+        composable(AppDestination.ChangePassword.route) {
+            ChangePasswordScreen(
+                onPasswordChanged = { navController.popBackStack() }
             )
         }
 
@@ -337,7 +380,36 @@ fun AppNavHost(
             val id = backStackEntry.arguments?.getString(AppDestination.EventDetail.ID_ARG) ?: ""
             EventDetailScreen(
                 eventId = id,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onOpenEventPage = { url, title ->
+                    navController.navigate(
+                        AppDestination.WebContent.createRoute(
+                            normalizeWebUrl(url, appPreferences.apiBaseUrl),
+                            title
+                        )
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = AppDestination.WebContent.route,
+            arguments = listOf(
+                navArgument(AppDestination.WebContent.URL_ARG) {
+                    type = NavType.StringType
+                    nullable = false
+                },
+                navArgument(AppDestination.WebContent.TITLE_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val url = Uri.decode(backStackEntry.arguments?.getString(AppDestination.WebContent.URL_ARG).orEmpty())
+            WebContentScreen(
+                url = normalizeWebUrl(url, appPreferences.apiBaseUrl),
+                modifier = Modifier.fillMaxSize()
             )
         }
 
@@ -436,6 +508,19 @@ fun AppNavHost(
         composable(AppDestination.EditContactInfo.route) {
             EditContactInfoScreen(onBack = { navController.popBackStack() })
         }
+    }
+}
+
+private fun normalizeWebUrl(rawUrl: String, baseUrl: String): String {
+    val trimmed = rawUrl.trim()
+    if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) {
+        return trimmed
+    }
+    val normalizedBase = baseUrl.trimEnd('/')
+    return if (trimmed.startsWith("/")) {
+        normalizedBase + trimmed
+    } else {
+        "$normalizedBase/$trimmed"
     }
 }
 

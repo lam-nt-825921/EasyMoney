@@ -1,5 +1,11 @@
-# SRS - EasyMoney
-
+# SRS - EasyMoney (out of date - đọc trạng thái cập nhật bên dưới để hiểu thêm)
+# Trạng thái cập nhật (đây là bản nháp các SRS bổ sung nhưng chưa được viết vào SRS một cách tiêu chuẩn)
+tài khoản phải hoàn thiện hồ sơ mới có thể sử dụng các chức năng quan trọng,
+hồ sơ được coi là hoàn thiện là đã xác nhận eKYC (quét khuôn mặt) và Căn cước công dân (upload documents hoặc NFC)
+việc xác định hồ sơ đã được hoàn thiện là của 1 endpoint của backend, fe fetch + caching để hiển thị UI cảnh báo,
+trong luồng đăng ký vay tiền có phần eKYC, phần này phải gửi đến endpoint của backend để match và nếu thành công sẽ có key, lúc đăng ký khoản vay phải có key này mới thành công được.
+các tác vụ quan trọng cần có thông báo, các tác vụ mà fe nhận được phản hồi ngay thì không cần backend đẩy thông báo mà thông báo trực tiếp bằng giao diện, các tác vụ khác thì backend sẽ phải đẩy thông báo.
+# ------------------ Hết phần trạng thái cập nhật -------------------------
 Cập nhật: 2026-05-26.
 
 EasyMoney là ứng dụng Android Kotlin/Jetpack Compose cho vay tiêu dùng, quản lý hồ sơ định danh, hợp đồng vay, ví/thanh toán, thông báo, ưu đãi và chatbot hỗ trợ. App có 2 chế độ dữ liệu: `MOCK` để dev/QA offline và `REMOTE` để gọi backend thật.

@@ -37,12 +37,18 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAsRead(id: Long) {
+        // Room cache là nguồn hiển thị; REMOTE mode sync read-status về backend (workflow #46).
         notificationDao.markAsRead(id)
-        // TODO(workflow_14): gọi API mark-read khi backend hỗ trợ — hiện chỉ update local DB
+        if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
+            remoteDataSource.markNotificationRead(id)
+        }
     }
 
     override suspend fun markAllAsRead() {
         notificationDao.markAllAsRead()
+        if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
+            remoteDataSource.markAllNotificationsRead()
+        }
     }
 
     override suspend fun clearAll() {
@@ -50,9 +56,13 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun registerFcmToken(token: String): Resource<Unit> {
-        Log.d("FCM", "registerFcmToken (workflow #14) token=${token.take(20)}... mode=${appPreferences.dataSourceMode}")
-        // TODO(workflow_14): khi backend có endpoint, gọi remoteDataSource.registerToken(token)
-        return Resource.Success(Unit)
+        Log.d("FCM", "registerFcmToken (workflow #46) token=${token.take(20)}... mode=${appPreferences.dataSourceMode}")
+        // MOCK: chỉ log. REMOTE: đăng ký token với backend.
+        return if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
+            remoteDataSource.registerFcmToken(token)
+        } else {
+            Resource.Success(Unit)
+        }
     }
 
     override suspend fun triggerFcmTest(

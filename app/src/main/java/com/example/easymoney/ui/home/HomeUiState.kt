@@ -3,6 +3,7 @@ package com.example.easymoney.ui.home
 import com.example.easymoney.domain.model.Banner
 import com.example.easymoney.domain.model.LoanProduct
 import com.example.easymoney.domain.model.EKycStatus
+import com.example.easymoney.domain.model.ProfileCompletion
 
 sealed interface EligibilityUiState {
     data object Idle : EligibilityUiState
@@ -18,6 +19,7 @@ data class HomeUiState(
     val banners: List<Banner> = emptyList(),
     val hotLoans: List<LoanProduct> = emptyList(),
     val eKycStatus: EKycStatus? = null,
+    val profileCompletion: ProfileCompletion? = null,
     val rewardPoints: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null

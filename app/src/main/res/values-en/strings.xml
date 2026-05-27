@@ -114,6 +114,7 @@
     <string name="account_transaction_history">Transaction history</string>
     <string name="account_support_center">Support center</string>
     <string name="account_security">Account security</string>
+    <string name="account_change_password">Change password</string>
     <string name="account_settings">Settings</string>
     <string name="account_logout">Log out</string>
 
@@ -130,6 +131,16 @@
     <!-- Security & Bio -->
     <string name="security_biometric_auth">Biometric authentication</string>
     <string name="security_change_password">Change password</string>
+
+    <!-- Change Password -->
+    <string name="change_password_old_label">Current password</string>
+    <string name="change_password_new_label">New password</string>
+    <string name="change_password_confirm_label">Confirm new password</string>
+    <string name="change_password_submit">Confirm</string>
+    <string name="change_password_error_empty">Please fill in all fields</string>
+    <string name="change_password_error_too_short">New password must be at least 6 characters</string>
+    <string name="change_password_error_same">New password must differ from the current password</string>
+    <string name="change_password_error_mismatch">Password confirmation does not match</string>
 
     <!-- General -->
     <string name="common_points_unit">pts</string>
@@ -228,6 +239,9 @@
     <string name="ekyc_step_nfc">Scan ID Chip (NFC)</string>
     <string name="ekyc_step_bio">Device Biometrics</string>
     <string name="ekyc_step_docs">Upload Documents</string>
+    <string name="identity_cta_cccd">Citizen ID card</string>
+    <string name="identity_cccd_sheet_title">Verify Citizen ID card</string>
+    <string name="identity_cccd_sheet_desc">Choose one of the two methods below. One successful method is enough.</string>
 
     <!-- Dialogs -->
     <string name="dialog_incomplete_profile_title">Incomplete Profile</string>
@@ -341,6 +355,7 @@
     <string name="nav_loan_detail">Loan package details</string>
     <string name="nav_profile">Personal profile</string>
     <string name="nav_money_management">Money management</string>
+    <string name="nav_change_password">Change password</string>
     <string name="nav_payment_cards">Payment cards</string>
     <string name="nav_general_settings">Settings</string>
     <string name="nav_security_settings">Account security</string>

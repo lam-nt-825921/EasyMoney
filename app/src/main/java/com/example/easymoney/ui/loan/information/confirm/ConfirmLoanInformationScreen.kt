@@ -37,7 +37,8 @@ fun ConfirmLoanInformationScreen(
                     .padding(16.dp)
             ) {
                 Button(
-                    onClick = onConfirmed,
+                    onClick = { viewModel.submitApplication(loanData, onConfirmed) },
+                    enabled = !uiState.isSubmitting,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
@@ -47,7 +48,11 @@ fun ConfirmLoanInformationScreen(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text(text = "Xác nhận", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (uiState.isSubmitting) "Đang gửi..." else "Xác nhận",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         },
@@ -66,6 +71,7 @@ fun ConfirmLoanInformationScreen(
                 ReviewRow("Số tiền vay mong muốn", formatCurrency(loanData?.loanAmount ?: 0L))
                 ReviewRow("Kỳ hạn vay", "${loanData?.tenorMonth ?: 0} tháng")
                 ReviewRow("Bảo hiểm khoản vay", if (loanData?.hasInsurance == true) "Có tham gia" else "Không tham gia")
+                loanData?.voucherId?.let { ReviewRow("Voucher", it) }
                 ReviewRow("Phương thức cho vay", "Cho vay từng lần")
                 ReviewRow("Phương thức trả nợ", "Trả gốc và lãi hàng tháng")
             }
@@ -113,6 +119,19 @@ fun ConfirmLoanInformationScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    uiState.error?.let { message ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearError,
+            title = { Text("Không thể gửi hồ sơ") },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearError) {
+                    Text("Đóng")
+                }
+            }
+        )
     }
 }
 

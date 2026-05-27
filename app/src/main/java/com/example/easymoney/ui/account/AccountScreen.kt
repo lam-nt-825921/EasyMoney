@@ -21,14 +21,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,6 +38,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,15 +69,26 @@ fun AccountScreen(
     onNavigateToPaymentCards: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToRewards: () -> Unit,
-    onNavigateToSecurity: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToSupport: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToSupport: (url: String, title: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AccountViewModel = hiltViewModel()
 ) {
     val scheme = MaterialTheme.colorScheme
     val accountState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(accountState.supportUrl) {
+        val url = accountState.supportUrl
+        if (!url.isNullOrBlank()) {
+            onNavigateToSupport(
+                url,
+                accountState.supportTitle ?: ""
+            )
+            viewModel.consumeSupportNavigation()
+        }
+    }
 
     val accountMenuItems = listOf(
         MenuItem(Icons.Default.AccountBalanceWallet, R.string.account_money_management, onNavigateToMoneyManagement),
@@ -85,8 +97,8 @@ fun AccountScreen(
     )
 
     val supportMenuItems = listOf(
-        MenuItem(Icons.Default.HelpOutline, R.string.account_support_center, onNavigateToSupport),
-        MenuItem(Icons.Default.Security, R.string.account_security, onNavigateToSecurity),
+        MenuItem(Icons.Default.SupportAgent, R.string.account_support_center, viewModel::openCustomerSupport),
+        MenuItem(Icons.Default.Lock, R.string.account_change_password, onNavigateToChangePassword),
         MenuItem(Icons.Default.Settings, R.string.account_settings, onNavigateToSettings),
     )
 

@@ -1,8 +1,15 @@
 package com.example.easymoney.data.remote
 
 import com.example.easymoney.data.remote.dto.*
+import com.example.easymoney.domain.model.ApplicableVoucher
+import com.example.easymoney.domain.model.EkycMatchResponse
 import com.example.easymoney.domain.model.EkycCaptureResponse
+import com.example.easymoney.domain.model.LoanApplicationRequest
 import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.model.LoanQuote
+import com.example.easymoney.domain.model.LoanQuoteRequest
+import com.example.easymoney.domain.model.LoanSubmitResponse
+import com.example.easymoney.domain.repository.EligibilityResult
 import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -19,6 +26,9 @@ interface LoanApiService {
     @GET("api/v1/loan/package/my")
     suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
 
+    @GET("api/v1/loan/package/{id}")
+    suspend fun getLoanPackageById(@Path("id") id: String): ApiResponse<LoanPackageModel>
+
     @GET("api/v1/loan/package")
     suspend fun getLoanPackages(
         @Query("minAmount") minAmount: Long? = null,
@@ -33,6 +43,27 @@ interface LoanApiService {
         @Query("promotionalOnly") promotionalOnly: Boolean = false,
         @Query("lang") lang: String = "vi"
     ): ApiResponse<List<LoanPackageModel>>
+
+    @POST("api/v1/loan/package/{id}/eligibility")
+    suspend fun checkEligibility(@Path("id") id: String): ApiResponse<EligibilityResult>
+
+    @GET("api/v1/loan/package/{id}/vouchers")
+    suspend fun getApplicableVouchers(
+        @Path("id") id: String,
+        @Query("loanAmount") loanAmount: Long? = null
+    ): ApiResponse<List<ApplicableVoucher>>
+
+    @POST("api/v1/loan/package/{id}/quote")
+    suspend fun quoteLoan(
+        @Path("id") id: String,
+        @Body request: LoanQuoteRequest
+    ): ApiResponse<LoanQuote>
+
+    @POST("api/v1/loan/applications")
+    suspend fun submitApplication(@Body request: LoanApplicationRequest): ApiResponse<LoanSubmitResponse>
+
+    @GET("api/v1/ekyc/match")
+    suspend fun matchEkyc(@Query("packageId") packageId: String): ApiResponse<EkycMatchResponse>
 
     // Workflow #30 — Master data nhận query ?lang=vi|en
     @GET("api/v1/master/metadata")
@@ -78,7 +109,21 @@ interface LoanApiService {
 
     @POST("api/v1/test/fcm/trigger")
     suspend fun triggerFcmTest(@Body request: FcmTestRequest): ApiResponse<Unit>
+
+    // Workflow #46 — FCM token đăng ký + mark read
+    @POST("api/v1/notifications/fcm-token")
+    suspend fun registerFcmToken(@Body request: FcmTokenRequest): ApiResponse<Unit>
+
+    @POST("api/v1/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: Long): ApiResponse<Unit>
+
+    @POST("api/v1/notifications/read-all")
+    suspend fun markAllNotificationsRead(): ApiResponse<Unit>
 }
+
+data class FcmTokenRequest(
+    @SerializedName("fcmToken") val fcmToken: String
+)
 
 data class FcmTestRequest(
     @SerializedName("fcmToken")

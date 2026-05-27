@@ -1,12 +1,18 @@
 package com.example.easymoney.ui.loan.configuration
 
 import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.domain.model.ApplicableVoucher
+import com.example.easymoney.domain.model.LoanQuote
 
 data class LoanConfigurationUiState(
     val selectedPackage: LoanPackageModel? = null,
     val loanAmount: Long = 0,
     val selectedTenorMonth: Int = 0,
     val isInsuranceSelected: Boolean = true,
+    val applicableVouchers: List<ApplicableVoucher> = emptyList(),
+    val selectedVoucherId: String? = null,
+    val quote: LoanQuote? = null,
+    val isQuoteLoading: Boolean = false,
 
     // Calculation results
     val actualReceivedAmount: Long = 0,
@@ -14,6 +20,9 @@ data class LoanConfigurationUiState(
     val interestAmount: Long = 0,
     val monthlyPayment: Long = 0,
     val totalPayment: Long = 0,
+    val discountAmount: Long = 0,
+    val finalInterestRate: Double? = null,
+    val voucherTitle: String? = null,
 
     // Data loading state
     val isLoading: Boolean = true,

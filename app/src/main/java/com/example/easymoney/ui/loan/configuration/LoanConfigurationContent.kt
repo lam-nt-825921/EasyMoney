@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationUiState
+import com.example.easymoney.domain.model.ApplicableVoucher
 import com.example.easymoney.ui.loan.components.LoanBottomButton
 import com.example.easymoney.ui.loan.formatCompactAmount
 import com.example.easymoney.ui.loan.formatCurrency
@@ -36,6 +37,7 @@ fun LoanConfigurationContent(
     onAmountChanged: (Long) -> Unit,
     onTenorSelected: (Int) -> Unit,
     onInsuranceToggled: (Boolean) -> Unit,
+    onVoucherSelected: (String?) -> Unit,
     onNextStep: () -> Unit,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false
@@ -102,6 +104,15 @@ fun LoanConfigurationContent(
                     onClick = { activeSheet = LoanSheetType.TENOR }
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                VoucherSelector(
+                    selectedTitle = uiState.voucherTitle
+                        ?: uiState.applicableVouchers.firstOrNull { it.id == uiState.selectedVoucherId }?.title,
+                    count = uiState.applicableVouchers.size,
+                    onClick = { activeSheet = LoanSheetType.VOUCHER }
+                )
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 LoanSummaryCard(
@@ -136,13 +147,23 @@ fun LoanConfigurationContent(
                         onDismiss = { activeSheet = null }
                     )
                 }
+                LoanSheetType.VOUCHER -> {
+                    VoucherBottomSheetContent(
+                        vouchers = uiState.applicableVouchers,
+                        selectedVoucherId = uiState.selectedVoucherId,
+                        onVoucherSelected = {
+                            onVoucherSelected(it)
+                            activeSheet = null
+                        }
+                    )
+                }
                 null -> Unit
             }
         }
     }
 }
 
-private enum class LoanSheetType { TENOR, BREAKDOWN }
+private enum class LoanSheetType { TENOR, VOUCHER, BREAKDOWN }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -257,6 +278,71 @@ fun TenorSelector(selectedTenor: Int, onClick: () -> Unit) {
 }
 
 @Composable
+fun VoucherSelector(selectedTitle: String?, count: Int, onClick: () -> Unit) {
+    OutlinedSelector(
+        label = "Voucher ưu đãi",
+        value = selectedTitle ?: if (count > 0) "$count voucher có thể dùng" else "Không có voucher phù hợp",
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun VoucherBottomSheetContent(
+    vouchers: List<ApplicableVoucher>,
+    selectedVoucherId: String?,
+    onVoucherSelected: (String?) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+        Text("Chọn voucher", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Spacer(modifier = Modifier.height(12.dp))
+        VoucherOptionRow(
+            title = "Không dùng voucher",
+            subtitle = "Giữ nguyên điều kiện vay hiện tại",
+            selected = selectedVoucherId == null,
+            onClick = { onVoucherSelected(null) }
+        )
+        vouchers.forEach { voucher ->
+            VoucherOptionRow(
+                title = voucher.title,
+                subtitle = voucherSubtitle(voucher),
+                selected = selectedVoucherId == voucher.id,
+                onClick = { onVoucherSelected(voucher.id) }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun VoucherOptionRow(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontWeight = FontWeight.Medium)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667085))
+        }
+    }
+}
+
+private fun voucherSubtitle(voucher: ApplicableVoucher): String {
+    val discount = if (voucher.discountAmount > 0) "Giảm ${formatCurrency(voucher.discountAmount)}" else null
+    val rate = voucher.finalInterestRate?.let { "Lãi sau ưu đãi ${"%.2f".format(it)}%" }
+    return listOfNotNull(discount, rate).joinToString(" • ").ifBlank { voucher.benefitType }
+}
+
+@Composable
 private fun OutlinedSelector(label: String, value: String, onClick: () -> Unit) {
     Column(modifier = Modifier.clickable { onClick() }.padding(vertical = 8.dp)) {
         Text(label, fontSize = 14.sp, color = Color(0xFF667085))
@@ -284,6 +370,9 @@ fun LoanSummaryCard(state: LoanConfigurationUiState, onInfoClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             SummaryRow("Số tiền thực nhận", formatCurrency(state.actualReceivedAmount))
             SummaryRow("Tiền trả hàng tháng", formatCurrency(state.monthlyPayment))
+            if (state.discountAmount > 0) {
+                SummaryRow("Ưu đãi voucher", "-${formatCurrency(state.discountAmount)}")
+            }
             
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp, color = Color(0xFFEAECF0))
             

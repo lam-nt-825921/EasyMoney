@@ -18,7 +18,9 @@ data class UserProfile(
     val maritalStatus: String = "",
     val identityStatus: IdentityVerificationStatus = IdentityVerificationStatus(),
     val verificationStatus: ProfileVerificationStatus = ProfileVerificationStatus.INCOMPLETE,
-    val statusMessage: String? = null
+    val statusMessage: String? = null,
+    val isProfileCompleted: Boolean = false,
+    val missingFields: List<String> = emptyList()
 )
 
 data class PersonalInfo(
@@ -67,4 +69,13 @@ data class EKycStatus(
     val isIdentified: Boolean,
     val missingDocuments: List<String> = emptyList(),
     val message: String? = null
+)
+
+data class ProfileCompletion(
+    val isProfileCompleted: Boolean,
+    val canApplyLoan: Boolean,
+    val completionPercent: Int,
+    val missingFields: List<String>,
+    val nextAction: String,
+    val statusMessage: String
 )

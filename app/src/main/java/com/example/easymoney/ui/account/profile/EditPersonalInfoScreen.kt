@@ -1,17 +1,21 @@
 package com.example.easymoney.ui.account.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.compose.ui.res.stringResource
@@ -24,6 +28,7 @@ fun EditPersonalInfoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val personalInfo = uiState.profile.personalInfo
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) onBack()
@@ -32,9 +37,13 @@ fun EditPersonalInfoScreen(
     Scaffold(
         bottomBar = {
             Button(
-                onClick = { viewModel.saveProfile() },
+                onClick = {
+                    focusManager.clearFocus()
+                    viewModel.saveProfile()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .imePadding()
                     .padding(16.dp)
                     .height(54.dp),
                 shape = RoundedCornerShape(27.dp)
@@ -48,6 +57,9 @@ fun EditPersonalInfoScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .background(MaterialTheme.colorScheme.background)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                }
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -78,6 +90,9 @@ fun EditPersonalInfoScreen(
                 onValueChange = { viewModel.updatePersonalInfo(dob = it) },
                 label = { Text(stringResource(id = R.string.profile_label_dob)) },
                 placeholder = { Text(stringResource(id = R.string.profile_placeholder_dob)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -2,6 +2,7 @@ package com.example.easymoney.data.remote
 
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.*
+import com.example.easymoney.domain.repository.EligibilityResult
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -41,6 +42,16 @@ class LoanRemoteDataSource @Inject constructor(
             val response = apiService.getMyPackage()
             if (response.status == "success") Resource.Success(response.data)
             else Resource.Error(response.message ?: "Unknown error")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun getLoanPackageById(id: String): Resource<LoanPackageModel> {
+        return try {
+            val response = apiService.getLoanPackageById(id)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Fetch loan package failed")
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Network error")
         }
@@ -157,6 +168,56 @@ class LoanRemoteDataSource @Inject constructor(
         }
     }
 
+    suspend fun checkEligibility(packageId: String): Resource<EligibilityResult> {
+        return try {
+            val response = apiService.checkEligibility(packageId)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Check eligibility failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun getApplicableVouchers(packageId: String, loanAmount: Long): Resource<List<ApplicableVoucher>> {
+        return try {
+            val response = apiService.getApplicableVouchers(packageId, loanAmount)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Fetch vouchers failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun quoteLoan(packageId: String, request: LoanQuoteRequest): Resource<LoanQuote> {
+        return try {
+            val response = apiService.quoteLoan(packageId, request)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Quote loan failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun submitApplication(request: LoanApplicationRequest): Resource<LoanSubmitResponse> {
+        return try {
+            val response = apiService.submitApplication(request)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Submit loan failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
+    suspend fun matchEkyc(packageId: String): Resource<EkycMatchResponse> {
+        return try {
+            val response = apiService.matchEkyc(packageId)
+            if (response.status == "success") Resource.Success(response.data)
+            else Resource.Error(response.message ?: "Match eKYC failed")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Network error")
+        }
+    }
+
     suspend fun getContractContent(contractId: String, lang: String = "vi"): Resource<String> {
         return try {
             val response = apiService.getContractContent(contractId, lang)
@@ -193,6 +254,31 @@ class LoanRemoteDataSource @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Network error")
         }
+    }
+
+    // Workflow #46 — FCM token + mark read
+    suspend fun registerFcmToken(token: String): Resource<Unit> = try {
+        val response = apiService.registerFcmToken(FcmTokenRequest(token))
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Register FCM token failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
+    }
+
+    suspend fun markNotificationRead(id: Long): Resource<Unit> = try {
+        val response = apiService.markNotificationRead(id)
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Mark read failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
+    }
+
+    suspend fun markAllNotificationsRead(): Resource<Unit> = try {
+        val response = apiService.markAllNotificationsRead()
+        if (response.status == "success") Resource.Success(Unit)
+        else Resource.Error(response.message ?: "Mark all read failed")
+    } catch (e: Exception) {
+        Resource.Error(e.message ?: "Network error")
     }
 
     private fun com.example.easymoney.data.remote.dto.MasterDataItemDto.toDomain() = MasterDataItem(

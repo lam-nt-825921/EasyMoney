@@ -37,6 +37,12 @@ fun LoanBreakdownBottomSheet(state: LoanConfigurationUiState, onDismiss: () -> U
                 SummaryRow(label = "Phí bảo hiểm", value = formatCurrency(state.insuranceFee))
             }
             SummaryRow(label = "Tiền lãi", value = formatCurrency(state.interestAmount))
+            if (state.discountAmount > 0) {
+                SummaryRow(label = "Ưu đãi voucher", value = "-${formatCurrency(state.discountAmount)}")
+            }
+            state.voucherTitle?.let {
+                SummaryRow(label = "Voucher áp dụng", value = it)
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 14.dp),
