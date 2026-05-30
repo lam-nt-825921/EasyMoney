@@ -300,3 +300,193 @@ Backend contract for Claude without backend source:
   "data": []
 }
 ```
+
+## Final Phase Gate - Do not start before previous tasks are committed
+
+The tasks below are final hardening work. They must be done after the main REMOTE/backend-fit tasks are completed and committed:
+
+- Problem 0: remove Home sandbox/developer entry.
+- Problem 1: notification user id, DTO, backend sync, newest-first order.
+- Problem 2-5: company names/UI polish/onboarding/form overlap/reward points.
+- Problem 6 and 6.1: DTO mismatch audit and transaction newest-first ordering.
+- Problem 6.2: production REMOTE cleanup.
+- Problem 7: newly registered user has no default card.
+
+Only start the final phase if the app can already run in `REMOTE` mode for login, Home, notifications, transaction history, rewards, payment cards/wallet, loan management, and contract flows. If you start the final phase, you must verify the changed flows before committing.
+
+## Final Problem A - Remove hard-coded user-facing text and complete VI/EN resources
+
+Why this is last:
+
+- It touches many UI files and string resources. Doing it before remote/DTO fixes creates noisy conflicts.
+- It must preserve behavior while making the UI locale-correct.
+
+Goal:
+
+- Every user-facing production string must come from `app/src/main/res/values/strings.xml` and `app/src/main/res/values-en/strings.xml`.
+- Both files must contain the same key set.
+- Avoid hard-coded Vietnamese/English in composables, ViewModels, and repository errors that surface to users.
+- Do not localize backend content fields such as banner titles, event content, contract HTML/text, reward names, transaction descriptions, or notification content. Those are backend-owned.
+
+Known hard-code hotspots from current code audit:
+
+| Area | Files | Examples to replace |
+|---|---|---|
+| Profile/contact edit | `app/src/main/java/com/example/easymoney/ui/account/profile/EditContactInfoScreen.kt`, `EditJobInfoScreen.kt`, `EditPersonalInfoScreen.kt`, `ProfileScreen.kt`, `ProfileCompletionViewModel.kt` | `Danh bạ`, `Contacts`, `Tóm tắt`, NFC error messages |
+| Confirm information | `app/src/main/java/com/example/easymoney/ui/confirmation/ConfirmInfoScreen.kt` | `Họ và tên`, `Giới tính`, `Ngày sinh`, `Số điện thoại`, `N/A` |
+| Rewards | `app/src/main/java/com/example/easymoney/ui/reward/RewardScreen.kt`, `RewardViewModel.kt`, `domain/repository/RewardRepositoryImpl.kt` | `Đổi quà`, `Đã đổi`, `Bạn chưa đổi quà nào`, `Không đủ điểm để đổi`, `Quà đã đổi` |
+| Payment | `app/src/main/java/com/example/easymoney/ui/payment/MoneyManagementScreen.kt`, `TopUpViewModel.kt`, `TopUpScreen.kt`, `WithdrawViewModel.kt`, `WithdrawScreen.kt`, `PaymentCardsScreen.kt` | `Nạp tiền`, `Rút tiền`, `Số tiền không hợp lệ`, `Chưa chọn thẻ nguồn`, `Bạn chưa thêm thẻ ngân hàng`, `Thêm thẻ` |
+| Loan configuration | `app/src/main/java/com/example/easymoney/ui/loan/configuration/LoanConfigurationContent.kt`, `LoanBreakdownBottomSheet.kt`, `TenorBottomSheet.kt` | `Chọn kỳ hạn vay`, `Voucher ưu đãi`, `Không dùng voucher`, `Tổng tiền phải trả`, `tháng` |
+| Loan information/confirmation | `app/src/main/java/com/example/easymoney/ui/loan/information/form/LoanInformationFormScreen.kt`, `LoanSelectionBottomSheet.kt`, `confirm/ConfirmLoanInformationScreen.kt` | Form section titles, labels, contact button, submit error dialog |
+| eKYC camera/error | `app/src/main/java/com/example/easymoney/ui/loan/information/ekyc/EkycFaceCaptureScreen.kt`, `EkycErrorScreen.kt`, `EkycIntroScreen.kt` | `Back`, `Xác thực không thành công`, `Cho phep truy cap`, `Mo Cai dat`, camera permission copy |
+| Loan management | `app/src/main/java/com/example/easymoney/ui/loan/management/LoanManagementScreen.kt`, `LoanManagementViewModel.kt` | `Hợp đồng chờ ký`, `Khoản nợ hiện tại`, `Thông báo`, `Ví EasyMoney`, `Thẻ ngân hàng`, `Trả kỳ này`, `Tất toán`, `Thanh toán khoản nợ thành công.` |
+| Contract/eSign previews | `app/src/main/java/com/example/easymoney/ui/esign/ContractScreen.kt`, `EsignSuccessScreen.kt` | Preview-only strings can remain if preview-only, but production strings must be resources |
+| Chat/common components | `app/src/main/java/com/example/easymoney/ui/chatbot/ChatBotScreen.kt`, `ui/components/AppTextField.kt` | `Send`, `Toggle password visibility` |
+
+Implementation plan:
+
+1. Run focused hard-code audit:
+   - `rg -n 'Text\(\"|contentDescription = \"|Toast\\.makeText\\([^,]+,\\s*\"|errorMessage = \"|successMessage = \"|title = \"|label = \"' app/src/main/java/com/example/easymoney`
+   - Manually exclude backend-owned dynamic fields and debug/preview-only text.
+2. Add string keys in both resource files:
+   - Vietnamese: `app/src/main/res/values/strings.xml`
+   - English: `app/src/main/res/values-en/strings.xml`
+3. Naming convention:
+   - Screen prefix first, e.g. `withdraw_empty_cards`, `loan_mgmt_tab_contracts`, `loan_form_section_address`, `confirm_info_full_name`.
+   - Shared actions use existing `action_*` keys where possible.
+4. Replace composable strings with `stringResource(R.string.key)`.
+5. For ViewModels/repositories that need localized messages:
+   - Prefer returning error codes/state and mapping to strings in UI.
+   - If scope must stay smaller, use an existing `UiText` pattern if available; do not inject Android `Context` into repositories just for strings.
+6. Format values with placeholders in resources:
+   - Use `%1$s`, `%1$d`, `%1$.1f` as needed.
+   - Keep currency/month formatting locale-aware in Kotlin, but labels/units come from strings.
+7. Verify key parity:
+   - Every new key in `values/strings.xml` must exist in `values-en/strings.xml`.
+   - Build must pass after resource changes.
+
+Acceptance criteria:
+
+- Switching VI/EN no longer leaves hard-coded Vietnamese on the audited production screens.
+- No missing resource key in either locale.
+- No raw debug text appears in production flows.
+
+## Final Problem B - Make device biometric 2FA real and local-only
+
+Why this is last:
+
+- It cuts across settings, identity/profile display, withdraw, loan repayment, and contract signing.
+- It must be tested end to end on a device/emulator with enrolled biometric or supported credential.
+- It should not be mixed with backend contract fixes.
+
+Current state:
+
+- `data/local/AppPreferences.kt`
+  - Has `isBiometric2FAEnabled`, local SharedPreferences flag.
+- `ui/security/SecuritySettingsScreen.kt`
+  - Shows biometric toggle.
+  - Toggle currently calls `viewModel.toggleBiometric(it)` directly; enabling does not require successful biometric prompt.
+- `ui/security/SecurityViewModel.kt`
+  - Checks support and saves `isBiometric2FAEnabled`.
+  - Comment says UI should call after `BiometricPrompt`, but current UI does not.
+- `ui/common/identity/BiometricModule.kt`
+  - Wraps `BiometricPrompt` and returns `BiometricResult`.
+- `ui/account/profile/ProfileCompletionScreen.kt`
+  - Shows Device Biometrics as part of identity modules.
+- `ui/account/profile/ProfileCompletionViewModel.kt`
+  - `onBiometricResult()` updates `IdentityStatus.isBiometricEnabled`.
+  - This is local UI/profile state, not backend eKYC truth.
+- `ui/payment/WithdrawViewModel.kt`
+  - Calls `paymentRepository.withdraw(..., biometricToken = null)`.
+- `ui/loan/management/LoanManagementViewModel.kt`
+  - Repay action does not check local biometric.
+- `ui/esign/ContractViewModel.kt`
+  - `signContract()` immediately shows OTP; no local biometric gate.
+
+Required product behavior:
+
+- No backend changes.
+- Biometric is only device-local 2FA.
+- The setting controls whether the biometric gate is required.
+- If setting is off, sensitive actions behave exactly as they do now.
+- If setting is on, sensitive actions require successful `BiometricPrompt` before proceeding.
+- Sensitive actions for this phase:
+  - Withdraw money.
+  - Repay debt or early settlement.
+  - Start contract signing/OTP flow.
+- Optional future actions, only if scope remains safe: delete card, change password submit, logout-all-devices if implemented.
+
+Recommended structure:
+
+- Add a reusable controller/composable:
+  - `app/src/main/java/com/example/easymoney/ui/common/security/BiometricGate.kt`
+  - Responsibility: if `AppPreferences.isBiometric2FAEnabled` is false, immediately run the pending action; if true, show `BiometricModule` and run the action only on success.
+  - Keep all prompt display in UI layer because `BiometricPrompt` needs a `FragmentActivity`.
+- Add/update strings in both locale files:
+  - `biometric_gate_title`
+  - `biometric_gate_subtitle_sensitive_action`
+  - `biometric_gate_cancelled`
+  - `biometric_gate_failed`
+  - `security_biometric_enable_prompt`
+  - `security_biometric_enabled`
+  - `security_biometric_disabled`
+
+Implementation plan by file:
+
+1. `ui/security/SecuritySettingsScreen.kt`
+   - When user turns toggle ON, render `BiometricModule`.
+   - Only call `viewModel.toggleBiometric(true)` after `BiometricResult.success == true`.
+   - If prompt fails/cancels, keep switch OFF and show localized error.
+   - Turning OFF can call `viewModel.toggleBiometric(false)` directly, or require biometric before disabling if product wants stricter security. Default: allow direct off for this demo.
+2. `ui/security/SecurityViewModel.kt`
+   - Keep support check and local preference write.
+   - Add transient `errorMessage`/`successMessage` if needed, but prefer UI-local snackbar if smaller.
+3. `ui/common/identity/BiometricModule.kt`
+   - Make prompt title/subtitle configurable parameters with defaults.
+   - Continue returning `BiometricResult`.
+   - Ensure cancel/failure messages are localized and not raw system text unless useful.
+4. `ui/account/profile/ProfileCompletionScreen.kt` and `ProfileCompletionViewModel.kt`
+   - Do not treat device biometrics as backend eKYC/document verification.
+   - Either remove the Device Biometrics CTA from required identity completion, or make it clearly open/use the same local device biometric setup flow.
+   - Its completion state should read from `AppPreferences.isBiometric2FAEnabled` or profile display state, not imply loan identity verification is complete.
+5. `ui/payment/WithdrawScreen.kt` and `WithdrawViewModel.kt`
+   - Move the final submit trigger behind the biometric gate.
+   - UI captures submit click:
+     - Validate through ViewModel.
+     - If validation passes and `isBiometric2FAEnabled`, show `BiometricModule`.
+     - On success, call ViewModel method that actually performs withdraw.
+   - Remove `biometricToken = null` as a meaningful concept for local-only 2FA; pass null to backend because backend is unchanged, but only after local auth succeeds.
+6. `ui/loan/management/LoanManagementScreen.kt` and `LoanManagementViewModel.kt`
+   - Gate `repayDebt()` confirmation.
+   - User selects wallet/card and confirms; if 2FA enabled, run biometric before calling `viewModel.repayDebt(...)`.
+   - If auth fails/cancels, keep dialog/action state understandable and do not call backend.
+7. `ui/esign/ContractScreen.kt` and `ContractViewModel.kt`
+   - Gate `viewModel.signContract(...)` before showing OTP.
+   - If 2FA enabled and auth succeeds, then call `signContract()` which sends/shows OTP.
+   - OTP remains backend/signing verification; biometric is local pre-check only.
+8. `data/local/AppPreferences.kt`
+   - Keep `isBiometric2FAEnabled` as local source of truth.
+   - Consider adding `biometric2FAEnabledFlow` only if multiple screens need live updates while visible; otherwise existing getter is sufficient.
+
+Testing checklist:
+
+- Device unsupported:
+  - Security toggle disabled, shows unsupported subtitle.
+  - Sensitive flows do not prompt because setting cannot be enabled.
+- Enable biometric:
+  - Toggle ON opens system prompt.
+  - Success persists ON.
+  - Cancel/fail keeps OFF.
+- Disable biometric:
+  - Toggle OFF persists OFF.
+- Withdraw:
+  - OFF: withdraw flow works as before.
+  - ON: cancel/fail does not call backend; success calls backend once.
+- Loan repayment:
+  - OFF: repay works as before.
+  - ON: cancel/fail does not call backend; success calls backend once.
+- Contract signing:
+  - OFF: sign opens OTP as before.
+  - ON: biometric success then OTP; cancel/fail does not send OTP.
+- Language:
+  - All biometric prompts/errors have VI/EN resources.

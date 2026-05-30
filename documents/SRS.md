@@ -18,6 +18,8 @@ This document explains what each screen means so an agent can avoid making techn
 - Important loan/payment/signing actions should not depend only on frontend flags; backend validates state.
 - Sandbox/developer UI must not appear on production user-facing screens. Home should not expose sandbox/developer mode.
 - Time-based lists must display newest items first and oldest items later.
+- Production UI must be locale-correct. User-visible text must come from `res/values/strings.xml` and `res/values-en/strings.xml`, not hard-coded Vietnamese/English inside composables or ViewModels.
+- Device biometric is local account security only. It must not be treated as backend eKYC/document verification.
 
 ## Screen Meanings
 
@@ -90,7 +92,7 @@ Rules:
 
 - Master data should come from backend/repository.
 - `identityDocumentVerified = nfcVerified OR documentUploadVerified`.
-- Biometric setting is device 2FA, not a substitute for eKYC.
+- Biometric setting is device 2FA, not a substitute for eKYC. Identity/profile screens may show its setup state, but enabling it should write local `AppPreferences.isBiometric2FAEnabled`, not backend identity truth.
 
 ### Rewards
 
@@ -144,7 +146,23 @@ Purpose: view legal contract and sign via OTP.
 
 - Contract content comes from backend.
 - OTP purpose should describe action, e.g. contract signing.
+- If device biometric 2FA is enabled in Account Security, contract signing should require successful device biometric before showing/sending OTP.
 - Success screen returns user to Home or loan management.
+
+### Device Biometric 2FA
+
+Purpose: optional local security gate using the device's enrolled fingerprint/face/PIN-capable biometric prompt.
+
+Rules:
+
+- It is enabled only from Account Security and only after a successful `BiometricPrompt` authentication.
+- It is stored locally in `AppPreferences.isBiometric2FAEnabled`; no backend change is required.
+- When disabled, sensitive flows proceed normally.
+- When enabled, require biometric before these sensitive actions:
+  - Withdraw money from wallet.
+  - Repay debt or settle early in Loan Management.
+  - Start contract signing/OTP flow.
+- If biometric fails or the user cancels, do not execute the sensitive action. Show a localized, user-friendly message.
 
 ### Chatbot
 

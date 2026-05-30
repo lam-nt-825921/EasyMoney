@@ -39,3 +39,4 @@ Do not invent alternate backend behavior to make frontend code easier. If curren
 - A registered user starts with a wallet account and no payment cards. Never seed or fake a card in `REMOTE` mode to hide `CARD_REQUIRED`/empty-card states.
 - Lists that represent time events must be newest first: notifications, transactions, repayments, contracts/events where applicable.
 - Use Material3 `MaterialTheme.colorScheme` unless a local design token already exists. Avoid hard-coded production colors. UI/UX changes should feel complete enough for customer demo, not like a debug scaffold.
+- Final hardening tasks such as full i18n cleanup and biometric gating are last-phase work. Do them only after the remote/backend-fit tasks are complete and committed. If you touch biometric flows, verify the interaction end to end instead of leaving a visual-only toggle.
