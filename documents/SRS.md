@@ -1,154 +1,160 @@
-# SRS - EasyMoney
+# Business And UI Context - Agent Notes
 
-Cập nhật: 2026-05-27.
+Version: 2026-05-30.1.
 
-EasyMoney là ứng dụng Android Kotlin/Jetpack Compose cho vay tiêu dùng, quản lý hồ sơ định danh, hợp đồng vay, ví/thanh toán, thông báo, ưu đãi và chatbot hỗ trợ. App có 2 chế độ dữ liệu: `MOCK` để dev/QA offline và `REMOTE` để gọi backend production/staging thật.
+EasyMoney is a consumer lending Android app. It covers login/register, home discovery, loan onboarding and application, eKYC, contract signing, wallet/payment, transaction history, notifications, rewards, account/profile, support, and chatbot.
 
-## 1. Kiến trúc nghiệp vụ
+This document explains what each screen means so an agent can avoid making technically valid but business-wrong edits.
 
-Luồng dữ liệu bắt buộc:
+## Global Product Rules
 
-`UI Screen -> ViewModel -> Repository -> RemoteDataSource/Room/AppPreferences`
+- Brand/provider name is EasyMoney unless the UI is intentionally displaying a third-party product such as a telecom voucher.
+- Users must authenticate before using account-specific features.
+- Profile and eKYC completion are backend-owned truth. Frontend can display cached status but should refetch after profile/eKYC changes.
+- The product goal is a commercial-quality mobile app in `REMOTE` mode against `https://easymoney.lamgd.dev/`.
+- `MOCK` mode is not a product requirement for the current work. Do not optimize, protect, or regress production UX for MOCK mode.
+- `REMOTE` mode must call backend and surface errors; it must not silently fall back to mock/sample success.
+- Main navigation tabs are Home, Transaction History, Notifications, Account.
+- Important loan/payment/signing actions should not depend only on frontend flags; backend validates state.
+- Sandbox/developer UI must not appear on production user-facing screens. Home should not expose sandbox/developer mode.
+- Time-based lists must display newest items first and oldest items later.
 
-Quy tắc:
-- UI không tự tạo mock data cho trải nghiệm production.
-- Repository quyết định MOCK/REMOTE theo `AppPreferences.dataSourceMode`.
-- Ở `REMOTE`, nếu endpoint chưa sẵn sàng thì trả lỗi rõ ràng, không fallback sang mock success.
-- Backend label phụ thuộc ngôn ngữ phải nhận `lang=vi|en`.
-- Mobile submit id/code ổn định, không submit label hiển thị.
-- Mọi request cần xác định tài khoản phải gửi access token thật; backend không còn được xem là mock.
+## Screen Meanings
 
-## 2. Xác thực, tài khoản và bảo mật
+### Auth
 
-Người dùng có thể đăng nhập, đăng ký, quick login bằng tài khoản đã ghi nhớ và logout.
+- `WelcomeScreen`: entry screen before login/register.
+- `LoginScreen1`: phone/password login. On success, token is saved and app navigates to Home.
+- `RegisterScreen1`: creates user account. Backend creates one EasyMoney wallet account only; it does not create a payment card. The user links bank cards later in Payment Cards.
+- `QuickLoginScreen1`: local remembered-account convenience, not backend identity by itself.
 
-Yêu cầu:
-- Account screen không hiển thị Support Center nếu chưa có dịch vụ đích hoặc URL hợp lệ.
-- CTA Account Security được thay bằng Đổi mật khẩu.
-- Đổi mật khẩu gồm mật khẩu cũ, mật khẩu mới, xác nhận mật khẩu mới, validation và API submit.
-- Device biometric là 2FA optional. Chỉ bật khi thiết bị hỗ trợ và user xác thực thành công bằng `BiometricPrompt`.
-- Nếu user đã bật 2FA, các hành động nhạy cảm như rút tiền, ký hợp đồng, submit hồ sơ vay có thể yêu cầu biometric trước khi tiếp tục theo policy backend.
+### Home
 
-## 3. Hồ sơ và định danh
+Purpose: user's daily dashboard.
 
-Profile là hub tổng quan hồ sơ: thông tin cá nhân, công việc/thu nhập, người liên hệ và trạng thái định danh.
+Shows:
 
-Hồ sơ được coi là hoàn thiện khi backend xác nhận:
-- Đã xác thực eKYC khuôn mặt/liveness.
-- Đã xác thực Căn cước công dân bằng một trong hai cách: upload document hoặc NFC.
-- Thông tin CCCD từ eKYC/NFC/document khớp với profile theo rule backend.
+- Greeting from backend profile.
+- Reward points from rewards backend.
+- Banners and hot/recommended loans.
+- Profile/eKYC completion warning.
+- Shortcuts to chatbot and loan management.
 
-Quy tắc trạng thái:
+Must not show:
+
+- Sandbox/developer mode entry points.
+- Debug labels or controls meant only for testing data source mode.
+
+Data sources:
+
+- `HomeRepository` for banners/hot loans/recommended loan/support.
+- `RewardRepository.getRewardsCatalog()` for points.
+- `UserRepository` for profile and completion status.
+
+### Loan Discovery
+
+Purpose: browse packages before entering application flow.
+
+- `LoanListScreen`: filter/search packages.
+- `LoanDetailScreen`: package details and register CTA.
+- Details-first rule: user should see terms and limits before eligibility/application.
+
+### Loan Onboarding And Application
+
+Purpose: collect consent and application data, then submit loan application.
+
+Flow:
+
+1. `OnboardingScreen`: provider/product information and terms acceptance.
+2. `ConfirmInfoScreen`: confirm identity/profile readiness.
+3. `LoanFlowScreen`: stepper host for information form, eKYC, confirmation, success.
+4. `LoanInformationFormScreen`: address, income, profession, marital/contact data.
+5. eKYC screens: face/document/NFC verification.
+6. `LoanRegistrationSuccessScreen`: application submitted, waiting/review state.
+
+Business details:
+
+- Onboarding provider info should be compact and readable. Short fields can stay on one line; long address should wrap.
+- The bottom CTA in form screens must not cover form content.
+- Success UI must use app theme colors and EasyMoney copy.
+
+### Profile And Identity
+
+Purpose: user's verified personal data and completion path.
+
+- `ProfileScreen`: overview.
+- `ProfileCompletionScreen`: missing data/eKYC actions.
+- `EditPersonalInfoScreen`, `EditJobInfoScreen`, `EditContactInfoScreen`: edit profile sections.
+
+Rules:
+
+- Master data should come from backend/repository.
 - `identityDocumentVerified = nfcVerified OR documentUploadVerified`.
-- `faceVerified` là điều kiện bắt buộc để hoàn thiện hồ sơ.
-- `biometricEnabled` là 2FA thiết bị, không tính là điều kiện bắt buộc để hoàn thiện hồ sơ.
-- Thiết bị không hỗ trợ NFC phải disable/báo unsupported cho NFC option và hướng user sang upload document.
-- Các màn edit hồ sơ dùng master data từ repository/backend theo locale hiện tại.
-- Các màn edit profile phải có UX đóng keyboard hợp lý khi tap ra ngoài hoặc bấm Done.
+- Biometric setting is device 2FA, not a substitute for eKYC.
 
-## 4. Cảnh báo hồ sơ chưa hoàn thiện
+### Rewards
 
-Tài khoản phải hoàn thiện hồ sơ mới được sử dụng các chức năng quan trọng.
+Purpose: show points, catalog, redeemed vouchers, and redemption flow.
 
-Nguồn sự thật:
-- Frontend không tự suy đoán hồ sơ đã hoàn thiện.
-- Trạng thái hoàn thiện hồ sơ phải lấy từ endpoint backend, ưu tiên `GET /api/v1/ekyc/status` hoặc field identity status trong `GET /api/v1/user/profile`.
-- Backend chịu trách nhiệm xác định profile/eKYC/document có hợp lệ hay không.
+- `RewardScreen` should use backend/user rewards in `REMOTE`.
+- Home and Account should display the same current points source.
+- Redeem should update point balance from backend response.
 
-Caching để hiển thị UI cảnh báo:
-- Sau khi đăng nhập thành công, app fetch trạng thái hồ sơ và cache vào state/repository phù hợp.
-- Home/Profile/Loan entry points đọc cache để hiển thị cảnh báo nhanh.
-- Khi quay về Home từ edit profile hoặc sau khi edit profile thành công, app refetch trạng thái hồ sơ.
-- Nếu refetch lỗi mạng, UI giữ cache gần nhất nhưng phải hiển thị thông báo lỗi để người dùng hiểu trạng thái có thể chưa cập nhật.
+### Account
 
-Hiển thị:
-- Cảnh báo phải nói rõ hành động cần làm: hoàn thiện thông tin cá nhân, xác thực khuôn mặt, upload/NFC CCCD hoặc sửa thông tin không khớp.
-- CTA phải điều hướng đến màn phù hợp: `profile`, `identity_verification`, `edit_personal_info`, `edit_job_info`, `edit_contact_info`.
+Purpose: profile shortcut, reward points, wallet/card/history shortcuts, support, settings, logout.
 
-## 5. Khoản vay
+Important:
 
-Loan discovery/detail theo details-first:
-1. Home/banner/list điều hướng sang `LoanDetailScreen`.
-2. User xem lãi suất, hạn mức, kỳ hạn, điều kiện, phí, minh họa trả nợ.
-3. Chỉ khi user bấm Đăng ký, app mới check eligibility.
-4. Nếu đủ điều kiện, vào loan flow; nếu thiếu hồ sơ, hiển thị/dẫn hướng hoàn thiện hồ sơ; nếu bị từ chối, hiển thị lý do.
+- Points must not be hard-coded.
+- Support opens backend support link when available.
+- Change password is the account security action.
 
-Trong luồng đăng ký vay:
-- Phần eKYC phải gửi đến endpoint backend để match.
-- Khi eKYC thành công, backend trả về khóa/trạng thái xác thực cần thiết.
-- Khi submit hồ sơ vay, request phải có khóa/trạng thái backend yêu cầu; backend vẫn phải kiểm tra lại, không tin flag frontend.
-- Eligibility và application API phải reject nếu eKYC thiếu, expire hoặc mismatch.
+### Notifications
 
-Loan list có filter:
-- keyword.
-- min/max amount.
-- tenor.
-- min/max interest.
-- eligible only.
-- hot/new/promotional.
-- `lang` cho label/badge.
+Purpose: user-visible events and reminders.
 
-Loan management:
-- Hiển thị hợp đồng đã duyệt, trạng thái, lịch/chi tiết cần thiết.
-- CTA Ký hợp đồng là primary action sang eSign.
-- CTA Hủy là action có confirm và style destructive/secondary.
-- Card và text phải có contrast tốt trong light/dark.
+Backend categories/types:
 
-## 6. Hợp đồng, OTP và legal
+- `type`: legacy display grouping such as `transaction`, `promotion`, `reminder`.
+- `category`: backend category such as `BALANCE`, `PROMOTION`, `REMINDER`.
+- `target_type` and `target_id`: navigation targets like loan package, loan debt, transaction.
 
-- Contract/eSign lấy nội dung hợp đồng theo `contractId` và `lang`.
-- Backend render nội dung pháp lý; mobile không tự dịch nội dung hợp đồng remote.
-- OTP gửi/xác thực theo purpose. Backend tự xác định số điện thoại từ session/token.
-- Terms hiện tại có thể dùng resource nội bộ; nếu backend/CMS quản lý legal content thì bổ sung API legal theo locale/version.
+Frontend should:
 
-## 7. Ví, thanh toán và giao dịch
+- Sync backend notifications into Room cache in `REMOTE`.
+- Use current authenticated user id for Room rows and FCM payload rows.
+- Sync mark-read/read-all/clear in `REMOTE`.
+- Sort notifications by backend `timestamp` descending before display and after cache refresh. Newest notifications must be at the top for every tab/filter.
 
-Payment domain gồm:
-- Wallet info.
-- Payment cards.
-- Verify/add/delete card.
-- Top up.
-- Withdraw.
-- Auto deduction.
-- QR payment intent và poll status.
-- Transaction history.
+### Payment And Transactions
 
-REMOTE mode phải gọi backend, không tự thay đổi tiền thật ở frontend. MOCK mode có thể mô phỏng số dư/trạng thái để dev.
+Purpose: wallet, cards, topup, withdraw, auto deduction, QR, history.
 
-## 8. Home, Event, Reward, Notification, Chatbot
+Rules:
 
-- Home lấy banners, hot loans và eKYC/profile completion status từ repository.
-- Event detail và join event đi qua `EventRepository`.
-- Reward catalog/user rewards/redeem đi qua `RewardRepository`.
-- Notification sync backend -> Room cache -> UI; read status cần sync backend khi endpoint có.
-- Các tác vụ FE nhận phản hồi ngay thì hiển thị thông báo trực tiếp bằng UI.
-- Các tác vụ bất đồng bộ hoặc xảy ra ngoài phiên hiện tại thì backend phải đẩy notification.
-- Chatbot đi qua `ChatBotRepository`, response hỗ trợ text/card/action. Action có thể navigate route, dial phone, open URL khi mobile đã support.
+- Frontend must not invent money state in `REMOTE`.
+- Backend response should drive balances and transaction history.
+- A newly registered user has an empty card list in `REMOTE`; screens that need a card should show add-card/choose-card state rather than assuming a default card exists.
+- Transaction history must be sorted newest first by backend timestamp when available. If the frontend model lacks timestamp, add a DTO/mapping layer rather than trusting arbitrary response order.
 
-## 9. Lỗi và thông báo người dùng
+### Contract And OTP
 
-Lỗi kỹ thuật từ network/backend phải được chuyển thành ngôn ngữ tự nhiên:
-- HTTP 401: phiên đăng nhập hết hạn hoặc không hợp lệ, cần đăng nhập lại.
-- HTTP 403: tài khoản không có quyền thực hiện thao tác.
-- HTTP 409/422: dữ liệu không hợp lệ, hồ sơ thiếu hoặc trạng thái không cho phép tiếp tục.
-- HTTP 500: hệ thống đang gặp sự cố, thử lại sau.
-- HTTP 503: dịch vụ tạm thời gián đoạn, thử lại sau.
-- Timeout/no internet: kiểm tra kết nối mạng.
+Purpose: view legal contract and sign via OTP.
 
-UI không hiển thị raw status code hoặc exception text cho người dùng cuối, trừ khi ở màn debug/sandbox.
+- Contract content comes from backend.
+- OTP purpose should describe action, e.g. contract signing.
+- Success screen returns user to Home or loan management.
 
-## 10. UI/UX và i18n
+### Chatbot
 
-- Navigation route tập trung trong `AppDestination.kt`, screen binding trong `AppNavHost.kt`.
-- Top bar/bottom bar quản lý tập trung qua app scaffold.
-- Mọi text UI production dùng string resource VI/EN.
-- Guide XML dùng `@string/...` và route nào `showHelpButton=true` phải có guide XML hợp lệ.
-- Light/dark mode phải dùng `MaterialTheme.colorScheme` hoặc token theme nội bộ, tránh hard-code màu làm hỏng contrast.
+Purpose: EasyMoney assistance with text/card/action responses.
 
-## 11. Mode switching
+Actions can navigate route, dial phone, or open URL if supported by frontend action model.
 
-Mode lưu trong `AppPreferences.dataSourceMode`.
+## UI Conventions
 
-- `MOCK`: repository lấy từ sample/in-memory/Room.
-- `REMOTE`: repository phải gọi remote service. Nếu endpoint chưa có, trả lỗi rõ ràng; không trả mock success.
-- Sandbox cho phép chọn mode và base URL để lần gọi repository tiếp theo đọc cấu hình mới.
+- Prefer Material3 `MaterialTheme.colorScheme`.
+- Keep bottom bars/CTAs from hiding scrollable content.
+- Avoid hard-coded brand/company copy in Kotlin when string resources exist.
+- Guide/help XML files live in `res/layout/guide_*.xml`; routes with help enabled need a valid guide XML.

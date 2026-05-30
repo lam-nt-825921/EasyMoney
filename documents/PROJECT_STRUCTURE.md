@@ -1,255 +1,175 @@
-# PROJECT_STRUCTURE - EasyMoney
+# Project Structure - Agent Map
 
-Cập nhật: 2026-05-27.
+Version: 2026-05-30. Verified against current frontend files.
 
-## 1. Tổng quan module
+## Roots
+
+All paths are relative to the frontend repository root.
 
 ```text
-EasyMoney/
-├── app/                         Android application module
-├── documents/                   SRS, API spec, project structure, task list
-├── gradle/                      Gradle wrapper/catalog
-├── build.gradle.kts             Root Gradle config
-├── settings.gradle.kts          Includes :app
+.
+├── app/                  Android application module
+├── documents/            Agent context, backend contract snapshots, and task docs
+├── gradle/               Gradle wrapper/catalog
+├── build.gradle.kts
+├── settings.gradle.kts
 └── gradle.properties
 ```
 
-App module:
+Backend source is not part of this frontend repo and should not be assumed available. Use `documents/backend_contract.yaml` and `documents/API_SPEC.md` for backend HTTP contract details.
+
+## Architecture Rule
+
+Required flow:
 
 ```text
-app/src/main/
-├── AndroidManifest.xml
-├── java/com/example/easymoney/
-└── res/
+Composable Screen -> ViewModel -> Repository -> RemoteDataSource/Room/AppPreferences -> Retrofit/DAO
 ```
 
-## 2. Package ownership
+Do not inject Retrofit services directly into UI or ViewModel. Do not place production mock data inside Composables.
+
+## Main Packages
 
 ```text
-com.example.easymoney/
-├── EasyMoneyApplication.kt
-├── MainActivity.kt
+app/src/main/java/com/example/easymoney/
 ├── data/
-│   ├── local/
-│   │   ├── AppPreferences.kt
-│   │   ├── dao/
-│   │   ├── database/AppDatabase.kt
-│   │   └── entity/
-│   ├── remote/
-│   │   ├── *ApiService.kt
-│   │   ├── *RemoteDataSource.kt
-│   │   ├── LoanApiFactory.kt
-│   │   ├── RemoteCall.kt
-│   │   └── dto/
-│   └── sample/
-├── di/
-│   ├── DatabaseModule.kt
-│   ├── NetworkModule.kt
-│   └── RepositoryModule.kt
+│   ├── local/                 AppPreferences, Room DAO/entity/database
+│   ├── remote/                Retrofit services, remote data sources, network helpers
+│   └── sample/                MOCK-mode sample data
+├── di/                        Hilt modules
 ├── domain/
 │   ├── common/Resource.kt
-│   ├── model/
-│   └── repository/
-├── domain.model/
-│   └── AuthModels.kt
-├── messaging/
-│   └── EasyMoneyMessagingService.kt
-├── navigation/
-│   ├── AppDestination.kt
-│   ├── AppNavHost.kt
-│   └── AppState.kt
-├── ui/
-│   ├── AppRoot.kt
-│   ├── account/
-│   │   ├── changepassword/
-│   │   └── profile/
-│   ├── chatbot/
-│   ├── common/
-│   │   ├── components/
-│   │   ├── error/
-│   │   ├── identity/
-│   │   └── loading/
-│   ├── components/
-│   ├── confirmation/
-│   ├── esign/
-│   ├── guide/
-│   ├── history/
-│   ├── home/
-│   │   └── components/
-│   ├── loan/
-│   │   ├── components/
-│   │   ├── configuration/
-│   │   ├── discovery/
-│   │   ├── flow/
-│   │   ├── information/
-│   │   │   ├── confirm/
-│   │   │   ├── ekyc/
-│   │   │   └── form/
-│   │   └── management/
-│   ├── login/
-│   ├── notification/
-│   │   ├── components/
-│   │   ├── manager/
-│   │   ├── model/
-│   │   └── viewmodel/
-│   ├── onboarding/
-│   ├── payment/
-│   ├── reward/
-│   ├── sandbox/
-│   ├── security/
-│   ├── terms/
-│   ├── theme/
-│   └── web/
-└── utils/
+│   ├── model/                 Domain models
+│   └── repository/            Repository interfaces and implementations
+├── domain.model/AuthModels.kt Folder name intentionally contains a dot
+├── messaging/                 Firebase messaging service
+├── navigation/                AppDestination, AppNavHost, AppState
+├── ui/                        Compose screens/components/themes
+└── utils/                     LinkHandler, LocaleUtils, UiText
 ```
 
-Ghi chú: `domain.model/AuthModels.kt` đang nằm trong folder có dấu chấm trong tên thư mục. Nên giữ nguyên khi chưa có refactor riêng để tránh churn.
+## Dependency Injection
 
-## 3. Resource ownership
+- `di/NetworkModule.kt`
+  - Provides OkHttp with `AuthInterceptor` and logging.
+  - Provides Retrofit using `AppPreferences.apiBaseUrl`.
+  - Gson uses `FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES`.
+  - Provides `LoanApiService`, `UserApiService`, `HomeApiService`, `EventApiService`, `RewardApiService`, `TransactionHistoryApiService`, `PaymentApiService`, `ChatApiService`.
+- `di/RepositoryModule.kt`
+  - Binds all repository interfaces to implementations.
 
-```text
-app/src/main/res/
-├── drawable/        Ảnh PNG/WebP và vector drawable
-├── layout/          activity_main, guide_*.xml, item XML
-├── mipmap-*/        Launcher icons
-├── values/          strings, colors, themes
-├── values-en/       English strings
-└── xml/             backup, data extraction, locale config
-```
+Important: Retrofit is singleton and reads base URL when created. If a task changes runtime base URL behavior, check whether app restart is currently required.
 
-Guide XML nằm trong `res/layout/guide_*.xml`. Destination có `showHelpButton=true` cần có `guideXmlName` hợp lệ hoặc phải tắt help button.
+## Data Source Mode
 
-## 4. Data flow rules
+- `data/local/AppPreferences.kt`
+  - `dataSourceMode`: `MOCK` or `REMOTE`.
+  - `apiBaseUrl`: default `https://easymoney.lamgd.dev/`; for local Android emulator backend use `http://10.0.2.2:8000/`.
+  - `accessToken`, `refreshToken`.
+- Repositories branch on `AppPreferences.dataSourceMode`.
+- In `REMOTE`, failed backend calls must surface errors, not fake successful mock data.
+- Current product work targets `REMOTE` only. Do not add new MOCK-specific UI or behavior unless explicitly requested.
+- `ui/sandbox/SandBoxScreen.kt` may remain as a debug screen, but production Home must not expose a sandbox/developer shortcut.
 
-- UI state và event handling nằm trong `ui/**`.
-- Business/data access nằm trong `domain/repository/**`.
-- Retrofit contract và remote wrapper nằm trong `data/remote/**`.
-- DTO nằm trong `data/remote/dto/**`.
-- Room/AppPreferences nằm trong `data/local/**`.
-- Mock/sample nằm trong `data/sample/**` hoặc repository mock branch. Không đặt mock data trong UI.
-- Route tập trung trong `navigation/AppDestination.kt`; binding route -> screen trong `navigation/AppNavHost.kt`.
+## Navigation Map
 
-## 5. Dependency injection
+Routes are owned by `navigation/AppDestination.kt`; binding is in `navigation/AppNavHost.kt`.
 
-Tất cả repository bind trong `di/RepositoryModule.kt`:
-- `LoanRepository`
-- `NotificationRepository`
-- `AccountRepository`
-- `HomeRepository`
-- `PaymentRepository`
-- `UserRepository`
-- `RewardRepository`
-- `EventRepository`
-- `TransactionHistoryRepository`
-- `ChatBotRepository`
+| Business Area | Route | Screen | Primary ViewModel/Repository |
+|---|---|---|---|
+| Auth | `welcome` | `ui/login/WelcomeScreen.kt` | `LoginViewModel` |
+| Auth | `login_1` | `ui/login/LoginScreen1.kt` | `LoanRepository.login` |
+| Auth | `register_1` | `ui/login/RegisterScreen1.kt` | `LoanRepository.register` |
+| Auth | `quick_login_1` | `ui/login/QuickLoginScreen1.kt` | `LoginViewModel`, Room remembered accounts |
+| Home | `home` | `ui/home/HomeScreen.kt` | `HomeViewModel`, `HomeRepository`, `RewardRepository`, `UserRepository` |
+| Transactions | `history` | `ui/history/TransactionHistoryScreen.kt` | `TransactionHistoryRepository` |
+| Notifications | `notifications` | `ui/notification/NotificationScreen.kt` | `NotificationRepository` |
+| Account | `account` | `ui/account/AccountScreen.kt` | `AccountViewModel`, `UserRepository`, `HomeRepository` |
+| Profile | `profile` | `ui/account/profile/ProfileScreen.kt` | `ProfileCompletionViewModel`, `UserRepository` |
+| Identity | `identity_verification` | `ui/account/profile/ProfileCompletionScreen.kt` | `UserRepository`, identity modules |
+| Profile Edit | `edit_personal_info` | `ui/account/profile/EditPersonalInfoScreen.kt` | `EditProfileViewModel`, `LoanRepository` master data |
+| Profile Edit | `edit_job_info` | `ui/account/profile/EditJobInfoScreen.kt` | `EditProfileViewModel`, `LoanRepository` master data |
+| Profile Edit | `edit_contact_info` | `ui/account/profile/EditContactInfoScreen.kt` | `EditProfileViewModel`, `LoanRepository` master data |
+| Settings | `general_settings` | `ui/account/GeneralSettingsScreen.kt` | `AppPreferences` |
+| Security | `security_settings` | `ui/security/SecuritySettingsScreen.kt` | `SecurityViewModel` |
+| Password | `change_password` | `ui/account/changepassword/ChangePasswordScreen.kt` | `UserRepository` |
+| Loan Discovery | `loan_list` | `ui/loan/discovery/LoanListScreen.kt` | `LoanDiscoveryViewModel`, `LoanRepository` |
+| Loan Discovery | `loan_detail/{id}` | `ui/loan/discovery/LoanDetailScreen.kt` | `LoanDiscoveryViewModel`, `LoanRepository` |
+| Loan Pre-flow | `onboarding?...` | `ui/onboarding/OnboardingScreen.kt` | `OnboardingViewModel`, `LoanRepository` |
+| Loan Pre-flow | `confirm_information?...` | `ui/confirmation/ConfirmInfoScreen.kt` | `ConfirmInfoViewModel` |
+| Loan Flow | `loan_information?...` | `ui/loan/flow/LoanFlowScreen.kt` | `LoanFlowViewModel`, `LoanRepository` |
+| Loan Flow | internal step | `ui/loan/information/form/LoanInformationFormScreen.kt` | `LoanInformationFormViewModel` |
+| Loan Flow | internal step | `ui/loan/information/ekyc/*` | `EkycCameraViewModel`, identity modules |
+| Loan Flow | internal success | `ui/loan/flow/LoanRegistrationSuccessScreen.kt` | Flow state |
+| Loan Management | `loan_management?debtId=` | `ui/loan/management/LoanManagementScreen.kt` | `LoanManagementViewModel`, `LoanRepository` |
+| Contract | `contract?contractId=` | `ui/esign/ContractScreen.kt` | `ContractViewModel`, `LoanRepository` |
+| Wallet | `money_management` | `ui/payment/MoneyManagementScreen.kt` | `PaymentViewModel`, `PaymentRepository` |
+| Cards | `payment_cards` | `ui/payment/PaymentCardsScreen.kt` | `PaymentViewModel`, `PaymentRepository` |
+| Top Up | `top_up` | `ui/payment/TopUpScreen.kt` | `TopUpViewModel`, `PaymentRepository` |
+| Withdraw | `withdraw` | `ui/payment/WithdrawScreen.kt` | `WithdrawViewModel`, `PaymentRepository` |
+| Events | `event_detail/{id}` | `ui/home/EventDetailScreen.kt` | `EventRepository` |
+| WebView | `web_content?...` | `ui/web/WebContentScreen.kt` | URL input |
+| Rewards | `rewards` | `ui/reward/RewardScreen.kt` | `RewardViewModel`, `RewardRepository` |
+| Chatbot | `chatbot` | `ui/chatbot/ChatBotScreen.kt` | `ChatBotViewModel`, `ChatBotRepository` |
+| Terms | `terms` | `ui/terms/TermsScreen.kt` | Local strings |
+| Sandbox/debug only | `sandbox` | `ui/sandbox/SandBoxScreen.kt` | `AppPreferences`, notification testing; do not expose from production Home |
+| Guide | `page_guide?...` | `ui/guide/PageGuideScreen.kt` | XML guide resources |
 
-Remote services đang provide trong `di/NetworkModule.kt`:
-- `LoanApiService`
-- `UserApiService`
-- `HomeApiService`
-- `EventApiService`
-- `RewardApiService`
-- `TransactionHistoryApiService`
-- `PaymentApiService`
-- `ChatApiService`
-
-`OkHttpClient` hiện chỉ có logging interceptor. Các task liên quan token cần kiểm tra bổ sung auth interceptor cho endpoint cần tài khoản.
-
-## 6. Remote/data source ownership
+## Remote Ownership
 
 ```text
 data/remote/
-├── ChatApiService.kt / ChatRemoteDataSource.kt
-├── EventApiService.kt / EventRemoteDataSource.kt
-├── HomeApiService.kt / HomeRemoteDataSource.kt
-├── LoanApiService.kt / LoanRemoteDataSource.kt
-├── PaymentApiService.kt / PaymentRemoteDataSource.kt
-├── RewardApiService.kt / RewardRemoteDataSource.kt
-├── TransactionHistoryApiService.kt / TransactionHistoryRemoteDataSource.kt
-├── UserApiService.kt / UserRemoteDataSource.kt
-├── LoanApiFactory.kt
-├── RemoteCall.kt
+├── LoanApiService.kt              Auth, loan, master data, eKYC, OTP, contract, notifications
+├── UserApiService.kt              User profile/account security
+├── HomeApiService.kt              Home/support
+├── EventApiService.kt             Events
+├── RewardApiService.kt            Reward catalog/user/redeem
+├── PaymentApiService.kt           Wallet/cards/topup/withdraw/QR
+├── TransactionHistoryApiService.kt
+├── ChatApiService.kt
+├── *RemoteDataSource.kt
 └── dto/
 ```
 
-Repository có backend data phải branch theo `AppPreferences.dataSourceMode` nếu có cả MOCK và REMOTE. Ở REMOTE không được trả mock success khi remote lỗi.
+Current smell: notification endpoints and `NotificationDto` are inside `LoanApiService.kt`. A cleanup can split them, but avoid wide refactor unless a task needs it.
 
-## 7. Route ownership theo code hiện tại
+## Local Persistence
 
-| Route | Destination | Screen | Repository |
-|---|---|---|---|
-| `welcome` | `Welcome` | `ui/login/WelcomeScreen.kt` | - |
-| `login_1` | `Login1` | `ui/login/LoginScreen1.kt` | `LoanRepository` |
-| `register_1` | `Register1` | `ui/login/RegisterScreen1.kt` | `LoanRepository` |
-| `quick_login_1` | `QuickLogin1` | `ui/login/QuickLoginScreen1.kt` | `LoanRepository`, local remembered account |
-| `onboarding?...` | `Onboarding` | `ui/onboarding/OnboardingScreen.kt` | `LoanRepository` |
-| `confirm_information?...` | `ConfirmInformation` | `ui/confirmation/ConfirmInfoScreen.kt` | `ConfirmInfoViewModel`, loan flow state |
-| `loan_information?...` | `LoanFlow` | `ui/loan/flow/LoanFlowScreen.kt` | `LoanRepository` |
-| `home` | `Home` | `ui/home/HomeScreen.kt` | `HomeRepository` |
-| `history` | `TransactionHistory` | `ui/history/TransactionHistoryScreen.kt` | `TransactionHistoryRepository` |
-| `notifications` | `Notifications` | `ui/notification/NotificationScreen.kt` | `NotificationRepository` |
-| `account` | `Account` | `ui/account/AccountScreen.kt` | `AccountRepository`, `UserRepository` |
-| `profile` | `Profile` | `ui/account/profile/ProfileScreen.kt` | `UserRepository` |
-| `identity_verification` | `IdentityVerification` | `ui/account/profile/ProfileCompletionScreen.kt` | `UserRepository`, identity modules |
-| `edit_personal_info` | `EditPersonalInfo` | `ui/account/profile/EditPersonalInfoScreen.kt` | `UserRepository`, `LoanRepository` master data |
-| `edit_job_info` | `EditJobInfo` | `ui/account/profile/EditJobInfoScreen.kt` | `UserRepository`, `LoanRepository` master data |
-| `edit_contact_info` | `EditContactInfo` | `ui/account/profile/EditContactInfoScreen.kt` | `UserRepository`, `LoanRepository` master data |
-| `general_settings` | `GeneralSettings` | `ui/account/GeneralSettingsScreen.kt` | `AppPreferences` |
-| `security_settings` | `SecuritySettings` | `ui/security/SecuritySettingsScreen.kt` | security flow/UserRepository |
-| `change_password` | `ChangePassword` | `ui/account/changepassword/ChangePasswordScreen.kt` | `UserRepository` |
-| `loan_list` | `LoanList` | `ui/loan/discovery/LoanListScreen.kt` | `LoanRepository` |
-| `loan_detail/{id}` | `LoanDetail` | `ui/loan/discovery/LoanDetailScreen.kt` | `LoanRepository` |
-| `loan_management` | `LoanManagement` | `ui/loan/management/LoanManagementScreen.kt` | `LoanRepository` |
-| `contract?...` | `Contract` | `ui/esign/ContractScreen.kt` | `LoanRepository` |
-| `esign_success` | `EsignSuccess` | `ui/esign/EsignSuccessScreen.kt` | - |
-| `money_management` | `MoneyManagement` | `ui/payment/MoneyManagementScreen.kt` | `PaymentRepository` |
-| `payment_cards` | `PaymentCards` | `ui/payment/PaymentCardsScreen.kt` | `PaymentRepository` |
-| `top_up` | `TopUp` | `ui/payment/TopUpScreen.kt` | `PaymentRepository` |
-| `withdraw` | `Withdraw` | `ui/payment/WithdrawScreen.kt` | `PaymentRepository` |
-| `event_detail/{id}` | `EventDetail` | `ui/home/EventDetailScreen.kt` | `EventRepository` |
-| `web_content?...` | `WebContent` | `ui/web/WebContentScreen.kt` | URL/content web |
-| `rewards` | `Rewards` | `ui/reward/RewardScreen.kt` | `RewardRepository` |
-| `chatbot` | `ChatBot` | `ui/chatbot/ChatBotScreen.kt` | `ChatBotRepository` |
-| `terms` | `Terms` | `ui/terms/TermsScreen.kt` | local resources/future legal API |
-| `sandbox` | `Sandbox` | `ui/sandbox/SandBoxScreen.kt` | `AppPreferences`, `NotificationRepository` |
-| `page_guide?...` | `PageGuide` | `ui/guide/PageGuideScreen.kt` | guide XML |
+- `data/local/database/AppDatabase.kt`
+- `data/local/dao/NotificationDao.kt`
+- `data/local/entity/NotificationEntity.kt`
+- `data/local/dao/RememberedAccountDao.kt`
+- `data/local/entity/RememberedAccountEntity.kt`
+- `data/local/AppPreferences.kt`
 
-## 8. Build stack
+Notifications use Room as a display cache. In `REMOTE`, refresh from backend then cache.
 
-- Android Gradle Plugin/Kotlin qua version catalog.
-- Kotlin JVM toolchain 17.
-- Hilt DI.
-- Jetpack Compose Material3.
-- Room + KSP.
-- Retrofit + Gson + OkHttp logging.
-- DataStore Preferences.
-- Firebase Analytics/Messaging.
-- CameraX + ML Kit Face Detection.
-- AndroidX Biometric.
+## Resources
 
-Build kiểm tra sau mỗi task:
+```text
+app/src/main/res/
+├── values/strings.xml
+├── values-en/strings.xml
+├── values/colors.xml
+├── values/themes.xml
+├── drawable/
+└── layout/guide_*.xml
+```
+
+Production text should come from string resources. Existing code still has hard-coded Vietnamese strings in several screens; when touching a screen, prefer moving newly edited text to resources if scope allows.
+
+## Build And Test
+
+Use from frontend root:
 
 ```powershell
 .\gradlew.bat build
 ```
 
-## 9. Quy trình thêm endpoint
+Focused tests live in:
 
-1. Cập nhật `documents/API_SPEC.md`.
-2. Thêm Retrofit function vào service đúng domain hoặc tạo service mới nếu domain lớn.
-3. Thêm DTO và mapping.
-4. Wrap trong remote data source.
-5. Thêm/đổi repository interface và implementation.
-6. Cập nhật UI state/ViewModel nếu cần.
-7. Thêm mapping test cho DTO quan trọng khi rủi ro cao.
-8. Cập nhật `documents/API_SPEC.md` và file này nếu có package/route/service mới.
+```text
+app/src/test/java/com/example/easymoney/data/remote/
+```
 
-## 10. Anti-patterns
-
-- UI/ViewModel inject `*ApiService` trực tiếp.
-- Mock data inline trong Composable.
-- Text production hard-code trong `Text("...")`.
-- Màu UI hard-code khi có thể dùng `MaterialTheme.colorScheme`.
-- Route string tự ghép tùy tiện khi `AppDestination` đã có `createRoute`.
-- REMOTE branch trả mock success làm QA hiểu nhầm đã kết nối backend.
-- Hiển thị raw HTTP status/exception text cho user cuối ngoài sandbox/debug.
+DTO mapping changes should get focused unit tests when they affect backend integration.

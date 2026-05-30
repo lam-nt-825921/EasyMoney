@@ -1,0 +1,2620 @@
+contract_version: 2026-05-30.4-frontend-snapshot
+source:
+  backend_source: not included in frontend repo
+  fastapi_app: mock_server.main:app
+  raw_openapi_file: documents/backend_openapi.yaml
+runtime:
+  framework: FastAPI
+  database: SQLite via SQLModel
+  public_base_url: https://easymoney.lamgd.dev
+  local_run_command: python -m uvicorn mock_server.main:app --reload --host 0.0.0.0
+    --port 8000
+  servers:
+    public_tunnel: https://easymoney.lamgd.dev
+    desktop_local: http://localhost:8000
+    android_emulator_local: http://10.0.2.2:8000
+seed_contract:
+  purpose: Demo-quality canonical database for customer presentation.
+  seed_command: backend-owned; frontend agents must not assume backend source is available
+  default_public_base_url: https://easymoney.lamgd.dev
+  demo_users:
+  - phone: 0987654321
+    password: '123'
+    token: mock_access_token_1
+    persona: verified high-score active borrower
+  - phone: 0912345678
+    password: '123'
+    token: mock_access_token_2
+    persona: verified lower-score borrower
+  - phone: 0909090909
+    password: '123'
+    token: mock_access_token_3
+    persona: incomplete eKYC user
+  registered_user_behavior: POST /api/v1/auth/register creates User and EasyMoney
+    wallet Account only; it must not create a default payment Card. New user /api/v1/payment/cards
+    returns an empty list until add-card succeeds.
+banner_contract:
+  frontend_target_types:
+    LOAN: target_id must be a loan package id; frontend navigates LoanDetail.
+    EVENT: target_id must be an event id; frontend navigates EventDetail; EventInfo.action_url
+      may be a native deeplink or HTTPS WebView URL.
+    WEB: target_id must be an absolute HTTPS URL for current frontend LinkHandler.
+      Backend exposes the same URL path as a GET endpoint returning text/html.
+  canonical_public_urls:
+  - https://easymoney.lamgd.dev/event/e1
+  - https://easymoney.lamgd.dev/pages/security-policy
+  - https://easymoney.lamgd.dev/pages/credit-score-guide
+  - https://easymoney.lamgd.dev/cskh
+  html_resource_routes:
+  - /event/{id}
+  - /pages/{slug}
+  - /cskh
+endpoints:
+- method: GET
+  path: /
+  name: read_root
+  tags: []
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/auth/login
+  name: login
+  tags:
+  - Authentication
+  auth_required: false
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/LoginRequest'
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/auth/register
+  name: register
+  tags:
+  - Authentication
+  auth_required: false
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/RegisterRequest'
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/user/profile
+  name: get_profile
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/user/profile/completion
+  name: get_profile_completion
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: PATCH
+  path: /api/v1/user/profile
+  name: update_profile
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Profile Data
+  response: see raw OpenAPI or controller mapping
+- method: PATCH
+  path: /api/v1/user/notification-settings
+  name: update_notification_settings
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/auth/change-password
+  name: change_password
+  tags:
+  - User & Account
+  auth_required: false
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/user/account
+  name: get_account
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/user/transactions
+  name: get_balance_flow
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /user/cards
+  name: get_cards
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /user/balance-flow
+  name: get_balance_flow
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /user/profile
+  name: get_profile
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /user/profile/completion
+  name: get_profile_completion
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: PATCH
+  path: /user/profile
+  name: update_profile
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Profile Data
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/package
+  name: get_loan_packages
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: minAmount
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: integer
+      - type: 'null'
+      title: Minamount
+  - name: maxAmount
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: integer
+      - type: 'null'
+      title: Maxamount
+  - name: tenor
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: integer
+      - type: 'null'
+      title: Tenor
+  - name: eligibleOnly
+    in: query
+    required: false
+    schema:
+      type: boolean
+      default: false
+      title: Eligibleonly
+  - name: keyword
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Keyword
+  - name: minInterest
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: number
+      - type: 'null'
+      title: Mininterest
+  - name: maxInterest
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: number
+      - type: 'null'
+      title: Maxinterest
+  - name: hotOnly
+    in: query
+    required: false
+    schema:
+      type: boolean
+      default: false
+      title: Hotonly
+  - name: newOnly
+    in: query
+    required: false
+    schema:
+      type: boolean
+      default: false
+      title: Newonly
+  - name: promotionalOnly
+    in: query
+    required: false
+    schema:
+      type: boolean
+      default: false
+      title: Promotionalonly
+  - name: lang
+    in: query
+    required: false
+    schema:
+      type: string
+      default: vi
+      title: Lang
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/package/my
+  name: get_my_loan_package
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/package/{package_id}
+  name: get_loan_package_by_id
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: package_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Package Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/package/{package_id}/eligibility
+  name: check_eligibility
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: package_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Package Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/package/{package_id}/vouchers
+  name: get_applicable_vouchers
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: package_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Package Id
+  - name: loanAmount
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: integer
+      - type: 'null'
+      title: Loanamount
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/package/{package_id}/quote
+  name: quote_loan
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: package_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Package Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/LoanQuoteRequest'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/applications
+  name: submit_loan
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/LoanSubmitRequest'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/submit
+  name: submit_loan
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/LoanSubmitRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/contracts/approved
+  name: get_approved_contracts
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/contracts/{contract_id}/cancel
+  name: cancel_contract
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: contract_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Contract Id
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/contracts/{contract_id}/sign
+  name: sign_contract
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: contract_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Contract Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/loan/debts
+  name: get_debts
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/debts/{debt_id}/repay
+  name: repay_debt
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: debt_id
+    in: path
+    required: true
+    schema:
+      type: integer
+      title: Debt Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/RepayRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/contracts/{contractId}
+  name: get_contract_content
+  tags:
+  - Loan Application
+  auth_required: false
+  parameters:
+  - name: contractId
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Contractid
+  - name: lang
+    in: query
+    required: false
+    schema:
+      type: string
+      default: vi
+      title: Lang
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /loans/hot-trends
+  name: get_hot_trends
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /home/banners
+  name: get_banners
+  tags:
+  - Home & Events
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[List[BannerInfo]]
+- method: GET
+  path: /home/hot-trends
+  name: get_banners
+  tags:
+  - Home & Events
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[List[BannerInfo]]
+- method: GET
+  path: /api/v1/home/banners
+  name: get_banners
+  tags:
+  - Home & Events
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[List[BannerInfo]]
+- method: GET
+  path: /api/v1/home/hot-loans
+  name: get_hot_loans
+  tags:
+  - Home & Events
+  auth_required: false
+  parameters:
+  - name: lang
+    in: query
+    required: false
+    schema:
+      type: string
+      default: vi
+      title: Lang
+  request_body: null
+  response: ApiResponse[List[LoanProductInfo]]
+- method: GET
+  path: /api/v1/home/recommended-loan
+  name: get_recommended_loan
+  tags:
+  - Home & Events
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[LoanProductInfo]
+- method: GET
+  path: /events/{id}
+  name: get_event_detail
+  tags:
+  - Events
+  auth_required: false
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  request_body: null
+  response: ApiResponse[EventInfo]
+- method: GET
+  path: /api/v1/events/{id}
+  name: get_event_detail
+  tags:
+  - Events
+  auth_required: false
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  request_body: null
+  response: ApiResponse[EventInfo]
+- method: POST
+  path: /api/v1/events/{id}/join
+  name: join_event
+  tags:
+  - Events
+  auth_required: false
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  request_body: null
+  response: ApiResponse[dict]
+- method: GET
+  path: /event/{id}
+  name: get_event_page
+  tags:
+  - Resource Pages
+  auth_required: false
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  request_body: null
+  response: text/html
+- method: GET
+  path: /pages/{slug}
+  name: get_resource_page
+  tags:
+  - Resource Pages
+  auth_required: false
+  parameters:
+  - name: slug
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Slug
+  request_body: null
+  response: text/html
+- method: GET
+  path: /cskh
+  name: get_customer_support_page
+  tags:
+  - Resource Pages
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: text/html
+- method: GET
+  path: /api/v1/support/customer-care
+  name: get_customer_support_link
+  tags:
+  - Support
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[SupportLinkInfo]
+- method: GET
+  path: /api/v1/support/cskh
+  name: get_customer_support_link
+  tags:
+  - Support
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: ApiResponse[SupportLinkInfo]
+- method: GET
+  path: /user/ekyc-status
+  name: get_status
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/session
+  name: create_session
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/EkycSessionRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/ekyc/status
+  name: get_status
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/ekyc/match
+  name: match_for_loan
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: packageId
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Packageid
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    content:
+      application/json:
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EkycMatchRequest'
+          - type: 'null'
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/match
+  name: match_for_loan
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: packageId
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Packageid
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    content:
+      application/json:
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EkycMatchRequest'
+          - type: 'null'
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/capture/face
+  name: capture_face
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    content:
+      multipart/form-data:
+        schema:
+          $ref: '#/components/schemas/Body_capture_face_api_v1_ekyc_capture_face_post'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/capture/face-base64
+  name: capture_face_base64
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/document/upload
+  name: upload_document
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    content:
+      multipart/form-data:
+        schema:
+          $ref: '#/components/schemas/Body_upload_document_api_v1_ekyc_document_upload_post'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/ekyc/document/nfc
+  name: submit_nfc
+  tags:
+  - eKYC
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/DocumentNfcRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/master/metadata
+  name: get_metadata
+  tags:
+  - Master Data
+  auth_required: false
+  parameters: []
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/master/districts/{provinceId}
+  name: get_districts
+  tags:
+  - Master Data
+  auth_required: false
+  parameters:
+  - name: provinceId
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Provinceid
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/master/wards/{districtId}
+  name: get_wards
+  tags:
+  - Master Data
+  auth_required: false
+  parameters:
+  - name: districtId
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Districtid
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/notifications
+  name: get_notifications
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: type
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Type
+  - name: category
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Category
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: PATCH
+  path: /api/v1/notifications/{id}/read
+  name: mark_as_read
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: integer
+      title: Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/notifications/{id}/read
+  name: mark_as_read
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: integer
+      title: Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/notifications/fcm-token
+  name: register_fcm_token
+  tags:
+  - Notifications
+  auth_required: true
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          additionalProperties: true
+          type: object
+          title: Request
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/notifications/read-all
+  name: mark_all_read
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: DELETE
+  path: /api/v1/notifications/clear
+  name: clear_all
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /notifications
+  name: get_notifications
+  tags:
+  - Notifications
+  auth_required: true
+  parameters:
+  - name: type
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Type
+  - name: category
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Category
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /rewards/catalog
+  name: get_catalog
+  tags:
+  - Rewards
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /rewards/redeem
+  name: redeem
+  tags:
+  - Rewards
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/RedeemRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/rewards/catalog
+  name: get_catalog_items
+  tags:
+  - Rewards
+  auth_required: true
+  parameters: []
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/rewards/user
+  name: get_user_rewards
+  tags:
+  - Rewards
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/rewards/{item_id}/redeem
+  name: redeem_path
+  tags:
+  - Rewards
+  auth_required: true
+  parameters:
+  - name: item_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Item Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/otp/send
+  name: send_otp
+  tags:
+  - OTP
+  auth_required: false
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/OtpSendRequest'
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/otp/verify
+  name: verify_otp
+  tags:
+  - OTP
+  auth_required: false
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/OtpVerifyRequest'
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/chatbot/chat
+  name: chat
+  tags:
+  - AI ChatBot
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ChatRequest'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/chat/message
+  name: message
+  tags:
+  - AI ChatBot
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ChatRequest'
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/payment/cards
+  name: get_cards
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/payment/cards
+  name: add_card
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: true
+          title: Request
+  response: see raw OpenAPI or controller mapping
+- method: DELETE
+  path: /api/v1/payment/cards/{id}
+  name: delete_card
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/payment/cards/verify
+  name: verify_card
+  tags:
+  - Payment
+  auth_required: true
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          additionalProperties: true
+          type: object
+          title: Request
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/payment/wallet
+  name: get_wallet
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/payment/topup
+  name: top_up
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/AmountRequest'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/payment/withdraw
+  name: withdraw
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/AmountRequest'
+  response: see raw OpenAPI or controller mapping
+- method: PATCH
+  path: /api/v1/payment/auto-deduction
+  name: auto_deduction
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/AutoDeductionRequest'
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/payments/qr
+  name: create_qr
+  tags:
+  - Payment
+  auth_required: true
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/AmountRequest'
+    required: true
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/payments/qr/{id}/status
+  name: get_qr_status
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Id
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/transactions
+  name: get_transactions
+  tags:
+  - Transactions
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/test/fcm/trigger
+  name: trigger_fcm_with_delay
+  tags:
+  - Debug
+  auth_required: false
+  parameters: []
+  request_body:
+    content:
+      application/json:
+        schema:
+          additionalProperties: true
+          type: object
+          title: Request
+    required: true
+  response: see raw OpenAPI or controller mapping
+components:
+  schemas:
+    AmountRequest:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+        card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Card Id
+        biometric_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Token
+      type: object
+      required:
+      - amount
+      title: AmountRequest
+    AutoDeductionRequest:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+      type: object
+      required:
+      - enabled
+      title: AutoDeductionRequest
+    Body_capture_face_api_v1_ekyc_capture_face_post:
+      properties:
+        image:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Image
+        face_image:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Face Image
+        frontIdImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Frontidimage
+        backIdImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Backidimage
+        meta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meta
+      type: object
+      title: Body_capture_face_api_v1_ekyc_capture_face_post
+    Body_upload_document_api_v1_ekyc_document_upload_post:
+      properties:
+        frontImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Frontimage
+        backImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Backimage
+        selfieCaptureId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selfiecaptureid
+        meta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meta
+      type: object
+      title: Body_upload_document_api_v1_ekyc_document_upload_post
+    ChatRequest:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Text
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        lang:
+          type: string
+          title: Lang
+          default: vi
+        client_context:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Client Context
+      type: object
+      title: ChatRequest
+    DocumentNfcRequest:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        selfie_capture_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selfie Capture Id
+        document_type:
+          type: string
+          title: Document Type
+          default: VN_CCCD
+        nfc:
+          additionalProperties: true
+          type: object
+          title: Nfc
+      type: object
+      required:
+      - session_id
+      - nfc
+      title: DocumentNfcRequest
+    EkycMatchRequest:
+      properties:
+        packageId:
+          type: string
+          title: Packageid
+      type: object
+      required:
+      - packageId
+      title: EkycMatchRequest
+    EkycSessionRequest:
+      properties:
+        flow:
+          type: string
+          title: Flow
+          default: PROFILE_COMPLETION
+        lang:
+          type: string
+          title: Lang
+          default: vi
+        device:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Device
+      type: object
+      title: EkycSessionRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoanQuoteRequest:
+      properties:
+        loanAmount:
+          type: integer
+          title: Loanamount
+        tenorMonth:
+          type: integer
+          title: Tenormonth
+        hasInsurance:
+          type: boolean
+          title: Hasinsurance
+          default: false
+        voucherId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Voucherid
+      type: object
+      required:
+      - loanAmount
+      - tenorMonth
+      title: LoanQuoteRequest
+    LoanSubmitRequest:
+      properties:
+        packageId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Packageid
+        loanAmount:
+          type: integer
+          title: Loanamount
+        tenorMonth:
+          type: integer
+          title: Tenormonth
+        hasInsurance:
+          type: boolean
+          title: Hasinsurance
+        ekycMatchKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ekycmatchkey
+        voucherId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Voucherid
+        permanentProvince:
+          type: string
+          title: Permanentprovince
+        permanentDistrict:
+          type: string
+          title: Permanentdistrict
+        permanentWard:
+          type: string
+          title: Permanentward
+        permanentDetail:
+          type: string
+          title: Permanentdetail
+        currentProvince:
+          type: string
+          title: Currentprovince
+        currentDistrict:
+          type: string
+          title: Currentdistrict
+        currentWard:
+          type: string
+          title: Currentward
+        currentDetail:
+          type: string
+          title: Currentdetail
+        monthlyIncome:
+          type: number
+          title: Monthlyincome
+        profession:
+          type: string
+          title: Profession
+        position:
+          type: string
+          title: Position
+        education:
+          type: string
+          title: Education
+        maritalStatus:
+          type: string
+          title: Maritalstatus
+        contactName:
+          type: string
+          title: Contactname
+        contactRelationship:
+          type: string
+          title: Contactrelationship
+        contactPhone:
+          type: string
+          title: Contactphone
+      type: object
+      required:
+      - loanAmount
+      - tenorMonth
+      - hasInsurance
+      - permanentProvince
+      - permanentDistrict
+      - permanentWard
+      - permanentDetail
+      - currentProvince
+      - currentDistrict
+      - currentWard
+      - currentDetail
+      - monthlyIncome
+      - profession
+      - position
+      - education
+      - maritalStatus
+      - contactName
+      - contactRelationship
+      - contactPhone
+      title: LoanSubmitRequest
+    LoginRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - phone
+      - password
+      title: LoginRequest
+    OtpSendRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - phone
+      - purpose
+      title: OtpSendRequest
+    OtpVerifyRequest:
+      properties:
+        otp:
+          type: string
+          title: Otp
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - otp
+      - purpose
+      title: OtpVerifyRequest
+    RedeemRequest:
+      properties:
+        itemId:
+          type: string
+          title: Itemid
+      type: object
+      required:
+      - itemId
+      title: RedeemRequest
+    RegisterRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        fullName:
+          type: string
+          title: Fullname
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - phone
+      - fullName
+      - password
+      title: RegisterRequest
+    RepayRequest:
+      properties:
+        repay_type:
+          type: string
+          title: Repay Type
+        card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Card Id
+        payment_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Payment Method
+          default: WALLET
+      type: object
+      required:
+      - repay_type
+      title: RepayRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+database_tables:
+  User:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    phone:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    password:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    full_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    gender:
+      type: Optional[str]
+      required: false
+      default: null
+    date_of_birth:
+      type: Optional[str]
+      required: false
+      default: null
+    national_id:
+      type: Optional[str]
+      required: false
+      default: null
+    issue_date:
+      type: Optional[str]
+      required: false
+      default: null
+    avatar_url:
+      type: Optional[str]
+      required: false
+      default: null
+    permanent_province:
+      type: Optional[str]
+      required: false
+      default: null
+    permanent_district:
+      type: Optional[str]
+      required: false
+      default: null
+    permanent_ward:
+      type: Optional[str]
+      required: false
+      default: null
+    permanent_detail:
+      type: Optional[str]
+      required: false
+      default: null
+    current_address:
+      type: Optional[str]
+      required: false
+      default: null
+    company_name:
+      type: Optional[str]
+      required: false
+      default: null
+    position:
+      type: Optional[str]
+      required: false
+      default: null
+    contact_name:
+      type: Optional[str]
+      required: false
+      default: null
+    contact_phone:
+      type: Optional[str]
+      required: false
+      default: null
+    relationship:
+      type: Optional[str]
+      required: false
+      default: null
+    education:
+      type: Optional[str]
+      required: false
+      default: null
+    marital_status:
+      type: Optional[str]
+      required: false
+      default: null
+    email:
+      type: Optional[str]
+      required: false
+      default: null
+    address:
+      type: Optional[str]
+      required: false
+      default: null
+    job:
+      type: Optional[str]
+      required: false
+      default: null
+    income:
+      type: Optional[float]
+      required: false
+      default: '0.0'
+    is_vip:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    total_points:
+      type: <class 'int'>
+      required: false
+      default: '0'
+    is_identified:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    is_face_verified:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    is_document_verified:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    document_verification_method:
+      type: Optional[str]
+      required: false
+      default: null
+    face_verified_at:
+      type: Optional[str]
+      required: false
+      default: null
+    document_verified_at:
+      type: Optional[str]
+      required: false
+      default: null
+  Device:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    fcm_token:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    device_name:
+      type: Optional[str]
+      required: false
+      default: null
+    platform:
+      type: <class 'str'>
+      required: false
+      default: android
+    last_active:
+      type: <class 'datetime.datetime'>
+      required: false
+      default: PydanticUndefined
+  Account:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    account_number:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    bank_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    owner_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    balance:
+      type: <class 'float'>
+      required: false
+      default: '0.0'
+    currency:
+      type: <class 'str'>
+      required: false
+      default: VND
+    is_active:
+      type: <class 'bool'>
+      required: false
+      default: 'True'
+    is_auto_deduction_enabled:
+      type: <class 'bool'>
+      required: false
+      default: 'True'
+  Banner:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    image_url:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    title:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    target_type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    target_id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    action_url:
+      type: Optional[str]
+      required: false
+      default: null
+  Event:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    title:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    content:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    image_url:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    interaction_type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    action_url:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+  Reward:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    points_cost:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    description:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+  UserRewardVoucher:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    reward_id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    reward_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    reward_type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    status:
+      type: <class 'str'>
+      required: false
+      default: AVAILABLE
+    code:
+      type: Optional[str]
+      required: false
+      default: null
+    serial:
+      type: Optional[str]
+      required: false
+      default: null
+    face_value:
+      type: Optional[int]
+      required: false
+      default: null
+    benefit_type:
+      type: Optional[str]
+      required: false
+      default: null
+    benefit_value:
+      type: Optional[float]
+      required: false
+      default: null
+    min_amount:
+      type: Optional[int]
+      required: false
+      default: null
+    max_amount:
+      type: Optional[int]
+      required: false
+      default: null
+    issued_at:
+      type: <class 'int'>
+      required: false
+      default: '0'
+    expires_at:
+      type: Optional[int]
+      required: false
+      default: null
+    used_at:
+      type: Optional[int]
+      required: false
+      default: null
+    used_application_id:
+      type: Optional[str]
+      required: false
+      default: null
+  Card:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    card_number:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    card_type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    bank_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    balance:
+      type: <class 'float'>
+      required: false
+      default: '0.0'
+  LoanPackage:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    package_name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    tenor_range:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    min_amount:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    max_amount:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    interest:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    overdue_cost:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    eligible_credit_score:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    is_hot:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    badge:
+      type: Optional[str]
+      required: false
+      default: null
+  MasterData:
+    id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    name:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    type:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    parent_id:
+      type: Optional[str]
+      required: false
+      default: null
+  LoanApplication:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    application_id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    loan_amount:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    tenor_month:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    has_insurance:
+      type: <class 'bool'>
+      required: true
+      default: PydanticUndefined
+    status:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    message:
+      type: Optional[str]
+      required: false
+      default: null
+    created_at:
+      type: <class 'datetime.datetime'>
+      required: false
+      default: PydanticUndefined
+  EkycSession:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    session_id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    capture_id:
+      type: Optional[str]
+      required: false
+      default: null
+    status:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    next_step:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    message:
+      type: Optional[str]
+      required: false
+      default: null
+  OTPRecord:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    phone:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    otp:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    purpose:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    is_verified:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    expired_at:
+      type: <class 'datetime.datetime'>
+      required: true
+      default: PydanticUndefined
+  Notification:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    title:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    content:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    category:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    type:
+      type: Optional[str]
+      required: false
+      default: null
+    amount:
+      type: Optional[float]
+      required: false
+      default: null
+    balance_after:
+      type: Optional[float]
+      required: false
+      default: null
+    transaction_code:
+      type: Optional[str]
+      required: false
+      default: null
+    timestamp:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    is_read:
+      type: <class 'bool'>
+      required: false
+      default: 'False'
+    target_id:
+      type: Optional[str]
+      required: false
+      default: null
+    target_type:
+      type: Optional[str]
+      required: false
+      default: null
+  Transaction:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    description:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    transaction_code:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    amount:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    balance:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    time:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    date:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    type:
+      type: <class 'str'>
+      required: false
+      default: IN
+    timestamp:
+      type: <class 'int'>
+      required: false
+      default: '0'
+  LoanDebt:
+    id:
+      type: Optional[int]
+      required: false
+      default: null
+    user_id:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    application_id:
+      type: <class 'str'>
+      required: true
+      default: PydanticUndefined
+    total_amount:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    remaining_principal:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    monthly_payment:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    interest_rate:
+      type: <class 'float'>
+      required: true
+      default: PydanticUndefined
+    total_months:
+      type: <class 'int'>
+      required: true
+      default: PydanticUndefined
+    months_paid:
+      type: <class 'int'>
+      required: false
+      default: '0'
+    status:
+      type: <class 'str'>
+      required: false
+      default: ACTIVE
+    due_date:
+      type: Optional[str]
+      required: false
+      default: null
+    created_at:
+      type: <class 'datetime.datetime'>
+      required: false
+      default: PydanticUndefined
+

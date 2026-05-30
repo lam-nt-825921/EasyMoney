@@ -1,0 +1,2702 @@
+openapi: 3.1.0
+info:
+  title: EasyMoney Mock API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: Register
+      operationId: register_api_v1_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/profile:
+    get:
+      tags:
+      - User & Account
+      summary: Get Profile
+      operationId: get_profile_api_v1_user_profile_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - User & Account
+      summary: Update Profile
+      operationId: update_profile_api_v1_user_profile_patch
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Profile Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/profile/completion:
+    get:
+      tags:
+      - User & Account
+      summary: Get Profile Completion
+      operationId: get_profile_completion_api_v1_user_profile_completion_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/notification-settings:
+    patch:
+      tags:
+      - User & Account
+      summary: Update Notification Settings
+      operationId: update_notification_settings_api_v1_user_notification_settings_patch
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/change-password:
+    post:
+      tags:
+      - User & Account
+      summary: Change Password
+      operationId: change_password_api_v1_auth_change_password_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/account:
+    get:
+      tags:
+      - User & Account
+      summary: Get Account
+      operationId: get_account_api_v1_user_account_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/transactions:
+    get:
+      tags:
+      - User & Account
+      summary: Get Balance Flow
+      operationId: get_balance_flow_api_v1_user_transactions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/cards:
+    get:
+      tags:
+      - User & Account
+      summary: Get Cards
+      operationId: get_cards_user_cards_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/balance-flow:
+    get:
+      tags:
+      - User & Account
+      summary: Get Balance Flow
+      operationId: get_balance_flow_user_balance_flow_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/profile:
+    get:
+      tags:
+      - User & Account
+      summary: Get Profile
+      operationId: get_profile_user_profile_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - User & Account
+      summary: Update Profile
+      operationId: update_profile_user_profile_patch
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Profile Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/profile/completion:
+    get:
+      tags:
+      - User & Account
+      summary: Get Profile Completion
+      operationId: get_profile_completion_user_profile_completion_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Loan Packages
+      operationId: get_loan_packages_api_v1_loan_package_get
+      parameters:
+      - name: minAmount
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Minamount
+      - name: maxAmount
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Maxamount
+      - name: tenor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Tenor
+      - name: eligibleOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Eligibleonly
+      - name: keyword
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Keyword
+      - name: minInterest
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Mininterest
+      - name: maxInterest
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Maxinterest
+      - name: hotOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Hotonly
+      - name: newOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Newonly
+      - name: promotionalOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Promotionalonly
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: vi
+          title: Lang
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package/my:
+    get:
+      tags:
+      - Loan Application
+      summary: Get My Loan Package
+      operationId: get_my_loan_package_api_v1_loan_package_my_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package/{package_id}:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Loan Package By Id
+      operationId: get_loan_package_by_id_api_v1_loan_package__package_id__get
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package/{package_id}/eligibility:
+    post:
+      tags:
+      - Loan Application
+      summary: Check Eligibility
+      operationId: check_eligibility_api_v1_loan_package__package_id__eligibility_post
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package/{package_id}/vouchers:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Applicable Vouchers
+      operationId: get_applicable_vouchers_api_v1_loan_package__package_id__vouchers_get
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      - name: loanAmount
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Loanamount
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/package/{package_id}/quote:
+    post:
+      tags:
+      - Loan Application
+      summary: Quote Loan
+      operationId: quote_loan_api_v1_loan_package__package_id__quote_post
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanQuoteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/applications:
+    post:
+      tags:
+      - Loan Application
+      summary: Submit Loan
+      operationId: submit_loan_api_v1_loan_applications_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanSubmitRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/submit:
+    post:
+      tags:
+      - Loan Application
+      summary: Submit Loan
+      operationId: submit_loan_api_v1_loan_submit_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanSubmitRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/contracts/approved:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Approved Contracts
+      operationId: get_approved_contracts_api_v1_loan_contracts_approved_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/contracts/{contract_id}/cancel:
+    post:
+      tags:
+      - Loan Application
+      summary: Cancel Contract
+      operationId: cancel_contract_api_v1_loan_contracts__contract_id__cancel_post
+      parameters:
+      - name: contract_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Contract Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/contracts/{contract_id}/sign:
+    post:
+      tags:
+      - Loan Application
+      summary: Sign Contract
+      operationId: sign_contract_api_v1_loan_contracts__contract_id__sign_post
+      parameters:
+      - name: contract_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Contract Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/debts:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Debts
+      operationId: get_debts_api_v1_loan_debts_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loan/debts/{debt_id}/repay:
+    post:
+      tags:
+      - Loan Application
+      summary: Repay Debt
+      operationId: repay_debt_api_v1_loan_debts__debt_id__repay_post
+      parameters:
+      - name: debt_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Debt Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepayRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/contracts/{contractId}:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Contract Content
+      operationId: get_contract_content_api_v1_contracts__contractId__get
+      parameters:
+      - name: contractId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Contractid
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: vi
+          title: Lang
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /loans/hot-trends:
+    get:
+      tags:
+      - Loan Application
+      summary: Get Hot Trends
+      operationId: get_hot_trends_loans_hot_trends_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /home/banners:
+    get:
+      tags:
+      - Home & Events
+      summary: Get Banners
+      operationId: get_banners_home_banners_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /home/hot-trends:
+    get:
+      tags:
+      - Home & Events
+      summary: Get Banners
+      operationId: get_banners_home_hot_trends_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/home/banners:
+    get:
+      tags:
+      - Home & Events
+      summary: Get Banners
+      operationId: get_banners_api_v1_home_banners_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/home/hot-loans:
+    get:
+      tags:
+      - Home & Events
+      summary: Get Hot Loans
+      operationId: get_hot_loans_api_v1_home_hot_loans_get
+      parameters:
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: vi
+          title: Lang
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/home/recommended-loan:
+    get:
+      tags:
+      - Home & Events
+      summary: Get Recommended Loan
+      operationId: get_recommended_loan_api_v1_home_recommended_loan_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /events/{id}:
+    get:
+      tags:
+      - Events
+      summary: Get Event Detail
+      operationId: get_event_detail_events__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/events/{id}:
+    get:
+      tags:
+      - Events
+      summary: Get Event Detail
+      operationId: get_event_detail_api_v1_events__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/events/{id}/join:
+    post:
+      tags:
+      - Events
+      summary: Join Event
+      operationId: join_event_api_v1_events__id__join_post
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /event/{id}:
+    get:
+      tags:
+      - Resource Pages
+      summary: Get Event Page
+      operationId: get_event_page_event__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /pages/{slug}:
+    get:
+      tags:
+      - Resource Pages
+      summary: Get Resource Page
+      operationId: get_resource_page_pages__slug__get
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Slug
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /cskh:
+    get:
+      tags:
+      - Resource Pages
+      summary: Get Customer Support Page
+      operationId: get_customer_support_page_cskh_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/support/customer-care:
+    get:
+      tags:
+      - Support
+      summary: Get Customer Support Link
+      operationId: get_customer_support_link_api_v1_support_customer_care_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/support/cskh:
+    get:
+      tags:
+      - Support
+      summary: Get Customer Support Link
+      operationId: get_customer_support_link_api_v1_support_cskh_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /user/ekyc-status:
+    get:
+      tags:
+      - eKYC
+      summary: Get Status
+      operationId: get_status_user_ekyc_status_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/session:
+    post:
+      tags:
+      - eKYC
+      summary: Create Session
+      operationId: create_session_api_v1_ekyc_session_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EkycSessionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/status:
+    get:
+      tags:
+      - eKYC
+      summary: Get Status
+      operationId: get_status_api_v1_ekyc_status_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/match:
+    get:
+      tags:
+      - eKYC
+      summary: Match For Loan
+      operationId: match_for_loan_api_v1_ekyc_match_get
+      parameters:
+      - name: packageId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Packageid
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/EkycMatchRequest'
+              - type: 'null'
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - eKYC
+      summary: Match For Loan
+      operationId: match_for_loan_api_v1_ekyc_match_post
+      parameters:
+      - name: packageId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Packageid
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/EkycMatchRequest'
+              - type: 'null'
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/capture/face:
+    post:
+      tags:
+      - eKYC
+      summary: Capture Face
+      operationId: capture_face_api_v1_ekyc_capture_face_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_capture_face_api_v1_ekyc_capture_face_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/capture/face-base64:
+    post:
+      tags:
+      - eKYC
+      summary: Capture Face Base64
+      operationId: capture_face_base64_api_v1_ekyc_capture_face_base64_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/document/upload:
+    post:
+      tags:
+      - eKYC
+      summary: Upload Document
+      operationId: upload_document_api_v1_ekyc_document_upload_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_document_api_v1_ekyc_document_upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ekyc/document/nfc:
+    post:
+      tags:
+      - eKYC
+      summary: Submit Nfc
+      operationId: submit_nfc_api_v1_ekyc_document_nfc_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentNfcRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/master/metadata:
+    get:
+      tags:
+      - Master Data
+      summary: Get Metadata
+      operationId: get_metadata_api_v1_master_metadata_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/master/districts/{provinceId}:
+    get:
+      tags:
+      - Master Data
+      summary: Get Districts
+      operationId: get_districts_api_v1_master_districts__provinceId__get
+      parameters:
+      - name: provinceId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Provinceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/master/wards/{districtId}:
+    get:
+      tags:
+      - Master Data
+      summary: Get Wards
+      operationId: get_wards_api_v1_master_wards__districtId__get
+      parameters:
+      - name: districtId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Districtid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications:
+    get:
+      tags:
+      - Notifications
+      summary: Get Notifications
+      operationId: get_notifications_api_v1_notifications_get
+      parameters:
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications/{id}/read:
+    patch:
+      tags:
+      - Notifications
+      summary: Mark As Read
+      operationId: mark_as_read_api_v1_notifications__id__read_patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Notifications
+      summary: Mark As Read
+      operationId: mark_as_read_api_v1_notifications__id__read_post
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications/fcm-token:
+    post:
+      tags:
+      - Notifications
+      summary: Register Fcm Token
+      operationId: register_fcm_token_api_v1_notifications_fcm_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+              title: Request
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications/read-all:
+    post:
+      tags:
+      - Notifications
+      summary: Mark All Read
+      operationId: mark_all_read_api_v1_notifications_read_all_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications/clear:
+    delete:
+      tags:
+      - Notifications
+      summary: Clear All
+      operationId: clear_all_api_v1_notifications_clear_delete
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /notifications:
+    get:
+      tags:
+      - Notifications
+      summary: Get Notifications
+      operationId: get_notifications_notifications_get
+      parameters:
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /rewards/catalog:
+    get:
+      tags:
+      - Rewards
+      summary: Get Catalog
+      operationId: get_catalog_rewards_catalog_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /rewards/redeem:
+    post:
+      tags:
+      - Rewards
+      summary: Redeem
+      operationId: redeem_rewards_redeem_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/rewards/catalog:
+    get:
+      tags:
+      - Rewards
+      summary: Get Catalog Items
+      operationId: get_catalog_items_api_v1_rewards_catalog_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/rewards/user:
+    get:
+      tags:
+      - Rewards
+      summary: Get User Rewards
+      operationId: get_user_rewards_api_v1_rewards_user_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/rewards/{item_id}/redeem:
+    post:
+      tags:
+      - Rewards
+      summary: Redeem Path
+      operationId: redeem_path_api_v1_rewards__item_id__redeem_post
+      parameters:
+      - name: item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Item Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/otp/send:
+    post:
+      tags:
+      - OTP
+      summary: Send Otp
+      operationId: send_otp_api_v1_otp_send_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpSendRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/otp/verify:
+    post:
+      tags:
+      - OTP
+      summary: Verify Otp
+      operationId: verify_otp_api_v1_otp_verify_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpVerifyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/chatbot/chat:
+    post:
+      tags:
+      - AI ChatBot
+      summary: Chat
+      operationId: chat_api_v1_chatbot_chat_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/chat/message:
+    post:
+      tags:
+      - AI ChatBot
+      summary: Message
+      operationId: message_api_v1_chat_message_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/cards:
+    get:
+      tags:
+      - Payment
+      summary: Get Cards
+      operationId: get_cards_api_v1_payment_cards_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Payment
+      summary: Add Card
+      operationId: add_card_api_v1_payment_cards_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/cards/{id}:
+    delete:
+      tags:
+      - Payment
+      summary: Delete Card
+      operationId: delete_card_api_v1_payment_cards__id__delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/cards/verify:
+    post:
+      tags:
+      - Payment
+      summary: Verify Card
+      operationId: verify_card_api_v1_payment_cards_verify_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+              title: Request
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/wallet:
+    get:
+      tags:
+      - Payment
+      summary: Get Wallet
+      operationId: get_wallet_api_v1_payment_wallet_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/topup:
+    post:
+      tags:
+      - Payment
+      summary: Top Up
+      operationId: top_up_api_v1_payment_topup_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/withdraw:
+    post:
+      tags:
+      - Payment
+      summary: Withdraw
+      operationId: withdraw_api_v1_payment_withdraw_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payment/auto-deduction:
+    patch:
+      tags:
+      - Payment
+      summary: Auto Deduction
+      operationId: auto_deduction_api_v1_payment_auto_deduction_patch
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoDeductionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payments/qr:
+    post:
+      tags:
+      - Payment
+      summary: Create Qr
+      operationId: create_qr_api_v1_payments_qr_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmountRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payments/qr/{id}/status:
+    get:
+      tags:
+      - Payment
+      summary: Get Qr Status
+      operationId: get_qr_status_api_v1_payments_qr__id__status_get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transactions:
+    get:
+      tags:
+      - Transactions
+      summary: Get Transactions
+      operationId: get_transactions_api_v1_transactions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/test/fcm/trigger:
+    post:
+      tags:
+      - Debug
+      summary: Trigger Fcm With Delay
+      operationId: trigger_fcm_with_delay_api_v1_test_fcm_trigger_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+              title: Request
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AmountRequest:
+      properties:
+        amount:
+          type: integer
+          title: Amount
+        card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Card Id
+        biometric_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Token
+      type: object
+      required:
+      - amount
+      title: AmountRequest
+    AutoDeductionRequest:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+      type: object
+      required:
+      - enabled
+      title: AutoDeductionRequest
+    Body_capture_face_api_v1_ekyc_capture_face_post:
+      properties:
+        image:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Image
+        face_image:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Face Image
+        frontIdImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Frontidimage
+        backIdImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Backidimage
+        meta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meta
+      type: object
+      title: Body_capture_face_api_v1_ekyc_capture_face_post
+    Body_upload_document_api_v1_ekyc_document_upload_post:
+      properties:
+        frontImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Frontimage
+        backImage:
+          anyOf:
+          - type: string
+            format: binary
+          - type: 'null'
+          title: Backimage
+        selfieCaptureId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selfiecaptureid
+        meta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meta
+      type: object
+      title: Body_upload_document_api_v1_ekyc_document_upload_post
+    ChatRequest:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Text
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+        lang:
+          type: string
+          title: Lang
+          default: vi
+        client_context:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Client Context
+      type: object
+      title: ChatRequest
+    DocumentNfcRequest:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        selfie_capture_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selfie Capture Id
+        document_type:
+          type: string
+          title: Document Type
+          default: VN_CCCD
+        nfc:
+          additionalProperties: true
+          type: object
+          title: Nfc
+      type: object
+      required:
+      - session_id
+      - nfc
+      title: DocumentNfcRequest
+    EkycMatchRequest:
+      properties:
+        packageId:
+          type: string
+          title: Packageid
+      type: object
+      required:
+      - packageId
+      title: EkycMatchRequest
+    EkycSessionRequest:
+      properties:
+        flow:
+          type: string
+          title: Flow
+          default: PROFILE_COMPLETION
+        lang:
+          type: string
+          title: Lang
+          default: vi
+        device:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Device
+      type: object
+      title: EkycSessionRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoanQuoteRequest:
+      properties:
+        loanAmount:
+          type: integer
+          title: Loanamount
+        tenorMonth:
+          type: integer
+          title: Tenormonth
+        hasInsurance:
+          type: boolean
+          title: Hasinsurance
+          default: false
+        voucherId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Voucherid
+      type: object
+      required:
+      - loanAmount
+      - tenorMonth
+      title: LoanQuoteRequest
+    LoanSubmitRequest:
+      properties:
+        packageId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Packageid
+        loanAmount:
+          type: integer
+          title: Loanamount
+        tenorMonth:
+          type: integer
+          title: Tenormonth
+        hasInsurance:
+          type: boolean
+          title: Hasinsurance
+        ekycMatchKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ekycmatchkey
+        voucherId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Voucherid
+        permanentProvince:
+          type: string
+          title: Permanentprovince
+        permanentDistrict:
+          type: string
+          title: Permanentdistrict
+        permanentWard:
+          type: string
+          title: Permanentward
+        permanentDetail:
+          type: string
+          title: Permanentdetail
+        currentProvince:
+          type: string
+          title: Currentprovince
+        currentDistrict:
+          type: string
+          title: Currentdistrict
+        currentWard:
+          type: string
+          title: Currentward
+        currentDetail:
+          type: string
+          title: Currentdetail
+        monthlyIncome:
+          type: number
+          title: Monthlyincome
+        profession:
+          type: string
+          title: Profession
+        position:
+          type: string
+          title: Position
+        education:
+          type: string
+          title: Education
+        maritalStatus:
+          type: string
+          title: Maritalstatus
+        contactName:
+          type: string
+          title: Contactname
+        contactRelationship:
+          type: string
+          title: Contactrelationship
+        contactPhone:
+          type: string
+          title: Contactphone
+      type: object
+      required:
+      - loanAmount
+      - tenorMonth
+      - hasInsurance
+      - permanentProvince
+      - permanentDistrict
+      - permanentWard
+      - permanentDetail
+      - currentProvince
+      - currentDistrict
+      - currentWard
+      - currentDetail
+      - monthlyIncome
+      - profession
+      - position
+      - education
+      - maritalStatus
+      - contactName
+      - contactRelationship
+      - contactPhone
+      title: LoanSubmitRequest
+    LoginRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - phone
+      - password
+      title: LoginRequest
+    OtpSendRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - phone
+      - purpose
+      title: OtpSendRequest
+    OtpVerifyRequest:
+      properties:
+        otp:
+          type: string
+          title: Otp
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - otp
+      - purpose
+      title: OtpVerifyRequest
+    RedeemRequest:
+      properties:
+        itemId:
+          type: string
+          title: Itemid
+      type: object
+      required:
+      - itemId
+      title: RedeemRequest
+    RegisterRequest:
+      properties:
+        phone:
+          type: string
+          title: Phone
+        fullName:
+          type: string
+          title: Fullname
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - phone
+      - fullName
+      - password
+      title: RegisterRequest
+    RepayRequest:
+      properties:
+        repay_type:
+          type: string
+          title: Repay Type
+        card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Card Id
+        payment_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Payment Method
+          default: WALLET
+      type: object
+      required:
+      - repay_type
+      title: RepayRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+servers:
+- url: https://easymoney.lamgd.dev
+  description: Public tunnel/demo backend
+- url: http://localhost:8000
+  description: Desktop local backend
+- url: http://10.0.2.2:8000
+  description: Android emulator local backend
