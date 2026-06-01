@@ -9,10 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 
 @Composable
 fun TenorBottomSheetContent(
@@ -26,7 +28,7 @@ fun TenorBottomSheetContent(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            "Kỳ hạn vay",
+            text = stringResource(R.string.loan_tenor_title),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -45,7 +47,7 @@ fun TenorBottomSheetContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("$tenor tháng", fontSize = 16.sp)
+                Text(stringResource(R.string.loan_tenor_value_months, tenor), fontSize = 16.sp)
                 if (tenor == selectedTenor) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,

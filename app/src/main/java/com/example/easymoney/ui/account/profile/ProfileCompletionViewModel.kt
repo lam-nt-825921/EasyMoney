@@ -2,11 +2,13 @@ package com.example.easymoney.ui.account.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.R
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.UserProfile
 import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.ui.common.identity.*
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,8 @@ import javax.inject.Inject
 data class ProfileCompletionUiState(
     val profile: UserProfile = UserProfile(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    // Workflow #65 — error now uses UiText so NFC/profile errors render localised copy.
+    val errorMessage: UiText? = null,
     val activeModule: IdentityModule? = null,
     val ekycSessionId: String? = null,
     val isSubmittingIdentity: Boolean = false
@@ -52,7 +55,9 @@ class ProfileCompletionViewModel @Inject constructor(
                     _uiState.update { it.copy(profile = result.data, isLoading = false) }
                 }
                 is Resource.Error -> {
-                    _uiState.update { it.copy(errorMessage = result.message, isLoading = false) }
+                    _uiState.update {
+                        it.copy(errorMessage = UiText.DynamicString(result.message), isLoading = false)
+                    }
                 }
                 else -> {}
             }
@@ -68,7 +73,12 @@ class ProfileCompletionViewModel @Inject constructor(
                     when (val result = loanRepository.startEkycSession(supportsNfc)) {
                         is Resource.Success -> result.data
                         is Resource.Error -> {
-                            _uiState.update { it.copy(isSubmittingIdentity = false, errorMessage = result.message) }
+                            _uiState.update {
+                                it.copy(
+                                    isSubmittingIdentity = false,
+                                    errorMessage = UiText.DynamicString(result.message)
+                                )
+                            }
                             return@launch
                         }
                         Resource.Loading -> null
@@ -99,7 +109,9 @@ class ProfileCompletionViewModel @Inject constructor(
     }
 
     fun onIdentityError(message: String) {
-        _uiState.update { it.copy(errorMessage = message, isSubmittingIdentity = false) }
+        _uiState.update {
+            it.copy(errorMessage = UiText.DynamicString(message), isSubmittingIdentity = false)
+        }
     }
 
     fun clearError() {
@@ -115,7 +127,7 @@ class ProfileCompletionViewModel @Inject constructor(
             if (missingRequiredFields.isNotEmpty()) {
                 _uiState.update {
                     it.copy(
-                        errorMessage = "Không đọc được đủ dữ liệu CCCD từ NFC. Vui lòng thử lại hoặc dùng tải giấy tờ.",
+                        errorMessage = UiText.StringResource(R.string.profile_nfc_error_missing_data),
                         isSubmittingIdentity = false
                     )
                 }
@@ -128,13 +140,18 @@ class ProfileCompletionViewModel @Inject constructor(
                 when (val submitResult = loanRepository.submitNfcIdentity(_uiState.value.ekycSessionId, nfcData)) {
                     is Resource.Success -> refreshAfterIdentityVerification()
                     is Resource.Error -> _uiState.update {
-                        it.copy(isSubmittingIdentity = false, errorMessage = submitResult.message)
+                        it.copy(
+                            isSubmittingIdentity = false,
+                            errorMessage = UiText.DynamicString(submitResult.message)
+                        )
                     }
                     Resource.Loading -> Unit
                 }
             }
         } else {
-            _uiState.update { it.copy(errorMessage = "Không đọc được dữ liệu NFC.") }
+            _uiState.update {
+                it.copy(errorMessage = UiText.StringResource(R.string.profile_nfc_error_read_failed))
+            }
         }
         closeModule()
     }
@@ -153,7 +170,10 @@ class ProfileCompletionViewModel @Inject constructor(
                 when (val uploadResult = loanRepository.uploadIdentityDocument()) {
                     is Resource.Success -> refreshAfterIdentityVerification()
                     is Resource.Error -> _uiState.update {
-                        it.copy(isSubmittingIdentity = false, errorMessage = uploadResult.message)
+                        it.copy(
+                            isSubmittingIdentity = false,
+                            errorMessage = UiText.DynamicString(uploadResult.message)
+                        )
                     }
                     Resource.Loading -> Unit
                 }
@@ -177,7 +197,7 @@ class ProfileCompletionViewModel @Inject constructor(
         val currentProfile = _uiState.value.profile
         val newStatus = update(currentProfile.identityStatus)
         val updatedProfile = currentProfile.copy(identityStatus = newStatus)
-        
+
         viewModelScope.launch {
             val result = userRepository.updateProfile(updatedProfile)
             if (result is Resource.Success) {
@@ -200,7 +220,11 @@ class ProfileCompletionViewModel @Inject constructor(
                     )
                 }
                 is Resource.Error -> _uiState.update {
-                    it.copy(isSubmittingIdentity = false, errorMessage = profileResult.message, activeModule = null)
+                    it.copy(
+                        isSubmittingIdentity = false,
+                        errorMessage = UiText.DynamicString(profileResult.message),
+                        activeModule = null
+                    )
                 }
                 Resource.Loading -> Unit
             }

@@ -11,9 +11,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.LocalDarkMode
 
 @Composable
@@ -57,7 +59,7 @@ fun AppTextField(
                 IconButton(onClick = onTogglePassword) {
                     Icon(
                         imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
+                        contentDescription = stringResource(R.string.field_toggle_password_visibility)
                     )
                 }
             }

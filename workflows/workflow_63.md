@@ -1,7 +1,7 @@
 # Workflow #63 — Final A: Hard-coded user-facing text → VI/EN resources
 
 ## Status
-Unblocked. Problems 0–7 have been built, verified, and committed by the owner. Claude/agents should proceed with this workflow next.
+Completed via sub-workflows #65–#69 (Profile/Contact+Confirm, Rewards, Loan config+info, eKYC, Contract+Chat). All hot-spot screens now consume `stringResource(...)` or `UiText`.
 
 ## Goal
 Mọi user-facing production string đều đến từ `values/strings.xml` và `values-en/strings.xml` với cùng key set; không hard-code Vietnamese/English trong composables/ViewModels/repositories.
@@ -32,12 +32,12 @@ Mọi user-facing production string đều đến từ `values/strings.xml` và 
 - Toàn bộ files được liệt kê ở bảng hotspots trong AGENT_TASKS.md Final A.
 
 ### Acceptance criteria
-- [ ] `rg -n 'Text\("|contentDescription = "|Toast\.makeText\([^,]+,\s*"|errorMessage = "|title = "|label = "' app/src/main/java/com/example/easymoney` không còn match trên các screen được audit (trừ debug/preview).
-- [ ] Switch VI/EN không để lộ chuỗi hard-coded trên screens được audit.
-- [ ] Không thiếu key ở một trong hai locale.
-- [ ] Không có raw debug text trên production flow.
-- [ ] Build passes: `./gradlew assembleDebug`
-- [ ] Unit tests pass: `./gradlew test`
+- [x] `rg -n 'Text\("|contentDescription = "|Toast\.makeText\([^,]+,\s*"|errorMessage = "|title = "|label = "' app/src/main/java/com/example/easymoney` không còn match trên các screen được audit (trừ debug/preview).
+- [x] Switch VI/EN không để lộ chuỗi hard-coded trên screens được audit.
+- [x] Không thiếu key ở một trong hai locale.
+- [x] Không có raw debug text trên production flow.
+- [x] Build passes: `./gradlew assembleDebug`
+- [x] Unit tests pass: `./gradlew test`
 
 ## Notes
 - Tham chiếu: AGENT_TASKS.md Final Problem A.

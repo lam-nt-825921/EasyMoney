@@ -10,10 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 import com.example.easymoney.domain.model.LoanApplicationRequest
 import com.example.easymoney.ui.loan.formatCurrency
 
@@ -49,7 +51,10 @@ fun ConfirmLoanInformationScreen(
                     )
                 ) {
                     Text(
-                        text = if (uiState.isSubmitting) "Đang gửi..." else "Xác nhận",
+                        text = stringResource(
+                            if (uiState.isSubmitting) R.string.confirm_loan_submitting
+                            else R.string.confirm_loan_submit
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -67,55 +72,71 @@ fun ConfirmLoanInformationScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Section: Thông tin khoản vay
-            ReviewSection(title = "Thông tin khoản vay") {
-                ReviewRow("Đơn vị cho vay", "easyMoney")
-                ReviewRow("Số tiền vay mong muốn", formatCurrency(loanData?.loanAmount ?: 0L))
-                ReviewRow("Kỳ hạn vay", "${loanData?.tenorMonth ?: 0} tháng")
-                ReviewRow("Bảo hiểm khoản vay", if (loanData?.hasInsurance == true) "Có tham gia" else "Không tham gia")
-                loanData?.voucherId?.let { ReviewRow("Voucher", it) }
-                ReviewRow("Phương thức cho vay", "Cho vay từng lần")
-                ReviewRow("Phương thức trả nợ", "Trả gốc và lãi hàng tháng")
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_loan_info)) {
+                ReviewRow(
+                    stringResource(R.string.confirm_loan_row_lender),
+                    stringResource(R.string.confirm_loan_row_lender_name)
+                )
+                ReviewRow(stringResource(R.string.confirm_loan_row_amount), formatCurrency(loanData?.loanAmount ?: 0L))
+                ReviewRow(
+                    stringResource(R.string.confirm_loan_row_tenor),
+                    stringResource(R.string.loan_tenor_value_months, loanData?.tenorMonth ?: 0)
+                )
+                ReviewRow(
+                    stringResource(R.string.confirm_loan_row_insurance),
+                    if (loanData?.hasInsurance == true) stringResource(R.string.confirm_loan_value_insurance_yes)
+                    else stringResource(R.string.confirm_loan_value_insurance_no)
+                )
+                loanData?.voucherId?.let { ReviewRow(stringResource(R.string.confirm_loan_row_voucher), it) }
+                ReviewRow(
+                    stringResource(R.string.confirm_loan_row_loan_method),
+                    stringResource(R.string.confirm_loan_value_loan_method)
+                )
+                ReviewRow(
+                    stringResource(R.string.confirm_loan_row_repay_method),
+                    stringResource(R.string.confirm_loan_value_repay_method)
+                )
             }
 
             // Section: Tài khoản nhận giải ngân (Thông tin này thường fix cứng theo TK đăng ký hoặc lấy từ form)
-            ReviewSection(title = "Tài khoản nhận giải ngân") {
-                ReviewRow("Chủ tài khoản", "NGUYEN DUC MINH")
-                ReviewRow("Ngân hàng", "TPBANK")
-                ReviewRow("Số tài khoản", "0936552900")
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_disbursement)) {
+                ReviewRow(stringResource(R.string.confirm_loan_row_account_holder), "NGUYEN DUC MINH")
+                ReviewRow(stringResource(R.string.confirm_loan_row_bank), "TPBANK")
+                ReviewRow(stringResource(R.string.confirm_loan_row_account_number), "0936552900")
             }
 
             // Section: Địa chỉ thường trú
-            ReviewSection(title = "Địa chỉ thường trú") {
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_permanent_address)) {
                 ReviewRow(
-                    "Tỉnh/Thành phố, Quận/Huyện, Phường/Xã", 
+                    stringResource(R.string.confirm_loan_row_administrative),
                     "${loanData?.permanentWard ?: ""}, ${loanData?.permanentDistrict ?: ""}, ${loanData?.permanentProvince ?: ""}".trim(',', ' ')
                 )
-                ReviewRow("Địa chỉ chi tiết", loanData?.permanentDetail ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_address_detail), loanData?.permanentDetail ?: "")
             }
 
             // Section: Địa chỉ hiện tại
-            ReviewSection(title = "Địa chỉ hiện tại") {
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_current_address)) {
                 ReviewRow(
-                    "Tỉnh/Thành phố, Quận/Huyện, Phường/Xã", 
+                    stringResource(R.string.confirm_loan_row_administrative),
                     "${loanData?.currentWard ?: ""}, ${loanData?.currentDistrict ?: ""}, ${loanData?.currentProvince ?: ""}".trim(',', ' ')
                 )
-                ReviewRow("Địa chỉ chi tiết", loanData?.currentDetail ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_address_detail), loanData?.currentDetail ?: "")
             }
 
             // Section: Thông tin cá nhân
-            ReviewSection(title = "Thông tin cá nhân") {
-                ReviewRow("Thu nhập hàng tháng", formatCurrency(loanData?.monthlyIncome ?: 0L))
-                ReviewRow("Nghề nghiệp", loanData?.profession ?: "")
-                ReviewRow("Chức vụ", loanData?.position ?: "")
-                ReviewRow("Trình độ học vấn", loanData?.education ?: "")
-                ReviewRow("Tình trạng hôn nhân", loanData?.maritalStatus ?: "")
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_personal_info)) {
+                ReviewRow(stringResource(R.string.confirm_loan_row_income), formatCurrency(loanData?.monthlyIncome ?: 0L))
+                ReviewRow(stringResource(R.string.confirm_loan_row_profession), loanData?.profession ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_position), loanData?.position ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_education), loanData?.education ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_marital), loanData?.maritalStatus ?: "")
             }
 
             // Section: Thông tin người liên hệ
-            ReviewSection(title = "Thông tin người liên hệ") {
-                ReviewRow("Họ và tên", loanData?.contactName ?: "")
-                ReviewRow("Mối quan hệ với bạn", loanData?.contactRelationship ?: "")
-                ReviewRow("Số điện thoại", loanData?.contactPhone ?: "")
+            ReviewSection(title = stringResource(R.string.confirm_loan_section_contact_person)) {
+                ReviewRow(stringResource(R.string.confirm_loan_row_contact_name), loanData?.contactName ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_contact_relationship), loanData?.contactRelationship ?: "")
+                ReviewRow(stringResource(R.string.confirm_loan_row_contact_phone), loanData?.contactPhone ?: "")
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -125,11 +146,11 @@ fun ConfirmLoanInformationScreen(
     uiState.error?.let { message ->
         AlertDialog(
             onDismissRequest = viewModel::clearError,
-            title = { Text("Không thể gửi hồ sơ") },
+            title = { Text(stringResource(R.string.confirm_loan_error_title)) },
             text = { Text(message) },
             confirmButton = {
                 TextButton(onClick = viewModel::clearError) {
-                    Text("Đóng")
+                    Text(stringResource(R.string.confirm_loan_error_close))
                 }
             }
         )

@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationUiState
 import com.example.easymoney.ui.loan.formatCurrency
 
@@ -21,7 +23,7 @@ fun LoanBreakdownBottomSheet(state: LoanConfigurationUiState, onDismiss: () -> U
             .padding(bottom = 24.dp)
     ) {
         Text(
-            text = "Tổng tiền tạm tính",
+            text = stringResource(R.string.loan_breakdown_total_estimate),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -32,16 +34,16 @@ fun LoanBreakdownBottomSheet(state: LoanConfigurationUiState, onDismiss: () -> U
         HorizontalDivider(color = Color(0xFFEAECF0))
 
         Column(modifier = Modifier.padding(20.dp)) {
-            SummaryRow(label = "Số tiền thực nhận", value = formatCurrency(state.actualReceivedAmount))
+            SummaryRow(label = stringResource(R.string.loan_breakdown_actual_received), value = formatCurrency(state.actualReceivedAmount))
             if (state.insuranceFee > 0) {
-                SummaryRow(label = "Phí bảo hiểm", value = formatCurrency(state.insuranceFee))
+                SummaryRow(label = stringResource(R.string.loan_breakdown_insurance_fee), value = formatCurrency(state.insuranceFee))
             }
-            SummaryRow(label = "Tiền lãi", value = formatCurrency(state.interestAmount))
+            SummaryRow(label = stringResource(R.string.loan_breakdown_interest), value = formatCurrency(state.interestAmount))
             if (state.discountAmount > 0) {
-                SummaryRow(label = "Ưu đãi voucher", value = "-${formatCurrency(state.discountAmount)}")
+                SummaryRow(label = stringResource(R.string.loan_config_voucher_label), value = "-${formatCurrency(state.discountAmount)}")
             }
             state.voucherTitle?.let {
-                SummaryRow(label = "Voucher áp dụng", value = it)
+                SummaryRow(label = stringResource(R.string.loan_breakdown_voucher_applied), value = it)
             }
 
             HorizontalDivider(
@@ -56,7 +58,7 @@ fun LoanBreakdownBottomSheet(state: LoanConfigurationUiState, onDismiss: () -> U
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = "Tổng tiền phải trả\n(tạm tính)",
+                    text = stringResource(R.string.loan_breakdown_total_payment),
                     color = Color(0xFF667085),
                     fontSize = 16.sp,
                     lineHeight = 20.sp

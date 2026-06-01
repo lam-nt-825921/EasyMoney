@@ -28,8 +28,11 @@ class ChatBotViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ChatBotUiState())
     val uiState: StateFlow<ChatBotUiState> = _uiState.asStateFlow()
 
-    init {
-        appendBot(ChatMessage.Text(newId(), ChatRole.BOT, "Xin chào! Tôi có thể giúp gì cho bạn?"))
+    // Workflow #69 — greeting injected from UI so it picks up the active locale resource.
+    fun greetIfNeeded(greeting: String) {
+        if (_uiState.value.messages.isEmpty()) {
+            appendBot(ChatMessage.Text(newId(), ChatRole.BOT, greeting))
+        }
     }
 
     fun onInputChange(value: String) {

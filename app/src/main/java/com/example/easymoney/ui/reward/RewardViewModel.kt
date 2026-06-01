@@ -2,10 +2,12 @@ package com.example.easymoney.ui.reward
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.R
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.RewardCatalogItem
 import com.example.easymoney.domain.model.UserRewardVoucher
 import com.example.easymoney.domain.repository.RewardRepository
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,9 +25,10 @@ data class RewardUiState(
     val isLoading: Boolean = false,
     val pendingConfirmId: String? = null,
     val isRedeeming: Boolean = false,
-    val redeemSuccessMessage: String? = null,
+    // Workflow #66 — emit UiText so messages can resolve to localised resources at UI layer.
+    val redeemSuccessMessage: UiText? = null,
     val latestRedeemedVoucher: UserRewardVoucher? = null,
-    val errorMessage: String? = null
+    val errorMessage: UiText? = null
 )
 
 @HiltViewModel
@@ -47,7 +50,9 @@ class RewardViewModel @Inject constructor(
                 is Resource.Success -> _uiState.update {
                     it.copy(totalPoints = userResult.data.totalPoints, redeemedRewards = userResult.data.vouchers)
                 }
-                is Resource.Error -> _uiState.update { it.copy(errorMessage = userResult.message) }
+                is Resource.Error -> _uiState.update {
+                    it.copy(errorMessage = UiText.DynamicString(userResult.message))
+                }
                 is Resource.Loading -> Unit
             }
 
@@ -55,7 +60,9 @@ class RewardViewModel @Inject constructor(
                 is Resource.Success -> _uiState.update {
                     it.copy(rewards = result.data, isLoading = false)
                 }
-                is Resource.Error -> _uiState.update { it.copy(isLoading = false, errorMessage = result.message) }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isLoading = false, errorMessage = UiText.DynamicString(result.message))
+                }
                 is Resource.Loading -> Unit
             }
         }
@@ -74,7 +81,12 @@ class RewardViewModel @Inject constructor(
         val id = state.pendingConfirmId ?: return
         val item = state.rewards.firstOrNull { it.id == id } ?: return
         if (state.totalPoints < item.points) {
-            _uiState.update { it.copy(errorMessage = "Không đủ điểm để đổi", pendingConfirmId = null) }
+            _uiState.update {
+                it.copy(
+                    errorMessage = UiText.StringResource(R.string.reward_error_insufficient_points),
+                    pendingConfirmId = null
+                )
+            }
             return
         }
         viewModelScope.launch {
@@ -87,11 +99,18 @@ class RewardViewModel @Inject constructor(
                         totalPoints = res.data.totalPoints,
                         redeemedRewards = listOf(res.data.voucher) + it.redeemedRewards,
                         latestRedeemedVoucher = res.data.voucher,
-                        redeemSuccessMessage = "Đổi thành công: ${res.data.voucher.title}"
+                        redeemSuccessMessage = UiText.StringResource(
+                            R.string.reward_redeem_success,
+                            res.data.voucher.title
+                        )
                     )
                 }
                 is Resource.Error -> _uiState.update {
-                    it.copy(isRedeeming = false, pendingConfirmId = null, errorMessage = res.message)
+                    it.copy(
+                        isRedeeming = false,
+                        pendingConfirmId = null,
+                        errorMessage = UiText.DynamicString(res.message)
+                    )
                 }
                 is Resource.Loading -> Unit
             }

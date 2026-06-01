@@ -138,11 +138,16 @@ fun EditContactInfoScreen(
                         ) {
                             Icon(
                                 Icons.Default.ContactPage,
-                                contentDescription = "Contacts",
+                                contentDescription = stringResource(R.string.profile_contact_picker_desc),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
-                            Text("Danh bạ", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = stringResource(R.string.profile_contact_picker_label),
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 )

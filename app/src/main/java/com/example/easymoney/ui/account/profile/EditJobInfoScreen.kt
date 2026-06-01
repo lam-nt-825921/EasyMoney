@@ -75,7 +75,7 @@ fun EditJobInfoScreen(
                         val cleanValue = newValue.filter { it.isDigit() }
                         viewModel.updateJobInfo(income = cleanValue.toLongOrNull() ?: 0L) 
                     },
-                    suffix = "đ",
+                    suffix = stringResource(R.string.common_money_suffix),
                     keyboardType = KeyboardType.Number,
                     visualTransformation = ThousandsSeparatorTransformation(),
                     imeAction = ImeAction.Done,
@@ -97,7 +97,7 @@ fun EditJobInfoScreen(
                         label = stringResource(id = R.string.profile_label_company),
                         value = jobInfo.companyName,
                         onValueChange = { viewModel.updateJobInfo(company = it) },
-                        placeholder = "Nhập tên công ty",
+                        placeholder = stringResource(R.string.profile_job_company_placeholder),
                         imeAction = ImeAction.Done,
                         onImeAction = { focusManager.clearFocus() }
                     )

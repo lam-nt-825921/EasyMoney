@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.easymoney.R
 
 /**
  * VisualTransformation để format dấu phân cách hàng nghìn (1.000.000)
@@ -142,19 +144,19 @@ fun LoanInformationFormScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Section: Địa chỉ thường trú
-            FormSection(title = "Địa chỉ thường trú") {
+            FormSection(title = stringResource(R.string.loan_form_section_permanent_address)) {
                 AddressSummaryItem(
-                    label = "Chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã",
-                    value = if (uiState.permanentProvince == null) "Chọn địa chỉ" 
+                    label = stringResource(R.string.loan_form_label_select_administrative),
+                    value = if (uiState.permanentProvince == null) stringResource(R.string.loan_form_value_select_address)
                             else "${uiState.permanentProvince?.name}, ${uiState.permanentDistrict?.name ?: ""}, ${uiState.permanentWard?.name ?: ""}".trimEnd(',', ' '),
                     error = if (uiState.showErrors) (uiState.fieldErrors["permanentProvince"] ?: uiState.fieldErrors["permanentDistrict"] ?: uiState.fieldErrors["permanentWard"])?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.PROVINCE, true) }
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 InputField(
-                    label = "Địa chỉ chi tiết",
+                    label = stringResource(R.string.loan_form_label_address_detail),
                     value = uiState.permanentDetail,
                     onValueChange = { viewModel.onDetailAddressChanged(it, true) },
                     maxLength = 150,
@@ -171,7 +173,7 @@ fun LoanInformationFormScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Địa chỉ hiện tại", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.loan_form_section_current_address), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Switch(
                         checked = uiState.isCurrentSameAsPermanent,
                         onCheckedChange = { viewModel.onCurrentAddressToggle(it) },
@@ -184,7 +186,7 @@ fun LoanInformationFormScreen(
                     )
                 }
                 Text(
-                    text = "Giống với địa chỉ thường trú",
+                    text = stringResource(R.string.loan_form_same_as_permanent),
                     fontSize = 14.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -193,15 +195,15 @@ fun LoanInformationFormScreen(
                 if (!uiState.isCurrentSameAsPermanent) {
                     FormSection {
                         AddressSummaryItem(
-                            label = "Chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã",
-                            value = if (uiState.currentProvince == null) "Chọn địa chỉ" 
+                            label = stringResource(R.string.loan_form_label_select_administrative),
+                            value = if (uiState.currentProvince == null) stringResource(R.string.loan_form_value_select_address)
                                     else "${uiState.currentProvince?.name}, ${uiState.currentDistrict?.name ?: ""}, ${uiState.currentWard?.name ?: ""}".trimEnd(',', ' '),
                             error = if (uiState.showErrors) (uiState.fieldErrors["currentProvince"] ?: uiState.fieldErrors["currentDistrict"] ?: uiState.fieldErrors["currentWard"])?.asString() else null,
                             onClick = { viewModel.onShowSheet(FormSheetType.PROVINCE, false) }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         InputField(
-                            label = "Địa chỉ chi tiết",
+                            label = stringResource(R.string.loan_form_label_address_detail),
                             value = uiState.currentDetail,
                             onValueChange = { viewModel.onDetailAddressChanged(it, false) },
                             maxLength = 150,
@@ -213,14 +215,14 @@ fun LoanInformationFormScreen(
             }
 
             // Section: Thông tin cá nhân
-            FormSection(title = "Thông tin cá nhân") {
+            FormSection(title = stringResource(R.string.loan_form_section_personal_info)) {
                 InputField(
-                    label = "Thu nhập hàng tháng",
+                    label = stringResource(R.string.loan_form_label_monthly_income),
                     value = uiState.monthlyIncome,
                     onValueChange = viewModel::onMonthlyIncomeChanged,
-                    suffix = "đ",
+                    suffix = stringResource(R.string.common_money_suffix),
                     keyboardType = KeyboardType.Number,
-                    placeholder = "1.000.000",
+                    placeholder = stringResource(R.string.loan_form_placeholder_income),
                     error = if (uiState.showErrors) uiState.fieldErrors["monthlyIncome"]?.asString() else null,
                     imeAction = ImeAction.Done,
                     onImeAction = { focusManager.clearFocus() },
@@ -234,8 +236,8 @@ fun LoanInformationFormScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 SelectorItem(
-                    label = "Nghề nghiệp",
-                    value = uiState.profession?.name ?: "Chọn nghề nghiệp",
+                    label = stringResource(R.string.loan_form_label_profession),
+                    value = uiState.profession?.name ?: stringResource(R.string.loan_form_value_select_profession),
                     error = if (uiState.showErrors) uiState.fieldErrors["profession"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.PROFESSION) }
                 )
@@ -243,18 +245,18 @@ fun LoanInformationFormScreen(
                 if (uiState.profession?.id == "p1") {
                     Spacer(modifier = Modifier.height(16.dp))
                     InputField(
-                        label = "Tên công ty",
+                        label = stringResource(R.string.loan_form_label_company),
                         value = uiState.companyName,
                         onValueChange = viewModel::onCompanyNameChanged,
-                        placeholder = "Nhập tên công ty",
+                        placeholder = stringResource(R.string.loan_form_placeholder_company),
                         error = if (uiState.showErrors) uiState.fieldErrors["companyName"]?.asString() else null,
                         imeAction = ImeAction.Done,
                         onImeAction = { focusManager.clearFocus() }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     SelectorItem(
-                        label = "Chức vụ",
-                        value = uiState.position?.name ?: "Chọn chức vụ",
+                        label = stringResource(R.string.loan_form_label_position),
+                        value = uiState.position?.name ?: stringResource(R.string.loan_form_value_select_position),
                         error = if (uiState.showErrors) uiState.fieldErrors["position"]?.asString() else null,
                         onClick = { viewModel.onShowSheet(FormSheetType.POSITION) }
                     )
@@ -263,8 +265,8 @@ fun LoanInformationFormScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SelectorItem(
-                    label = "Trình độ học vấn",
-                    value = uiState.education?.name ?: "Chọn trình độ học vấn",
+                    label = stringResource(R.string.loan_form_label_education),
+                    value = uiState.education?.name ?: stringResource(R.string.loan_form_value_select_education),
                     error = if (uiState.showErrors) uiState.fieldErrors["education"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.EDUCATION) }
                 )
@@ -272,30 +274,30 @@ fun LoanInformationFormScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SelectorItem(
-                    label = "Tình trạng hôn nhân",
-                    value = uiState.maritalStatus?.name ?: "Chọn tình trạng hôn nhân",
+                    label = stringResource(R.string.loan_form_label_marital_status),
+                    value = uiState.maritalStatus?.name ?: stringResource(R.string.loan_form_value_select_marital_status),
                     error = if (uiState.showErrors) uiState.fieldErrors["maritalStatus"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.MARITAL_STATUS) }
                 )
             }
             
             if (uiState.maritalStatus?.id == "m2") {
-                FormSection(title = "Thông tin vợ/chồng") {
+                FormSection(title = stringResource(R.string.loan_form_section_spouse)) {
                     InputField(
-                        label = "Họ và tên",
+                        label = stringResource(R.string.loan_form_label_full_name),
                         value = uiState.spouseName,
                         onValueChange = viewModel::onSpouseNameChanged,
-                        placeholder = "Nhập họ và tên",
+                        placeholder = stringResource(R.string.loan_form_placeholder_full_name),
                         error = if (uiState.showErrors) uiState.fieldErrors["spouseName"]?.asString() else null,
                         imeAction = ImeAction.Next
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     InputField(
-                        label = "Số điện thoại",
+                        label = stringResource(R.string.loan_form_label_phone),
                         value = uiState.spousePhone,
                         onValueChange = viewModel::onSpousePhoneChanged,
                         keyboardType = KeyboardType.Phone,
-                        placeholder = "Nhập số điện thoại",
+                        placeholder = stringResource(R.string.loan_form_placeholder_phone),
                         error = if (uiState.showErrors) uiState.fieldErrors["spousePhone"]?.asString() else null,
                         imeAction = ImeAction.Next
                     )
@@ -303,9 +305,9 @@ fun LoanInformationFormScreen(
             }
 
             // Section: Thông tin người liên hệ
-            FormSection(title = "Thông tin người liên hệ") {
+            FormSection(title = stringResource(R.string.loan_form_section_contact_person)) {
                 InputField(
-                    label = "Họ và tên",
+                    label = stringResource(R.string.loan_form_label_full_name),
                     value = uiState.contactName,
                     onValueChange = viewModel::onContactNameChanged,
                     error = if (uiState.showErrors) uiState.fieldErrors["contactName"]?.asString() else null,
@@ -316,8 +318,8 @@ fun LoanInformationFormScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SelectorItem(
-                    label = "Mối quan hệ với bạn",
-                    value = uiState.contactRelationship?.name ?: "Chọn mối quan hệ",
+                    label = stringResource(R.string.loan_form_label_relationship),
+                    value = uiState.contactRelationship?.name ?: stringResource(R.string.loan_form_value_select_relationship),
                     error = if (uiState.showErrors) uiState.fieldErrors["contactRelationship"]?.asString() else null,
                     onClick = { viewModel.onShowSheet(FormSheetType.RELATIONSHIP) }
                 )
@@ -325,7 +327,7 @@ fun LoanInformationFormScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 InputField(
-                    label = "Số điện thoại",
+                    label = stringResource(R.string.loan_form_label_phone),
                     value = uiState.contactPhone,
                     onValueChange = viewModel::onContactPhoneChanged,
                     keyboardType = KeyboardType.Phone,
@@ -349,11 +351,17 @@ fun LoanInformationFormScreen(
                         ) {
                             Icon(
                                 Icons.Default.ContactPage,
-                                contentDescription = "Contacts",
+                                contentDescription = stringResource(R.string.profile_contact_picker_desc),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
-                            Text("Danh bạ", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(
+                                text = stringResource(R.string.profile_contact_picker_label),
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
                         }
                     }
                 )
@@ -383,7 +391,7 @@ fun LoanInformationFormScreen(
                         .height(54.dp),
                     shape = RoundedCornerShape(27.dp)
                 ) {
-                    Text(text = "Tiếp tục", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = stringResource(R.string.loan_form_continue), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
         }
@@ -400,14 +408,14 @@ fun LoanInformationFormScreen(
     if (sheetType != FormSheetType.NONE) {
         val isHierarchical = sheetType == FormSheetType.PROVINCE || sheetType == FormSheetType.DISTRICT || sheetType == FormSheetType.WARD
         val title = when(sheetType) {
-            FormSheetType.PROVINCE -> "Tỉnh/Thành phố"
-            FormSheetType.DISTRICT -> "Quận/Huyện"
-            FormSheetType.WARD -> "Phường/Xã"
-            FormSheetType.PROFESSION -> "Nghề nghiệp"
-            FormSheetType.POSITION -> "Chức vụ"
-            FormSheetType.EDUCATION -> "Trình độ học vấn"
-            FormSheetType.MARITAL_STATUS -> "Tình trạng hôn nhân"
-            FormSheetType.RELATIONSHIP -> "Mối quan hệ với bạn"
+            FormSheetType.PROVINCE -> stringResource(R.string.loan_form_sheet_province)
+            FormSheetType.DISTRICT -> stringResource(R.string.loan_form_sheet_district)
+            FormSheetType.WARD -> stringResource(R.string.loan_form_sheet_ward)
+            FormSheetType.PROFESSION -> stringResource(R.string.loan_form_label_profession)
+            FormSheetType.POSITION -> stringResource(R.string.loan_form_label_position)
+            FormSheetType.EDUCATION -> stringResource(R.string.loan_form_label_education)
+            FormSheetType.MARITAL_STATUS -> stringResource(R.string.loan_form_label_marital_status)
+            FormSheetType.RELATIONSHIP -> stringResource(R.string.loan_form_label_relationship)
             else -> ""
         }
         val items = when(sheetType) {

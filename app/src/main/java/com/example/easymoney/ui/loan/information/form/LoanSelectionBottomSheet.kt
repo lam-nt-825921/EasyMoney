@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -76,7 +77,7 @@ fun HierarchicalSelectionBottomSheet(
     onItemSelected: (MasterDataItem) -> Unit,
     onBack: (() -> Unit)? = null,
     onDismiss: () -> Unit,
-    searchPlaceholder: String = "Tìm kiếm..."
+    searchPlaceholder: String = stringResource(com.example.easymoney.R.string.loan_selection_search_placeholder)
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val filteredItems = items.filter { it.name.contains(searchQuery, ignoreCase = true) }
@@ -101,7 +102,7 @@ fun HierarchicalSelectionBottomSheet(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(com.example.easymoney.R.string.action_back),
                             tint = MaterialTheme.colorScheme.primary // Sử dụng màu Primary để nổi bật nút điều hướng
                         )
                     }

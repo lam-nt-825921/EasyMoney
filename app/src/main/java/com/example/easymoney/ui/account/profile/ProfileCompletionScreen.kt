@@ -175,7 +175,7 @@ fun ProfileCompletionScreen(
             AlertDialog(
                 onDismissRequest = viewModel::clearError,
                 title = { Text(stringResource(R.string.dialog_error_title)) },
-                text = { Text(message) },
+                text = { Text(message.asString()) },
                 confirmButton = {
                     TextButton(onClick = viewModel::clearError) {
                         Text(stringResource(R.string.dialog_button_close))
