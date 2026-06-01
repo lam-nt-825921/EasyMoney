@@ -10,23 +10,24 @@ data class NotificationUiModel(
     val title: String,
     val content: String,
     val type: String,
+    val category: String? = null,
     val timeFormatted: String,
     val isRead: Boolean,
     val iconBackground: Color,
-    val amount: Long? = null,
-    val balanceAfter: Long? = null,
+    val amount: Double? = null,
+    val balanceAfter: Double? = null,
     val transactionCode: String? = null
 )
 
 fun NotificationEntity.toUiModel(): NotificationUiModel {
     val sdf = SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault())
     val date = Date(this.timestamp)
-    
-    val bgColor = when(this.type) {
-        "transaction" -> Color(0xFF4CAF50) // Green
-        "promotion" -> Color(0xFFFF9800) // Orange
-        "reminder" -> Color(0xFFF44336) // Red
-        else -> Color(0xFF9E9E9E) // Grey
+
+    val bgColor = when (this.type) {
+        "transaction" -> Color(0xFF4CAF50)
+        "promotion" -> Color(0xFFFF9800)
+        "reminder" -> Color(0xFFF44336)
+        else -> Color(0xFF9E9E9E)
     }
 
     return NotificationUiModel(
@@ -34,6 +35,7 @@ fun NotificationEntity.toUiModel(): NotificationUiModel {
         title = this.title,
         content = this.content ?: "",
         type = this.type,
+        category = this.category,
         timeFormatted = sdf.format(date),
         isRead = this.isRead,
         iconBackground = bgColor,

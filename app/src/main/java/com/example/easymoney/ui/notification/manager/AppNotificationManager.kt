@@ -51,8 +51,8 @@ class AppNotificationManager @Inject constructor(
         title: String,
         content: String,
         type: String = "general",
-        amount: Long? = null,
-        balanceAfter: Long? = null,
+        amount: Double? = null,
+        balanceAfter: Double? = null,
         transactionCode: String? = null
     ) {
         // Note: Việc lưu vào Database nên để Service FCM hoặc Repository lo, 

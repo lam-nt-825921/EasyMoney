@@ -56,8 +56,8 @@ fun AppErrorScreen(
                         .height(56.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE60023),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Text(
@@ -75,7 +75,7 @@ fun AppErrorScreen(
                     ) {
                         Text(
                             text = secondaryButtonText,
-                            color = Color(0xFFE60023),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )

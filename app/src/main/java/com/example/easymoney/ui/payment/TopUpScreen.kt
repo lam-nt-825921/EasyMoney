@@ -56,7 +56,7 @@ fun TopUpScreen(
 
         Spacer(Modifier.height(16.dp))
         uiState.errorMessage?.let { msg ->
-            Text(msg, color = MaterialTheme.colorScheme.error)
+            Text(msg.asString(), color = MaterialTheme.colorScheme.error)
             Spacer(Modifier.height(8.dp))
         }
 

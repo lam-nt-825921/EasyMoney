@@ -2,8 +2,10 @@ package com.example.easymoney.ui.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.R
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.PaymentRepository
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +37,9 @@ class TopUpViewModel @Inject constructor(
                 is Resource.Success -> _uiState.update {
                     it.copy(cards = res.data, selectedCardId = res.data.firstOrNull()?.id)
                 }
-                is Resource.Error -> _uiState.update { it.copy(errorMessage = res.message) }
+                is Resource.Error -> _uiState.update {
+                    it.copy(errorMessage = UiText.DynamicString(res.message))
+                }
                 is Resource.Loading -> Unit
             }
         }
@@ -54,10 +58,18 @@ class TopUpViewModel @Inject constructor(
         val state = _uiState.value
         val amount = state.amountValue
         when {
-            amount == null || amount <= 0 -> _uiState.update { it.copy(errorMessage = "Số tiền không hợp lệ") }
-            amount < MIN_AMOUNT -> _uiState.update { it.copy(errorMessage = "Số tiền tối thiểu 10.000đ") }
-            amount > MAX_AMOUNT -> _uiState.update { it.copy(errorMessage = "Số tiền vượt hạn mức nạp") }
-            state.selectedCardId == null -> _uiState.update { it.copy(errorMessage = "Chưa chọn thẻ nguồn") }
+            amount == null || amount <= 0 -> _uiState.update {
+                it.copy(errorMessage = UiText.StringResource(R.string.error_invalid_amount))
+            }
+            amount < MIN_AMOUNT -> _uiState.update {
+                it.copy(errorMessage = UiText.StringResource(R.string.topup_error_below_min, "10.000"))
+            }
+            amount > MAX_AMOUNT -> _uiState.update {
+                it.copy(errorMessage = UiText.StringResource(R.string.topup_error_above_max))
+            }
+            state.selectedCardId == null -> _uiState.update {
+                it.copy(errorMessage = UiText.StringResource(R.string.topup_error_no_card_selected))
+            }
             else -> submit(amount, state.selectedCardId)
         }
     }
@@ -68,10 +80,14 @@ class TopUpViewModel @Inject constructor(
             android.util.Log.d("Transaction", "topup amount=$amount card=$cardId")
             when (val res = paymentRepository.topUp(amount, cardId)) {
                 is Resource.Success -> _uiState.update {
-                    it.copy(isSubmitting = false, successMessage = "Nạp tiền thành công", amountText = "")
+                    it.copy(
+                        isSubmitting = false,
+                        successMessage = UiText.StringResource(R.string.topup_success),
+                        amountText = ""
+                    )
                 }
                 is Resource.Error -> _uiState.update {
-                    it.copy(isSubmitting = false, errorMessage = res.message)
+                    it.copy(isSubmitting = false, errorMessage = UiText.DynamicString(res.message))
                 }
                 is Resource.Loading -> Unit
             }

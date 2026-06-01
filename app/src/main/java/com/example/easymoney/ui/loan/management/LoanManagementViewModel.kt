@@ -2,11 +2,15 @@ package com.example.easymoney.ui.loan.management
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.R
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.ContractStatus
 import com.example.easymoney.domain.model.RepayType
 import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.domain.repository.PaymentRepository
+import com.example.easymoney.ui.common.error.BackendErrorCode
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,11 +22,19 @@ import javax.inject.Inject
 @HiltViewModel
 class LoanManagementViewModel @Inject constructor(
     private val loanRepository: LoanRepository,
-    private val paymentRepository: PaymentRepository
+    private val paymentRepository: PaymentRepository,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LoanManagementUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(
+        LoanManagementUiState(isLoading = true, is2FAEnabled = appPreferences.isBiometric2FAEnabled)
+    )
     val uiState: StateFlow<LoanManagementUiState> = _uiState.asStateFlow()
+
+    /** Workflow #64 — biometric gate huỷ/fail trước khi gọi backend repay. */
+    fun onBiometricCancelled(message: String) {
+        _uiState.update { it.copy(errorMessage = UiText.DynamicString(message)) }
+    }
 
     init {
         load()
@@ -48,7 +60,7 @@ class LoanManagementViewModel @Inject constructor(
                     } else state.contracts,
                     debts = if (debtsResult is Resource.Success) debtsResult.data else state.debts,
                     cards = if (cardsResult is Resource.Success) cardsResult.data else state.cards,
-                    errorMessage = error
+                    errorMessage = error?.let { UiText.DynamicString(it) }
                 )
             }
         }
@@ -59,7 +71,9 @@ class LoanManagementViewModel @Inject constructor(
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null, actionMessage = null) }
             when (val result = loanRepository.cancelContract(contractId)) {
                 is Resource.Success -> load()
-                is Resource.Error -> _uiState.update { it.copy(isSubmitting = false, errorMessage = result.message) }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isSubmitting = false, errorMessage = UiText.DynamicString(result.message))
+                }
                 is Resource.Loading -> Unit
             }
         }
@@ -67,18 +81,31 @@ class LoanManagementViewModel @Inject constructor(
 
     fun repayDebt(debtId: Long, repayType: RepayType, cardId: String?) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, actionMessage = null, shouldNavigateToAddCard = false) }
+            _uiState.update {
+                it.copy(isSubmitting = true, errorMessage = null, actionMessage = null, shouldNavigateToAddCard = false)
+            }
             when (val result = loanRepository.repayDebt(debtId, repayType, cardId)) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(isSubmitting = false, actionMessage = "Thanh toán khoản nợ thành công.") }
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            actionMessage = UiText.StringResource(R.string.loan_mgmt_repay_success)
+                        )
+                    }
                     load()
                 }
-                is Resource.Error -> _uiState.update {
-                    it.copy(
-                        isSubmitting = false,
-                        errorMessage = result.message.removeNavigationMarker(),
-                        shouldNavigateToAddCard = result.message.shouldNavigateToAddCard()
-                    )
+                is Resource.Error -> {
+                    // Workflow #63 — map backend code → localised resource; unknowns fall through.
+                    val backendCode = BackendErrorCode.detect(result.message)
+                    val errorText: UiText = backendCode?.let { UiText.StringResource(it.resId) }
+                        ?: UiText.DynamicString(result.message.removeNavigationMarker())
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            errorMessage = errorText,
+                            shouldNavigateToAddCard = result.message.shouldNavigateToAddCard()
+                        )
+                    }
                 }
                 is Resource.Loading -> Unit
             }
@@ -94,9 +121,14 @@ class LoanManagementViewModel @Inject constructor(
     }
 }
 
+// Workflow #62 — phát hiện cả mã backend `CARD_REQUIRED` lẫn marker FE.
 private fun String.shouldNavigateToAddCard(): Boolean =
     contains("NAVIGATE_ADD_CARD", ignoreCase = true) ||
+        contains("CARD_REQUIRED", ignoreCase = true) ||
         contains("chưa thêm thẻ", ignoreCase = true)
 
 private fun String.removeNavigationMarker(): String =
-    replace(" | NAVIGATE_ADD_CARD", "").replace("NAVIGATE_ADD_CARD", "").trim()
+    replace(" | NAVIGATE_ADD_CARD", "")
+        .replace("NAVIGATE_ADD_CARD", "")
+        .replace("CARD_REQUIRED", "")
+        .trim()

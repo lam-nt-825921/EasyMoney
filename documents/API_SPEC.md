@@ -70,6 +70,50 @@ Most JSON endpoints return:
 
 FastAPI `HTTPException` errors return `{ "detail": "..." }`; validation errors return FastAPI's `HTTPValidationError`.
 
+`data` is treated as **nullable** on the frontend (workflow #59). Mutating endpoints that return `ApiResponse[None]` (`{}` or `null` payload) are explicitly modelled as `Resource<Unit>` via `safeUnitApiCall`. Backend may keep returning `{}` or omit `data` for unit-style endpoints — frontend will not crash. Endpoints that promise a payload must still return non-null `data` on `status=success`; a null `data` on success is treated as Error.
+
+## Money Handling Contract
+
+**Single rule: monetary amounts in JSON are numbers (float / int). The frontend parses every money field as `Double` and rounds to integer VND only at the display layer.**
+
+### Why
+
+Backend repayment math produces fractional VND in real responses we have seen, e.g.:
+
+```json
+{ "amount": -983333.3333333334, "balance_after": 12345678.5 }
+```
+
+Previously the frontend modelled these as `Long`, which produces a Gson parse failure (`NumberFormatException`) on any fractional value — the entire response is rejected and the screen breaks. The frontend has now been migrated to parse `Double?`, so fractional values do not crash anything.
+
+### What this means for backend
+
+- **You do not need to round before sending.** Frontend tolerates fractional amounts.
+- **But please do round** wherever your math allows, because:
+  - Customer-facing display in VND has no fractional unit (there is no "0.33 VND" in real life).
+  - Fractional values in DB persistence accumulate floating-point drift across repayments.
+  - QA gets confused when the UI shows `-983,333 đ` and the backend log shows `-983,333.3333333334`.
+- **Recommended backend approach:** round repayment splits to integer VND at the moment of computation (e.g. last instalment absorbs the rounding remainder) and persist `Decimal`/`int`. Send integers in JSON when you can.
+
+### Fields covered by this rule
+
+All of these are parsed as `Double` on the frontend:
+
+| Endpoint | Field |
+|---|---|
+| `GET /api/v1/notifications` | `amount`, `balance_after` |
+| `GET /api/v1/payment/cards` | `balance` |
+| `GET /api/v1/payment/wallet` | `available_balance`, `recent_flows[].amount` |
+| `GET /api/v1/transactions` | `items[].amount`, `items[].balance` |
+| `POST /api/v1/payment/topup` request | `amount` (still `Long` — input, never fractional) |
+| `POST /api/v1/payment/withdraw` request | `amount` (still `Long` — input, never fractional) |
+
+Request-side money fields (topup, withdraw, repay) stay integer — users only ever enter whole VND.
+
+### Display format
+
+Frontend rounds `Double` → `Long` (truncating toward zero) and formats with locale-aware thousands separator (`vi-VN`: `1.234.567 đ`; `en-US`: `1,234,567 đ`). Negative is shown with the locale's minus sign.
+
 ## Naming
 
 - Backend DTOs often use `snake_case`.
@@ -117,13 +161,55 @@ These are normal backend `GET` endpoints returning `text/html`; do not replace t
 
 ## Current Integration Warnings
 
+Active:
+
 - Current product target is `REMOTE` mode as a commercial app. Do not rely on MOCK mode as a fallback for production flows.
-- Backend `/api/v1/loan/package/my` currently returns `ApiResponse[List[LoanPackageDto]]`, while frontend `LoanApiService.getMyPackage()` expects `ApiResponse<LoanPackageModel>`. Check the YAML before changing this call.
-- Notification DTO in backend includes `category`; frontend current DTO does not.
-- Backend notification `amount` and `balance_after` can be fractional JSON numbers; frontend currently models them as `Long?`.
-- Backend payment card `balance` is a float; frontend currently models it as `Long`.
-- Backend transaction item DTO includes `timestamp`; frontend current transaction domain model omits it and can display groups/items in backend arrival order. Frontend must sort transaction history newest first.
-- Generic `ApiResponse<T>` in backend has optional nullable `data`; frontend currently declares `data: T` non-null.
-- Backend user reward response uses `total_points`; frontend model expects `totalPoints`. Gson policy should map it, but add tests if changing models.
 - Backend `BannerInfo` includes optional `action_url`; frontend current `Banner` model ignores it and uses `target_id` for click handling. This is acceptable for current seed because `WEB.target_id` is the canonical HTTPS URL, but add `actionUrl` to frontend if direct embedded WebView banners are required.
 - Several services exist outside `LoanApiService`, but some legacy endpoints remain there. Avoid duplicating calls unless you are intentionally splitting service ownership.
+- Backend user reward response uses `total_points`; frontend model expects `totalPoints`. Gson policy maps it, but add tests if changing models.
+
+Resolved on frontend (workflow #59 batch, 2026-06-01):
+
+- ✅ `ApiResponse<T>.data` is now nullable on frontend; `safeApiCall` treats success-with-null as Error; `safeUnitApiCall` handles mutating endpoints that return `{}` / `null`.
+- ✅ `GET /api/v1/loan/package/my` now correctly parsed as a list; frontend picks the first package.
+- ✅ Notification `category` is parsed and persisted in Room (workflow #54).
+- ✅ Notification `amount` and `balance_after` parsed as `Double?` per the Money Handling Contract above.
+- ✅ Payment card `balance` parsed as `Double` via `PaymentCardDto`, rounded to `Long` at the domain boundary.
+- ✅ Wallet `available_balance` and `recent_flows[].amount` parsed as `Double` via `WalletInfoDto`.
+- ✅ Transaction history DTOs include `timestamp`; frontend sorts newest-first at both group and item level (workflow #60).
+- ✅ `EkycStatusDto` (workflow #59) parses rich fields (`status`, `session_id`, `document_method`, `verified_at`, `match_score`) — frontend domain model is forward-compatible but UI currently only displays the existing summary.
+
+## Asks for Backend
+
+These are not bugs in the current contract — they are improvements that would simplify the integration:
+
+1. **Round monetary outputs to integer VND** at compute time wherever possible (see Money Handling Contract). Frontend tolerates fractional, but rounded is cleaner.
+
+2. **Document a canonical error-code field.** _Most important after #1._ Today frontend pattern-matches strings like `"CARD_REQUIRED"` and `"chưa thêm thẻ"` inside `message` because the only structured signal is the human-readable text. Please return errors in this shape going forward:
+
+   ```json
+   {
+     "status": "error",
+     "code": "CARD_REQUIRED",
+     "message": "User has no linked payment card"
+   }
+   ```
+
+   The `code` should be `SCREAMING_SNAKE_CASE` and stable across versions; `message` is for human/debug context and is allowed to change. Frontend already has a `BackendErrorCode` enum (`app/src/main/java/com/example/easymoney/ui/common/error/BackendErrorCode.kt`) — when `code` is added we'll switch from `message.contains(...)` matching to reading `code` directly. The codes we currently rely on or plan to consume:
+
+   | code | When backend returns it | Frontend reaction |
+   |---|---|---|
+   | `CARD_REQUIRED` | Topup / withdraw / repay without a linked card | Navigate to Payment Cards screen |
+   | `INSUFFICIENT_BALANCE` | Withdraw / repay > available balance | Show inline error, no navigation |
+   | `INVALID_AMOUNT` | Amount below min / above max / non-numeric | Show inline error |
+   | `NETWORK_ERROR` | Backend can't reach a downstream (rare; if you surface it, please use this exact code) | Show retry CTA |
+
+   Please tell us if you add new codes — frontend will add a mapping entry. New codes without a frontend mapping fall back to showing `message` verbatim.
+
+3. **Confirm `AuthTokenDto.user` is populated** on `POST /auth/login` and `POST /auth/register`. Frontend now reads it (workflow #59) to cache user profile and avoid a `GET /user/profile` round-trip immediately after login.
+
+4. **Stable `mock_access_token_{id}` format**: frontend derives the current user id by stripping the `mock_access_token_` prefix (see `AppPreferences.currentUserId`). If you change the token format in REMOTE production, please tell mobile first.
+
+5. **`GET /api/v1/ekyc/status` rich fields**: please keep `status`, `session_id`, `document_method`, `verified_at`, `face_match_score`, `document_match_score`, `is_identified`, `missing_documents` in the contract. Frontend persists them all; if any disappear, future detail screens break.
+
+6. **`ApiResponse[None]` is fine to return as `{}` or `null`** for mutating endpoints (DELETE notifications/clear, POST /otp/send, etc.). Frontend treats these as `Resource<Unit>` via `safeUnitApiCall` and never reads `data` for them. No change needed on your side — this entry is just to confirm the contract.

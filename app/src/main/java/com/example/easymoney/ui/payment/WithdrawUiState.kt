@@ -1,6 +1,7 @@
 package com.example.easymoney.ui.payment
 
 import com.example.easymoney.domain.model.PaymentCard
+import com.example.easymoney.utils.UiText
 
 data class WithdrawUiState(
     val amountText: String = "",
@@ -8,9 +9,13 @@ data class WithdrawUiState(
     val cards: List<PaymentCard> = emptyList(),
     val selectedCardId: String? = null,
     val isSubmitting: Boolean = false,
-    val errorMessage: String? = null,
+    // Workflow #63 — error/success messages now use UiText so ViewModel emits string
+    // resource ids; UI calls `.asString()` at the composable layer.
+    val errorMessage: UiText? = null,
     val shouldNavigateToAddCard: Boolean = false,
-    val successMessage: String? = null
+    val successMessage: UiText? = null,
+    // Workflow #64 — biometric 2FA local toggle; UI dùng BiometricGate khi true.
+    val is2FAEnabled: Boolean = false
 ) {
     val amountValue: Long? get() = amountText.toLongOrNull()
 }

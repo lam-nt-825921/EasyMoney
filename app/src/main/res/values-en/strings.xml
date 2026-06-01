@@ -60,7 +60,6 @@
     <string name="home_nav_history_short">History</string>
     <string name="home_nav_notify">Notifications</string>
     <string name="home_nav_account">Account</string>
-    <string name="home_developer_mode">Developer mode</string>
     <string name="home_theme_light">Switch to light mode</string>
     <string name="home_theme_dark">Switch to dark mode</string>
 
@@ -125,11 +124,19 @@
     <string name="money_mgmt_auto_deduction">Auto deduction</string>
     <string name="money_mgmt_recent_flow">Recent cash flow</string>
     <string name="money_mgmt_add_card">Add new card</string>
+    <!-- Workflow #63 — shared empty-card copy -->
+    <string name="card_empty_state">You haven\'t added any bank card yet.</string>
+    <string name="card_action_add">Add card</string>
     <string name="money_mgmt_card_holder">CARD HOLDER</string>
     <string name="money_mgmt_expires">EXPIRES</string>
 
     <!-- Security & Bio -->
     <string name="security_biometric_auth">Biometric authentication</string>
+    <!-- Workflow #64 — biometric gate copy -->
+    <string name="biometric_gate_cancelled">Biometric authentication cancelled.</string>
+    <string name="biometric_gate_failed">Biometric authentication failed.</string>
+    <string name="security_biometric_enabled">Biometric 2FA enabled.</string>
+    <string name="security_biometric_disabled">Biometric 2FA disabled.</string>
     <string name="security_change_password">Change password</string>
 
     <!-- Change Password -->
@@ -163,6 +170,27 @@
     <string name="action_retry">Retry</string>
     <string name="action_edit">Edit</string>
     <string name="action_complete_now">Complete now</string>
+
+    <!-- Workflow #61 — backend error codes mapped to localised copy. -->
+    <string name="error_card_required">You haven\'t added a bank card. Please add one to continue.</string>
+    <string name="error_insufficient_balance">Insufficient balance to complete this transaction.</string>
+    <string name="error_invalid_amount">Invalid amount.</string>
+    <string name="error_network">Couldn\'t reach the server. Please check your connection and retry.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+
+    <!-- Workflow #63 — payment / loan-mgmt user-facing copy migrated from inline hard-codes. -->
+    <string name="topup_error_below_min">Minimum amount is %1$s đ</string>
+    <string name="topup_error_above_max">Amount exceeds the top-up limit</string>
+    <string name="topup_error_no_card_selected">Please select a source card</string>
+    <string name="topup_success">Top-up successful</string>
+    <string name="withdraw_error_no_destination">Please choose a destination</string>
+    <string name="withdraw_success">Withdrawal successful</string>
+    <string name="payment_card_invalid_number">Invalid card number</string>
+    <string name="payment_card_invalid_bank">Please enter the bank name</string>
+    <string name="payment_card_added">Card added successfully</string>
+    <string name="payment_card_deleted">Card removed</string>
+    <string name="loan_mgmt_repay_success">Repayment completed successfully.</string>
+    <string name="dialog_notice_title">Notice</string>
 
     <!-- Terms (workflow #15) -->
     <string name="terms_title">Terms and Policies</string>

@@ -1,6 +1,7 @@
 package com.example.easymoney.messaging
 
 import android.util.Log
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.entity.NotificationEntity
 import com.example.easymoney.domain.repository.NotificationRepository
 import com.example.easymoney.ui.notification.manager.AppNotificationManager
@@ -22,6 +23,9 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
+    @Inject
+    lateinit var appPreferences: AppPreferences
+
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
@@ -42,11 +46,14 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
             val title = data["title"] ?: "Easy Money"
             val content = data["content"] ?: ""
             val type = data["type"] ?: "transaction"
-            val amount = data["amount"]?.toLongOrNull()
-            val transactionCode = data["transactionCode"]
+            // Workflow #54 — amount can be fractional VND from backend repayment splits.
+            val amount = data["amount"]?.toDoubleOrNull()
+            val balanceAfter = (data["balanceAfter"] ?: data["balance_after"])?.toDoubleOrNull()
+            val category = data["category"]
+            val transactionCode = data["transactionCode"] ?: data["transaction_code"]
             val targetId = data["targetId"] ?: data["target_id"]
             val targetType = data["targetType"] ?: data["target_type"]
-            val userId = "user_123" // Trong thực tế lấy từ Session/Auth
+            val userId = appPreferences.currentUserId
 
             // 1. Lưu vào Database local ngay lập tức
             scope.launch {
@@ -55,7 +62,9 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
                     title = title,
                     content = content,
                     type = type,
+                    category = category,
                     amount = amount,
+                    balanceAfter = balanceAfter,
                     transactionCode = transactionCode,
                     targetId = targetId,
                     targetType = targetType,
@@ -72,6 +81,7 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
                 content = content,
                 type = type,
                 amount = amount,
+                balanceAfter = balanceAfter,
                 transactionCode = transactionCode
             )
         }

@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
 import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.common.components.OtpDialog
+import com.example.easymoney.ui.common.security.BiometricGate
 import com.example.easymoney.ui.common.loading.SkeletonBlock
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
@@ -35,6 +36,16 @@ fun ContractScreen(
     viewModel: ContractViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Workflow #64 — gate "Sign" qua BiometricGate trước khi mở OTP.
+    var pendingSign by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val signCancelledMsg = stringResource(R.string.biometric_gate_cancelled)
+    BiometricGate(
+        is2FAEnabled = uiState.is2FAEnabled,
+        pendingAction = pendingSign,
+        onConsumed = { pendingSign = null },
+        onCancelled = { viewModel.onBiometricCancelled(signCancelledMsg) }
+    )
 
     // Load contract content when the screen starts or loanId changes
     LaunchedEffect(loanId) {
@@ -64,7 +75,7 @@ fun ContractScreen(
                 isAccepted = uiState.isTermsAccepted,
                 isSigning = uiState.isSigning,
                 onAcceptedChange = viewModel::onTermsAcceptedChange,
-                onSignClick = { viewModel.signContract(onSignSuccess) },
+                onSignClick = { pendingSign = { viewModel.signContract(onSignSuccess) } },
                 onCancelClick = onCancel,
                 onTermsClick = onTermsClick
             )
@@ -247,30 +258,5 @@ private fun ContractBottomSection(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Contract Screen Light")
-@Composable
-private fun ContractScreenPreview() {
-    val viewModel = remember { ContractViewModel(LoanRepositoryImpl(null, null, null)) }
-    EasyMoneyTheme(darkTheme = false) {
-        ContractScreen(
-            onSignSuccess = {},
-            onCancel = {},
-            viewModel = viewModel,
-            loanId = ""
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Contract Screen Dark")
-@Composable
-private fun ContractScreenDarkPreview() {
-    val viewModel = remember { ContractViewModel(LoanRepositoryImpl(null, null,null)) }
-    EasyMoneyTheme(darkTheme = true) {
-        ContractScreen(
-            onSignSuccess = {},
-            onCancel = {},
-            viewModel = viewModel,
-            loanId = ""
-        )
-    }
-}
+// Workflow #64 — previews removed because ContractViewModel now requires AppPreferences,
+// which can't be instantiated trivially in @Preview. Use Hilt-powered preview if needed.

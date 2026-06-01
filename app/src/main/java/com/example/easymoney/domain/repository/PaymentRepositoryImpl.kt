@@ -27,6 +27,14 @@ class PaymentRepositoryImpl @Inject constructor(
     private var balance: Long = SAMPLE_INITIAL_BALANCE
     private val cards: MutableList<PaymentCard> = SAMPLE_PAYMENT_CARDS.toMutableList()
 
+    override fun clearUserScopedState() {
+        // Workflow #62 — bỏ MOCK seed của user trước; REMOTE không bị ảnh hưởng.
+        isAutoDeduction = true
+        balance = SAMPLE_INITIAL_BALANCE
+        cards.clear()
+        mockQrPayments.clear()
+    }
+
     override suspend fun getPaymentCards(): Resource<List<PaymentCard>> {
         val mode = appPreferences.dataSourceMode
         Log.d(TAG, "PaymentRepository.getPaymentCards mode=$mode")

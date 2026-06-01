@@ -35,10 +35,10 @@ fun EventDetailScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            state.errorMessage != null -> Text(
-                text = state.errorMessage.orEmpty(),
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            state.errorMessage != null -> com.example.easymoney.ui.common.error.ErrorStateWithRetry(
+                message = state.errorMessage.orEmpty(),
+                onRetry = viewModel::load,
+                modifier = Modifier.align(Alignment.Center)
             )
             state.event != null -> {
                 val event = state.event!!

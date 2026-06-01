@@ -1,8 +1,8 @@
 package com.example.easymoney.data.remote
 
 import com.example.easymoney.data.remote.dto.ApiResponse
+import com.example.easymoney.data.remote.dto.EkycStatusDto
 import com.example.easymoney.domain.model.Banner
-import com.example.easymoney.domain.model.EKycStatus
 import com.example.easymoney.domain.model.LoanProduct
 import com.example.easymoney.domain.model.SupportLink
 import retrofit2.http.GET
@@ -22,8 +22,9 @@ interface HomeApiService {
     @GET("api/v1/home/recommended-loan")
     suspend fun getRecommendedLoan(): ApiResponse<LoanProduct>
 
+    // Workflow #59 — dùng DTO riêng để parse các field rich (status, session_id, match_score).
     @GET("api/v1/ekyc/status")
-    suspend fun getEKycStatus(): ApiResponse<EKycStatus>
+    suspend fun getEKycStatus(): ApiResponse<EkycStatusDto>
 
     @GET("api/v1/support/cskh")
     suspend fun getCustomerSupportLink(): ApiResponse<SupportLink>

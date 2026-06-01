@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
+import com.example.easymoney.ui.common.identity.BiometricModule
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -28,6 +29,15 @@ fun SecuritySettingsScreen(
     viewModel: SecurityViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    // Workflow #64 — ON đi qua BiometricPrompt; success mới persist.
+    var requestingBiometric by remember { mutableStateOf(false) }
+
+    if (requestingBiometric) {
+        BiometricModule { result ->
+            requestingBiometric = false
+            if (result.isSuccess) viewModel.toggleBiometric(true)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -44,7 +54,14 @@ fun SecuritySettingsScreen(
                 control = {
                     Switch(
                         checked = uiState.isBiometricEnabled,
-                        onCheckedChange = { viewModel.toggleBiometric(it) },
+                        onCheckedChange = { wantsOn ->
+                            if (wantsOn) {
+                                // Workflow #64 — only persist after successful biometric prompt.
+                                requestingBiometric = true
+                            } else {
+                                viewModel.toggleBiometric(false)
+                            }
+                        },
                         enabled = uiState.isBiometricSupported
                     )
                 }

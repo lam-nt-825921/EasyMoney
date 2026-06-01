@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.HomeRepository
+import com.example.easymoney.domain.repository.RewardRepository
 import com.example.easymoney.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,9 @@ data class AccountUiState(
     val isLoading: Boolean = true,
     val fullName: String = "",
     val phoneNumber: String = "",
+    // Workflow #57 — reward points loaded from backend, not hard-coded.
+    val rewardPoints: Int = 0,
+    val isRewardLoading: Boolean = false,
     val supportUrl: String? = null,
     val supportTitle: String? = null,
     val errorMessage: String? = null
@@ -25,7 +29,8 @@ data class AccountUiState(
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val homeRepository: HomeRepository
+    private val homeRepository: HomeRepository,
+    private val rewardRepository: RewardRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AccountUiState())
@@ -33,6 +38,7 @@ class AccountViewModel @Inject constructor(
 
     init {
         loadProfile()
+        loadRewardPoints()
     }
 
     fun loadProfile() {
@@ -52,6 +58,20 @@ class AccountViewModel @Inject constructor(
                 is Resource.Error -> _state.update {
                     it.copy(isLoading = false, errorMessage = result.message)
                 }
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    private fun loadRewardPoints() {
+        viewModelScope.launch {
+            _state.update { it.copy(isRewardLoading = true) }
+            when (val result = rewardRepository.getRewardsCatalog()) {
+                is Resource.Success -> _state.update {
+                    it.copy(isRewardLoading = false, rewardPoints = result.data.totalPoints)
+                }
+                // Reward failure must not block account screen — leave previous points value.
+                is Resource.Error -> _state.update { it.copy(isRewardLoading = false) }
                 Resource.Loading -> Unit
             }
         }

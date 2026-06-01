@@ -358,7 +358,9 @@ fun LoanInformationFormScreen(
                     }
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            // Workflow #56 — chừa khoảng trống bằng chiều cao bottom CTA (Surface ~ 88dp)
+            // để dòng cuối form không bị che khi cuộn đến đáy.
+            Spacer(modifier = Modifier.height(96.dp))
         }
 
         // Bottom Action

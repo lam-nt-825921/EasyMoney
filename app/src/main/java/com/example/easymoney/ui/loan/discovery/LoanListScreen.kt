@@ -147,10 +147,10 @@ fun LoanListScreen(
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (uiState.errorMessage != null) {
-                Text(
-                    text = uiState.errorMessage ?: stringResource(R.string.loan_detail_load_error),
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.error
+                com.example.easymoney.ui.common.error.ErrorStateWithRetry(
+                    message = uiState.errorMessage ?: stringResource(R.string.loan_detail_load_error),
+                    onRetry = viewModel::loadPackages,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             } else {
                 LazyColumn(

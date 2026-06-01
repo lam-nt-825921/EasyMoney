@@ -612,7 +612,9 @@ private fun performPrecheckAnalysis(
             }
             .addOnFailureListener { e ->
                 Log.e("EkycFaceCapture", "Face detection error: ${e.message}", e)
-                onFrameQualityChanged(false, "Lỗi xử lý: ${e.message?.take(30) ?: "không xác định"}", 
+                // Workflow #61 — không leak raw exception text ra UI; giữ thông báo chung chung,
+                // chi tiết kỹ thuật chỉ vào logcat.
+                onFrameQualityChanged(false, "Không nhận diện được khuôn mặt, vui lòng thử lại.",
                     FaceDetectionResult(false, reason = FaceDetectionReason.UNKNOWN))
             }
             .addOnCompleteListener {

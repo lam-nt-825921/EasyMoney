@@ -2,6 +2,7 @@ package com.example.easymoney.ui.notification.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.repository.NotificationRepository
 import com.example.easymoney.ui.notification.model.NotificationUiModel
 import com.example.easymoney.ui.notification.model.toUiModel
@@ -15,10 +16,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val currentUserId = "user_123" // TODO(auth-session): lấy userId từ AppPreferences/AuthSession sau khi auth flow hoàn thiện
+    private val currentUserId: String = appPreferences.currentUserId
 
     val notifications: StateFlow<List<NotificationUiModel>> = notificationRepository.getNotificationsForUser(currentUserId)
         .map { list -> list.map { it.toUiModel() } }

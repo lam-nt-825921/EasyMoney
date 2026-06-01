@@ -128,6 +128,16 @@ fun LoanManagementScreen(
         )
     }
 
+    // Workflow #64 — gate repay confirmation qua BiometricGate khi 2FA bật.
+    var pendingRepayAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val repayCancelledMsg = stringResource(R.string.biometric_gate_cancelled)
+    com.example.easymoney.ui.common.security.BiometricGate(
+        is2FAEnabled = uiState.is2FAEnabled,
+        pendingAction = pendingRepayAction,
+        onConsumed = { pendingRepayAction = null },
+        onCancelled = { viewModel.onBiometricCancelled(repayCancelledMsg) }
+    )
+
     pendingRepay?.let { (debtId, type) ->
         RepayDialog(
             repayType = type,
@@ -141,8 +151,9 @@ fun LoanManagementScreen(
             },
             onDismiss = { pendingRepay = null },
             onConfirm = {
-                viewModel.repayDebt(debtId, type, selectedRepayCardId)
+                val capturedCardId = selectedRepayCardId
                 pendingRepay = null
+                pendingRepayAction = { viewModel.repayDebt(debtId, type, capturedCardId) }
             }
         )
     }
@@ -151,7 +162,7 @@ fun LoanManagementScreen(
         AlertDialog(
             onDismissRequest = viewModel::clearMessages,
             title = { Text(stringResource(R.string.dialog_error_title)) },
-            text = { Text(message) },
+            text = { Text(message.asString()) },
             confirmButton = {
                 TextButton(onClick = viewModel::clearMessages) {
                     Text(stringResource(R.string.dialog_button_close))
@@ -163,8 +174,8 @@ fun LoanManagementScreen(
     uiState.actionMessage?.let { message ->
         AlertDialog(
             onDismissRequest = viewModel::clearMessages,
-            title = { Text("Thông báo") },
-            text = { Text(message) },
+            title = { Text(stringResource(R.string.dialog_notice_title)) },
+            text = { Text(message.asString()) },
             confirmButton = {
                 TextButton(onClick = viewModel::clearMessages) {
                     Text(stringResource(R.string.action_ok))
@@ -200,12 +211,12 @@ private fun RepayDialog(
                 Text("Thẻ ngân hàng", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 if (cards.isEmpty()) {
                     Text(
-                        "Bạn chưa thêm thẻ ngân hàng.",
+                        stringResource(R.string.card_empty_state),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedButton(onClick = onAddCard, modifier = Modifier.fillMaxWidth()) {
-                        Text("Thêm thẻ")
+                        Text(stringResource(R.string.card_action_add))
                     }
                 } else {
                     cards.forEach { card ->

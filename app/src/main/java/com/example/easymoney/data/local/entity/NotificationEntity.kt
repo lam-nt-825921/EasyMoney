@@ -8,11 +8,14 @@ data class NotificationEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val userId: String,
-    val title: String, // Trong giao diện của bạn là description
+    val title: String,
     val content: String? = null,
-    val type: String, // transaction, promotion, reminder
-    val amount: Long? = null,
-    val balanceAfter: Long? = null,
+    val type: String,
+    // Workflow #54 — backend nhóm thông báo bằng `category`; giữ field này để UI/filter dùng được.
+    val category: String? = null,
+    // Workflow #54 — money fields phải nhận decimal (backend chia kỳ trả nợ có thể ra float).
+    val amount: Double? = null,
+    val balanceAfter: Double? = null,
     val transactionCode: String? = null,
     val targetId: String? = null,
     val targetType: String? = null,

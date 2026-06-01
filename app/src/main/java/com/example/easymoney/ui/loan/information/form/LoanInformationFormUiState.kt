@@ -51,8 +51,8 @@ data class LoanInformationFormUiState(
     val contactRelationship: MasterDataItem? = null,
     val contactPhone: String = "",
     
-    // Payout Info (Mock)
-    val bankName: String = "ViettelPay",
+    // Payout Info (Mock) — workflow #55: default provider name is EasyMoney wallet.
+    val bankName: String = "Ví EasyMoney",
     val accountNumber: String = "0987555664646",
     val accountOwner: String = "Hoàng Trung Tuấn",
 

@@ -52,6 +52,19 @@ class AppPreferences @Inject constructor(
         get() = prefs.getString(KEY_ACCESS_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_ACCESS_TOKEN, value).apply()
 
+    /**
+     * Workflow #54 — derive current user id from the mock access token
+     * (`mock_access_token_{id}` → `user_{id}`). Returns a stable fallback
+     * `user_anonymous` when there is no token, so local cache rows still
+     * have a non-null userId column (Room schema requirement).
+     */
+    val currentUserId: String
+        get() {
+            val token = prefs.getString(KEY_ACCESS_TOKEN, null) ?: return "user_anonymous"
+            val prefix = "mock_access_token_"
+            return if (token.startsWith(prefix)) "user_" + token.removePrefix(prefix) else "user_anonymous"
+        }
+
     var refreshToken: String?
         get() = prefs.getString(KEY_REFRESH_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_REFRESH_TOKEN, value).apply()
