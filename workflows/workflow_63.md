@@ -1,5 +1,8 @@
 # Workflow #63 — Final A: Hard-coded user-facing text → VI/EN resources
 
+## Status
+Unblocked. Problems 0–7 have been built, verified, and committed by the owner. Claude/agents should proceed with this workflow next.
+
 ## Goal
 Mọi user-facing production string đều đến từ `values/strings.xml` và `values-en/strings.xml` với cùng key set; không hard-code Vietnamese/English trong composables/ViewModels/repositories.
 
@@ -38,4 +41,4 @@ Mọi user-facing production string đều đến từ `values/strings.xml` và 
 
 ## Notes
 - Tham chiếu: AGENT_TASKS.md Final Problem A.
-- Chỉ chạy sau khi Problem 0–7 đã hoàn tất + committed.
+- Gate đã clear: Problem 0–7 đã hoàn tất + committed. Tiếp tục triển khai workflow này.

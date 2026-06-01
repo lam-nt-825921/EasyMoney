@@ -24,18 +24,26 @@ private fun userFriendlyHttpExceptionMessage(exception: HttpException): String {
 }
 
 private fun extractBackendDetailMessage(body: String): String? {
+    val code = extractJsonString(body, "code")
+    val message = extractJsonString(body, "message")
+        ?: extractJsonString(body, "detail")
+
+    if (!code.isNullOrBlank()) {
+        return listOfNotNull(code, message).joinToString(" | ")
+    }
+
     if ("CARD_REQUIRED" in body || "NAVIGATE_ADD_CARD" in body) {
-        val message = Regex(""""message"\s*:\s*"([^"]+)"""")
-            .find(body)
-            ?.groupValues
-            ?.getOrNull(1)
         return listOfNotNull(message, "NAVIGATE_ADD_CARD").joinToString(" | ")
     }
-    return Regex(""""detail"\s*:\s*"([^"]+)"""")
+
+    return message
+}
+
+private fun extractJsonString(body: String, field: String): String? =
+    Regex(""""$field"\s*:\s*"([^"]+)"""")
         .find(body)
         ?.groupValues
         ?.getOrNull(1)
-}
 
 fun userFriendlyErrorMessage(rawMessage: String?, fallback: String = UNKNOWN_ERROR_MESSAGE): String {
     val message = rawMessage?.trim().orEmpty()

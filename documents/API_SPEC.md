@@ -164,6 +164,7 @@ These are normal backend `GET` endpoints returning `text/html`; do not replace t
 Active:
 
 - Current product target is `REMOTE` mode as a commercial app. Do not rely on MOCK mode as a fallback for production flows.
+- Frontend handles non-standard backend errors generically: it prefers a structured `code` field when present, and falls back to known markers inside `message` / `detail` / plain text. Backend changes are not required for current workflows.
 - Backend `BannerInfo` includes optional `action_url`; frontend current `Banner` model ignores it and uses `target_id` for click handling. This is acceptable for current seed because `WEB.target_id` is the canonical HTTPS URL, but add `actionUrl` to frontend if direct embedded WebView banners are required.
 - Several services exist outside `LoanApiService`, but some legacy endpoints remain there. Avoid duplicating calls unless you are intentionally splitting service ownership.
 - Backend user reward response uses `total_points`; frontend model expects `totalPoints`. Gson policy maps it, but add tests if changing models.

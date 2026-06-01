@@ -356,15 +356,9 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 					}
 				)
 
-				Text(
-					text = stringResource(id = R.string.onboarding_provider_address_label),
-					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-				)
-				Text(
-					text = address,
-					style = MaterialTheme.typography.bodyLarge,
-					fontWeight = FontWeight.Bold
+				ProviderInlineRow(
+					label = stringResource(id = R.string.onboarding_provider_address_label),
+					value = address
 				)
 			}
 		}

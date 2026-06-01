@@ -1,5 +1,8 @@
 # Workflow #59 — P6: Backend/frontend DTO mismatch audit & fixes
 
+## Status
+Completed and committed before Final A. Claude/agents should treat this workflow as done and should not block later workflows on backend source access.
+
 ## Goal
 Sửa các mismatch DTO high-risk giữa backend live response và frontend Retrofit/domain models để REMOTE mode không crash do parse error.
 
@@ -27,13 +30,13 @@ Sửa các mismatch DTO high-risk giữa backend live response và frontend Retr
 - `app/src/test/java/com/example/easymoney/data/remote/dto/` — mapping tests
 
 ### Acceptance criteria
-- [ ] `ApiResponse<T>.data` nullable; data sources check null rõ ràng.
-- [ ] `getMyPackage()` parse list trả về.
-- [ ] PaymentCard/Wallet parse decimal balance không lỗi.
-- [ ] `AuthTokenDto.user` được parse và có thể cache.
-- [ ] Có mapping test dùng sample backend live cho: notification, payment card/wallet, loan package my, rewards user, eKYC status.
-- [ ] Build passes: `./gradlew assembleDebug`
-- [ ] Unit tests pass: `./gradlew test`
+- [x] `ApiResponse<T>.data` nullable; data sources check null rõ ràng.
+- [x] `getMyPackage()` parse list trả về.
+- [x] PaymentCard/Wallet parse decimal balance không lỗi.
+- [x] `AuthTokenDto.user` được parse và có thể cache.
+- [x] Có mapping test dùng sample backend live cho: notification, payment card/wallet, loan package my, rewards user, eKYC status.
+- [x] Build passes: `./gradlew assembleDebug`
+- [x] Unit tests pass: `./gradlew test`
 
 ## Notes
 - Tham chiếu: AGENT_TASKS.md Problem 6 và `documents/backend_contract.yaml`.

@@ -1,5 +1,8 @@
 # Workflow #61 — P6.2: REMOTE cleanup & UI polish sweep
 
+## Status
+Completed and committed before Final A. Claude/agents should treat REMOTE cleanup as done unless a new regression is found while implementing later workflows.
+
 ## Goal
 Đảm bảo UX trong REMOTE mode không bị nhiễm mock/debug behavior, không hiển thị raw HTTP/exception text, và có empty/error states polished.
 
@@ -26,12 +29,12 @@
 - `app/src/main/java/com/example/easymoney/ui/reward/`
 
 ### Acceptance criteria
-- [ ] REMOTE mode không fallback sample data khi backend fail.
-- [ ] Không hiển thị raw stack trace/HTTP code/debug label trên production screen.
-- [ ] Empty state có copy thân thiện + action phù hợp.
-- [ ] Error state có retry button khi phù hợp.
-- [ ] Build passes: `./gradlew assembleDebug`
-- [ ] Unit tests pass: `./gradlew test`
+- [x] REMOTE mode không fallback sample data khi backend fail.
+- [x] Không hiển thị raw stack trace/HTTP code/debug label trên production screen.
+- [x] Empty state có copy thân thiện + action phù hợp.
+- [x] Error state có retry button khi phù hợp.
+- [x] Build passes: `./gradlew assembleDebug`
+- [x] Unit tests pass: `./gradlew test`
 
 ## Notes
 - Tham chiếu: AGENT_TASKS.md Problem 6.2.

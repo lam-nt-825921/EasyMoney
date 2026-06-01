@@ -1,6 +1,6 @@
 # Agent Tasks - Verified Context And Fix Direction
 
-Version: 2026-05-30.5.
+Version: 2026-06-01.1.
 
 Purpose: this file converts the draft problems into implementation context for a coding agent. Before implementing, read:
 
@@ -303,6 +303,8 @@ Backend contract for Claude without backend source:
 
 ## Final Phase Gate - Do not start before previous tasks are committed
 
+Status: CLEARED. The owner confirmed on 2026-06-01 that Problems 0-7 have been built, verified, and committed. Claude/agents should proceed with Final Problem A / workflow #63.
+
 The tasks below are final hardening work. They must be done after the main REMOTE/backend-fit tasks are completed and committed:
 
 - Problem 0: remove Home sandbox/developer entry.
@@ -312,7 +314,7 @@ The tasks below are final hardening work. They must be done after the main REMOT
 - Problem 6.2: production REMOTE cleanup.
 - Problem 7: newly registered user has no default card.
 
-Only start the final phase if the app can already run in `REMOTE` mode for login, Home, notifications, transaction history, rewards, payment cards/wallet, loan management, and contract flows. If you start the final phase, you must verify the changed flows before committing.
+Final phase is now allowed. Continue to verify changed flows before committing.
 
 ## Final Problem A - Remove hard-coded user-facing text and complete VI/EN resources
 
