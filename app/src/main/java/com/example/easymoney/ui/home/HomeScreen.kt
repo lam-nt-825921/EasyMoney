@@ -21,7 +21,6 @@ import com.example.easymoney.ui.home.components.*
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onToggleSandbox: () -> Unit,
     onBannerClick: (String, String) -> Unit,
     onRedeemClick: () -> Unit,
     onVerifyEkycClick: () -> Unit,
@@ -46,8 +45,7 @@ fun HomeScreen(
             HeaderSection(
                 userName = uiState.userName.ifBlank { "Khách hàng" },
                 isDarkTheme = isDarkTheme,
-                onToggleTheme = onToggleTheme,
-                onDevClick = onToggleSandbox
+                onToggleTheme = onToggleTheme
             )
 
             if (isLoading) {
@@ -135,8 +133,7 @@ private fun ProfileCompletionRefreshError(message: String) {
 private fun HeaderSection(
     userName: String,
     isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit,
-    onDevClick: () -> Unit
+    onToggleTheme: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -152,22 +149,6 @@ private fun HeaderSection(
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Surface(
-                onClick = onDevClick,
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Text(
-                    text = stringResource(id = R.string.home_developer_mode),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
         }
 
         IconButton(

@@ -19,4 +19,12 @@ interface PaymentRepository {
     suspend fun verifyCard(card: PaymentCard): Resource<Unit>
     suspend fun createQrPayment(amount: Long): Resource<QrPayment>
     suspend fun getQrPaymentStatus(qrPaymentId: String): Resource<QrPayment>
+
+    /**
+     * Workflow #62 — gọi sau khi register/login/logout/account-switch để xóa
+     * state thuộc về user trước (MOCK seed cards/balance, cache nội bộ).
+     * REMOTE không có local state, hàm này no-op cho REMOTE — nhưng vẫn nên gọi
+     * để guard trường hợp đổi mode lúc runtime.
+     */
+    fun clearUserScopedState()
 }

@@ -40,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -116,7 +117,7 @@ fun AccountScreen(
         
         Spacer(modifier = Modifier.height(20.dp))
         
-        PointsBanner(onNavigateToRewards)
+        PointsBanner(points = accountState.rewardPoints, onClick = onNavigateToRewards)
         
         Spacer(modifier = Modifier.height(20.dp))
         
@@ -201,8 +202,16 @@ private fun UserProfileHeader(
 }
 
 @Composable
-private fun PointsBanner(onClick: () -> Unit) {
+private fun PointsBanner(points: Int, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    val locale = java.util.Locale.getDefault()
+    val pointsText = remember(points, locale) {
+        try {
+            java.text.NumberFormat.getInstance(locale).format(points)
+        } catch (e: Exception) {
+            points.toString()
+        }
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -238,7 +247,7 @@ private fun PointsBanner(onClick: () -> Unit) {
                     color = scheme.onSurfaceVariant
                 )
                 Text(
-                    text = "1.250 ${stringResource(id = R.string.common_points_unit)}",
+                    text = "$pointsText ${stringResource(id = R.string.common_points_unit)}",
                     style = MaterialTheme.typography.titleLarge,
                     color = scheme.primary,
                     fontWeight = FontWeight.Bold

@@ -60,7 +60,6 @@
     <string name="home_nav_history_short">Lịch sử</string>
     <string name="home_nav_notify">Thông báo</string>
     <string name="home_nav_account">Tài khoản</string>
-    <string name="home_developer_mode">Chế độ nhà phát triển</string>
     <string name="home_theme_light">Chuyển sang chế độ sáng</string>
     <string name="home_theme_dark">Chuyển sang chế độ tối</string>
 
@@ -125,12 +124,20 @@
     <string name="money_mgmt_auto_deduction">Tự động trả nợ</string>
     <string name="money_mgmt_recent_flow">Dòng tiền gần đây</string>
     <string name="money_mgmt_add_card">Thêm thẻ mới</string>
+    <!-- Workflow #63 — shared empty-card copy -->
+    <string name="card_empty_state">Bạn chưa thêm thẻ ngân hàng.</string>
+    <string name="card_action_add">Thêm thẻ</string>
     <string name="money_mgmt_card_holder">CARD HOLDER</string>
     <string name="money_mgmt_expires">EXPIRES</string>
 
     <!-- Security & Bio -->
     <string name="security_biometric_auth">Xác thực sinh trắc học</string>
     <string name="security_change_password">Đổi mật khẩu</string>
+    <!-- Workflow #64 — biometric gate copy -->
+    <string name="biometric_gate_cancelled">Xác thực sinh trắc bị huỷ.</string>
+    <string name="biometric_gate_failed">Xác thực sinh trắc thất bại.</string>
+    <string name="security_biometric_enabled">Đã bật xác thực sinh trắc.</string>
+    <string name="security_biometric_disabled">Đã tắt xác thực sinh trắc.</string>
 
     <!-- Change Password -->
     <string name="change_password_old_label">Mật khẩu hiện tại</string>
@@ -163,6 +170,27 @@
     <string name="action_retry">Thử lại</string>
     <string name="action_edit">Chỉnh sửa</string>
     <string name="action_complete_now">Bổ sung ngay</string>
+
+    <!-- Workflow #61 — backend error codes mapped to localised copy. -->
+    <string name="error_card_required">Bạn chưa thêm thẻ ngân hàng. Vui lòng thêm thẻ để tiếp tục.</string>
+    <string name="error_insufficient_balance">Số dư không đủ để thực hiện giao dịch.</string>
+    <string name="error_invalid_amount">Số tiền không hợp lệ.</string>
+    <string name="error_network">Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.</string>
+    <string name="error_generic">Đã có lỗi xảy ra. Vui lòng thử lại.</string>
+
+    <!-- Workflow #63 — payment / loan-mgmt user-facing copy migrated from inline hard-codes. -->
+    <string name="topup_error_below_min">Số tiền tối thiểu %1$s đ</string>
+    <string name="topup_error_above_max">Số tiền vượt hạn mức nạp</string>
+    <string name="topup_error_no_card_selected">Chưa chọn thẻ nguồn</string>
+    <string name="topup_success">Nạp tiền thành công</string>
+    <string name="withdraw_error_no_destination">Chưa chọn đích đến</string>
+    <string name="withdraw_success">Rút tiền thành công</string>
+    <string name="payment_card_invalid_number">Số thẻ không hợp lệ</string>
+    <string name="payment_card_invalid_bank">Vui lòng nhập tên ngân hàng</string>
+    <string name="payment_card_added">Thêm thẻ thành công</string>
+    <string name="payment_card_deleted">Đã xóa thẻ</string>
+    <string name="loan_mgmt_repay_success">Thanh toán khoản nợ thành công.</string>
+    <string name="dialog_notice_title">Thông báo</string>
 
     <!-- Terms (workflow #15) -->
     <string name="terms_title">Điều khoản và chính sách</string>

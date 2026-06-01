@@ -233,8 +233,8 @@ private fun MonthHeader(label: String) {
 @Composable
 private fun BalanceChangeItem(item: NotificationEntity, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    val amount = item.amount ?: 0L
-    val isPositive = amount >= 0
+    val amount = item.amount ?: 0.0
+    val isPositive = amount >= 0.0
     val amountColor = if (isPositive) scheme.primary else scheme.error
     val iconBg = amountColor.copy(alpha = 0.1f)
     
@@ -398,11 +398,13 @@ private fun GenericNotificationItem(item: NotificationEntity, icon: ImageVector,
     }
 }
 
-private fun formatAmount(amount: Long, locale: Locale): String {
+private fun formatAmount(amount: Double, locale: Locale): String {
+    // Workflow #54 — backend trả Double; UI làm tròn về integer VND để hiển thị.
+    val rounded = kotlin.math.abs(amount).toLong()
     return try {
         val formatter = NumberFormat.getInstance(locale)
-        formatter.format(abs(amount))
+        formatter.format(rounded)
     } catch (e: Exception) {
-        abs(amount).toString()
+        rounded.toString()
     }
 }

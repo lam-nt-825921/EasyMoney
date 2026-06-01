@@ -18,7 +18,9 @@ class NotificationRepositoryImpl @Inject constructor(
     private val application: Application
 ) : NotificationRepository {
 
-    private val currentUserId = "user_123"
+    // Workflow #54 — userId derived from session token; no more hard-coded "user_123".
+    private val currentUserId: String
+        get() = appPreferences.currentUserId
 
     override fun getNotificationsForUser(userId: String): Flow<List<NotificationEntity>> {
         return notificationDao.getNotificationsForUser(userId)
@@ -53,6 +55,10 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun clearAll() {
         notificationDao.clearAll()
+        // Workflow #54 — sync server-side clear in REMOTE mode.
+        if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
+            remoteDataSource.clearAllNotifications()
+        }
     }
 
     override suspend fun registerFcmToken(token: String): Resource<Unit> {
@@ -83,11 +89,12 @@ class NotificationRepositoryImpl @Inject constructor(
             is Resource.Success -> {
                 val entities = result.data.map { dto ->
                     NotificationEntity(
-                        id = dto.id.toLong(),
+                        id = dto.id,
                         userId = currentUserId,
                         title = dto.title ?: "Thông báo",
                         content = dto.content,
                         type = dto.type ?: "transaction",
+                        category = dto.category,
                         amount = dto.amount,
                         balanceAfter = dto.balanceAfter,
                         transactionCode = dto.transactionCode,

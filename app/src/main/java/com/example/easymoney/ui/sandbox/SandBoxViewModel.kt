@@ -40,7 +40,8 @@ class SandBoxViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<SandboxEffect>()
     val effect = _effect.asSharedFlow()
 
-    private val currentUserId = "user_123"
+    private val currentUserId: String
+        get() = appPreferences.currentUserId
 
     init {
         _uiState.update { 
@@ -106,8 +107,8 @@ class SandBoxViewModel @Inject constructor(
             title = "GD thanh toán điện tử",
             content = "Tài khoản của bạn vừa nhận được +5.000.000đ từ hệ thống EasyMoney.",
             type = "transaction",
-            amount = 5000000L,
-            balanceAfter = 5212076L,
+            amount = 5_000_000.0,
+            balanceAfter = 5_212_076.0,
             transactionCode = "2604750295880123"
         )
     }

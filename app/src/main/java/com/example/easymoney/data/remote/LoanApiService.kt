@@ -25,8 +25,9 @@ interface LoanApiService {
     @POST("api/v1/auth/register")
     suspend fun register(@Body request: RegisterRequestDto): ApiResponse<AuthTokenDto>
 
+    // Workflow #59 — backend trả về `data` là một mảng các package, không phải object đơn.
     @GET("api/v1/loan/package/my")
-    suspend fun getMyPackage(): ApiResponse<LoanPackageModel>
+    suspend fun getMyPackage(): ApiResponse<List<LoanPackageModel>>
 
     @GET("api/v1/user/profile")
     suspend fun getProfile(): ApiResponse<UserProfileDto>
@@ -157,6 +158,10 @@ interface LoanApiService {
 
     @POST("api/v1/notifications/read-all")
     suspend fun markAllNotificationsRead(): ApiResponse<Unit>
+
+    // Workflow #54 — clear all notifications on server
+    @DELETE("api/v1/notifications/clear")
+    suspend fun clearAllNotifications(): ApiResponse<Unit>
 }
 
 data class FcmTokenRequest(
@@ -243,19 +248,8 @@ data class RegisterRequestDto(
 data class AuthTokenDto(
     @SerializedName("accessToken") val accessToken: String,
     @SerializedName("refreshToken") val refreshToken: String,
-    @SerializedName("expiresIn") val expiresIn: Int
+    @SerializedName("expiresIn") val expiresIn: Int,
+    // Workflow #59 — backend trả kèm user profile sau login/register; cache để tránh round-trip thêm.
+    @SerializedName("user") val user: com.example.easymoney.data.remote.dto.UserProfileDto? = null
 )
 
-data class NotificationDto(
-    val id: Int,
-    val title: String,
-    val content: String,
-    val type: String,
-    val amount: Long? = null,
-    val balanceAfter: Long? = null,
-    val transactionCode: String? = null,
-    val targetId: String? = null,
-    val targetType: String? = null,
-    val timestamp: Long,
-    val isRead: Boolean
-)

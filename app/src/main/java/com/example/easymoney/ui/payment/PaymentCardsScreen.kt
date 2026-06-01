@@ -112,7 +112,7 @@ fun PaymentCardsScreen(
         AlertDialog(
             onDismissRequest = viewModel::consumeMessages,
             title = { Text(stringResource(R.string.dialog_error_title)) },
-            text = { Text(message) },
+            text = { Text(message.asString()) },
             confirmButton = {
                 TextButton(onClick = viewModel::consumeMessages) {
                     Text(stringResource(R.string.dialog_button_close))
@@ -124,8 +124,8 @@ fun PaymentCardsScreen(
     uiState.actionMessage?.let { message ->
         AlertDialog(
             onDismissRequest = viewModel::consumeMessages,
-            title = { Text("Thông báo") },
-            text = { Text(message) },
+            title = { Text(stringResource(R.string.dialog_notice_title)) },
+            text = { Text(message.asString()) },
             confirmButton = {
                 TextButton(onClick = viewModel::consumeMessages) {
                     Text(stringResource(R.string.action_ok))

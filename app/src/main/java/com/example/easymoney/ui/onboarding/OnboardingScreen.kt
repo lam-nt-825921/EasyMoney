@@ -265,39 +265,24 @@ private fun ProductInfoSection(productInfo: LoanPackageModel?) {
 			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
 			shape = RoundedCornerShape(16.dp)
 		) {
-			Row(
+			// Workflow #58 — bỏ trailing image; cho thông tin sản phẩm full-width.
+			Column(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(16.dp),
-				verticalAlignment = Alignment.CenterVertically,
-				horizontalArrangement = Arrangement.SpaceBetween
+				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
-				Column(
-					modifier = Modifier.weight(1f),
-					verticalArrangement = Arrangement.spacedBy(8.dp)
-				) {
-					InfoLine(
-						label = stringResource(id = R.string.onboarding_product_limit_label),
-						value = maxAmountText
-					)
-					InfoLine(
-						label = stringResource(id = R.string.onboarding_product_term_label),
-						value = tenorText
-					)
-					InfoLine(
-						label = stringResource(id = R.string.onboarding_product_interest_label),
-						value = interestText
-					)
-				}
-
-				Spacer(modifier = Modifier.width(12.dp))
-				Image(
-					painter = painterResource(id = R.drawable.img_4),
-					contentDescription = null,
-					modifier = Modifier
-						.width(100.dp)
-						.height(64.dp),
-					contentScale = ContentScale.Fit
+				InfoLine(
+					label = stringResource(id = R.string.onboarding_product_limit_label),
+					value = maxAmountText
+				)
+				InfoLine(
+					label = stringResource(id = R.string.onboarding_product_term_label),
+					value = tenorText
+				)
+				InfoLine(
+					label = stringResource(id = R.string.onboarding_product_interest_label),
+					value = interestText
 				)
 			}
 		}
@@ -350,30 +335,17 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 					.padding(16.dp),
 				verticalArrangement = Arrangement.spacedBy(10.dp)
 			) {
-				Text(
-					text = stringResource(id = R.string.onboarding_provider_org_label),
-					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-				)
-				Text(
-					text = organizationName,
-					style = MaterialTheme.typography.bodyLarge,
-					fontWeight = FontWeight.Bold
+				// Workflow #58 — items ngắn nằm trên một dòng "label: value".
+				ProviderInlineRow(
+					label = stringResource(id = R.string.onboarding_provider_org_label),
+					value = organizationName
 				)
 
-				Text(
-					text = stringResource(id = R.string.onboarding_provider_tax_line),
-					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-				)
-
-				Text(
-					text = hotline,
-					style = MaterialTheme.typography.bodyLarge,
-					fontWeight = FontWeight.Bold,
-					color = MaterialTheme.colorScheme.primary,
-					textDecoration = TextDecoration.Underline,
-					modifier = Modifier.clickable {
+				ProviderInlineRow(
+					label = stringResource(id = R.string.onboarding_provider_tax_line),
+					value = hotline,
+					isClickable = true,
+					onClick = {
 						// Workflow #31 — ưu tiên supportUrl, fallback dialer cho hotline.
 						val supportUrl = providerInfo?.supportUrl
 						if (!supportUrl.isNullOrBlank()) {
@@ -396,6 +368,34 @@ private fun ProviderInfoSection(providerInfo: LoanProviderInfoModel?) {
 				)
 			}
 		}
+	}
+}
+
+@Composable
+private fun ProviderInlineRow(
+	label: String,
+	value: String,
+	isClickable: Boolean = false,
+	onClick: (() -> Unit)? = null
+) {
+	Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+		Text(
+			text = "$label ",
+			style = MaterialTheme.typography.bodyLarge,
+			color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+		)
+		Text(
+			text = value,
+			style = MaterialTheme.typography.bodyLarge,
+			fontWeight = FontWeight.Bold,
+			color = if (isClickable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+			textDecoration = if (isClickable) TextDecoration.Underline else null,
+			modifier = Modifier
+				.weight(1f, fill = true)
+				.then(
+					if (isClickable && onClick != null) Modifier.clickable { onClick() } else Modifier
+				)
+		)
 	}
 }
 

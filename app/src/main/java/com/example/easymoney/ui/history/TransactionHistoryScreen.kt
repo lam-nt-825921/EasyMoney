@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.easymoney.R
 import com.example.easymoney.domain.model.TransactionItem
+import com.example.easymoney.ui.common.error.ErrorStateWithRetry
 import kotlin.math.abs
 
 @Composable
@@ -39,10 +40,10 @@ fun TransactionHistoryScreen(
     ) {
         when {
             state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            state.errorMessage != null -> Text(
-                text = state.errorMessage.orEmpty(),
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            state.errorMessage != null -> ErrorStateWithRetry(
+                message = state.errorMessage.orEmpty(),
+                onRetry = viewModel::load,
+                modifier = Modifier.align(Alignment.Center)
             )
             state.groups.isEmpty() -> Text(
                 text = stringResource(R.string.history_empty_state),

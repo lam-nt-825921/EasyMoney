@@ -1,5 +1,6 @@
 package com.example.easymoney.data.remote
 
+import com.example.easymoney.data.remote.dto.toDomain
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.Banner
 import com.example.easymoney.domain.model.EKycStatus
@@ -22,6 +23,7 @@ class HomeRemoteDataSource @Inject constructor(
 
     suspend fun getEKycStatus(): Resource<EKycStatus> =
         safeApiCall("Get eKYC status failed") { apiService.getEKycStatus() }
+            .mapSuccess { it.toDomain() }
 
     suspend fun getCustomerSupportLink(): Resource<SupportLink> =
         safeApiCall("Get customer support link failed") { apiService.getCustomerSupportLink() }

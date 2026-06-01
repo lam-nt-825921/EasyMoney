@@ -1,8 +1,14 @@
 package com.example.easymoney.data.remote.dto
 
+/**
+ * Workflow #59 — `data` là nullable vì backend trả `null` cho mutating endpoints
+ * (`ApiResponse[None]` / `{}` empty body). Mỗi caller phải tự kiểm tra null
+ * trước khi map sang domain — hoặc dùng [com.example.easymoney.data.remote.safeApiCall]
+ * (tự sinh `Resource.Error` khi `status == success` nhưng `data == null`).
+ */
 data class ApiResponse<T>(
     val status: String,
-    val data: T,
+    val data: T? = null,
     val message: String? = null
 )
 

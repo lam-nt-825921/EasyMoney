@@ -68,7 +68,13 @@ data class IdentityVerificationStatus(
 data class EKycStatus(
     val isIdentified: Boolean,
     val missingDocuments: List<String> = emptyList(),
-    val message: String? = null
+    val message: String? = null,
+    // Workflow #59 — optional rich fields từ backend; UI hiện tại bỏ qua, future-friendly.
+    val status: String? = null,
+    val sessionId: String? = null,
+    val documentMethod: String? = null,
+    val verifiedAt: Long? = null,
+    val matchScore: Double? = null
 )
 
 data class ProfileCompletion(

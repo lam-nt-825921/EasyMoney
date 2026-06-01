@@ -3,6 +3,7 @@ package com.example.easymoney.ui.esign
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.LoanRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,11 +17,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ContractViewModel @Inject constructor(
-    private val loanRepository: LoanRepository
+    private val loanRepository: LoanRepository,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ContractUiState())
+    private val _uiState = MutableStateFlow(
+        ContractUiState(is2FAEnabled = appPreferences.isBiometric2FAEnabled)
+    )
     val uiState: StateFlow<ContractUiState> = _uiState.asStateFlow()
+
+    /** Workflow #64 — biometric gate huỷ trước khi gửi OTP. */
+    fun onBiometricCancelled(message: String) {
+        _uiState.update { it.copy(errorMessage = message) }
+    }
 
     fun loadContract(loanId: String) {
         if (loanId.isBlank()) return

@@ -5,7 +5,10 @@ data class TransactionItem(
     val transactionCode: String,
     val amount: Long,
     val balance: Long,
-    val time: String
+    val time: String,
+    // Workflow #60 — timestamp là khóa sort newest-first khi có.
+    // Default 0L để sample/MOCK không phải khai báo lại.
+    val timestamp: Long = 0L
 )
 
 data class TransactionGroup(

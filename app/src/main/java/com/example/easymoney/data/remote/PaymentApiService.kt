@@ -1,9 +1,10 @@
 package com.example.easymoney.data.remote
 
 import com.example.easymoney.data.remote.dto.ApiResponse
+import com.example.easymoney.data.remote.dto.PaymentCardDto
+import com.example.easymoney.data.remote.dto.WalletInfoDto
 import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.domain.model.QrPayment
-import com.example.easymoney.domain.model.WalletInfo
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -18,7 +19,7 @@ import retrofit2.http.Path
 interface PaymentApiService {
 
     @GET("api/v1/payment/cards")
-    suspend fun getPaymentCards(): ApiResponse<List<PaymentCard>>
+    suspend fun getPaymentCards(): ApiResponse<List<PaymentCardDto>>
 
     @POST("api/v1/payment/cards")
     suspend fun addPaymentCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
@@ -30,7 +31,7 @@ interface PaymentApiService {
     suspend fun verifyCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
 
     @GET("api/v1/payment/wallet")
-    suspend fun getWalletInfo(): ApiResponse<WalletInfo>
+    suspend fun getWalletInfo(): ApiResponse<WalletInfoDto>
 
     @POST("api/v1/payment/topup")
     suspend fun topUp(@Body request: TopUpRequest): ApiResponse<Map<String, Any>>

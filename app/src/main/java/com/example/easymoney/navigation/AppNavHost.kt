@@ -113,7 +113,6 @@ fun AppNavHost(
 
             HomeScreen(
                 uiState = uiState,
-                onToggleSandbox = { navController.navigate(AppDestination.Sandbox.route) },
                 onBannerClick = { type, id ->
                     when (type) {
                         "EVENT" -> navController.navigate(AppDestination.EventDetail.createRoute(id))

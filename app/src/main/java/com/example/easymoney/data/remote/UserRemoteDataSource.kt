@@ -10,60 +10,31 @@ import com.example.easymoney.domain.model.UserProfile
 import javax.inject.Inject
 
 /**
- * Workflow #44 — Reference REMOTE data source. Maps DTO <-> domain và bọc lỗi mạng
- * giống pattern của [LoanRemoteDataSource].
+ * Workflow #44/#59 — Reference REMOTE data source. Maps DTO <-> domain qua
+ * `safeApiCall`/`safeUnitApiCall` (đã xử lý nullable data sau workflow #59).
  */
 class UserRemoteDataSource @Inject constructor(
     private val apiService: UserApiService
 ) {
-    suspend fun getProfile(): Resource<UserProfile> = safeCall {
-        apiService.getProfile().let { response ->
-            if (response.status == "success") {
-                Resource.Success(response.data.toDomain())
-            } else {
-                Resource.Error(userFriendlyErrorMessage(response.message, "Get profile failed"))
-            }
+    suspend fun getProfile(): Resource<UserProfile> =
+        safeApiCall("Get profile failed") { apiService.getProfile() }
+            .mapSuccess { it.toDomain() }
+
+    suspend fun updateProfile(profile: UserProfile): Resource<UserProfile> =
+        safeApiCall("Update profile failed") { apiService.updateProfile(profile.toDto()) }
+            .mapSuccess { it.toDomain() }
+
+    suspend fun getProfileCompletion(): Resource<ProfileCompletion> =
+        safeApiCall("Get profile completion failed") { apiService.getProfileCompletion() }
+            .mapSuccess { it.toDomain() }
+
+    suspend fun updateNotificationSettings(enabled: Boolean): Resource<Unit> =
+        safeUnitApiCall("Update notification settings failed") {
+            apiService.updateNotificationSettings(NotificationSettingsRequestDto(enabled))
         }
-    }
 
-    suspend fun updateProfile(profile: UserProfile): Resource<UserProfile> = safeCall {
-        apiService.updateProfile(profile.toDto()).let { response ->
-            if (response.status == "success") {
-                Resource.Success(response.data.toDomain())
-            } else {
-                Resource.Error(userFriendlyErrorMessage(response.message, "Update profile failed"))
-            }
+    suspend fun changePassword(oldPassword: String, newPassword: String): Resource<Unit> =
+        safeUnitApiCall("Change password failed") {
+            apiService.changePassword(ChangePasswordRequestDto(oldPassword, newPassword))
         }
-    }
-
-    suspend fun getProfileCompletion(): Resource<ProfileCompletion> = safeCall {
-        apiService.getProfileCompletion().let { response ->
-            if (response.status == "success") {
-                Resource.Success(response.data.toDomain())
-            } else {
-                Resource.Error(userFriendlyErrorMessage(response.message, "Get profile completion failed"))
-            }
-        }
-    }
-
-    suspend fun updateNotificationSettings(enabled: Boolean): Resource<Unit> = safeCall {
-        apiService.updateNotificationSettings(NotificationSettingsRequestDto(enabled))
-            .toUnitResource("Update notification settings failed")
-    }
-
-    suspend fun changePassword(oldPassword: String, newPassword: String): Resource<Unit> = safeCall {
-        apiService.changePassword(ChangePasswordRequestDto(oldPassword, newPassword))
-            .toUnitResource("Change password failed")
-    }
-
-    private fun com.example.easymoney.data.remote.dto.ApiResponse<Unit>.toUnitResource(
-        failMessage: String
-    ): Resource<Unit> =
-        if (status == "success") Resource.Success(Unit) else Resource.Error(userFriendlyErrorMessage(message, failMessage))
-
-    private suspend fun <T> safeCall(block: suspend () -> Resource<T>): Resource<T> = try {
-        block()
-    } catch (e: Exception) {
-        Resource.Error(userFriendlyErrorMessage(e))
-    }
 }

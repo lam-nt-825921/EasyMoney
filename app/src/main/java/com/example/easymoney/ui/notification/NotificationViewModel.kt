@@ -2,6 +2,7 @@ package com.example.easymoney.ui.notification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.data.local.entity.NotificationEntity
 import com.example.easymoney.domain.repository.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,10 +19,11 @@ data class NotificationGroup(
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val currentUserId = "user_123"
+    private val currentUserId: String = appPreferences.currentUserId
 
     init {
         viewModelScope.launch {

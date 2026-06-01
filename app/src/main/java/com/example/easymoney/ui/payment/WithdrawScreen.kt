@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
+import com.example.easymoney.ui.common.security.BiometricGate
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -22,6 +23,15 @@ fun WithdrawScreen(
     onNavigateToAddCard: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    // Workflow #64 — gate cuối submit qua BiometricGate khi 2FA bật.
+    var pendingSubmit by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val cancelledMsg = stringResource(R.string.biometric_gate_cancelled)
+    BiometricGate(
+        is2FAEnabled = uiState.is2FAEnabled,
+        pendingAction = pendingSubmit,
+        onConsumed = { pendingSubmit = null },
+        onCancelled = { viewModel.onBiometricCancelled(cancelledMsg) }
+    )
 
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
@@ -58,7 +68,7 @@ fun WithdrawScreen(
         Text(stringResource(R.string.withdraw_select_dest), style = MaterialTheme.typography.titleMedium)
         if (uiState.cards.isEmpty()) {
             Text(
-                "Bạn chưa thêm thẻ ngân hàng.",
+                stringResource(R.string.card_empty_state),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp)
@@ -67,7 +77,7 @@ fun WithdrawScreen(
                 onClick = onNavigateToAddCard,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
             ) {
-                Text("Thêm thẻ")
+                Text(stringResource(R.string.card_action_add))
             }
         } else {
             uiState.cards.forEach { card ->
@@ -86,12 +96,12 @@ fun WithdrawScreen(
 
         Spacer(Modifier.height(16.dp))
         uiState.errorMessage?.let { msg ->
-            Text(msg, color = MaterialTheme.colorScheme.error)
+            Text(msg.asString(), color = MaterialTheme.colorScheme.error)
             Spacer(Modifier.height(8.dp))
         }
 
         Button(
-            onClick = viewModel::onSubmit,
+            onClick = { pendingSubmit = { viewModel.onSubmit() } },
             enabled = !uiState.isSubmitting,
             modifier = Modifier.fillMaxWidth()
         ) {
