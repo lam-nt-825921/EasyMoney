@@ -31,7 +31,7 @@ class WithdrawViewModel @Inject constructor(
         load()
     }
 
-    private fun load() {
+    fun load() {
         viewModelScope.launch {
             val cardsRes = paymentRepository.getPaymentCards()
             val walletRes = paymentRepository.getWalletInfo()

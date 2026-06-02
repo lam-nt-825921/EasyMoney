@@ -35,7 +35,7 @@ fun LoanStepper(
     modifier: Modifier = Modifier
 ) {
     val activeColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = MaterialTheme.colorScheme.surfaceVariant
+    val inactiveColor = MaterialTheme.colorScheme.outline
     val itemWidth = 100.dp
 
     Box(

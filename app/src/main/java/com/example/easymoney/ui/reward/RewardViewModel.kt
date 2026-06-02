@@ -43,7 +43,7 @@ class RewardViewModel @Inject constructor(
         loadRewards()
     }
 
-    private fun loadRewards() {
+    fun loadRewards() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             when (val userResult = rewardRepository.getRewardsCatalog()) {
@@ -64,6 +64,21 @@ class RewardViewModel @Inject constructor(
                     it.copy(isLoading = false, errorMessage = UiText.DynamicString(result.message))
                 }
                 is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun refreshUserRewards() {
+        viewModelScope.launch {
+            when (val result = rewardRepository.getRewardsCatalog()) {
+                is Resource.Success -> _uiState.update {
+                    it.copy(
+                        totalPoints = result.data.totalPoints,
+                        redeemedRewards = result.data.vouchers
+                    )
+                }
+                is Resource.Error,
+                Resource.Loading -> Unit
             }
         }
     }

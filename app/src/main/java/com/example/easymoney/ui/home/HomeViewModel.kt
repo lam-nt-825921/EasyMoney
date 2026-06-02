@@ -101,4 +101,18 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun refreshRewardPoints() {
+        viewModelScope.launch {
+            when (val result = rewardRepository.getRewardsCatalog()) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(rewardPoints = result.data.totalPoints)
+                    }
+                }
+                is Resource.Error,
+                Resource.Loading -> Unit
+            }
+        }
+    }
 }

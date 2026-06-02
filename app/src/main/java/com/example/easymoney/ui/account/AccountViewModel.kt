@@ -63,7 +63,7 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    private fun loadRewardPoints() {
+    fun loadRewardPoints() {
         viewModelScope.launch {
             _state.update { it.copy(isRewardLoading = true) }
             when (val result = rewardRepository.getRewardsCatalog()) {

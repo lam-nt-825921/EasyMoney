@@ -31,7 +31,7 @@ class TopUpViewModel @Inject constructor(
         loadCards()
     }
 
-    private fun loadCards() {
+    fun loadCards() {
         viewModelScope.launch {
             when (val res = paymentRepository.getPaymentCards()) {
                 is Resource.Success -> _uiState.update {

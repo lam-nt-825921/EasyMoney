@@ -103,6 +103,7 @@ fun AppNavHost(
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
                         viewModel.refreshProfileCompletion()
+                        viewModel.refreshRewardPoints()
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)
@@ -164,7 +165,23 @@ fun AppNavHost(
         }
 
         composable(AppDestination.Notifications.route) {
+            val viewModel: com.example.easymoney.ui.notification.NotificationViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.refresh()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             NotificationScreen(
+                viewModel = viewModel,
                 onNavigateToHistory = { 
                     navController.navigate(AppDestination.TransactionHistory.route) {
                         popUpTo(AppDestination.Home.route) { saveState = true }
@@ -187,6 +204,7 @@ fun AppNavHost(
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
                         viewModel.loadProfile()
+                        viewModel.loadRewardPoints()
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)
@@ -316,6 +334,20 @@ fun AppNavHost(
         ) { backStackEntry ->
             val packageId = backStackEntry.arguments?.getString(AppDestination.ConfirmInformation.PACKAGE_ID_ARG)
             val viewModel: ConfirmInfoViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadMyInfo()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             ConfirmInfoScreen(
                 viewModel = viewModel,
                 onContinue = { navController.navigate(AppDestination.LoanFlow.createRoute(packageId)) },
@@ -501,11 +533,45 @@ fun AppNavHost(
         }
 
         composable(AppDestination.Rewards.route) {
-            RewardScreen(onBack = { navController.popBackStack() })
+            val viewModel: com.example.easymoney.ui.reward.RewardViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.refreshUserRewards()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
+            RewardScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
 
         composable(AppDestination.LoanList.route) {
+            val viewModel: com.example.easymoney.ui.loan.discovery.LoanDiscoveryViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadPackages()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             LoanListScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onPackageClick = { id -> 
                     navController.navigate(AppDestination.LoanDetail.createRoute(id))
@@ -515,7 +581,23 @@ fun AppNavHost(
 
         composable(AppDestination.LoanDetail.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString(AppDestination.LoanDetail.ID_ARG) ?: ""
+            val viewModel: com.example.easymoney.ui.loan.discovery.LoanDiscoveryViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel, id) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadPackageDetail(id)
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             LoanDetailScreen(
+                viewModel = viewModel,
                 packageId = id,
                 onBack = { navController.popBackStack() },
                 onRegisterSuccess = { packageId, packageName -> 
@@ -572,13 +654,45 @@ fun AppNavHost(
         }
 
         composable(AppDestination.TopUp.route) {
+            val viewModel: com.example.easymoney.ui.payment.TopUpViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadCards()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             com.example.easymoney.ui.payment.TopUpScreen(
+                viewModel = viewModel,
                 onTopUpSuccess = { navController.popBackStack() }
             )
         }
 
         composable(AppDestination.Withdraw.route) {
+            val viewModel: com.example.easymoney.ui.payment.WithdrawViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.load()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             com.example.easymoney.ui.payment.WithdrawScreen(
+                viewModel = viewModel,
                 onWithdrawSuccess = { navController.popBackStack() },
                 onNavigateToAddCard = { navController.navigate(AppDestination.PaymentCards.route) }
             )

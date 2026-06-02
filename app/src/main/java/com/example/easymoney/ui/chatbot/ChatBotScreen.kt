@@ -1,6 +1,7 @@
 package com.example.easymoney.ui.chatbot
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,7 +32,13 @@ fun ChatBotScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val greeting = stringResource(R.string.chatbot_greeting)
+    val hideKeyboard = {
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
 
     LaunchedEffect(Unit) { viewModel.greetIfNeeded(greeting) }
 
@@ -41,7 +51,13 @@ fun ChatBotScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { hideKeyboard() })
+                }
+                .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(vertical = 12.dp)
         ) {

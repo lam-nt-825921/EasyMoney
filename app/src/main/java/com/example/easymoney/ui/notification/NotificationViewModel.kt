@@ -26,6 +26,10 @@ class NotificationViewModel @Inject constructor(
     private val currentUserId: String = appPreferences.currentUserId
 
     init {
+        refresh()
+    }
+
+    fun refresh() {
         viewModelScope.launch {
             try {
                 notificationRepository.refreshNotifications()

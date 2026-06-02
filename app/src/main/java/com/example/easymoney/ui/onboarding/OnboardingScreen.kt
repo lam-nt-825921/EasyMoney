@@ -63,7 +63,10 @@ import android.content.res.ColorStateList
 import android.view.View
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 
 import com.example.easymoney.ui.components.AppTopBarOverride
 import com.example.easymoney.ui.components.RegisterTopBarOverride
@@ -210,6 +213,7 @@ private fun ReasonItem(
 	modifier: Modifier = Modifier
 ) {
 	val colorInt = backgroundColor.toArgb()
+	val textColorInt = MaterialTheme.colorScheme.onSurface.toArgb()
 	AndroidView(
 		modifier = modifier,
 		factory = { context ->
@@ -223,6 +227,7 @@ private fun ReasonItem(
 
 			ivIcon.setImageResource(iconRes)
 			tvTitle.setText(textRes)
+			tvTitle.setTextColor(textColorInt)
 			tvTitle.textSize = 16f 
 
 			view
@@ -236,6 +241,7 @@ private fun ReasonItem(
 
 			ivIcon.setImageResource(iconRes)
 			tvTitle.setText(textRes)
+			tvTitle.setTextColor(textColorInt)
 			tvTitle.textSize = 16f
 		}
 	)
@@ -372,6 +378,32 @@ private fun ProviderInlineRow(
 	isClickable: Boolean = false,
 	onClick: (() -> Unit)? = null
 ) {
+	if (!isClickable) {
+		Text(
+			text = buildAnnotatedString {
+				withStyle(
+					SpanStyle(
+						color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+						fontWeight = FontWeight.Normal
+					)
+				) {
+					append("$label ")
+				}
+				withStyle(
+					SpanStyle(
+						color = MaterialTheme.colorScheme.onSurface,
+						fontWeight = FontWeight.Bold
+					)
+				) {
+					append(value)
+				}
+			},
+			style = MaterialTheme.typography.bodyLarge,
+			modifier = Modifier.fillMaxWidth()
+		)
+		return
+	}
+
 	Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
 		Text(
 			text = "$label ",
