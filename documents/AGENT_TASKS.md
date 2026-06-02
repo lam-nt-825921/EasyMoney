@@ -15,6 +15,12 @@ Assume the agent may only have the GitHub frontend repo. Use `documents/backend_
 
 The current goal is to make the Android app feel complete as a commercial product in `REMOTE` mode against `https://easymoney.lamgd.dev/`.
 
+Active 2026-06-02 batch:
+
+- Use `documents/CLAUDE_FRONTEND_TASK_2026_06_02.md` as the current handoff for the latest backend note.
+- That task supersedes the old "Final Problem B - Make device biometric 2FA real and local-only" direction. The current direction is to remove/hide production biometric UX.
+- The new backend contract deltas in that task cover repayment estimates, reward points after repayment, contract create/detail, FCM approval/OTP payloads, wallet recent-flow ordering, and bank-card validation metadata.
+
 Implementation priorities:
 
 - Treat `REMOTE` as production. Do not invest in MOCK mode unless explicitly requested.
