@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -73,6 +74,7 @@ import com.example.easymoney.domain.model.FaceDetectionReason
 import com.example.easymoney.domain.model.FaceDetectionResult
 import com.example.easymoney.domain.model.FaceInfo
 import com.example.easymoney.domain.model.FaceBoundingBox
+import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.ui.components.AppTopBarOverride
 import com.example.easymoney.ui.components.RegisterTopBarOverride
@@ -114,7 +116,7 @@ fun EkycFaceCaptureScreen(
             when (effect) {
                 is EkycUiEffect.NavigateToNextStep -> onSuccess()
                 is EkycUiEffect.NavigateBack -> onBackToIntro()
-                is EkycUiEffect.ShowError -> onNavigateToError(effect.message)
+                is EkycUiEffect.ShowError -> onNavigateToError(effect.message.asString(context))
                 is EkycUiEffect.OpenSettings -> {
                     context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", context.packageName, null)
@@ -142,7 +144,7 @@ fun EkycFaceCaptureScreen(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.action_back),
                 tint = EkycColors.cameraIconColor
             )
         }
@@ -151,11 +153,12 @@ fun EkycFaceCaptureScreen(
             PermissionState.Granted -> {
                 if (uiState.uploadState == UploadState.Error) {
                     AppErrorScreen(
-                        title = "Xác thực không thành công",
-                        message = uiState.errorMessage ?: "Lỗi xác thực khuôn mặt. Vui lòng thử lại.",
-                        buttonText = "Chụp lại ngay",
+                        title = stringResource(R.string.ekyc_error_title),
+                        message = uiState.errorMessage?.asString()
+                            ?: stringResource(R.string.ekyc_error_default_message),
+                        buttonText = stringResource(R.string.ekyc_retake_now),
                         onButtonClick = { viewModel.onEvent(EkycUiEvent.OnRetakeClick) },
-                        secondaryButtonText = "Quay lại hướng dẫn",
+                        secondaryButtonText = stringResource(R.string.ekyc_back_to_intro),
                         onSecondaryButtonClick = onBackToIntro,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -185,7 +188,7 @@ fun EkycFaceCaptureScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = Color.White)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Đang xử lý khuôn mặt...", color = Color.White)
+                    Text(text = stringResource(R.string.ekyc_processing), color = Color.White)
                 }
             }
         }
@@ -222,7 +225,7 @@ private fun CameraReadyContent(viewModel: EkycCameraViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Chụp ảnh chân dung",
+                text = stringResource(R.string.ekyc_camera_title),
                 color = EkycColors.cameraTextPrimary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold
@@ -235,7 +238,8 @@ private fun CameraReadyContent(viewModel: EkycCameraViewModel) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = uiState.precheckMessage ?: "Căn chỉnh khung hình để cho phép chụp",
+                text = uiState.precheckMessage?.asString()
+                    ?: stringResource(R.string.ekyc_capture_align_prompt),
                 color = if (uiState.faceDetectionResult?.canCapture == true) EkycColors.cameraSuccessText else EkycColors.cameraTextSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp)
@@ -386,7 +390,7 @@ private fun PermissionRequestContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Ung dung can truy cap may anh",
+            text = stringResource(R.string.ekyc_permission_required_title),
             color = EkycColors.permissionText,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -396,7 +400,7 @@ private fun PermissionRequestContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = "Vui long cap quyen camera de bat dau chup anh chan dung.",
+            text = stringResource(R.string.ekyc_permission_required_body),
             color = EkycColors.cameraTextSecondary,
             fontSize = 14.sp,
             textAlign = TextAlign.Center
@@ -415,7 +419,7 @@ private fun PermissionRequestContent(
                 contentColor = EkycColors.permissionButtonText
             )
         ) {
-            Text("Cho phep truy cap")
+            Text(stringResource(R.string.ekyc_permission_allow))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -430,7 +434,7 @@ private fun PermissionRequestContent(
                 contentColor = EkycColors.permissionText
             )
         ) {
-            Text("Quay lai")
+            Text(stringResource(R.string.action_back))
         }
     }
 }
@@ -448,7 +452,7 @@ private fun PermissionBlockedContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Camera dang bi chan",
+            text = stringResource(R.string.ekyc_permission_blocked_title),
             color = EkycColors.permissionText,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -458,7 +462,7 @@ private fun PermissionBlockedContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = "Vui long mo Cai dat va cap quyen Camera cho ung dung.",
+            text = stringResource(R.string.ekyc_permission_blocked_body),
             color = EkycColors.cameraTextSecondary,
             fontSize = 14.sp,
             textAlign = TextAlign.Center
@@ -477,7 +481,7 @@ private fun PermissionBlockedContent(
                 contentColor = EkycColors.permissionButtonText
             )
         ) {
-            Text("Mo Cai dat")
+            Text(stringResource(R.string.ekyc_permission_open_settings))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -492,7 +496,7 @@ private fun PermissionBlockedContent(
                 contentColor = EkycColors.permissionText
             )
         ) {
-            Text("Quay lai")
+            Text(stringResource(R.string.action_back))
         }
     }
 }
@@ -612,9 +616,8 @@ private fun performPrecheckAnalysis(
             }
             .addOnFailureListener { e ->
                 Log.e("EkycFaceCapture", "Face detection error: ${e.message}", e)
-                // Workflow #61 — không leak raw exception text ra UI; giữ thông báo chung chung,
-                // chi tiết kỹ thuật chỉ vào logcat.
-                onFrameQualityChanged(false, "Không nhận diện được khuôn mặt, vui lòng thử lại.",
+                // Workflow #68 — VM derives display message from the reason; pass blank here.
+                onFrameQualityChanged(false, "",
                     FaceDetectionResult(false, reason = FaceDetectionReason.UNKNOWN))
             }
             .addOnCompleteListener {
@@ -622,11 +625,12 @@ private fun performPrecheckAnalysis(
             }
     } catch (e: Exception) {
         Log.e("EkycFaceCapture", "Unexpected error in precheck: ${e.message}", e)
-        onFrameQualityChanged(false, "Lỗi hệ thống", FaceDetectionResult(false, reason = FaceDetectionReason.UNKNOWN))
+        onFrameQualityChanged(false, "", FaceDetectionResult(false, reason = FaceDetectionReason.UNKNOWN))
         imageProxy.close()
     }
 }
 
+// Workflow #68 — the String in the Triple is no longer surfaced to UI; VM maps reason → UiText.
 private fun evaluateFaceDetectionResult(
     faces: List<com.google.mlkit.vision.face.Face>,
     imageWidth: Int,
@@ -634,10 +638,10 @@ private fun evaluateFaceDetectionResult(
     averageLuma: Float
 ): Triple<Boolean, String, FaceDetectionResult> {
     if (faces.isEmpty()) {
-        return Triple(false, "không phát hiện khuôn mặt", FaceDetectionResult(false, faceCount = 0, reason = FaceDetectionReason.NO_FACE))
+        return Triple(false, "", FaceDetectionResult(false, faceCount = 0, reason = FaceDetectionReason.NO_FACE))
     }
     if (faces.size > 1) {
-        return Triple(false, "Chỉ một người trong khung", FaceDetectionResult(true, faceCount = faces.size, reason = FaceDetectionReason.MULTIPLE_FACES))
+        return Triple(false, "", FaceDetectionResult(true, faceCount = faces.size, reason = FaceDetectionReason.MULTIPLE_FACES))
     }
 
     val face = faces[0]
@@ -657,22 +661,22 @@ private fun evaluateFaceDetectionResult(
     )
 
     if (faceRatio < 0.20f) {
-        return Triple(false, "Di chuyển gần hơn", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_TOO_SMALL))
+        return Triple(false, "", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_TOO_SMALL))
     }
     if (faceRatio > 0.60f) {
-        return Triple(false, "Di chuyển xa hơn", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_OUT_OF_FRAME))
+        return Triple(false, "", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_OUT_OF_FRAME))
     }
 
     val maxAngle = 15f
     if (Math.abs(face.headEulerAngleY) > maxAngle || Math.abs(face.headEulerAngleX) > maxAngle || Math.abs(face.headEulerAngleZ) > maxAngle) {
-        return Triple(false, "Quay thẳng phía trước", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_TILTED))
+        return Triple(false, "", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.FACE_TILTED))
     }
 
     if (averageLuma < 45f) {
-        return Triple(false, "Căn chỉnh ánh sáng (quá tối)", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.LOW_LIGHT))
+        return Triple(false, "", FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.LOW_LIGHT))
     }
 
-    return Triple(true, "Khung hình đạt điều kiện, có thể chụp", 
+    return Triple(true, "",
         FaceDetectionResult(true, 1, listOf(faceInfo), FaceDetectionReason.READY_TO_CAPTURE, canCapture = true))
 }
 

@@ -63,7 +63,7 @@ fun ContractScreen(
                 onCancel()
             },
             isVerifying = uiState.isOtpVerifying,
-            errorMessage = uiState.otpError
+            errorMessage = uiState.otpError?.asString()
         )
     }
 
@@ -87,7 +87,7 @@ fun ContractScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            val errorMessage = uiState.errorMessage
+            val errorMessage = uiState.errorMessage?.asString()
             if (uiState.isLoading) {
                 ContractLoadingContent()
             } else if (errorMessage != null) {

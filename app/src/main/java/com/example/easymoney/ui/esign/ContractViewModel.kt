@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,7 @@ class ContractViewModel @Inject constructor(
 
     /** Workflow #64 — biometric gate huỷ trước khi gửi OTP. */
     fun onBiometricCancelled(message: String) {
-        _uiState.update { it.copy(errorMessage = message) }
+        _uiState.update { it.copy(errorMessage = UiText.DynamicString(message)) }
     }
 
     fun loadContract(loanId: String) {
@@ -45,7 +46,7 @@ class ContractViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _uiState.update { it.copy(
-                        errorMessage = result.message,
+                        errorMessage = UiText.DynamicString(result.message),
                         isLoading = false
                     ) }
                 }
@@ -74,7 +75,7 @@ class ContractViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isOtpVerifying = true, otpError = null) }
             val result = loanRepository.verifyOtp(otp)
-            
+
             when (result) {
                 is Resource.Success -> {
                     when (val signResult = loanRepository.signContract(contractId)) {
@@ -83,13 +84,17 @@ class ContractViewModel @Inject constructor(
                             onSuccess()
                         }
                         is Resource.Error -> {
-                            _uiState.update { it.copy(isOtpVerifying = false, otpError = signResult.message) }
+                            _uiState.update {
+                                it.copy(isOtpVerifying = false, otpError = UiText.DynamicString(signResult.message))
+                            }
                         }
                         Resource.Loading -> Unit
                     }
                 }
                 is Resource.Error -> {
-                    _uiState.update { it.copy(isOtpVerifying = false, otpError = result.message) }
+                    _uiState.update {
+                        it.copy(isOtpVerifying = false, otpError = UiText.DynamicString(result.message))
+                    }
                 }
                 else -> {}
             }

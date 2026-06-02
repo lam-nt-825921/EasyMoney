@@ -44,7 +44,6 @@
     <string name="register_confirm_password_placeholder">Nhập lại mật khẩu</string>
     <string name="register_terms_text">Tôi đã đọc, hiểu và đồng ý với toàn bộ nội dung điều khoản sử dụng dịch vụ của EasyMoney</string>
 
-    <string name="confirm_info_section_title">Thông tin cá nhân</string>
     <string name="confirm_continue">Tiếp tục</string>
     <string name="confirm_edit_info">Tôi muốn sửa thông tin</string>
     <string name="confirm_loading">Đang tải thông tin...</string>
@@ -170,6 +169,7 @@
     <string name="action_retry">Thử lại</string>
     <string name="action_edit">Chỉnh sửa</string>
     <string name="action_complete_now">Bổ sung ngay</string>
+    <string name="action_back">Quay lại</string>
 
     <!-- Workflow #61 — backend error codes mapped to localised copy. -->
     <string name="error_card_required">Bạn chưa thêm thẻ ngân hàng. Vui lòng thêm thẻ để tiếp tục.</string>
@@ -433,6 +433,147 @@
     <string name="reward_success_title">Đổi quà thành công</string>
     <string name="reward_btn_redeem">Đổi quà</string>
     <string name="reward_notice_title">Thông báo</string>
+
+    <!-- Workflow #66 — Rewards screen / ViewModel i18n -->
+    <string name="reward_points_current_label">Điểm hiện có của bạn</string>
+    <string name="reward_tab_redeem">Đổi quà</string>
+    <string name="reward_tab_redeemed">Đã đổi</string>
+    <string name="reward_empty_redeemed">Bạn chưa đổi quà nào</string>
+    <string name="reward_error_insufficient_points">Không đủ điểm để đổi</string>
+    <string name="reward_redeem_success">Đổi thành công: %1$s</string>
+    <string name="reward_artifact_face_value">Mệnh giá</string>
+    <string name="reward_artifact_code">Mã</string>
+    <string name="reward_artifact_serial">Serial</string>
+    <string name="reward_artifact_benefit">Ưu đãi</string>
+    <string name="reward_artifact_expires">Hết hạn</string>
+    <string name="reward_artifact_used_application">Hồ sơ đã dùng</string>
+    <string name="reward_redeemed_date">Ngày đổi: %1$s</string>
+    <string name="reward_subtitle_code">Mã quà tặng có thể dùng ngay</string>
+    <string name="reward_benefit_interest_discount">Giảm %1$s%% lãi suất</string>
+    <string name="reward_benefit_insurance_waiver">Miễn phí bảo hiểm</string>
+    <string name="reward_benefit_early_repayment_waiver">Miễn phí trả trước hạn</string>
+    <string name="reward_benefit_phone_card">Thẻ cào điện thoại</string>
+    <string name="reward_benefit_shopping_voucher">Voucher mua sắm</string>
+    <string name="reward_money_suffix">đ</string>
+
+    <!-- Workflow #65 — Profile/Contact + Confirm info i18n -->
+    <string name="common_money_suffix">đ</string>
+    <string name="profile_contact_summary_label">Tóm tắt</string>
+    <string name="profile_contact_summary_empty">Chưa thêm liên hệ</string>
+    <string name="profile_contact_picker_label">Danh bạ</string>
+    <string name="profile_contact_picker_desc">Mở danh bạ</string>
+    <string name="profile_job_company_placeholder">Nhập tên công ty</string>
+    <string name="profile_nfc_error_missing_data">Không đọc được đủ dữ liệu CCCD từ NFC. Vui lòng thử lại hoặc dùng tải giấy tờ.</string>
+    <string name="profile_nfc_error_read_failed">Không đọc được dữ liệu NFC.</string>
+    <string name="confirm_info_section_title">Thông tin cá nhân</string>
+    <string name="confirm_info_continue">Tiếp tục</string>
+    <string name="confirm_info_edit_link">Tôi muốn sửa thông tin</string>
+    <string name="confirm_info_load_failed">Không thể tải dữ liệu</string>
+    <string name="confirm_info_na">N/A</string>
+    <string name="confirm_info_full_name">Họ và tên</string>
+    <string name="confirm_info_gender">Giới tính</string>
+    <string name="confirm_info_dob">Ngày sinh</string>
+    <string name="confirm_info_phone">Số điện thoại</string>
+    <string name="confirm_info_national_id">CMND/CCCD</string>
+    <string name="confirm_info_issue_date">Ngày cấp</string>
+
+    <!-- Workflow #69 — Contract / eSign / Chat / common component i18n -->
+    <string name="chatbot_send">Gửi</string>
+    <string name="chatbot_greeting">Xin chào! Tôi có thể giúp gì cho bạn?</string>
+    <string name="field_toggle_password_visibility">Bật/tắt hiển thị mật khẩu</string>
+
+    <!-- Workflow #67 — Loan configuration + information form + confirmation i18n -->
+    <string name="loan_config_select_amount">Chọn khoản vay mong muốn</string>
+    <string name="loan_config_select_tenor">Chọn kỳ hạn vay</string>
+    <string name="loan_config_voucher_label">Voucher ưu đãi</string>
+    <string name="loan_config_voucher_available">%1$d voucher có thể dùng</string>
+    <string name="loan_config_voucher_none_available">Không có voucher phù hợp</string>
+    <string name="loan_config_voucher_choose_title">Chọn voucher</string>
+    <string name="loan_config_voucher_no_use">Không dùng voucher</string>
+    <string name="loan_config_voucher_no_use_subtitle">Giữ nguyên điều kiện vay hiện tại</string>
+    <string name="loan_config_summary_actual">Số tiền thực nhận</string>
+    <string name="loan_config_summary_monthly">Tiền trả hàng tháng</string>
+    <string name="loan_config_total_payment_detail_desc">Chi tiết tổng tiền phải trả</string>
+
+    <string name="loan_breakdown_actual_received">Số tiền thực nhận</string>
+    <string name="loan_breakdown_insurance_fee">Phí bảo hiểm</string>
+    <string name="loan_breakdown_interest">Tiền lãi</string>
+    <string name="loan_breakdown_voucher_applied">Voucher áp dụng</string>
+
+    <string name="loan_tenor_title">Kỳ hạn vay</string>
+    <string name="loan_tenor_unit_month">tháng</string>
+    <string name="loan_tenor_value_months">%1$d tháng</string>
+
+    <string name="loan_selection_search_placeholder">Tìm kiếm…</string>
+
+    <string name="loan_form_section_permanent_address">Địa chỉ thường trú</string>
+    <string name="loan_form_section_current_address">Địa chỉ hiện tại</string>
+    <string name="loan_form_section_personal_info">Thông tin cá nhân</string>
+    <string name="loan_form_section_contact_person">Thông tin người liên hệ</string>
+    <string name="loan_form_label_select_administrative">Chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã</string>
+    <string name="loan_form_label_address_detail">Địa chỉ chi tiết</string>
+    <string name="loan_form_value_select_address">Chọn địa chỉ</string>
+    <string name="loan_form_same_as_permanent">Giống với địa chỉ thường trú</string>
+    <string name="loan_form_label_monthly_income">Thu nhập hàng tháng</string>
+    <string name="loan_form_label_profession">Nghề nghiệp</string>
+    <string name="loan_form_value_select_profession">Chọn nghề nghiệp</string>
+    <string name="loan_form_label_company">Tên công ty</string>
+    <string name="loan_form_placeholder_company">Nhập tên công ty</string>
+    <string name="loan_form_label_position">Chức vụ</string>
+    <string name="loan_form_value_select_position">Chọn chức vụ</string>
+
+    <string name="confirm_loan_section_loan_info">Thông tin khoản vay</string>
+    <string name="confirm_loan_section_disbursement">Tài khoản nhận giải ngân</string>
+    <string name="confirm_loan_section_permanent_address">Địa chỉ thường trú</string>
+    <string name="confirm_loan_section_current_address">Địa chỉ hiện tại</string>
+    <string name="confirm_loan_section_personal_info">Thông tin cá nhân</string>
+    <string name="confirm_loan_section_contact_person">Thông tin người liên hệ</string>
+    <string name="confirm_loan_row_lender">Đơn vị cho vay</string>
+    <string name="confirm_loan_row_lender_name">easyMoney</string>
+    <string name="confirm_loan_row_amount">Số tiền vay mong muốn</string>
+    <string name="confirm_loan_row_tenor">Kỳ hạn vay</string>
+    <string name="confirm_loan_row_insurance">Bảo hiểm khoản vay</string>
+    <string name="confirm_loan_value_insurance_yes">Có tham gia</string>
+    <string name="confirm_loan_value_insurance_no">Không tham gia</string>
+    <string name="confirm_loan_row_voucher">Voucher</string>
+    <string name="confirm_loan_row_loan_method">Phương thức cho vay</string>
+    <string name="confirm_loan_value_loan_method">Cho vay từng lần</string>
+    <string name="confirm_loan_row_repay_method">Phương thức trả nợ</string>
+    <string name="confirm_loan_value_repay_method">Trả gốc và lãi hàng tháng</string>
+    <string name="confirm_loan_row_account_holder">Chủ tài khoản</string>
+    <string name="confirm_loan_row_bank">Ngân hàng</string>
+    <string name="confirm_loan_row_account_number">Số tài khoản</string>
+    <string name="confirm_loan_row_administrative">Tỉnh/Thành phố, Quận/Huyện, Phường/Xã</string>
+    <string name="confirm_loan_row_address_detail">Địa chỉ chi tiết</string>
+    <string name="confirm_loan_row_income">Thu nhập hàng tháng</string>
+    <string name="confirm_loan_row_profession">Nghề nghiệp</string>
+    <string name="confirm_loan_row_position">Chức vụ</string>
+    <string name="confirm_loan_row_education">Trình độ học vấn</string>
+    <string name="confirm_loan_row_marital">Tình trạng hôn nhân</string>
+    <string name="confirm_loan_row_contact_name">Họ và tên</string>
+    <string name="confirm_loan_row_contact_relationship">Mối quan hệ với bạn</string>
+    <string name="confirm_loan_row_contact_phone">Số điện thoại</string>
+    <string name="confirm_loan_submit">Xác nhận</string>
+    <string name="confirm_loan_submitting">Đang gửi…</string>
+    <string name="confirm_loan_error_title">Không thể gửi hồ sơ</string>
+    <string name="confirm_loan_error_close">Đóng</string>
+
+    <string name="loan_form_label_education">Trình độ học vấn</string>
+    <string name="loan_form_value_select_education">Chọn trình độ học vấn</string>
+    <string name="loan_form_label_marital_status">Tình trạng hôn nhân</string>
+    <string name="loan_form_value_select_marital_status">Chọn tình trạng hôn nhân</string>
+    <string name="loan_form_section_spouse">Thông tin vợ/chồng</string>
+    <string name="loan_form_label_full_name">Họ và tên</string>
+    <string name="loan_form_placeholder_full_name">Nhập họ và tên</string>
+    <string name="loan_form_label_phone">Số điện thoại</string>
+    <string name="loan_form_placeholder_phone">Nhập số điện thoại</string>
+    <string name="loan_form_label_relationship">Mối quan hệ với bạn</string>
+    <string name="loan_form_value_select_relationship">Chọn mối quan hệ</string>
+    <string name="loan_form_placeholder_income">1.000.000</string>
+    <string name="loan_form_continue">Tiếp tục</string>
+    <string name="loan_form_sheet_province">Tỉnh/Thành phố</string>
+    <string name="loan_form_sheet_district">Quận/Huyện</string>
+    <string name="loan_form_sheet_ward">Phường/Xã</string>
     <string name="action_ok">OK</string>
 
     <!-- Security Settings -->
@@ -508,4 +649,40 @@
     <string name="nfc_status_reading">Đã tìm thấy thẻ, đang đọc dữ liệu…</string>
     <string name="nfc_status_read_error">Lỗi khi đọc thẻ: %1$s</string>
     <string name="nfc_button_cancel">Huỷ</string>
+
+    <!-- Workflow #68 — eKYC intro / error / face-capture i18n -->
+    <string name="ekyc_intro_title">Xác thực khuôn mặt</string>
+    <string name="ekyc_intro_start_capture">Bắt đầu chụp</string>
+    <string name="ekyc_intro_illustration_desc">Ảnh minh hoạ eKYC</string>
+    <string name="ekyc_intro_step_note_label">Lưu ý</string>
+    <string name="ekyc_intro_step_note_content">Vui lòng giữ điện thoại trước mặt và thực hiện theo hướng dẫn trên màn hình để xác thực.</string>
+    <string name="ekyc_intro_step_1_label">Bước 1</string>
+    <string name="ekyc_intro_step_1_content">Chụp ảnh chân dung của bạn trong môi trường đủ ánh sáng.</string>
+    <string name="ekyc_error_title">Xác thực không thành công</string>
+    <string name="ekyc_error_default_message">Lỗi xác thực khuôn mặt. Vui lòng thử lại.</string>
+    <string name="ekyc_error_preview_message">Ảnh chân dung của bạn bị mờ hoặc không đủ ánh sáng. Hệ thống không thể nhận diện chính xác.</string>
+    <string name="ekyc_error_tips_title">Mẹo để chụp ảnh tốt hơn:</string>
+    <string name="ekyc_error_tip_face_in_frame">Đảm bảo khuôn mặt nằm trong khung hình</string>
+    <string name="ekyc_error_tip_light">Chụp tại nơi có đủ ánh sáng tự nhiên</string>
+    <string name="ekyc_error_tip_stable">Giữ điện thoại ổn định, tránh bị rung</string>
+    <string name="ekyc_error_tip_obstruction">Không đeo kính râm, khẩu trang hoặc mũ</string>
+    <string name="ekyc_retake_now">Chụp lại ngay</string>
+    <string name="ekyc_back_to_intro">Quay lại hướng dẫn</string>
+    <string name="ekyc_capture_align_prompt">Căn chỉnh khung hình để cho phép chụp</string>
+    <string name="ekyc_processing_image">Đang xử lý ảnh…</string>
+    <string name="ekyc_permission_required_title">Ứng dụng cần truy cập máy ảnh</string>
+    <string name="ekyc_permission_required_body">Vui lòng cấp quyền camera để bắt đầu chụp ảnh chân dung.</string>
+    <string name="ekyc_permission_allow">Cho phép truy cập</string>
+    <string name="ekyc_permission_blocked_title">Camera đang bị chặn</string>
+    <string name="ekyc_permission_blocked_body">Vui lòng mở Cài đặt và cấp quyền Camera cho ứng dụng.</string>
+    <string name="ekyc_permission_open_settings">Mở Cài đặt</string>
+    <string name="ekyc_precheck_no_face">Không phát hiện khuôn mặt</string>
+    <string name="ekyc_precheck_multiple_faces">Chỉ một người trong khung</string>
+    <string name="ekyc_precheck_ready">Sẵn sàng chụp</string>
+    <string name="ekyc_precheck_face_too_small">Di chuyển gần hơn</string>
+    <string name="ekyc_precheck_face_out_of_frame">Di chuyển xa hơn</string>
+    <string name="ekyc_precheck_face_tilted">Quay thẳng phía trước</string>
+    <string name="ekyc_precheck_low_light">Căn chỉnh ánh sáng (quá tối)</string>
+    <string name="ekyc_precheck_unknown">Vui lòng thực hiện lại yêu cầu</string>
+    <string name="ekyc_error_upload_failed">Tải lên thất bại</string>
 </resources>

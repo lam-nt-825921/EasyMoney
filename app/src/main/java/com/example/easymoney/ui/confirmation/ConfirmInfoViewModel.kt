@@ -2,8 +2,10 @@ package com.example.easymoney.ui.confirmation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easymoney.R
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,12 +49,12 @@ class ConfirmInfoViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
+                    val errorText: UiText = result.message
+                        .takeIf { it.isNotBlank() }
+                        ?.let { UiText.DynamicString(it) }
+                        ?: UiText.StringResource(R.string.confirm_info_load_failed)
                     _uiState.update {
-                        it.copy(
-                            loadState = ConfirmInfoLoadState.Error(
-                                result.message.ifBlank { "Khong the tai du lieu" }
-                            )
-                        )
+                        it.copy(loadState = ConfirmInfoLoadState.Error(errorText))
                     }
                 }
 
@@ -70,4 +72,3 @@ class ConfirmInfoViewModel @Inject constructor(
         }
     }
 }
-

@@ -44,7 +44,6 @@
     <string name="register_confirm_password_placeholder">Confirm password</string>
     <string name="register_terms_text">I have read, understood, and agree to all terms and conditions of EasyMoney\'s services</string>
 
-    <string name="confirm_info_section_title">Personal Information</string>
     <string name="confirm_continue">Continue</string>
     <string name="confirm_edit_info">I want to edit information</string>
     <string name="confirm_loading">Loading information...</string>
@@ -170,6 +169,7 @@
     <string name="action_retry">Retry</string>
     <string name="action_edit">Edit</string>
     <string name="action_complete_now">Complete now</string>
+    <string name="action_back">Back</string>
 
     <!-- Workflow #61 — backend error codes mapped to localised copy. -->
     <string name="error_card_required">You haven\'t added a bank card. Please add one to continue.</string>
@@ -434,6 +434,147 @@
     <string name="reward_success_title">Gift redeemed successfully</string>
     <string name="reward_btn_redeem">Redeem gift</string>
     <string name="reward_notice_title">Notice</string>
+
+    <!-- Workflow #66 — Rewards screen / ViewModel i18n -->
+    <string name="reward_points_current_label">Your current points</string>
+    <string name="reward_tab_redeem">Redeem</string>
+    <string name="reward_tab_redeemed">Redeemed</string>
+    <string name="reward_empty_redeemed">You have not redeemed any gifts yet</string>
+    <string name="reward_error_insufficient_points">Not enough points to redeem</string>
+    <string name="reward_redeem_success">Redeemed successfully: %1$s</string>
+    <string name="reward_artifact_face_value">Face value</string>
+    <string name="reward_artifact_code">Code</string>
+    <string name="reward_artifact_serial">Serial</string>
+    <string name="reward_artifact_benefit">Benefit</string>
+    <string name="reward_artifact_expires">Expires</string>
+    <string name="reward_artifact_used_application">Used on application</string>
+    <string name="reward_redeemed_date">Redeemed on: %1$s</string>
+    <string name="reward_subtitle_code">Voucher code is ready to use</string>
+    <string name="reward_benefit_interest_discount">%1$s%% interest discount</string>
+    <string name="reward_benefit_insurance_waiver">Insurance fee waived</string>
+    <string name="reward_benefit_early_repayment_waiver">Early repayment fee waived</string>
+    <string name="reward_benefit_phone_card">Phone top-up card</string>
+    <string name="reward_benefit_shopping_voucher">Shopping voucher</string>
+    <string name="reward_money_suffix">VND</string>
+
+    <!-- Workflow #65 — Profile/Contact + Confirm info i18n -->
+    <string name="common_money_suffix">VND</string>
+    <string name="profile_contact_summary_label">Summary</string>
+    <string name="profile_contact_summary_empty">No contact added yet</string>
+    <string name="profile_contact_picker_label">Contacts</string>
+    <string name="profile_contact_picker_desc">Open contacts</string>
+    <string name="profile_job_company_placeholder">Enter company name</string>
+    <string name="profile_nfc_error_missing_data">Could not read enough ID data from NFC. Please retry or upload your documents.</string>
+    <string name="profile_nfc_error_read_failed">Could not read NFC data.</string>
+    <string name="confirm_info_section_title">Personal information</string>
+    <string name="confirm_info_continue">Continue</string>
+    <string name="confirm_info_edit_link">I want to edit my information</string>
+    <string name="confirm_info_load_failed">Could not load data</string>
+    <string name="confirm_info_na">N/A</string>
+    <string name="confirm_info_full_name">Full name</string>
+    <string name="confirm_info_gender">Gender</string>
+    <string name="confirm_info_dob">Date of birth</string>
+    <string name="confirm_info_phone">Phone number</string>
+    <string name="confirm_info_national_id">ID number</string>
+    <string name="confirm_info_issue_date">Issue date</string>
+
+    <!-- Workflow #69 — Contract / eSign / Chat / common component i18n -->
+    <string name="chatbot_send">Send</string>
+    <string name="chatbot_greeting">Hi! How can I help you?</string>
+    <string name="field_toggle_password_visibility">Toggle password visibility</string>
+
+    <!-- Workflow #67 — Loan configuration + information form + confirmation i18n -->
+    <string name="loan_config_select_amount">Choose your desired loan amount</string>
+    <string name="loan_config_select_tenor">Choose loan tenor</string>
+    <string name="loan_config_voucher_label">Promotional voucher</string>
+    <string name="loan_config_voucher_available">%1$d vouchers available</string>
+    <string name="loan_config_voucher_none_available">No matching vouchers</string>
+    <string name="loan_config_voucher_choose_title">Choose voucher</string>
+    <string name="loan_config_voucher_no_use">Do not use voucher</string>
+    <string name="loan_config_voucher_no_use_subtitle">Keep current loan conditions</string>
+    <string name="loan_config_summary_actual">Amount disbursed</string>
+    <string name="loan_config_summary_monthly">Monthly payment</string>
+    <string name="loan_config_total_payment_detail_desc">Total payment breakdown</string>
+
+    <string name="loan_breakdown_actual_received">Amount disbursed</string>
+    <string name="loan_breakdown_insurance_fee">Insurance fee</string>
+    <string name="loan_breakdown_interest">Interest</string>
+    <string name="loan_breakdown_voucher_applied">Applied voucher</string>
+
+    <string name="loan_tenor_title">Loan tenor</string>
+    <string name="loan_tenor_unit_month">months</string>
+    <string name="loan_tenor_value_months">%1$d months</string>
+
+    <string name="loan_selection_search_placeholder">Search…</string>
+
+    <string name="loan_form_section_permanent_address">Permanent address</string>
+    <string name="loan_form_section_current_address">Current address</string>
+    <string name="loan_form_section_personal_info">Personal information</string>
+    <string name="loan_form_section_contact_person">Contact person</string>
+    <string name="loan_form_label_select_administrative">Province/City, District, Ward</string>
+    <string name="loan_form_label_address_detail">Address details</string>
+    <string name="loan_form_value_select_address">Select address</string>
+    <string name="loan_form_same_as_permanent">Same as permanent address</string>
+    <string name="loan_form_label_monthly_income">Monthly income</string>
+    <string name="loan_form_label_profession">Profession</string>
+    <string name="loan_form_value_select_profession">Select profession</string>
+    <string name="loan_form_label_company">Company name</string>
+    <string name="loan_form_placeholder_company">Enter company name</string>
+    <string name="loan_form_label_position">Position</string>
+    <string name="loan_form_value_select_position">Select position</string>
+
+    <string name="confirm_loan_section_loan_info">Loan information</string>
+    <string name="confirm_loan_section_disbursement">Disbursement account</string>
+    <string name="confirm_loan_section_permanent_address">Permanent address</string>
+    <string name="confirm_loan_section_current_address">Current address</string>
+    <string name="confirm_loan_section_personal_info">Personal information</string>
+    <string name="confirm_loan_section_contact_person">Contact person</string>
+    <string name="confirm_loan_row_lender">Lender</string>
+    <string name="confirm_loan_row_lender_name">easyMoney</string>
+    <string name="confirm_loan_row_amount">Requested loan amount</string>
+    <string name="confirm_loan_row_tenor">Loan tenor</string>
+    <string name="confirm_loan_row_insurance">Loan insurance</string>
+    <string name="confirm_loan_value_insurance_yes">Enrolled</string>
+    <string name="confirm_loan_value_insurance_no">Not enrolled</string>
+    <string name="confirm_loan_row_voucher">Voucher</string>
+    <string name="confirm_loan_row_loan_method">Loan method</string>
+    <string name="confirm_loan_value_loan_method">One-time loan</string>
+    <string name="confirm_loan_row_repay_method">Repayment method</string>
+    <string name="confirm_loan_value_repay_method">Monthly principal + interest</string>
+    <string name="confirm_loan_row_account_holder">Account holder</string>
+    <string name="confirm_loan_row_bank">Bank</string>
+    <string name="confirm_loan_row_account_number">Account number</string>
+    <string name="confirm_loan_row_administrative">Province/City, District, Ward</string>
+    <string name="confirm_loan_row_address_detail">Address details</string>
+    <string name="confirm_loan_row_income">Monthly income</string>
+    <string name="confirm_loan_row_profession">Profession</string>
+    <string name="confirm_loan_row_position">Position</string>
+    <string name="confirm_loan_row_education">Education</string>
+    <string name="confirm_loan_row_marital">Marital status</string>
+    <string name="confirm_loan_row_contact_name">Full name</string>
+    <string name="confirm_loan_row_contact_relationship">Relationship</string>
+    <string name="confirm_loan_row_contact_phone">Phone number</string>
+    <string name="confirm_loan_submit">Confirm</string>
+    <string name="confirm_loan_submitting">Submitting…</string>
+    <string name="confirm_loan_error_title">Unable to submit application</string>
+    <string name="confirm_loan_error_close">Close</string>
+
+    <string name="loan_form_label_education">Education</string>
+    <string name="loan_form_value_select_education">Select education</string>
+    <string name="loan_form_label_marital_status">Marital status</string>
+    <string name="loan_form_value_select_marital_status">Select marital status</string>
+    <string name="loan_form_section_spouse">Spouse information</string>
+    <string name="loan_form_label_full_name">Full name</string>
+    <string name="loan_form_placeholder_full_name">Enter full name</string>
+    <string name="loan_form_label_phone">Phone number</string>
+    <string name="loan_form_placeholder_phone">Enter phone number</string>
+    <string name="loan_form_label_relationship">Relationship</string>
+    <string name="loan_form_value_select_relationship">Select relationship</string>
+    <string name="loan_form_placeholder_income">1,000,000</string>
+    <string name="loan_form_continue">Continue</string>
+    <string name="loan_form_sheet_province">Province/City</string>
+    <string name="loan_form_sheet_district">District</string>
+    <string name="loan_form_sheet_ward">Ward</string>
     <string name="action_ok">OK</string>
 
     <!-- Security Settings -->
@@ -509,4 +650,40 @@
     <string name="nfc_status_reading">Card detected, reading data…</string>
     <string name="nfc_status_read_error">Card read failed: %1$s</string>
     <string name="nfc_button_cancel">Cancel</string>
+
+    <!-- Workflow #68 — eKYC intro / error / face-capture i18n -->
+    <string name="ekyc_intro_title">Face verification</string>
+    <string name="ekyc_intro_start_capture">Start capture</string>
+    <string name="ekyc_intro_illustration_desc">eKYC illustration</string>
+    <string name="ekyc_intro_step_note_label">Note</string>
+    <string name="ekyc_intro_step_note_content">Please hold your phone in front of you and follow the on-screen instructions to verify.</string>
+    <string name="ekyc_intro_step_1_label">Step 1</string>
+    <string name="ekyc_intro_step_1_content">Take a portrait photo in a well-lit environment.</string>
+    <string name="ekyc_error_title">Verification failed</string>
+    <string name="ekyc_error_default_message">Face verification failed. Please try again.</string>
+    <string name="ekyc_error_preview_message">Your portrait is blurry or under-lit. The system cannot recognise it accurately.</string>
+    <string name="ekyc_error_tips_title">Tips for a better photo:</string>
+    <string name="ekyc_error_tip_face_in_frame">Keep your face inside the frame</string>
+    <string name="ekyc_error_tip_light">Take the photo in good natural light</string>
+    <string name="ekyc_error_tip_stable">Hold the phone steady to avoid blur</string>
+    <string name="ekyc_error_tip_obstruction">Do not wear sunglasses, a mask or a hat</string>
+    <string name="ekyc_retake_now">Retake now</string>
+    <string name="ekyc_back_to_intro">Back to instructions</string>
+    <string name="ekyc_capture_align_prompt">Align the frame to enable capture</string>
+    <string name="ekyc_processing_image">Processing image…</string>
+    <string name="ekyc_permission_required_title">The app needs camera access</string>
+    <string name="ekyc_permission_required_body">Please grant camera permission to start the portrait capture.</string>
+    <string name="ekyc_permission_allow">Allow access</string>
+    <string name="ekyc_permission_blocked_title">Camera is blocked</string>
+    <string name="ekyc_permission_blocked_body">Please open Settings and grant Camera permission for the app.</string>
+    <string name="ekyc_permission_open_settings">Open Settings</string>
+    <string name="ekyc_precheck_no_face">No face detected</string>
+    <string name="ekyc_precheck_multiple_faces">Only one person in frame</string>
+    <string name="ekyc_precheck_ready">Ready to capture</string>
+    <string name="ekyc_precheck_face_too_small">Move closer</string>
+    <string name="ekyc_precheck_face_out_of_frame">Move further away</string>
+    <string name="ekyc_precheck_face_tilted">Look straight ahead</string>
+    <string name="ekyc_precheck_low_light">Improve lighting (too dark)</string>
+    <string name="ekyc_precheck_unknown">Please try again</string>
+    <string name="ekyc_error_upload_failed">Upload failed</string>
 </resources>

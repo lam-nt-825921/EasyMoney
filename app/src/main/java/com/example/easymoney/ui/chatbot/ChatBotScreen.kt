@@ -28,6 +28,9 @@ fun ChatBotScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    val greeting = stringResource(R.string.chatbot_greeting)
+
+    LaunchedEffect(Unit) { viewModel.greetIfNeeded(greeting) }
 
     LaunchedEffect(uiState.messages.size) {
         if (uiState.messages.isNotEmpty()) {
@@ -127,7 +130,7 @@ private fun InputRow(input: String, onChange: (String) -> Unit, onSend: () -> Un
             )
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onSend) {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.chatbot_send))
             }
         }
     }

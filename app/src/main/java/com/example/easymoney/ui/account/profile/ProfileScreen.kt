@@ -104,7 +104,10 @@ fun ProfileScreen(
 
             ProfileInfoGroup(title = stringResource(id = R.string.profile_section_contact)) {
                 if (profile.contactInfo.contactName.isBlank() && profile.contactInfo.phoneNumber.isBlank()) {
-                    ProfileInfoItem(label = "Tóm tắt", value = "Chưa thêm liên hệ")
+                    ProfileInfoItem(
+                        label = stringResource(R.string.profile_contact_summary_label),
+                        value = stringResource(R.string.profile_contact_summary_empty)
+                    )
                 } else {
                     ProfileInfoItem(label = stringResource(id = R.string.profile_label_contact_name), value = profile.contactInfo.contactName)
                     ProfileInfoItem(label = stringResource(id = R.string.profile_label_relationship), value = profile.contactInfo.relationship)

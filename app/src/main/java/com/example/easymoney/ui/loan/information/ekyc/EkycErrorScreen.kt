@@ -29,11 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.easymoney.R
 import com.example.easymoney.ui.theme.EkycColors
 
 @Composable
@@ -69,7 +71,7 @@ fun EkycErrorScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Xác thực không thành công",
+            text = stringResource(R.string.ekyc_error_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
@@ -95,18 +97,18 @@ fun EkycErrorScreen(
                 .padding(20.dp)
         ) {
             Text(
-                text = "Mẹo để chụp ảnh tốt hơn:",
+                text = stringResource(R.string.ekyc_error_tips_title),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            ErrorTipItem(text = "Đảm bảo khuôn mặt nằm trong khung hình")
-            ErrorTipItem(text = "Chụp tại nơi có đủ ánh sáng tự nhiên")
-            ErrorTipItem(text = "Giữ điện thoại ổn định, tránh bị rung")
-            ErrorTipItem(text = "Không đeo kính râm, khẩu trang hoặc mũ")
+            ErrorTipItem(text = stringResource(R.string.ekyc_error_tip_face_in_frame))
+            ErrorTipItem(text = stringResource(R.string.ekyc_error_tip_light))
+            ErrorTipItem(text = stringResource(R.string.ekyc_error_tip_stable))
+            ErrorTipItem(text = stringResource(R.string.ekyc_error_tip_obstruction))
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -123,7 +125,7 @@ fun EkycErrorScreen(
             )
         ) {
             Text(
-                text = "Chụp lại ngay",
+                text = stringResource(R.string.ekyc_retake_now),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
@@ -139,7 +141,7 @@ fun EkycErrorScreen(
             shape = RoundedCornerShape(27.dp)
         ) {
             Text(
-                text = "Quay lại hướng dẫn",
+                text = stringResource(R.string.ekyc_back_to_intro),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.primary
@@ -176,7 +178,7 @@ private fun ErrorTipItem(text: String) {
 fun EkycErrorScreenPreview() {
     MaterialTheme {
         EkycErrorScreen(
-            errorMessage = "Ảnh chân dung của bạn bị mờ hoặc không đủ ánh sáng. Hệ thống không thể nhận diện chính xác.",
+            errorMessage = stringResource(R.string.ekyc_error_preview_message),
             onRetake = {},
             onBackToIntro = {}
         )

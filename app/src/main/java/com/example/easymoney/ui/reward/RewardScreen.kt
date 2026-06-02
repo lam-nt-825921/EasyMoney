@@ -63,7 +63,7 @@ fun RewardScreen(
         ) {
             Column {
                 Text(
-                    text = "Điểm hiện có của bạn",
+                    text = stringResource(R.string.reward_points_current_label),
                     color = Color.White.copy(alpha = 0.8f),
                     style = MaterialTheme.typography.labelMedium
                 )
@@ -77,7 +77,7 @@ fun RewardScreen(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "điểm",
+                        text = stringResource(R.string.common_points_unit),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 6.dp)
@@ -98,12 +98,12 @@ fun RewardScreen(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Đổi quà") }
+                text = { Text(stringResource(R.string.reward_tab_redeem)) }
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text("Đã đổi") }
+                text = { Text(stringResource(R.string.reward_tab_redeemed)) }
             )
         }
 
@@ -129,7 +129,7 @@ fun RewardScreen(
         } else {
             if (uiState.redeemedRewards.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Bạn chưa đổi quà nào", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.reward_empty_redeemed), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -182,7 +182,7 @@ fun RewardScreen(
                 title = { Text(stringResource(R.string.reward_success_title)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(msg)
+                        Text(msg.asString())
                         uiState.latestRedeemedVoucher?.let { voucher ->
                             VoucherArtifactContent(voucher = voucher)
                         }
@@ -199,7 +199,7 @@ fun RewardScreen(
             AlertDialog(
                 onDismissRequest = viewModel::consumeMessages,
                 title = { Text(stringResource(R.string.reward_notice_title)) },
-                text = { Text(msg) },
+                text = { Text(msg.asString()) },
                 confirmButton = {
                     TextButton(onClick = viewModel::consumeMessages) { Text(stringResource(R.string.action_ok)) }
                 }
@@ -243,7 +243,7 @@ private fun RedeemedRewardCard(voucher: UserRewardVoucher) {
             }
             VoucherArtifactContent(voucher = voucher)
             Text(
-                text = "Ngày đổi: ${formatDate(voucher.issuedAt)}",
+                text = stringResource(R.string.reward_redeemed_date, formatDate(voucher.issuedAt)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -263,13 +263,13 @@ private fun VoucherArtifactContent(voucher: UserRewardVoucher) {
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             voucher.faceValue?.let {
-                ArtifactRow("Mệnh giá", formatMoney(it))
+                ArtifactRow(stringResource(R.string.reward_artifact_face_value), formatMoney(it))
             }
             voucher.code?.let {
-                ArtifactRow("Mã", it)
+                ArtifactRow(stringResource(R.string.reward_artifact_code), it)
             }
             voucher.serial?.let {
-                ArtifactRow("Serial", it)
+                ArtifactRow(stringResource(R.string.reward_artifact_serial), it)
             }
         }
     } else {
@@ -280,9 +280,15 @@ private fun VoucherArtifactContent(voucher: UserRewardVoucher) {
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            voucher.benefitType?.let { ArtifactRow("Ưu đãi", benefitLabel(voucher)) }
-            voucher.expiresAt?.let { ArtifactRow("Hết hạn", formatDate(it)) }
-            voucher.usedApplicationId?.let { ArtifactRow("Hồ sơ đã dùng", it) }
+            voucher.benefitType?.let {
+                ArtifactRow(stringResource(R.string.reward_artifact_benefit), benefitLabel(voucher))
+            }
+            voucher.expiresAt?.let {
+                ArtifactRow(stringResource(R.string.reward_artifact_expires), formatDate(it))
+            }
+            voucher.usedApplicationId?.let {
+                ArtifactRow(stringResource(R.string.reward_artifact_used_application), it)
+            }
         }
     }
 }
@@ -295,26 +301,33 @@ private fun ArtifactRow(label: String, value: String) {
     }
 }
 
+@Composable
 private fun redeemedSubtitle(voucher: UserRewardVoucher): String = when {
-    voucher.code != null -> "Mã quà tặng có thể dùng ngay"
+    voucher.code != null -> stringResource(R.string.reward_subtitle_code)
     voucher.benefitType != null -> benefitLabel(voucher)
     else -> voucher.type
 }
 
+@Composable
 private fun benefitLabel(voucher: UserRewardVoucher): String = when (voucher.benefitType) {
-    "INTEREST_RATE_DISCOUNT" -> "Giảm ${voucher.benefitValue ?: 0.0}% lãi suất"
-    "INSURANCE_FEE_WAIVER" -> "Miễn phí bảo hiểm"
-    "EARLY_REPAYMENT_FEE_WAIVER" -> "Miễn phí trả trước hạn"
-    "PHONE_CARD" -> "Thẻ cào điện thoại"
-    "SHOPPING_VOUCHER" -> "Voucher mua sắm"
+    "INTEREST_RATE_DISCOUNT" -> stringResource(
+        R.string.reward_benefit_interest_discount,
+        (voucher.benefitValue ?: 0.0).toString()
+    )
+    "INSURANCE_FEE_WAIVER" -> stringResource(R.string.reward_benefit_insurance_waiver)
+    "EARLY_REPAYMENT_FEE_WAIVER" -> stringResource(R.string.reward_benefit_early_repayment_waiver)
+    "PHONE_CARD" -> stringResource(R.string.reward_benefit_phone_card)
+    "SHOPPING_VOUCHER" -> stringResource(R.string.reward_benefit_shopping_voucher)
     else -> voucher.benefitType.orEmpty()
 }
 
 private fun formatDate(timestamp: Long): String =
     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(timestamp))
 
+@Composable
 private fun formatMoney(amount: Long): String =
-    NumberFormat.getNumberInstance(Locale("vi", "VN")).format(amount) + "đ"
+    NumberFormat.getNumberInstance(Locale("vi", "VN")).format(amount) +
+        stringResource(R.string.reward_money_suffix)
 
 @Composable
 fun RewardCard(

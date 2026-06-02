@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +66,11 @@ fun EkycIntroScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(text = "Bắt đầu chụp", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(
+                        text = stringResource(R.string.ekyc_intro_start_capture),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
                 }
             }
         }
@@ -79,7 +84,7 @@ fun EkycIntroScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Xác thực khuôn mặt",
+                text = stringResource(R.string.ekyc_intro_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -94,7 +99,7 @@ fun EkycIntroScreen(
             ) {
                 Image(
                     painter = painterResource(id = illustrationResId),
-                    contentDescription = "Ảnh minh họa eKYC",
+                    contentDescription = stringResource(R.string.ekyc_intro_illustration_desc),
                     modifier = Modifier.size(220.dp)
                 )
             }
@@ -104,12 +109,12 @@ fun EkycIntroScreen(
                 modifier = Modifier.padding(top = 4.dp, start = 2.dp, end = 2.dp)
             ) {
                 EkycInstructionText(
-                    step = "Lưu ý",
-                    content = "Vui lòng giữ điện thoại trước mặt và thực hiện theo hướng dẫn trên màn hình để xác thực."
+                    step = stringResource(R.string.ekyc_intro_step_note_label),
+                    content = stringResource(R.string.ekyc_intro_step_note_content)
                 )
                 EkycInstructionText(
-                    step = "Bước 1",
-                    content = "Chụp ảnh chân dung của bạn trong môi trường đủ ánh sáng."
+                    step = stringResource(R.string.ekyc_intro_step_1_label),
+                    content = stringResource(R.string.ekyc_intro_step_1_content)
                 )
             }
 

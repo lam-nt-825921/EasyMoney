@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import com.example.easymoney.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -82,7 +84,7 @@ fun LoanConfigurationContent(
             } else {
                 // ✓ Show content when data loaded
                 Text(
-                    "Chọn khoản vay mong muốn",
+                    text = stringResource(R.string.loan_config_select_amount),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     lineHeight = 34.sp,
@@ -271,17 +273,20 @@ fun LoanAmountSection(amount: Long, minAmount: Long, maxAmount: Long, onAmountCh
 @Composable
 fun TenorSelector(selectedTenor: Int, onClick: () -> Unit) {
     OutlinedSelector(
-        label = "Chọn kỳ hạn vay",
-        value = "$selectedTenor tháng",
+        label = stringResource(R.string.loan_config_select_tenor),
+        value = stringResource(R.string.loan_tenor_value_months, selectedTenor),
         onClick = onClick
     )
 }
 
 @Composable
 fun VoucherSelector(selectedTitle: String?, count: Int, onClick: () -> Unit) {
+    val value = selectedTitle
+        ?: if (count > 0) stringResource(R.string.loan_config_voucher_available, count)
+        else stringResource(R.string.loan_config_voucher_none_available)
     OutlinedSelector(
-        label = "Voucher ưu đãi",
-        value = selectedTitle ?: if (count > 0) "$count voucher có thể dùng" else "Không có voucher phù hợp",
+        label = stringResource(R.string.loan_config_voucher_label),
+        value = value,
         onClick = onClick
     )
 }
@@ -293,11 +298,11 @@ private fun VoucherBottomSheetContent(
     onVoucherSelected: (String?) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-        Text("Chọn voucher", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Text(stringResource(R.string.loan_config_voucher_choose_title), fontWeight = FontWeight.Bold, fontSize = 22.sp)
         Spacer(modifier = Modifier.height(12.dp))
         VoucherOptionRow(
-            title = "Không dùng voucher",
-            subtitle = "Giữ nguyên điều kiện vay hiện tại",
+            title = stringResource(R.string.loan_config_voucher_no_use),
+            subtitle = stringResource(R.string.loan_config_voucher_no_use_subtitle),
             selected = selectedVoucherId == null,
             onClick = { onVoucherSelected(null) }
         )
@@ -368,10 +373,10 @@ fun LoanSummaryCard(state: LoanConfigurationUiState, onInfoClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            SummaryRow("Số tiền thực nhận", formatCurrency(state.actualReceivedAmount))
-            SummaryRow("Tiền trả hàng tháng", formatCurrency(state.monthlyPayment))
+            SummaryRow(stringResource(R.string.loan_config_summary_actual), formatCurrency(state.actualReceivedAmount))
+            SummaryRow(stringResource(R.string.loan_config_summary_monthly), formatCurrency(state.monthlyPayment))
             if (state.discountAmount > 0) {
-                SummaryRow("Ưu đãi voucher", "-${formatCurrency(state.discountAmount)}")
+                SummaryRow(stringResource(R.string.loan_config_voucher_label), "-${formatCurrency(state.discountAmount)}")
             }
             
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp, color = Color(0xFFEAECF0))
@@ -379,7 +384,7 @@ fun LoanSummaryCard(state: LoanConfigurationUiState, onInfoClick: () -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Tổng tiền phải trả", color = Color(0xFF667085), fontSize = 14.sp)
+                        Text(stringResource(R.string.loan_config_total_payment), color = Color(0xFF667085), fontSize = 14.sp)
                         IconButton(
                             onClick = onInfoClick,
                             modifier = Modifier
@@ -388,7 +393,7 @@ fun LoanSummaryCard(state: LoanConfigurationUiState, onInfoClick: () -> Unit) {
                         ) {
                             Icon(
                                 Icons.Default.Info,
-                                contentDescription = "Chi tiết tổng tiền phải trả",
+                                contentDescription = stringResource(R.string.loan_config_total_payment_detail_desc),
                                 tint = Color(0xFFFDB022),
                                 modifier = Modifier.size(16.dp)
                             )

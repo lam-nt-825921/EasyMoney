@@ -29,9 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.easymoney.R
 import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
@@ -76,7 +78,7 @@ private fun ConfirmInfoContent(
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = uiState.sectionTitle,
+                text = stringResource(R.string.confirm_info_section_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -97,7 +99,7 @@ private fun ConfirmInfoContent(
                     when (uiState.loadState) {
                         is ConfirmInfoLoadState.Error -> {
                             Text(
-                                text = (uiState.loadState as ConfirmInfoLoadState.Error).message,
+                                text = (uiState.loadState as ConfirmInfoLoadState.Error).message.asString(),
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(20.dp),
                                 style = MaterialTheme.typography.bodyLarge
@@ -142,12 +144,13 @@ private fun ConfirmInfoDataBody(uiState: ConfirmInfoUiState) {
             .padding(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        InfoRow(label = "Họ và tên", value = uiState.userInfo?.fullName ?: "N/A")
-        InfoRow(label = "Giới tính", value = uiState.userInfo?.gender ?: "N/A")
-        InfoRow(label = "Ngày sinh", value = uiState.userInfo?.dateOfBirth ?: "N/A")
-        InfoRow(label = "Số điện thoại", value = uiState.userInfo?.phoneNumber ?: "N/A")
-        InfoRow(label = "CMND/CCCD", value = uiState.userInfo?.nationalId ?: "N/A")
-        InfoRow(label = "Ngày cấp", value = uiState.userInfo?.issueDate ?: "N/A")
+        val na = stringResource(R.string.confirm_info_na)
+        InfoRow(label = stringResource(R.string.confirm_info_full_name), value = uiState.userInfo?.fullName ?: na)
+        InfoRow(label = stringResource(R.string.confirm_info_gender), value = uiState.userInfo?.gender ?: na)
+        InfoRow(label = stringResource(R.string.confirm_info_dob), value = uiState.userInfo?.dateOfBirth ?: na)
+        InfoRow(label = stringResource(R.string.confirm_info_phone), value = uiState.userInfo?.phoneNumber ?: na)
+        InfoRow(label = stringResource(R.string.confirm_info_national_id), value = uiState.userInfo?.nationalId ?: na)
+        InfoRow(label = stringResource(R.string.confirm_info_issue_date), value = uiState.userInfo?.issueDate ?: na)
     }
 }
 
@@ -202,14 +205,14 @@ private fun ConfirmInfoBottomBar(
             )
         ) {
             Text(
-                text = uiState.continueButtonText,
+                text = stringResource(R.string.confirm_info_continue),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         }
 
         Text(
-            text = uiState.editInfoText,
+            text = stringResource(R.string.confirm_info_edit_link),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
