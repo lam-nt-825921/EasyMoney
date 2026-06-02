@@ -21,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
 import com.example.easymoney.domain.repository.LoanRepositoryImpl
 import com.example.easymoney.ui.common.components.OtpDialog
-import com.example.easymoney.ui.common.security.BiometricGate
 import com.example.easymoney.ui.common.loading.SkeletonBlock
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 
@@ -36,16 +35,6 @@ fun ContractScreen(
     viewModel: ContractViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    // Workflow #64 — gate "Sign" qua BiometricGate trước khi mở OTP.
-    var pendingSign by remember { mutableStateOf<(() -> Unit)?>(null) }
-    val signCancelledMsg = stringResource(R.string.biometric_gate_cancelled)
-    BiometricGate(
-        is2FAEnabled = uiState.is2FAEnabled,
-        pendingAction = pendingSign,
-        onConsumed = { pendingSign = null },
-        onCancelled = { viewModel.onBiometricCancelled(signCancelledMsg) }
-    )
 
     // Load contract content when the screen starts or loanId changes
     LaunchedEffect(loanId) {
@@ -63,7 +52,8 @@ fun ContractScreen(
                 onCancel()
             },
             isVerifying = uiState.isOtpVerifying,
-            errorMessage = uiState.otpError?.asString()
+            errorMessage = uiState.otpError?.asString(),
+            prefillOtp = uiState.otpAutofill
         )
     }
 
@@ -75,7 +65,7 @@ fun ContractScreen(
                 isAccepted = uiState.isTermsAccepted,
                 isSigning = uiState.isSigning,
                 onAcceptedChange = viewModel::onTermsAcceptedChange,
-                onSignClick = { pendingSign = { viewModel.signContract(onSignSuccess) } },
+                onSignClick = { viewModel.signContract(onSignSuccess) },
                 onCancelClick = onCancel,
                 onTermsClick = onTermsClick
             )

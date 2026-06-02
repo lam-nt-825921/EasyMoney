@@ -30,7 +30,6 @@ data class ProfileCompletionUiState(
 enum class IdentityModule {
     FACE_CAPTURE,
     NFC_READER,
-    BIOMETRIC,
     DOCUMENT_UPLOAD
 }
 
@@ -156,13 +155,6 @@ class ProfileCompletionViewModel @Inject constructor(
         closeModule()
     }
 
-    fun onBiometricResult(result: BiometricResult) {
-        if (result.isSuccess) {
-            updateIdentityStatus { it.copy(isBiometricEnabled = true) }
-        }
-        closeModule()
-    }
-
     fun onDocumentUploadResult(result: DocumentResult) {
         if (result.fileUri != null || result.isFromCamera) {
             viewModelScope.launch {
@@ -184,20 +176,6 @@ class ProfileCompletionViewModel @Inject constructor(
 
     fun updateAvatar(uri: String) {
         val updatedProfile = _uiState.value.profile.copy(avatarUri = uri)
-        viewModelScope.launch {
-            val result = userRepository.updateProfile(updatedProfile)
-            if (result is Resource.Success) {
-                userRepository.getProfileCompletion(forceRefresh = true)
-                _uiState.update { it.copy(profile = updatedProfile) }
-            }
-        }
-    }
-
-    private fun updateIdentityStatus(update: (com.example.easymoney.domain.model.IdentityVerificationStatus) -> com.example.easymoney.domain.model.IdentityVerificationStatus) {
-        val currentProfile = _uiState.value.profile
-        val newStatus = update(currentProfile.identityStatus)
-        val updatedProfile = currentProfile.copy(identityStatus = newStatus)
-
         viewModelScope.launch {
             val result = userRepository.updateProfile(updatedProfile)
             if (result is Resource.Success) {

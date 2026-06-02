@@ -3,7 +3,6 @@ package com.example.easymoney.ui.payment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.R
-import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.repository.PaymentRepository
 import com.example.easymoney.ui.common.error.BackendErrorCode
@@ -18,13 +17,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WithdrawViewModel @Inject constructor(
-    private val paymentRepository: PaymentRepository,
-    private val appPreferences: AppPreferences
+    private val paymentRepository: PaymentRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        WithdrawUiState(is2FAEnabled = appPreferences.isBiometric2FAEnabled)
-    )
+    private val _uiState = MutableStateFlow(WithdrawUiState())
     val uiState: StateFlow<WithdrawUiState> = _uiState.asStateFlow()
 
     init {
@@ -116,11 +112,6 @@ class WithdrawViewModel @Inject constructor(
 
     fun consumeMessages() {
         _uiState.update { it.copy(errorMessage = null, successMessage = null, shouldNavigateToAddCard = false) }
-    }
-
-    /** Workflow #64 — biometric gate huỷ/fail trước khi gọi backend. */
-    fun onBiometricCancelled(message: String) {
-        _uiState.update { it.copy(errorMessage = UiText.DynamicString(message)) }
     }
 
     fun consumeAddCardNavigation() {

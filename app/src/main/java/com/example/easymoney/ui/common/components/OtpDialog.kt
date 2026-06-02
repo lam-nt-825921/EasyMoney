@@ -42,9 +42,20 @@ fun OtpDialog(
     onMaxAttemptsReached: () -> Unit,
     isVerifying: Boolean = false,
     errorMessage: String? = null,
-    maxAttempts: Int = 3
+    maxAttempts: Int = 3,
+    // Workflow #72 — when an OTP arrives via FCM it is auto-filled here. The user still
+    // taps confirm; the dialog never auto-submits on its own.
+    prefillOtp: String? = null
 ) {
     var otpValue by remember { mutableStateOf("") }
+
+    // Auto-fill (not auto-submit) when a matching OTP is pushed via FCM.
+    LaunchedEffect(prefillOtp) {
+        val incoming = prefillOtp?.filter { it.isDigit() }?.take(6)
+        if (!incoming.isNullOrBlank()) {
+            otpValue = incoming
+        }
+    }
     var timeLeft by remember { mutableIntStateOf(60) }
     var attempts by remember { mutableIntStateOf(0) }
     var isTimerRunning by remember { mutableStateOf(true) }

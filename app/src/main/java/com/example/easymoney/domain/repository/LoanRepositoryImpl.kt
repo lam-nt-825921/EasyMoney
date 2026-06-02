@@ -740,6 +740,50 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(content, isFromMock = true)
     }
 
+    override suspend fun createContract(applicationId: String): Resource<LoanContractDetail> {
+        if (isRemote()) {
+            return remoteDataSource?.createContract(applicationId)
+                ?: Resource.Error("Remote data source not available")
+        }
+        delay(500)
+        return Resource.Success(mockContractDetail("CONTRACT_$applicationId", applicationId), isFromMock = true)
+    }
+
+    override suspend fun getContractDetail(contractId: String): Resource<LoanContractDetail> {
+        if (isRemote()) {
+            return remoteDataSource?.getContractDetail(contractId)
+                ?: Resource.Error("Remote data source not available")
+        }
+        delay(500)
+        return Resource.Success(mockContractDetail(contractId, applicationId = null), isFromMock = true)
+    }
+
+    override suspend fun requestSignOtp(contractId: String): Resource<Unit> {
+        if (isRemote()) {
+            return remoteDataSource?.requestSignOtp(contractId)
+                ?: Resource.Error("Remote data source not available")
+        }
+        delay(600)
+        return Resource.Success(Unit, isFromMock = true)
+    }
+
+    private fun mockContractDetail(contractId: String, applicationId: String?): LoanContractDetail {
+        val sample = SAMPLE_APPROVED_CONTRACTS.firstOrNull()
+        return LoanContractDetail(
+            id = contractId,
+            applicationId = applicationId,
+            contractNumber = sample?.contractNumber ?: contractId,
+            amount = sample?.amount ?: 20_000_000,
+            termMonths = sample?.termMonths ?: 12,
+            interestRate = sample?.interestRate ?: 1.5,
+            approvedAt = sample?.approvedAt ?: System.currentTimeMillis(),
+            status = "APPROVED",
+            content = "Hợp đồng vay $contractId — nội dung mẫu (mock).",
+            htmlContent = null,
+            otpRequired = true
+        )
+    }
+
     override suspend fun sendOtp(purpose: String): Resource<Unit> {
         if (isRemote()) return remoteDataSource?.sendOtp(purpose) ?: Resource.Error("Remote data source not available")
         
@@ -853,6 +897,60 @@ class LoanRepositoryImpl @Inject constructor(
             )
         }
         return Resource.Success(Unit, isFromMock = true)
+    }
+
+    override suspend fun getRepaymentEstimate(
+        debtId: Long,
+        repayType: RepayType,
+        cardId: String?
+    ): Resource<RepaymentEstimate> {
+        if (isRemote()) {
+            return remoteDataSource?.getRepaymentEstimate(debtId, repayType, cardId)
+                ?: Resource.Error("Remote data source not available")
+        }
+
+        delay(300)
+        val debt = mockDebts.firstOrNull { it.id == debtId }
+            ?: return Resource.Error("Khoản nợ không tồn tại.")
+        val paymentMethod = if (cardId.isNullOrBlank()) "WALLET" else "CARD"
+        val estimate = when (repayType) {
+            RepayType.MONTHLY -> {
+                val interest = debt.remainingPrincipal * (debt.interestRate / 100.0)
+                val principal = (debt.monthlyPayment - interest).coerceAtLeast(0.0)
+                RepaymentEstimate(
+                    debtId = debtId,
+                    repayType = repayType,
+                    paymentMethod = paymentMethod,
+                    amountDue = debt.monthlyPayment.toDouble(),
+                    principalDue = principal,
+                    interestDue = interest,
+                    penaltyFee = 0.0,
+                    discountAmount = 0.0,
+                    rewardPointsPreview = (debt.monthlyPayment / 10_000).toInt(),
+                    currency = "VND",
+                    debtStatusAfterPayment = if (debt.monthsPaid + 1 >= debt.totalMonths) "PAID" else "ACTIVE"
+                )
+            }
+            RepayType.FULL_EARLY -> {
+                val interest = debt.remainingPrincipal * (debt.interestRate / 100.0)
+                val penalty = debt.remainingPrincipal * 0.02
+                val amountDue = debt.remainingPrincipal + interest + penalty
+                RepaymentEstimate(
+                    debtId = debtId,
+                    repayType = repayType,
+                    paymentMethod = paymentMethod,
+                    amountDue = amountDue,
+                    principalDue = debt.remainingPrincipal.toDouble(),
+                    interestDue = interest,
+                    penaltyFee = penalty,
+                    discountAmount = 0.0,
+                    rewardPointsPreview = (amountDue / 10_000).toInt(),
+                    currency = "VND",
+                    debtStatusAfterPayment = "PAID"
+                )
+            }
+        }
+        return Resource.Success(estimate, isFromMock = true)
     }
 
     private fun buildMetadataJson(request: EkycCaptureRequest): String {

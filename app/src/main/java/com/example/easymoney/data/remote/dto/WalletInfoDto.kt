@@ -26,7 +26,9 @@ data class BalanceFlowDto(
 fun WalletInfoDto.toDomain(): WalletInfo = WalletInfo(
     availableBalance = (availableBalance ?: 0.0).toLong(),
     isAutoDeductionEnabled = isAutoDeductionEnabled,
-    recentFlows = recentFlows.map { it.toDomain() }
+    // Workflow #74 — recent transactions must be newest-first. sortedByDescending is stable,
+    // so when timestamps are missing (all 0) the backend's own ordering is preserved.
+    recentFlows = recentFlows.map { it.toDomain() }.sortedByDescending { it.timestamp }
 )
 
 fun BalanceFlowDto.toDomain(): BalanceFlow = BalanceFlow(

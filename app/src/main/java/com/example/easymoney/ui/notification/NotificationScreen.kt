@@ -43,6 +43,7 @@ fun NotificationScreen(
     onNavigateToEvent: (String) -> Unit,
     onNavigateToLoanPackage: (String) -> Unit,
     onNavigateToLoanDebt: (String) -> Unit,
+    onNavigateToContract: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: NotificationViewModel = hiltViewModel()
 ) {
@@ -139,6 +140,8 @@ fun NotificationScreen(
                                 "LOAN_PACKAGE" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToLoanPackage)
                                 "LOAN_DEBT" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToLoanDebt)
                                 "EVENT" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToEvent)
+                                // Workflow #73 — loan approval push opens the contract screen.
+                                "CONTRACT" -> item.targetId?.takeIf { it.isNotBlank() }?.let(onNavigateToContract)
                             }
                         }
                         

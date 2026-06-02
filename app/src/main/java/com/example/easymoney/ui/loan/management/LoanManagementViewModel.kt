@@ -3,12 +3,12 @@ package com.example.easymoney.ui.loan.management
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.R
-import com.example.easymoney.data.local.AppPreferences
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.ContractStatus
 import com.example.easymoney.domain.model.RepayType
 import com.example.easymoney.domain.repository.LoanRepository
 import com.example.easymoney.domain.repository.PaymentRepository
+import com.example.easymoney.domain.repository.RewardRepository
 import com.example.easymoney.ui.common.error.BackendErrorCode
 import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,21 +23,38 @@ import javax.inject.Inject
 class LoanManagementViewModel @Inject constructor(
     private val loanRepository: LoanRepository,
     private val paymentRepository: PaymentRepository,
-    private val appPreferences: AppPreferences
+    private val rewardRepository: RewardRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        LoanManagementUiState(isLoading = true, is2FAEnabled = appPreferences.isBiometric2FAEnabled)
-    )
+    private val _uiState = MutableStateFlow(LoanManagementUiState(isLoading = true))
     val uiState: StateFlow<LoanManagementUiState> = _uiState.asStateFlow()
-
-    /** Workflow #64 — biometric gate huỷ/fail trước khi gọi backend repay. */
-    fun onBiometricCancelled(message: String) {
-        _uiState.update { it.copy(errorMessage = UiText.DynamicString(message)) }
-    }
 
     init {
         load()
+    }
+
+    /**
+     * Workflow #71 — fetch the estimate for the currently selected debt + payment source so the
+     * user can see amount due / fees / reward preview before confirming. Never guesses in REMOTE:
+     * a failure surfaces [LoanManagementUiState.estimateError] for an explicit retry.
+     */
+    fun loadEstimate(debtId: Long, repayType: RepayType, cardId: String?) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isEstimateLoading = true, estimate = null, estimateError = null) }
+            when (val result = loanRepository.getRepaymentEstimate(debtId, repayType, cardId)) {
+                is Resource.Success -> _uiState.update {
+                    it.copy(isEstimateLoading = false, estimate = result.data, estimateError = null)
+                }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isEstimateLoading = false, estimate = null, estimateError = UiText.DynamicString(result.message))
+                }
+                is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun clearEstimate() {
+        _uiState.update { it.copy(estimate = null, isEstimateLoading = false, estimateError = null) }
     }
 
     fun load() {
@@ -86,10 +103,21 @@ class LoanManagementViewModel @Inject constructor(
             }
             when (val result = loanRepository.repayDebt(debtId, repayType, cardId)) {
                 is Resource.Success -> {
+                    // Workflow #71 — refresh reward points from /api/v1/rewards/user after a
+                    // successful repay so the user sees the points they just earned.
+                    val pointsMessage = when (val rewards = rewardRepository.getRewardsCatalog()) {
+                        is Resource.Success -> UiText.StringResource(
+                            R.string.loan_mgmt_repay_success_points,
+                            rewards.data.totalPoints
+                        )
+                        else -> UiText.StringResource(R.string.loan_mgmt_repay_success)
+                    }
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            actionMessage = UiText.StringResource(R.string.loan_mgmt_repay_success)
+                            estimate = null,
+                            estimateError = null,
+                            actionMessage = pointsMessage
                         )
                     }
                     load()

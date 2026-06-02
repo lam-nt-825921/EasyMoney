@@ -1,9 +1,10 @@
 package com.example.easymoney.data.remote
 
+import com.example.easymoney.data.remote.dto.AddCardRequestDto
 import com.example.easymoney.data.remote.dto.ApiResponse
+import com.example.easymoney.data.remote.dto.BankDto
 import com.example.easymoney.data.remote.dto.PaymentCardDto
 import com.example.easymoney.data.remote.dto.WalletInfoDto
-import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.domain.model.QrPayment
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -21,14 +22,18 @@ interface PaymentApiService {
     @GET("api/v1/payment/cards")
     suspend fun getPaymentCards(): ApiResponse<List<PaymentCardDto>>
 
+    // Workflow #75 — bank metadata for the add-card dropdowns.
+    @GET("api/v1/payment/banks")
+    suspend fun getBanks(): ApiResponse<List<BankDto>>
+
     @POST("api/v1/payment/cards")
-    suspend fun addPaymentCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
+    suspend fun addPaymentCard(@Body request: AddCardRequestDto): ApiResponse<Map<String, Any>>
 
     @DELETE("api/v1/payment/cards/{id}")
     suspend fun deletePaymentCard(@Path("id") cardId: String): ApiResponse<Map<String, Any>>
 
     @POST("api/v1/payment/cards/verify")
-    suspend fun verifyCard(@Body card: PaymentCard): ApiResponse<Map<String, Any>>
+    suspend fun verifyCard(@Body request: AddCardRequestDto): ApiResponse<Map<String, Any>>
 
     @GET("api/v1/payment/wallet")
     suspend fun getWalletInfo(): ApiResponse<WalletInfoDto>

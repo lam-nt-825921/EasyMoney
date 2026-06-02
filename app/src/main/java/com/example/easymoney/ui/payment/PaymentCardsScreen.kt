@@ -21,8 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
+import com.example.easymoney.domain.model.AddCardRequest
+import com.example.easymoney.domain.model.Bank
 import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.ui.theme.TealPrimary
+import com.example.easymoney.utils.UiText
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -77,13 +80,24 @@ fun PaymentCardsScreen(
     }
 
     if (showAddDialog) {
-        AddCardDialog(
-            isSubmitting = uiState.isSubmitting,
-            onDismiss = { showAddDialog = false },
-            onSubmit = { number, bank, type ->
-                viewModel.addCard(number, bank, type)
+        // Workflow #75 — close only on success; on validation failure the dialog stays open
+        // with the user's input preserved and inline errors shown.
+        LaunchedEffect(uiState.cardAddedSuccess) {
+            if (uiState.cardAddedSuccess) {
                 showAddDialog = false
+                viewModel.clearCardForm()
             }
+        }
+        AddCardDialog(
+            banks = uiState.banks,
+            isSubmitting = uiState.isSubmitting,
+            fieldErrors = uiState.cardFieldErrors,
+            formError = uiState.cardFormError,
+            onDismiss = {
+                showAddDialog = false
+                viewModel.clearCardForm()
+            },
+            onSubmit = { request -> viewModel.submitAddCard(request) }
         )
     }
 
@@ -187,45 +201,115 @@ private fun CreditCardItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddCardDialog(
+    banks: List<Bank>,
     isSubmitting: Boolean,
+    fieldErrors: Map<String, UiText>,
+    formError: UiText?,
     onDismiss: () -> Unit,
-    onSubmit: (String, String, String) -> Unit
+    onSubmit: (AddCardRequest) -> Unit
 ) {
+    var selectedBank by remember { mutableStateOf<Bank?>(null) }
+    var cardType by remember { mutableStateOf("") }
     var cardNumber by remember { mutableStateOf("") }
-    var bankName by remember { mutableStateOf("") }
-    var cardType by remember { mutableStateOf("NAPAS") }
+    var cardHolder by remember { mutableStateOf("") }
+    var expiryMonth by remember { mutableStateOf("") }
+    var expiryYear by remember { mutableStateOf("") }
+
+    val cardTypeOptions = selectedBank?.supportedCardTypes?.takeIf { it.isNotEmpty() }
+        ?: listOf("DEBIT", "CREDIT")
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.money_mgmt_add_card)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                formError?.let { msg ->
+                    Text(
+                        text = msg.asString(),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                DropdownField(
+                    label = stringResource(R.string.add_card_bank_label),
+                    selectedText = selectedBank?.name ?: "",
+                    options = banks.map { it.name },
+                    onSelectIndex = { idx ->
+                        selectedBank = banks[idx]
+                        // Reset card type if the new bank doesn't support the current selection.
+                        val supported = banks[idx].supportedCardTypes
+                        if (supported.isNotEmpty() && cardType !in supported) cardType = ""
+                    },
+                    error = fieldErrors["bank_id"]?.asString()
+                )
+
+                DropdownField(
+                    label = stringResource(R.string.add_card_type_label),
+                    selectedText = cardType,
+                    options = cardTypeOptions,
+                    onSelectIndex = { idx -> cardType = cardTypeOptions[idx] },
+                    error = fieldErrors["card_type"]?.asString()
+                )
+
+                CardTextField(
                     value = cardNumber,
                     onValueChange = { cardNumber = it.filter(Char::isDigit).take(19) },
-                    label = { Text("Số thẻ") },
-                    singleLine = true
+                    label = stringResource(R.string.add_card_number_label),
+                    error = fieldErrors["card_number"]?.asString()
                 )
-                OutlinedTextField(
-                    value = bankName,
-                    onValueChange = { bankName = it.take(40) },
-                    label = { Text("Ngân hàng") },
-                    singleLine = true
+
+                CardTextField(
+                    value = cardHolder,
+                    onValueChange = { cardHolder = it.uppercase().take(40) },
+                    label = stringResource(R.string.add_card_holder_label),
+                    error = fieldErrors["card_holder_name"]?.asString()
                 )
-                OutlinedTextField(
-                    value = cardType,
-                    onValueChange = { cardType = it.take(16).uppercase() },
-                    label = { Text("Loại thẻ") },
-                    singleLine = true
-                )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CardTextField(
+                        value = expiryMonth,
+                        onValueChange = { expiryMonth = it.filter(Char::isDigit).take(2) },
+                        label = stringResource(R.string.add_card_expiry_month_label),
+                        modifier = Modifier.weight(1f),
+                        error = if (fieldErrors.containsKey("expiry")) "" else null
+                    )
+                    CardTextField(
+                        value = expiryYear,
+                        onValueChange = { expiryYear = it.filter(Char::isDigit).take(4) },
+                        label = stringResource(R.string.add_card_expiry_year_label),
+                        modifier = Modifier.weight(1f),
+                        error = if (fieldErrors.containsKey("expiry")) "" else null
+                    )
+                }
+                fieldErrors["expiry"]?.let { msg ->
+                    Text(
+                        text = msg.asString(),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         },
         confirmButton = {
             TextButton(
                 enabled = !isSubmitting,
-                onClick = { onSubmit(cardNumber, bankName, cardType) }
+                onClick = {
+                    onSubmit(
+                        AddCardRequest(
+                            bankId = selectedBank?.id.orEmpty(),
+                            bankName = selectedBank?.name.orEmpty(),
+                            cardType = cardType,
+                            cardNumber = cardNumber,
+                            cardHolderName = cardHolder.trim(),
+                            expiryMonth = expiryMonth,
+                            expiryYear = expiryYear
+                        )
+                    )
+                }
             ) {
                 Text(stringResource(R.string.action_confirm))
             }
@@ -236,6 +320,73 @@ private fun AddCardDialog(
             }
         }
     )
+}
+
+@Composable
+private fun CardTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    error: String? = null
+) {
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            singleLine = true,
+            isError = error != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (!error.isNullOrBlank()) {
+            Text(text = error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DropdownField(
+    label: String,
+    selectedText: String,
+    options: List<String>,
+    onSelectIndex: (Int) -> Unit,
+    error: String? = null
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(label) },
+                isError = error != null,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEachIndexed { index, option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            onSelectIndex(index)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+        if (!error.isNullOrBlank()) {
+            Text(text = error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+    }
 }
 
 private fun maskCardNumber(value: String): String {

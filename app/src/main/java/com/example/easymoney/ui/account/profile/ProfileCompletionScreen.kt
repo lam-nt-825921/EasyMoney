@@ -67,7 +67,6 @@ fun ProfileCompletionScreen(
                     status = uiState.profile.identityStatus,
                     onFaceClick = { viewModel.openModule(IdentityModule.FACE_CAPTURE, supportsNfc = supportsNfc) },
                     onNfcClick = { viewModel.openModule(IdentityModule.NFC_READER, supportsNfc = supportsNfc) },
-                    onBiometricClick = { viewModel.openModule(IdentityModule.BIOMETRIC) },
                     onDocumentClick = { viewModel.openModule(IdentityModule.DOCUMENT_UPLOAD, supportsNfc = supportsNfc) }
                 )
 
@@ -132,11 +131,6 @@ fun ProfileCompletionScreen(
                         NfcReaderModule(
                             onResult = { viewModel.onNfcResult(it) },
                             onDismiss = { viewModel.closeModule() }
-                        )
-                    }
-                    IdentityModule.BIOMETRIC -> {
-                        BiometricModule(
-                            onResult = { viewModel.onBiometricResult(it) }
                         )
                     }
                     IdentityModule.DOCUMENT_UPLOAD -> {
@@ -232,10 +226,9 @@ fun IdentitySection(
     status: com.example.easymoney.domain.model.IdentityVerificationStatus,
     onFaceClick: () -> Unit,
     onNfcClick: () -> Unit,
-    onBiometricClick: () -> Unit,
     onDocumentClick: () -> Unit
 ) {
-    // Workflow #40 — 3 CTA cấp 1: eKYC, Device Biometrics, Căn cước công dân.
+    // Workflow #70 — eKYC khuôn mặt + Căn cước công dân. Bước sinh trắc học thiết bị đã gỡ.
     // CCCD mở bottom sheet với 2 phương thức thay thế: NFC hoặc tải giấy tờ.
     var showCccdSheet by remember { mutableStateOf(false) }
 
@@ -263,12 +256,6 @@ fun IdentitySection(
                 title = stringResource(R.string.ekyc_step_face),
                 isDone = status.isFaceVerified,
                 onClick = onFaceClick
-            )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-            IdentityTaskItem(
-                title = stringResource(R.string.ekyc_step_bio),
-                isDone = status.isBiometricEnabled,
-                onClick = onBiometricClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
             IdentityTaskItem(

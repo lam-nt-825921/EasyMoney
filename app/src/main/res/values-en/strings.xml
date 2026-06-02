@@ -129,13 +129,7 @@
     <string name="money_mgmt_card_holder">CARD HOLDER</string>
     <string name="money_mgmt_expires">EXPIRES</string>
 
-    <!-- Security & Bio -->
-    <string name="security_biometric_auth">Biometric authentication</string>
-    <!-- Workflow #64 — biometric gate copy -->
-    <string name="biometric_gate_cancelled">Biometric authentication cancelled.</string>
-    <string name="biometric_gate_failed">Biometric authentication failed.</string>
-    <string name="security_biometric_enabled">Biometric 2FA enabled.</string>
-    <string name="security_biometric_disabled">Biometric 2FA disabled.</string>
+    <!-- Security -->
     <string name="security_change_password">Change password</string>
 
     <!-- Change Password -->
@@ -190,6 +184,37 @@
     <string name="payment_card_added">Card added successfully</string>
     <string name="payment_card_deleted">Card removed</string>
     <string name="loan_mgmt_repay_success">Repayment completed successfully.</string>
+    <!-- Workflow #75 — add card form -->
+    <string name="add_card_bank_label">Bank</string>
+    <string name="add_card_type_label">Card type</string>
+    <string name="add_card_number_label">Card number</string>
+    <string name="add_card_holder_label">Cardholder name</string>
+    <string name="add_card_expiry_month_label">Month (MM)</string>
+    <string name="add_card_expiry_year_label">Year (YYYY)</string>
+    <string name="add_card_error_bank_required">Please select a bank.</string>
+    <string name="add_card_error_type_required">Please select a card type.</string>
+    <string name="add_card_error_number">Card number must be 16-19 digits.</string>
+    <string name="add_card_error_holder">Please enter the cardholder name.</string>
+    <string name="add_card_error_expiry">Card expiry is invalid or already expired.</string>
+    <!-- Workflow #71 — repayment estimate + repay dialog -->
+    <string name="loan_mgmt_repay_success_points">Repayment completed. Current reward points: %1$d.</string>
+    <string name="repay_dialog_title_monthly">Pay this period</string>
+    <string name="repay_dialog_title_early">Early settlement</string>
+    <string name="repay_dialog_desc_monthly">Choose a payment source for the current period.</string>
+    <string name="repay_dialog_desc_early">Choose a payment source to settle the loan early.</string>
+    <string name="repay_source_wallet">EasyMoney Wallet</string>
+    <string name="repay_source_wallet_subtitle">Deduct from wallet balance</string>
+    <string name="repay_source_card">Bank card</string>
+    <string name="repay_card_balance">Card balance: %1$s VND</string>
+    <string name="repay_estimate_title">Payment breakdown</string>
+    <string name="repay_estimate_loading">Calculating amount due…</string>
+    <string name="repay_estimate_error">Could not retrieve the amount due. Please try again.</string>
+    <string name="repay_estimate_amount_due">Total amount due</string>
+    <string name="repay_estimate_principal">Principal</string>
+    <string name="repay_estimate_interest">Interest</string>
+    <string name="repay_estimate_penalty">Penalty fee</string>
+    <string name="repay_estimate_discount">Discount</string>
+    <string name="repay_estimate_reward_preview">Estimated reward points</string>
     <string name="dialog_notice_title">Notice</string>
 
     <!-- Terms (workflow #15) -->
@@ -265,7 +290,6 @@
 
     <string name="ekyc_step_face">Face Verification (eKYC)</string>
     <string name="ekyc_step_nfc">Scan ID Chip (NFC)</string>
-    <string name="ekyc_step_bio">Device Biometrics</string>
     <string name="ekyc_step_docs">Upload Documents</string>
     <string name="identity_cta_cccd">Citizen ID card</string>
     <string name="identity_cccd_sheet_title">Verify Citizen ID card</string>
@@ -578,16 +602,11 @@
     <string name="action_ok">OK</string>
 
     <!-- Security Settings -->
-    <string name="security_group_auth">Authentication</string>
     <string name="security_group_password">Password</string>
     <string name="security_group_device">Devices</string>
-    <string name="security_item_bio_subtitle_supported">Use fingerprint/face ID</string>
-    <string name="security_item_bio_subtitle_unsupported">Device not supported</string>
     <string name="security_item_pwd_subtitle">Update periodically for security</string>
     <string name="security_item_device_title">Device management</string>
     <string name="security_item_device_subtitle">1 device logged in</string>
-    <string name="biometric_auth_failed">Authentication failed</string>
-    <string name="biometric_auth_subtitle">Please authenticate to continue</string>
     <!-- Workflow #28 — Loan screens i18n -->
     <string name="loan_success_back_home">Back to home</string>
     <string name="loan_success_title">Loan registration submitted</string>

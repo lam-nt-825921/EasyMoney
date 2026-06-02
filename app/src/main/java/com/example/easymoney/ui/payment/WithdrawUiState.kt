@@ -13,9 +13,7 @@ data class WithdrawUiState(
     // resource ids; UI calls `.asString()` at the composable layer.
     val errorMessage: UiText? = null,
     val shouldNavigateToAddCard: Boolean = false,
-    val successMessage: UiText? = null,
-    // Workflow #64 — biometric 2FA local toggle; UI dùng BiometricGate khi true.
-    val is2FAEnabled: Boolean = false
+    val successMessage: UiText? = null
 ) {
     val amountValue: Long? get() = amountText.toLongOrNull()
 }

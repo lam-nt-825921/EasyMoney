@@ -11,7 +11,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
-import com.example.easymoney.ui.common.security.BiometricGate
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -23,15 +22,6 @@ fun WithdrawScreen(
     onNavigateToAddCard: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    // Workflow #64 — gate cuối submit qua BiometricGate khi 2FA bật.
-    var pendingSubmit by remember { mutableStateOf<(() -> Unit)?>(null) }
-    val cancelledMsg = stringResource(R.string.biometric_gate_cancelled)
-    BiometricGate(
-        is2FAEnabled = uiState.is2FAEnabled,
-        pendingAction = pendingSubmit,
-        onConsumed = { pendingSubmit = null },
-        onCancelled = { viewModel.onBiometricCancelled(cancelledMsg) }
-    )
 
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
@@ -101,7 +91,7 @@ fun WithdrawScreen(
         }
 
         Button(
-            onClick = { pendingSubmit = { viewModel.onSubmit() } },
+            onClick = { viewModel.onSubmit() },
             enabled = !uiState.isSubmitting,
             modifier = Modifier.fillMaxWidth()
         ) {
