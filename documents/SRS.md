@@ -18,8 +18,9 @@ This document explains what each screen means so an agent can avoid making techn
 - Important loan/payment/signing actions should not depend only on frontend flags; backend validates state.
 - Sandbox/developer UI must not appear on production user-facing screens. Home should not expose sandbox/developer mode.
 - Time-based lists must display newest items first and oldest items later.
-- Production UI must be locale-correct. User-visible text must come from `res/values/strings.xml` and `res/values-en/strings.xml`, not hard-coded Vietnamese/English inside composables or ViewModels.
-- Device biometric is local account security only. It must not be treated as backend eKYC/document verification.
+- Current production default is Vietnamese. Language switching UI is out of scope for this batch.
+- Current production default is light theme. Dark/light switching UI is out of scope for this batch.
+- Reward points are loyalty points; credit score is a separate backend-owned underwriting value.
 
 ## Screen Meanings
 
@@ -92,7 +93,7 @@ Rules:
 
 - Master data should come from backend/repository.
 - `identityDocumentVerified = nfcVerified OR documentUploadVerified`.
-- Biometric setting is device 2FA, not a substitute for eKYC. Identity/profile screens may show its setup state, but enabling it should write local `AppPreferences.isBiometric2FAEnabled`, not backend identity truth.
+- Device-local 2FA is not part of the current production identity/profile UX.
 
 ### Rewards
 
@@ -101,6 +102,7 @@ Purpose: show points, catalog, redeemed vouchers, and redemption flow.
 - `RewardScreen` should use backend/user rewards in `REMOTE`.
 - Home and Account should display the same current points source.
 - Redeem should update point balance from backend response.
+- Reward points must not be used as credit score. Credit score comes from backend credit-score contract.
 
 ### Account
 
@@ -126,6 +128,7 @@ Frontend should:
 
 - Sync backend notifications into Room cache in `REMOTE`.
 - Use current authenticated user id for Room rows and FCM payload rows.
+- Never show notification rows belonging to another account. Newly registered users start with an empty notification list unless backend created user-specific notifications.
 - Sync mark-read/read-all/clear in `REMOTE`.
 - Sort notifications by backend `timestamp` descending before display and after cache refresh. Newest notifications must be at the top for every tab/filter.
 
@@ -138,6 +141,7 @@ Rules:
 - Frontend must not invent money state in `REMOTE`.
 - Backend response should drive balances and transaction history.
 - A newly registered user has an empty card list in `REMOTE`; screens that need a card should show add-card/choose-card state rather than assuming a default card exists.
+- Card linking collects bank, card type, card number, holder name, expiry `MM/YYYY`, and CVV/CVC.
 - Transaction history must be sorted newest first by backend timestamp when available. If the frontend model lacks timestamp, add a DTO/mapping layer rather than trusting arbitrary response order.
 
 ### Contract And OTP
@@ -146,23 +150,9 @@ Purpose: view legal contract and sign via OTP.
 
 - Contract content comes from backend.
 - OTP purpose should describe action, e.g. contract signing.
-- If device biometric 2FA is enabled in Account Security, contract signing should require successful device biometric before showing/sending OTP.
+- Backend generates a real OTP for contract signing. Frontend auto-fills the OTP from API/FCM and sends it in the final sign request after the user taps confirm.
+- Successful disbursement should create a user notification and FCM payload that can navigate to loan management.
 - Success screen returns user to Home or loan management.
-
-### Device Biometric 2FA
-
-Purpose: optional local security gate using the device's enrolled fingerprint/face/PIN-capable biometric prompt.
-
-Rules:
-
-- It is enabled only from Account Security and only after a successful `BiometricPrompt` authentication.
-- It is stored locally in `AppPreferences.isBiometric2FAEnabled`; no backend change is required.
-- When disabled, sensitive flows proceed normally.
-- When enabled, require biometric before these sensitive actions:
-  - Withdraw money from wallet.
-  - Repay debt or settle early in Loan Management.
-  - Start contract signing/OTP flow.
-- If biometric fails or the user cancels, do not execute the sensitive action. Show a localized, user-friendly message.
 
 ### Chatbot
 

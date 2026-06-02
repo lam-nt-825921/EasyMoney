@@ -1,16 +1,21 @@
 openapi: 3.1.0
 info:
   title: EasyMoney Mock API
-  version: 2026-06-02.1-backend-design-target
+  version: 2026-06-02.2-backend-design-target
 x-backend-design-2026-06-02:
-  status: target backend design; generated snapshot details below are superseded by
-    this section and the added target paths/schemas when conflicts exist.
+  status: target backend design for system fix batch 2; generated snapshot details
+    below are superseded by this section and the added target paths/schemas when conflicts exist.
   frontend_task_source: documents/AGENT_TASKS.md
-  biometric_policy:
-    production_ux: removed
-    backend_contract: biometric is not required for withdraw, repayment, early settlement,
-      contract signing, or eKYC/profile completion.
-    compatibility: biometric_token may remain as a deprecated optional ignored request field.
+  app_defaults:
+    language: vi
+    theme: light
+  score_policy:
+    reward_points: loyalty points, separate from credit score.
+    credit_score: backend-owned underwriting score from /api/v1/user/credit-score.
+  notification_isolation:
+    user_scope: notification list/read/read-all/clear operations are scoped to authenticated user.
+    new_registered_user_default: GET /api/v1/notifications returns an empty list unless
+      notifications exist for that exact user.
   fcm_payloads:
     CONTRACT_SIGN_OTP:
       type: CONTRACT_SIGN_OTP
@@ -24,6 +29,12 @@ x-backend-design-2026-06-02:
       contract_id: CONTRACT_APP_XXXXXXXX
       target_type: CONTRACT
       target_id: CONTRACT_APP_XXXXXXXX
+    LOAN_DISBURSED:
+      type: LOAN_DISBURSED
+      contract_id: CONTRACT_APP_XXXXXXXX
+      debt_id: '12'
+      target_type: LOAN_DEBT
+      target_id: '12'
 paths:
   /:
     get:
@@ -183,7 +194,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CardRequest'
+              type: object
+              additionalProperties: true
+              title: Request
       responses:
         '200':
           description: Successful Response
@@ -248,6 +261,32 @@ paths:
           content:
             application/json:
               schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/credit-score:
+    get:
+      tags:
+      - User & Account
+      summary: Get Credit Score
+      operationId: get_credit_score_api_v1_user_credit_score_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditScoreDto'
         '422':
           description: Validation Error
           content:
@@ -877,12 +916,19 @@ paths:
         schema:
           type: string
           title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractSignRequest'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ContractSignResultDto'
         '422':
           description: Validation Error
           content:
@@ -934,6 +980,13 @@ paths:
         schema:
           type: string
           title: Authorization
+      - name: include_paid
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Paid
       responses:
         '200':
           description: Successful Response
@@ -2508,14 +2561,6 @@ components:
           - type: string
           - type: 'null'
           title: Card Id
-        biometric_token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Biometric Token
-          deprecated: true
-          description: Legacy optional field. Backend target ignores it; frontend must not
-            build biometric flows.
       type: object
       required:
       - amount
@@ -2577,16 +2622,16 @@ components:
         card_holder_name:
           type: string
           title: Card Holder Name
-        expiry_month:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expiry Month
-        expiry_year:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expiry Year
+        expiry:
+          type: string
+          pattern: ^(0[1-9]|1[0-2])/[0-9]{4}$
+          title: Expiry
+          description: Card expiry in MM/YYYY format, for example 10/2026.
+        cvv:
+          type: string
+          pattern: ^[0-9]{3,4}$
+          title: CVV
+          description: Card CVV/CVC security code as a string.
       type: object
       required:
       - bank_id
@@ -2594,6 +2639,8 @@ components:
       - card_type
       - card_number
       - card_holder_name
+      - expiry
+      - cvv
       title: CardRequest
     ContractCreateRequest:
       properties:
@@ -2613,6 +2660,9 @@ components:
           type: string
           default: SIGN_CONTRACT
           title: Purpose
+        otp:
+          type: string
+          title: Otp
         expires_at:
           anyOf:
           - type: integer
@@ -2621,7 +2671,97 @@ components:
       type: object
       required:
       - contract_id
+      - otp
       title: ContractOtpRequestResultDto
+    ContractSignRequest:
+      properties:
+        otp:
+          type: string
+          title: Otp
+        purpose:
+          type: string
+          default: SIGN_CONTRACT
+          title: Purpose
+      type: object
+      required:
+      - otp
+      title: ContractSignRequest
+    ContractSignResultDto:
+      properties:
+        contract_id:
+          type: string
+          title: Contract Id
+        application_id:
+          type: string
+          title: Application Id
+        status:
+          type: string
+          title: Status
+        debt_id:
+          type: integer
+          title: Debt Id
+        disbursed_amount:
+          type: number
+          title: Disbursed Amount
+        reward_points_added:
+          type: integer
+          title: Reward Points Added
+        total_reward_points:
+          type: integer
+          title: Total Reward Points
+        credit_score_delta:
+          type: integer
+          title: Credit Score Delta
+        credit_score:
+          type: integer
+          title: Credit Score
+      type: object
+      required:
+      - contract_id
+      - application_id
+      - status
+      - debt_id
+      - disbursed_amount
+      - reward_points_added
+      - total_reward_points
+      - credit_score_delta
+      - credit_score
+      title: ContractSignResultDto
+    CreditScoreDto:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        score:
+          type: integer
+          title: Score
+        grade:
+          type: string
+          title: Grade
+        policy_version:
+          type: string
+          title: Policy Version
+        updated_at:
+          type: integer
+          title: Updated At
+        reasons:
+          items:
+            type: string
+          type: array
+          title: Reasons
+        can_apply_loan:
+          type: boolean
+          title: Can Apply Loan
+      type: object
+      required:
+      - user_id
+      - score
+      - grade
+      - policy_version
+      - updated_at
+      - reasons
+      - can_apply_loan
+      title: CreditScoreDto
     LoanContractDetailDto:
       properties:
         id:
@@ -2744,6 +2884,12 @@ components:
         total_reward_points:
           type: integer
           title: Total Reward Points
+        credit_score_delta:
+          type: integer
+          title: Credit Score Delta
+        credit_score:
+          type: integer
+          title: Credit Score
         debt_status:
           type: string
           title: Debt Status
@@ -2754,6 +2900,8 @@ components:
       - amount_paid
       - reward_points_added
       - total_reward_points
+      - credit_score_delta
+      - credit_score
       - debt_status
       title: RepayResultDto
     AutoDeductionRequest:

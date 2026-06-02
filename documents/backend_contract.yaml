@@ -1,26 +1,41 @@
-contract_version: 2026-06-02.1-backend-design-target
+contract_version: 2026-06-02.2-backend-design-target
 source:
   backend_source: not included in frontend repo
   fastapi_app: mock_server.main:app
   raw_openapi_file: documents/backend_openapi.yaml
 active_design:
-  status: target backend design for the 2026-06-02 task batch; it supersedes older
+  status: target backend design for the 2026-06-02 system fix batch 2; it supersedes older
     frontend snapshot details when conflicts exist.
   frontend_task_source: documents/AGENT_TASKS.md
-  biometric_policy:
-    production_ux: removed
-    backend_contract: biometric is not required for withdraw, repayment, early settlement,
-      contract signing, or eKYC/profile completion.
-    compatibility: legacy request fields such as biometric_token may be accepted as optional
-      ignored fields during migration, but frontend agents must not build biometric flows.
+  app_defaults:
+    language: vi
+    theme: light
+    frontend_switching_ui: disabled in production
+  debt_visibility:
+    default_include_paid: false
+    frontend_must_filter_paid: true
+  notification_isolation:
+    user_scope: all notification list/read/read-all/clear operations are scoped to
+      the authenticated user.
+    new_registered_user_default: "GET /api/v1/notifications returns data: [] unless
+      notifications were created for that exact user.
+      "
+    frontend_cache_rule: mobile must key Room/cache rows by current authenticated user id
+      and must not display seed user notifications after register/login switch.
+  score_policy:
+    reward_points: loyalty points, spendable in rewards; not used as underwriting score.
+    credit_score: backend-owned underwriting score exposed through /api/v1/user/credit-score.
+    easy_test_policy: verified users start around 620, incomplete eKYC users around
+      520, completed repayments increase score, overdue/rejected activity decreases score.
   new_backend_capabilities:
-  - reward points are added after successful repayment or early settlement
+  - reward points are added after disbursement and after debt completion
+  - credit score is separate from reward points and exposed by API
   - repayment estimate is available before MONTHLY and FULL_EARLY payment
   - canonical contract create/detail endpoints live under /api/v1/loan/contracts
-  - contract signing OTP is requested separately and delivered by FCM data payload
-  - loan approval creates notification and FCM push with contract navigation target
+  - contract signing OTP is generated, returned, delivered by FCM, and verified on sign
+  - disbursement creates notification and FCM push with debt navigation target
   - wallet recent_flows are newest-first by timestamp descending
-  - card add/verify uses bank metadata, card type dropdown values, and field_errors
+  - card add/verify uses bank metadata, expiry MM/YYYY, cvv, and field_errors
 runtime:
   framework: FastAPI
   database: SQLite via SQLModel
@@ -215,6 +230,21 @@ endpoints:
       title: Authorization
   request_body: null
   response: see raw OpenAPI or controller mapping
+- method: GET
+  path: /api/v1/user/credit-score
+  name: get_credit_score
+  tags:
+  - User & Account
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: ApiResponse[CreditScoreDto]
 - method: GET
   path: /api/v1/user/transactions
   name: get_balance_flow
@@ -673,8 +703,13 @@ endpoints:
     schema:
       type: string
       title: Authorization
-  request_body: null
-  response: see raw OpenAPI or controller mapping
+  request_body:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ContractSignRequest'
+  response: ApiResponse[ContractSignResultDto]
 - method: GET
   path: /api/v1/loan/debts
   name: get_debts
@@ -688,6 +723,13 @@ endpoints:
     schema:
       type: string
       title: Authorization
+  - name: include_paid
+    in: query
+    required: false
+    schema:
+      type: boolean
+      default: false
+      title: Include Paid
   request_body: null
   response: see raw OpenAPI or controller mapping
 - method: POST
@@ -1214,7 +1256,7 @@ endpoints:
       type: string
       title: Authorization
   request_body: null
-  response: see raw OpenAPI or controller mapping
+  response: ApiResponse[List[NotificationDto]], scoped to authenticated user only
 - method: PATCH
   path: /api/v1/notifications/{id}/read
   name: mark_as_read
@@ -1718,14 +1760,6 @@ components:
           - type: string
           - type: 'null'
           title: Card Id
-        biometric_token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Biometric Token
-          deprecated: true
-          description: Legacy optional field. Backend target ignores it; frontend must not
-            build biometric flows.
       type: object
       required:
       - amount
@@ -1787,16 +1821,16 @@ components:
         card_holder_name:
           type: string
           title: Card Holder Name
-        expiry_month:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expiry Month
-        expiry_year:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expiry Year
+        expiry:
+          type: string
+          pattern: ^(0[1-9]|1[0-2])/[0-9]{4}$
+          title: Expiry
+          description: Card expiry in MM/YYYY format, for example 10/2026.
+        cvv:
+          type: string
+          pattern: ^[0-9]{3,4}$
+          title: CVV
+          description: Card CVV/CVC security code as a string.
       type: object
       required:
       - bank_id
@@ -1804,6 +1838,8 @@ components:
       - card_type
       - card_number
       - card_holder_name
+      - expiry
+      - cvv
       title: CardRequest
     ContractCreateRequest:
       properties:
@@ -1823,6 +1859,9 @@ components:
           type: string
           default: SIGN_CONTRACT
           title: Purpose
+        otp:
+          type: string
+          title: Otp
         expires_at:
           anyOf:
           - type: integer
@@ -1831,7 +1870,97 @@ components:
       type: object
       required:
       - contract_id
+      - otp
       title: ContractOtpRequestResultDto
+    ContractSignRequest:
+      properties:
+        otp:
+          type: string
+          title: Otp
+        purpose:
+          type: string
+          default: SIGN_CONTRACT
+          title: Purpose
+      type: object
+      required:
+      - otp
+      title: ContractSignRequest
+    ContractSignResultDto:
+      properties:
+        contract_id:
+          type: string
+          title: Contract Id
+        application_id:
+          type: string
+          title: Application Id
+        status:
+          type: string
+          title: Status
+        debt_id:
+          type: integer
+          title: Debt Id
+        disbursed_amount:
+          type: number
+          title: Disbursed Amount
+        reward_points_added:
+          type: integer
+          title: Reward Points Added
+        total_reward_points:
+          type: integer
+          title: Total Reward Points
+        credit_score_delta:
+          type: integer
+          title: Credit Score Delta
+        credit_score:
+          type: integer
+          title: Credit Score
+      type: object
+      required:
+      - contract_id
+      - application_id
+      - status
+      - debt_id
+      - disbursed_amount
+      - reward_points_added
+      - total_reward_points
+      - credit_score_delta
+      - credit_score
+      title: ContractSignResultDto
+    CreditScoreDto:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        score:
+          type: integer
+          title: Score
+        grade:
+          type: string
+          title: Grade
+        policy_version:
+          type: string
+          title: Policy Version
+        updated_at:
+          type: integer
+          title: Updated At
+        reasons:
+          items:
+            type: string
+          type: array
+          title: Reasons
+        can_apply_loan:
+          type: boolean
+          title: Can Apply Loan
+      type: object
+      required:
+      - user_id
+      - score
+      - grade
+      - policy_version
+      - updated_at
+      - reasons
+      - can_apply_loan
+      title: CreditScoreDto
     LoanContractDetailDto:
       properties:
         id:
@@ -1954,6 +2083,12 @@ components:
         total_reward_points:
           type: integer
           title: Total Reward Points
+        credit_score_delta:
+          type: integer
+          title: Credit Score Delta
+        credit_score:
+          type: integer
+          title: Credit Score
         debt_status:
           type: string
           title: Debt Status
@@ -1964,6 +2099,8 @@ components:
       - amount_paid
       - reward_points_added
       - total_reward_points
+      - credit_score_delta
+      - credit_score
       - debt_status
       title: RepayResultDto
     AutoDeductionRequest:

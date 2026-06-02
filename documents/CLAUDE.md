@@ -13,7 +13,7 @@ This directory is written for an implementation agent, not for end-user document
 5. `SRS.md`
    - Business meaning of each major screen and workflow.
 6. `AGENT_TASKS.md`
-   - The only active task list. It contains the 2026-06-02 backend-aligned batch, including backend contract deltas for repayment estimates, contract APIs, FCM OTP, card validation, wallet recent-flow ordering, rewards after repayment, and the biometric removal direction.
+   - The only active task list. It contains the latest 2026-06-02 system fix batch, including Vietnamese/light defaults, hidden paid debts, reward and credit-score separation, card expiry/CVV contract, real OTP confirmation, and disbursement FCM handling.
 
 ## Repository Context
 
@@ -39,4 +39,4 @@ Do not invent alternate backend behavior to make frontend code easier. If curren
 - A registered user starts with a wallet account and no payment cards. Never seed or fake a card in `REMOTE` mode to hide `CARD_REQUIRED`/empty-card states.
 - Lists that represent time events must be newest first: notifications, transactions, repayments, contracts/events where applicable.
 - Use Material3 `MaterialTheme.colorScheme` unless a local design token already exists. Avoid hard-coded production colors. UI/UX changes should feel complete enough for customer demo, not like a debug scaffold.
-- The 2026-06-02 product direction supersedes the old biometric-gating final task: remove/hide production biometric UX instead of implementing biometric 2FA.
+- The current 2026-06-02 product direction is in `AGENT_TASKS.md`; do not resurrect older task batches from stale docs or commits.
