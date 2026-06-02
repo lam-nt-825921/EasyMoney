@@ -24,15 +24,31 @@ interface NotificationDao {
     @Update
     suspend fun updateNotification(notification: NotificationEntity)
 
-    @Query("UPDATE notifications SET isRead = 1 WHERE id = :id")
-    suspend fun markAsRead(id: Long)
+    // Workflow #83 — mutations phải scope theo user để không rò rỉ giữa các tài khoản.
+    @Query("UPDATE notifications SET isRead = 1 WHERE id = :id AND userId = :userId")
+    suspend fun markAsRead(id: Long, userId: String)
 
-    @Query("UPDATE notifications SET isRead = 1")
-    suspend fun markAllAsRead()
+    @Query("UPDATE notifications SET isRead = 1 WHERE userId = :userId")
+    suspend fun markAllAsRead(userId: String)
 
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
 
-    @Query("DELETE FROM notifications")
-    suspend fun clearAll()
+    // Workflow #83 — chỉ xoá thông báo của user hiện tại, không xoá toàn bảng.
+    @Query("DELETE FROM notifications WHERE userId = :userId")
+    suspend fun clearAll(userId: String)
+
+    // Workflow #83 — reconcile cache: thay toàn bộ rows của user bằng kết quả backend mới nhất.
+    @Query("DELETE FROM notifications WHERE userId = :userId")
+    suspend fun deleteForUser(userId: String)
+
+    // Workflow #83 — lấy backend remoteId để sync read-status đúng id khi mark-read.
+    @Query("SELECT remoteId FROM notifications WHERE id = :id")
+    suspend fun getRemoteId(id: Long): Long?
+
+    @Transaction
+    suspend fun replaceForUser(userId: String, rows: List<NotificationEntity>) {
+        deleteForUser(userId)
+        if (rows.isNotEmpty()) insertNotifications(rows)
+    }
 }

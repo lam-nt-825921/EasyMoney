@@ -32,18 +32,13 @@ class MainActivity : AppCompatActivity() {
         
         enableEdgeToEdge()
         setContent {
-            var darkTheme by rememberSaveable { mutableStateOf(appPreferences.darkThemeEnabled) }
             var appNotificationsEnabled by rememberSaveable {
                 mutableStateOf(appPreferences.appNotificationsEnabled)
             }
 
-            EasyMoneyTheme(darkTheme = darkTheme) {
+            // Production: luôn dùng light theme — không cho phép chuyển dark mode.
+            EasyMoneyTheme(darkTheme = false) {
                 AppRoot(
-                    isDarkTheme = darkTheme,
-                    onDarkThemeChange = { enabled ->
-                        darkTheme = enabled
-                        appPreferences.darkThemeEnabled = enabled
-                    },
                     appNotificationsEnabled = appNotificationsEnabled,
                     onAppNotificationsChange = { enabled ->
                         appNotificationsEnabled = enabled

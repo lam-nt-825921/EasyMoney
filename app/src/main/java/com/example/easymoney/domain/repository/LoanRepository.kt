@@ -89,7 +89,8 @@ interface LoanRepository {
     // Workflow #72 — canonical contract create/detail + dedicated signing-OTP request.
     suspend fun createContract(applicationId: String): Resource<LoanContractDetail>
     suspend fun getContractDetail(contractId: String): Resource<LoanContractDetail>
-    suspend fun requestSignOtp(contractId: String): Resource<Unit>
+    // Workflow #81 — request OTP trả về otp + expiry để autofill.
+    suspend fun requestSignOtp(contractId: String): Resource<ContractOtpRequestResult>
 
     /**
      * Gửi mã OTP tới SĐT của người dùng (Backend tự xác định SĐT)
@@ -104,7 +105,8 @@ interface LoanRepository {
     // Workflow #12 — Loan management
     suspend fun getApprovedContracts(): Resource<List<LoanContractModel>>
     suspend fun cancelContract(contractId: String): Resource<Unit>
-    suspend fun signContract(contractId: String): Resource<Unit>
+    // Workflow #81 — sign gửi kèm OTP đã autofill.
+    suspend fun signContract(contractId: String, otp: String): Resource<Unit>
     suspend fun getDebts(): Resource<List<LoanDebtModel>>
     suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String? = null): Resource<Unit>
 

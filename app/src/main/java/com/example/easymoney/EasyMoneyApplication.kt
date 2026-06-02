@@ -2,6 +2,8 @@ package com.example.easymoney
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.example.easymoney.domain.repository.NotificationRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
@@ -21,7 +23,13 @@ class EasyMoneyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        forceVietnameseLocale()
         registerFcmTokenAtStart()
+    }
+
+    /** Production: app luôn chạy tiếng Việt, không cho phép đổi ngôn ngữ. */
+    private fun forceVietnameseLocale() {
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("vi"))
     }
 
     private fun registerFcmTokenAtStart() {

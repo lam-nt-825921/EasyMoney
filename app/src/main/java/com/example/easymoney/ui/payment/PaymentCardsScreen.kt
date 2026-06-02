@@ -217,6 +217,7 @@ private fun AddCardDialog(
     var cardHolder by remember { mutableStateOf("") }
     var expiryMonth by remember { mutableStateOf("") }
     var expiryYear by remember { mutableStateOf("") }
+    var cvv by remember { mutableStateOf("") }
 
     val cardTypeOptions = selectedBank?.supportedCardTypes?.takeIf { it.isNotEmpty() }
         ?: listOf("DEBIT", "CREDIT")
@@ -292,12 +293,26 @@ private fun AddCardDialog(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+
+                CardTextField(
+                    value = cvv,
+                    onValueChange = { cvv = it.filter(Char::isDigit).take(4) },
+                    label = stringResource(R.string.add_card_cvv_label),
+                    error = fieldErrors["cvv"]?.asString()
+                )
             }
         },
         confirmButton = {
             TextButton(
                 enabled = !isSubmitting,
                 onClick = {
+                    // Workflow #80 — chuẩn hoá expiry về MM/YYYY trước khi gửi backend.
+                    val normalizedExpiry =
+                        if (expiryMonth.isNotBlank() && expiryYear.isNotBlank()) {
+                            "${expiryMonth.padStart(2, '0')}/$expiryYear"
+                        } else {
+                            ""
+                        }
                     onSubmit(
                         AddCardRequest(
                             bankId = selectedBank?.id.orEmpty(),
@@ -305,8 +320,8 @@ private fun AddCardDialog(
                             cardType = cardType,
                             cardNumber = cardNumber,
                             cardHolderName = cardHolder.trim(),
-                            expiryMonth = expiryMonth,
-                            expiryYear = expiryYear
+                            expiry = normalizedExpiry,
+                            cvv = cvv
                         )
                     )
                 }

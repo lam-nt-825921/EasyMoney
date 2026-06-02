@@ -13,15 +13,18 @@ data class Bank(
     val supportedCardTypes: List<String> = emptyList()
 )
 
-/** Workflow #75 — request payload for verify/add card. */
+/**
+ * Workflow #80 — request payload for verify/add card.
+ * `expiry` is normalized to `MM/YYYY`; `cvv` is a string (labelled CVV or CVC in UI).
+ */
 data class AddCardRequest(
     val bankId: String,
     val bankName: String,
     val cardType: String,
     val cardNumber: String,
     val cardHolderName: String,
-    val expiryMonth: String,
-    val expiryYear: String
+    val expiry: String,
+    val cvv: String
 )
 
 /**

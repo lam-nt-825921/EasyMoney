@@ -12,9 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import com.example.easymoney.R
 import com.example.easymoney.ui.home.components.*
 
@@ -27,8 +24,6 @@ fun HomeScreen(
     onLoanProductClick: (String) -> Unit,
     onConsultLoanClick: () -> Unit,
     onManageLoanClick: () -> Unit,
-    isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isLoading = uiState.isLoading
@@ -43,9 +38,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(28.dp)
         ) {
             HeaderSection(
-                userName = uiState.userName.ifBlank { "Khách hàng" },
-                isDarkTheme = isDarkTheme,
-                onToggleTheme = onToggleTheme
+                userName = uiState.userName.ifBlank { "Khách hàng" }
             )
 
             if (isLoading) {
@@ -131,9 +124,7 @@ private fun ProfileCompletionRefreshError(message: String) {
 
 @Composable
 private fun HeaderSection(
-    userName: String,
-    isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    userName: String
 ) {
     Row(
         modifier = Modifier
@@ -148,23 +139,6 @@ private fun HeaderSection(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-
-        IconButton(
-            onClick = onToggleTheme,
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.size(44.dp)
-        ) {
-            Icon(
-                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                contentDescription = stringResource(
-                    id = if (isDarkTheme) R.string.home_theme_light else R.string.home_theme_dark
-                ),
-                modifier = Modifier.size(24.dp)
             )
         }
     }

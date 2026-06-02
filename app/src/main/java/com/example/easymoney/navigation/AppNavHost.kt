@@ -59,8 +59,6 @@ import com.example.easymoney.ui.web.WebContentScreen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    isDarkTheme: Boolean,
-    onDarkThemeChange: (Boolean) -> Unit,
     appNotificationsEnabled: Boolean,
     onAppNotificationsChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -136,8 +134,6 @@ fun AppNavHost(
                     android.util.Log.d("Analytics", "event=home_banner_click banner=loan_management")
                     navController.navigate(AppDestination.LoanManagement.createRoute())
                 },
-                isDarkTheme = isDarkTheme,
-                onToggleTheme = { onDarkThemeChange(!isDarkTheme) },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -636,8 +632,6 @@ fun AppNavHost(
 
         composable(AppDestination.GeneralSettings.route) {
             GeneralSettingsScreen(
-                isDarkTheme = isDarkTheme,
-                onDarkThemeChange = onDarkThemeChange,
                 appNotificationsEnabled = appNotificationsEnabled,
                 onAppNotificationsChange = onAppNotificationsChange,
                 onTermsClick = { navController.navigate(AppDestination.Terms.route) }

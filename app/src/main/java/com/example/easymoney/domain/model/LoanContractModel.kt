@@ -28,6 +28,13 @@ data class LoanDebtModel(
     val createdAt: String
 )
 
+/** Workflow #81 — kết quả request OTP ký hợp đồng; `otp` dùng để autofill, không bắt nhập tay. */
+data class ContractOtpRequestResult(
+    val contractId: String,
+    val otp: String?,
+    val expiresAt: Long?
+)
+
 enum class RepayType(val apiValue: String) {
     MONTHLY("MONTHLY"),
     FULL_EARLY("FULL_EARLY")

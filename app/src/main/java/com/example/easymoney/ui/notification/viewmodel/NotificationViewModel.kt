@@ -9,20 +9,23 @@ import com.example.easymoney.ui.notification.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    appPreferences: AppPreferences
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val currentUserId: String = appPreferences.currentUserId
-
-    val notifications: StateFlow<List<NotificationUiModel>> = notificationRepository.getNotificationsForUser(currentUserId)
+    // Workflow #83 — flatMapLatest theo user id hiện tại; đổi tài khoản → flow tự rebind,
+    // không còn hiển thị cache của user trước.
+    val notifications: StateFlow<List<NotificationUiModel>> = appPreferences.currentUserIdFlow
+        .flatMapLatest { userId -> notificationRepository.getNotificationsForUser(userId) }
         .map { list -> list.map { it.toUiModel() } }
         .stateIn(
             scope = viewModelScope,
@@ -30,7 +33,8 @@ class NotificationViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val unreadCount: StateFlow<Int> = notificationRepository.getUnreadCountForUser(currentUserId)
+    val unreadCount: StateFlow<Int> = appPreferences.currentUserIdFlow
+        .flatMapLatest { userId -> notificationRepository.getUnreadCountForUser(userId) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

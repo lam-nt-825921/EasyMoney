@@ -34,8 +34,6 @@ import com.example.easymoney.ui.components.TopBarMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot(
-    isDarkTheme: Boolean,
-    onDarkThemeChange: (Boolean) -> Unit,
     appNotificationsEnabled: Boolean,
     onAppNotificationsChange: (Boolean) -> Unit
 ) {
@@ -60,7 +58,7 @@ fun AppRoot(
     val canNavigateBack = appState.navController.previousBackStackEntry != null
     val topBarController = remember { AppTopBarController() }
     val loginGradientTopColor = MaterialTheme.colorScheme.primary
-        .copy(alpha = if (isDarkTheme) 0.78f else 0.95f)
+        .copy(alpha = 0.95f)
         .compositeOver(MaterialTheme.colorScheme.background)
     val topBarBackgroundColor = when (destination) {
         AppDestination.LoanFlow -> MaterialTheme.colorScheme.background
@@ -133,8 +131,6 @@ fun AppRoot(
         ) { innerPadding ->
             AppNavHost(
                 navController = appState.navController,
-                isDarkTheme = isDarkTheme,
-                onDarkThemeChange = onDarkThemeChange,
                 appNotificationsEnabled = appNotificationsEnabled,
                 onAppNotificationsChange = onAppNotificationsChange,
                 modifier = Modifier

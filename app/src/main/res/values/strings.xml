@@ -196,6 +196,9 @@
     <string name="add_card_error_number">Số thẻ phải có 16-19 chữ số.</string>
     <string name="add_card_error_holder">Vui lòng nhập tên chủ thẻ.</string>
     <string name="add_card_error_expiry">Hạn thẻ không hợp lệ hoặc đã hết hạn.</string>
+    <!-- Workflow #80 — CVV/CVC -->
+    <string name="add_card_cvv_label">CVV/CVC</string>
+    <string name="add_card_error_cvv">CVV/CVC phải có 3-4 chữ số.</string>
     <!-- Workflow #71 — repayment estimate + repay dialog -->
     <string name="loan_mgmt_repay_success_points">Thanh toán thành công. Điểm thưởng hiện tại: %1$d.</string>
     <string name="repay_dialog_title_monthly">Thanh toán kỳ này</string>

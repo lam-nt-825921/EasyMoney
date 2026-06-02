@@ -19,7 +19,8 @@ import javax.inject.Inject
 typealias RewardItem = RewardCatalogItem
 
 data class RewardUiState(
-    val totalPoints: Int = 1250,
+    // Workflow #79 — điểm thưởng chỉ đến từ API rewards, không hiển thị số giả ban đầu.
+    val totalPoints: Int = 0,
     val rewards: List<RewardItem> = emptyList(),
     val redeemedRewards: List<UserRewardVoucher> = emptyList(),
     val isLoading: Boolean = false,
