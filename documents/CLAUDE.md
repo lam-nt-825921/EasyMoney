@@ -13,9 +13,7 @@ This directory is written for an implementation agent, not for end-user document
 5. `SRS.md`
    - Business meaning of each major screen and workflow.
 6. `AGENT_TASKS.md`
-   - Current problem list with verified code context and suggested resolution path.
-7. `CLAUDE_FRONTEND_TASK_2026_06_02.md`
-   - Current active task batch from the 2026-06-02 backend note, including backend contract deltas for repayment estimates, contract APIs, FCM OTP, card validation, and the biometric removal direction.
+   - The only active task list. It contains the 2026-06-02 backend-aligned batch, including backend contract deltas for repayment estimates, contract APIs, FCM OTP, card validation, wallet recent-flow ordering, rewards after repayment, and the biometric removal direction.
 
 ## Repository Context
 

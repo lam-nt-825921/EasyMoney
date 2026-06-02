@@ -1,8 +1,26 @@
-contract_version: 2026-05-30.4-frontend-snapshot
+contract_version: 2026-06-02.1-backend-design-target
 source:
   backend_source: not included in frontend repo
   fastapi_app: mock_server.main:app
   raw_openapi_file: documents/backend_openapi.yaml
+active_design:
+  status: target backend design for the 2026-06-02 task batch; it supersedes older
+    frontend snapshot details when conflicts exist.
+  frontend_task_source: documents/AGENT_TASKS.md
+  biometric_policy:
+    production_ux: removed
+    backend_contract: biometric is not required for withdraw, repayment, early settlement,
+      contract signing, or eKYC/profile completion.
+    compatibility: legacy request fields such as biometric_token may be accepted as optional
+      ignored fields during migration, but frontend agents must not build biometric flows.
+  new_backend_capabilities:
+  - reward points are added after successful repayment or early settlement
+  - repayment estimate is available before MONTHLY and FULL_EARLY payment
+  - canonical contract create/detail endpoints live under /api/v1/loan/contracts
+  - contract signing OTP is requested separately and delivered by FCM data payload
+  - loan approval creates notification and FCM push with contract navigation target
+  - wallet recent_flows are newest-first by timestamp descending
+  - card add/verify uses bank metadata, card type dropdown values, and field_errors
 runtime:
   framework: FastAPI
   database: SQLite via SQLModel
@@ -560,6 +578,47 @@ endpoints:
   request_body: null
   response: see raw OpenAPI or controller mapping
 - method: POST
+  path: /api/v1/loan/contracts
+  name: create_contract
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ContractCreateRequest'
+    required: true
+  response: ApiResponse[LoanContractDetailDto]
+- method: GET
+  path: /api/v1/loan/contracts/{contract_id}
+  name: get_contract_detail
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: contract_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Contract Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: ApiResponse[LoanContractDetailDto]
+- method: POST
   path: /api/v1/loan/contracts/{contract_id}/cancel
   name: cancel_contract
   tags:
@@ -574,6 +633,27 @@ endpoints:
       title: Contract Id
   request_body: null
   response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/loan/contracts/{contract_id}/sign/request-otp
+  name: request_contract_sign_otp
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: contract_id
+    in: path
+    required: true
+    schema:
+      type: string
+      title: Contract Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: ApiResponse[ContractOtpRequestResultDto]
 - method: POST
   path: /api/v1/loan/contracts/{contract_id}/sign
   name: sign_contract
@@ -635,7 +715,55 @@ endpoints:
       application/json:
         schema:
           $ref: '#/components/schemas/RepayRequest'
-  response: see raw OpenAPI or controller mapping
+  response: ApiResponse[dict] or ApiResponse[RepayResultDto]
+- method: GET
+  path: /api/v1/loan/debts/{debt_id}/repayment-estimate
+  name: get_repayment_estimate
+  tags:
+  - Loan Application
+  auth_required: true
+  parameters:
+  - name: debt_id
+    in: path
+    required: true
+    schema:
+      type: integer
+      title: Debt Id
+  - name: repay_type
+    in: query
+    required: true
+    schema:
+      type: string
+      enum:
+      - MONTHLY
+      - FULL_EARLY
+      title: Repay Type
+  - name: payment_method
+    in: query
+    required: false
+    schema:
+      type: string
+      enum:
+      - WALLET
+      - CARD
+      default: WALLET
+      title: Payment Method
+  - name: card_id
+    in: query
+    required: false
+    schema:
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: Card Id
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: ApiResponse[RepaymentEstimateDto]
 - method: GET
   path: /api/v1/contracts/{contractId}
   name: get_contract_content
@@ -1355,6 +1483,21 @@ endpoints:
           $ref: '#/components/schemas/ChatRequest'
   response: see raw OpenAPI or controller mapping
 - method: GET
+  path: /api/v1/payment/banks
+  name: get_banks
+  tags:
+  - Payment
+  auth_required: true
+  parameters:
+  - name: authorization
+    in: header
+    required: false
+    schema:
+      type: string
+      title: Authorization
+  request_body: null
+  response: ApiResponse[List[BankDto]]
+- method: GET
   path: /api/v1/payment/cards
   name: get_cards
   tags:
@@ -1580,10 +1723,249 @@ components:
           - type: string
           - type: 'null'
           title: Biometric Token
+          deprecated: true
+          description: Legacy optional field. Backend target ignores it; frontend must not
+            build biometric flows.
       type: object
       required:
       - amount
       title: AmountRequest
+    BankDto:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        short_name:
+          type: string
+          title: Short Name
+        bin_prefixes:
+          items:
+            type: string
+          type: array
+          title: Bin Prefixes
+        logo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logo Url
+        supported_card_types:
+          items:
+            type: string
+            enum:
+            - DEBIT
+            - CREDIT
+          type: array
+          title: Supported Card Types
+      type: object
+      required:
+      - id
+      - name
+      - short_name
+      - bin_prefixes
+      - supported_card_types
+      title: BankDto
+    CardRequest:
+      properties:
+        bank_id:
+          type: string
+          title: Bank Id
+        bank_name:
+          type: string
+          title: Bank Name
+        card_type:
+          type: string
+          enum:
+          - DEBIT
+          - CREDIT
+          title: Card Type
+        card_number:
+          type: string
+          title: Card Number
+        card_holder_name:
+          type: string
+          title: Card Holder Name
+        expiry_month:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expiry Month
+        expiry_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expiry Year
+      type: object
+      required:
+      - bank_id
+      - bank_name
+      - card_type
+      - card_number
+      - card_holder_name
+      title: CardRequest
+    ContractCreateRequest:
+      properties:
+        application_id:
+          type: string
+          title: Application Id
+      type: object
+      required:
+      - application_id
+      title: ContractCreateRequest
+    ContractOtpRequestResultDto:
+      properties:
+        contract_id:
+          type: string
+          title: Contract Id
+        purpose:
+          type: string
+          default: SIGN_CONTRACT
+          title: Purpose
+        expires_at:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Expires At
+      type: object
+      required:
+      - contract_id
+      title: ContractOtpRequestResultDto
+    LoanContractDetailDto:
+      properties:
+        id:
+          type: string
+          title: Id
+        application_id:
+          type: string
+          title: Application Id
+        contract_number:
+          type: string
+          title: Contract Number
+        amount:
+          type: integer
+          title: Amount
+        term_months:
+          type: integer
+          title: Term Months
+        interest_rate:
+          type: number
+          title: Interest Rate
+        approved_at:
+          type: integer
+          title: Approved At
+        status:
+          type: string
+          title: Status
+        content:
+          type: string
+          title: Content
+        html_content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Html Content
+        otp_required:
+          type: boolean
+          title: Otp Required
+      type: object
+      required:
+      - id
+      - application_id
+      - contract_number
+      - amount
+      - term_months
+      - interest_rate
+      - approved_at
+      - status
+      - content
+      - otp_required
+      title: LoanContractDetailDto
+    RepaymentEstimateDto:
+      properties:
+        debt_id:
+          type: integer
+          title: Debt Id
+        repay_type:
+          type: string
+          enum:
+          - MONTHLY
+          - FULL_EARLY
+          title: Repay Type
+        payment_method:
+          type: string
+          enum:
+          - WALLET
+          - CARD
+          default: WALLET
+          title: Payment Method
+        amount_due:
+          type: number
+          title: Amount Due
+        principal_due:
+          type: number
+          title: Principal Due
+        interest_due:
+          type: number
+          title: Interest Due
+        penalty_fee:
+          type: number
+          title: Penalty Fee
+        discount_amount:
+          type: number
+          title: Discount Amount
+        reward_points_preview:
+          type: integer
+          title: Reward Points Preview
+        currency:
+          type: string
+          default: VND
+          title: Currency
+        debt_status_after_payment:
+          type: string
+          title: Debt Status After Payment
+      type: object
+      required:
+      - debt_id
+      - repay_type
+      - amount_due
+      - principal_due
+      - interest_due
+      - penalty_fee
+      - discount_amount
+      - reward_points_preview
+      - debt_status_after_payment
+      title: RepaymentEstimateDto
+    RepayResultDto:
+      properties:
+        debt_id:
+          type: integer
+          title: Debt Id
+        repay_type:
+          type: string
+          title: Repay Type
+        amount_paid:
+          type: number
+          title: Amount Paid
+        reward_points_added:
+          type: integer
+          title: Reward Points Added
+        total_reward_points:
+          type: integer
+          title: Total Reward Points
+        debt_status:
+          type: string
+          title: Debt Status
+      type: object
+      required:
+      - debt_id
+      - repay_type
+      - amount_paid
+      - reward_points_added
+      - total_reward_points
+      - debt_status
+      title: RepayResultDto
     AutoDeductionRequest:
       properties:
         enabled:
