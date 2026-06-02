@@ -129,14 +129,8 @@
     <string name="money_mgmt_card_holder">CARD HOLDER</string>
     <string name="money_mgmt_expires">EXPIRES</string>
 
-    <!-- Security & Bio -->
-    <string name="security_biometric_auth">Xác thực sinh trắc học</string>
+    <!-- Security -->
     <string name="security_change_password">Đổi mật khẩu</string>
-    <!-- Workflow #64 — biometric gate copy -->
-    <string name="biometric_gate_cancelled">Xác thực sinh trắc bị huỷ.</string>
-    <string name="biometric_gate_failed">Xác thực sinh trắc thất bại.</string>
-    <string name="security_biometric_enabled">Đã bật xác thực sinh trắc.</string>
-    <string name="security_biometric_disabled">Đã tắt xác thực sinh trắc.</string>
 
     <!-- Change Password -->
     <string name="change_password_old_label">Mật khẩu hiện tại</string>
@@ -190,6 +184,37 @@
     <string name="payment_card_added">Thêm thẻ thành công</string>
     <string name="payment_card_deleted">Đã xóa thẻ</string>
     <string name="loan_mgmt_repay_success">Thanh toán khoản nợ thành công.</string>
+    <!-- Workflow #75 — add card form -->
+    <string name="add_card_bank_label">Ngân hàng</string>
+    <string name="add_card_type_label">Loại thẻ</string>
+    <string name="add_card_number_label">Số thẻ</string>
+    <string name="add_card_holder_label">Tên chủ thẻ</string>
+    <string name="add_card_expiry_month_label">Tháng (MM)</string>
+    <string name="add_card_expiry_year_label">Năm (YYYY)</string>
+    <string name="add_card_error_bank_required">Vui lòng chọn ngân hàng.</string>
+    <string name="add_card_error_type_required">Vui lòng chọn loại thẻ.</string>
+    <string name="add_card_error_number">Số thẻ phải có 16-19 chữ số.</string>
+    <string name="add_card_error_holder">Vui lòng nhập tên chủ thẻ.</string>
+    <string name="add_card_error_expiry">Hạn thẻ không hợp lệ hoặc đã hết hạn.</string>
+    <!-- Workflow #71 — repayment estimate + repay dialog -->
+    <string name="loan_mgmt_repay_success_points">Thanh toán thành công. Điểm thưởng hiện tại: %1$d.</string>
+    <string name="repay_dialog_title_monthly">Thanh toán kỳ này</string>
+    <string name="repay_dialog_title_early">Tất toán sớm</string>
+    <string name="repay_dialog_desc_monthly">Chọn nguồn thanh toán cho kỳ nợ hiện tại.</string>
+    <string name="repay_dialog_desc_early">Chọn nguồn thanh toán để tất toán khoản vay.</string>
+    <string name="repay_source_wallet">Ví EasyMoney</string>
+    <string name="repay_source_wallet_subtitle">Trừ tiền từ số dư ví</string>
+    <string name="repay_source_card">Thẻ ngân hàng</string>
+    <string name="repay_card_balance">Số dư thẻ: %1$s đ</string>
+    <string name="repay_estimate_title">Chi tiết thanh toán</string>
+    <string name="repay_estimate_loading">Đang tính số tiền cần thanh toán…</string>
+    <string name="repay_estimate_error">Không lấy được số tiền cần thanh toán. Vui lòng thử lại.</string>
+    <string name="repay_estimate_amount_due">Tổng cần thanh toán</string>
+    <string name="repay_estimate_principal">Gốc</string>
+    <string name="repay_estimate_interest">Lãi</string>
+    <string name="repay_estimate_penalty">Phí phạt</string>
+    <string name="repay_estimate_discount">Giảm trừ</string>
+    <string name="repay_estimate_reward_preview">Điểm thưởng dự kiến</string>
     <string name="dialog_notice_title">Thông báo</string>
 
     <!-- Terms (workflow #15) -->
@@ -265,7 +290,6 @@
 
     <string name="ekyc_step_face">Xác thực khuôn mặt (eKYC)</string>
     <string name="ekyc_step_nfc">Quét thẻ chip CCCD (NFC)</string>
-    <string name="ekyc_step_bio">Sinh trắc học thiết bị</string>
     <string name="ekyc_step_docs">Tải hồ sơ/giấy tờ</string>
     <string name="identity_cta_cccd">Căn cước công dân</string>
     <string name="identity_cccd_sheet_title">Xác minh Căn cước công dân</string>
@@ -577,16 +601,11 @@
     <string name="action_ok">OK</string>
 
     <!-- Security Settings -->
-    <string name="security_group_auth">Xác thực</string>
     <string name="security_group_password">Mật khẩu</string>
     <string name="security_group_device">Thiết bị</string>
-    <string name="security_item_bio_subtitle_supported">Sử dụng vân tay/khuôn mặt</string>
-    <string name="security_item_bio_subtitle_unsupported">Thiết bị không hỗ trợ</string>
     <string name="security_item_pwd_subtitle">Cập nhật định kỳ để bảo mật</string>
     <string name="security_item_device_title">Quản lý thiết bị</string>
     <string name="security_item_device_subtitle">1 thiết bị đang đăng nhập</string>
-    <string name="biometric_auth_failed">Xác thực thất bại</string>
-    <string name="biometric_auth_subtitle">Vui lòng xác thực để tiếp tục</string>
     <!-- Workflow #28 — Loan screens i18n -->
     <string name="loan_success_back_home">Về trang chủ</string>
     <string name="loan_success_title">Gửi đăng ký vay thành công</string>

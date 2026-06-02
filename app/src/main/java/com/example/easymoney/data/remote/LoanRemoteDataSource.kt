@@ -160,8 +160,22 @@ class LoanRemoteDataSource @Inject constructor(
     suspend fun getApprovedContracts(): Resource<List<LoanContractModel>> =
         safeApiCall("Fetch contracts failed") { apiService.getApprovedContracts() }
 
+    // Workflow #72 — contract create/detail.
+    suspend fun createContract(applicationId: String): Resource<LoanContractDetail> =
+        safeApiCall("Create contract failed") {
+            apiService.createContract(com.example.easymoney.data.remote.dto.CreateContractRequest(applicationId))
+        }.mapSuccess { it.toDomain() }
+
+    suspend fun getContractDetail(contractId: String): Resource<LoanContractDetail> =
+        safeApiCall("Fetch contract failed") { apiService.getContractDetail(contractId) }
+            .mapSuccess { it.toDomain() }
+
     suspend fun cancelContract(contractId: String): Resource<Unit> =
         safeUnitApiCall("Cancel contract failed") { apiService.cancelContract(contractId) }
+
+    // Workflow #72 — request signing OTP (separate from sign).
+    suspend fun requestSignOtp(contractId: String): Resource<Unit> =
+        safeUnitApiCall("Request OTP failed") { apiService.requestSignOtp(contractId) }
 
     suspend fun signContract(contractId: String): Resource<Unit> =
         safeUnitApiCall("Sign contract failed") { apiService.signContract(contractId) }
@@ -173,6 +187,17 @@ class LoanRemoteDataSource @Inject constructor(
         safeUnitApiCall("Repay debt failed") {
             apiService.repayDebt(debtId, RepayDebtRequest(repayType.apiValue, cardId))
         }
+
+    suspend fun getRepaymentEstimate(
+        debtId: Long,
+        repayType: RepayType,
+        cardId: String? = null
+    ): Resource<RepaymentEstimate> {
+        val paymentMethod = if (cardId.isNullOrBlank()) "WALLET" else "CARD"
+        return safeApiCall("Fetch repayment estimate failed") {
+            apiService.getRepaymentEstimate(debtId, repayType.apiValue, paymentMethod, cardId)
+        }.mapSuccess { it.toDomain() }
+    }
 
     suspend fun getNotifications(): Resource<List<NotificationDto>> =
         safeApiCall("Fetch notifications failed") { apiService.getNotifications() }

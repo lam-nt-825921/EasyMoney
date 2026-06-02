@@ -7,15 +7,18 @@ import com.example.easymoney.domain.model.LoginRequest
 import com.example.easymoney.domain.model.RegisterRequest
 import com.example.easymoney.domain.model.RememberedAccount
 import com.example.easymoney.domain.repository.LoanRepository
+import com.example.easymoney.domain.repository.NotificationRepository
 import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.utils.UiText
 import com.example.easymoney.R
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 data class LoginUiState(
@@ -29,7 +32,8 @@ data class LoginUiState(
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val repository: LoanRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -72,6 +76,7 @@ class LoginViewModel @Inject constructor(
                     repository.saveRememberedAccount(RememberedAccount(phone, fullName = "User $phone"))
                 }
                 userRepository.getProfileCompletion(forceRefresh = true)
+                registerFcmTokenAfterAuth()
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
             } else if (result is Resource.Error) {
                 _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString(result.message)) }
@@ -89,12 +94,24 @@ class LoginViewModel @Inject constructor(
             
             if (result is Resource.Success) {
                 userRepository.getProfileCompletion(forceRefresh = true)
+                registerFcmTokenAfterAuth()
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
             } else if (result is Resource.Error) {
                 _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString(result.message)) }
             } else {
                 _uiState.update { it.copy(isLoading = false, error = UiText.StringResource(R.string.login_error_unknown)) }
             }
+        }
+    }
+
+    /**
+     * Workflow #73 — register the FCM token once the user is authenticated so loan-approval
+     * pushes reach this device. Best-effort: failures must not block the login/register success.
+     */
+    private suspend fun registerFcmTokenAfterAuth() {
+        runCatching {
+            val token = FirebaseMessaging.getInstance().token.await()
+            notificationRepository.registerFcmToken(token)
         }
     }
 

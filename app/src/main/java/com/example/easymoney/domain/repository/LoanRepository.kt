@@ -86,6 +86,11 @@ interface LoanRepository {
      */
     suspend fun getContractContent(loanId: String, lang: String = "vi"): Resource<String>
 
+    // Workflow #72 — canonical contract create/detail + dedicated signing-OTP request.
+    suspend fun createContract(applicationId: String): Resource<LoanContractDetail>
+    suspend fun getContractDetail(contractId: String): Resource<LoanContractDetail>
+    suspend fun requestSignOtp(contractId: String): Resource<Unit>
+
     /**
      * Gửi mã OTP tới SĐT của người dùng (Backend tự xác định SĐT)
      */
@@ -102,4 +107,11 @@ interface LoanRepository {
     suspend fun signContract(contractId: String): Resource<Unit>
     suspend fun getDebts(): Resource<List<LoanDebtModel>>
     suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String? = null): Resource<Unit>
+
+    // Workflow #71 — estimate amount due / fees / reward preview before confirming a repayment.
+    suspend fun getRepaymentEstimate(
+        debtId: Long,
+        repayType: RepayType,
+        cardId: String? = null
+    ): Resource<RepaymentEstimate>
 }

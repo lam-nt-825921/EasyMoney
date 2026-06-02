@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
-import com.example.easymoney.ui.common.identity.BiometricModule
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -26,19 +25,8 @@ import com.example.easymoney.ui.theme.TextSecondary
 fun SecuritySettingsScreen(
     onBack: () -> Unit,
     onChangePassword: () -> Unit,
-    viewModel: SecurityViewModel = hiltViewModel()
+    @Suppress("UNUSED_PARAMETER") viewModel: SecurityViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    // Workflow #64 — ON đi qua BiometricPrompt; success mới persist.
-    var requestingBiometric by remember { mutableStateOf(false) }
-
-    if (requestingBiometric) {
-        BiometricModule { result ->
-            requestingBiometric = false
-            if (result.isSuccess) viewModel.toggleBiometric(true)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,28 +34,6 @@ fun SecuritySettingsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SecurityGroup(title = stringResource(R.string.security_group_auth)) {
-            SecurityItem(
-                title = stringResource(R.string.security_biometric_auth),
-                subtitle = if (uiState.isBiometricSupported) stringResource(R.string.security_item_bio_subtitle_supported) else stringResource(R.string.security_item_bio_subtitle_unsupported),
-                icon = Icons.Default.Fingerprint,
-                control = {
-                    Switch(
-                        checked = uiState.isBiometricEnabled,
-                        onCheckedChange = { wantsOn ->
-                            if (wantsOn) {
-                                // Workflow #64 — only persist after successful biometric prompt.
-                                requestingBiometric = true
-                            } else {
-                                viewModel.toggleBiometric(false)
-                            }
-                        },
-                        enabled = uiState.isBiometricSupported
-                    )
-                }
-            )
-        }
-
         SecurityGroup(title = stringResource(R.string.security_group_password)) {
             SecurityItem(
                 title = stringResource(R.string.security_change_password),

@@ -46,6 +46,7 @@ import com.example.easymoney.domain.model.LoanContractModel
 import com.example.easymoney.domain.model.LoanDebtModel
 import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.domain.model.RepayType
+import com.example.easymoney.domain.model.RepaymentEstimate
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -128,32 +129,34 @@ fun LoanManagementScreen(
         )
     }
 
-    // Workflow #64 — gate repay confirmation qua BiometricGate khi 2FA bật.
-    var pendingRepayAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    val repayCancelledMsg = stringResource(R.string.biometric_gate_cancelled)
-    com.example.easymoney.ui.common.security.BiometricGate(
-        is2FAEnabled = uiState.is2FAEnabled,
-        pendingAction = pendingRepayAction,
-        onConsumed = { pendingRepayAction = null },
-        onCancelled = { viewModel.onBiometricCancelled(repayCancelledMsg) }
-    )
-
     pendingRepay?.let { (debtId, type) ->
+        // Workflow #71 — (re)load the estimate whenever the debt or payment source changes.
+        androidx.compose.runtime.LaunchedEffect(debtId, type, selectedRepayCardId) {
+            viewModel.loadEstimate(debtId, type, selectedRepayCardId)
+        }
         RepayDialog(
             repayType = type,
             cards = uiState.cards,
             selectedCardId = selectedRepayCardId,
+            estimate = uiState.estimate,
+            isEstimateLoading = uiState.isEstimateLoading,
+            estimateError = uiState.estimateError?.asString(),
+            onRetryEstimate = { viewModel.loadEstimate(debtId, type, selectedRepayCardId) },
             onSelectWallet = { selectedRepayCardId = null },
             onSelectCard = { selectedRepayCardId = it },
             onAddCard = {
                 pendingRepay = null
+                viewModel.clearEstimate()
                 onNavigateToAddCard()
             },
-            onDismiss = { pendingRepay = null },
+            onDismiss = {
+                pendingRepay = null
+                viewModel.clearEstimate()
+            },
             onConfirm = {
                 val capturedCardId = selectedRepayCardId
                 pendingRepay = null
-                pendingRepayAction = { viewModel.repayDebt(debtId, type, capturedCardId) }
+                viewModel.repayDebt(debtId, type, capturedCardId)
             }
         )
     }
@@ -190,6 +193,10 @@ private fun RepayDialog(
     repayType: RepayType,
     cards: List<PaymentCard>,
     selectedCardId: String?,
+    estimate: RepaymentEstimate?,
+    isEstimateLoading: Boolean,
+    estimateError: String?,
+    onRetryEstimate: () -> Unit,
     onSelectWallet: () -> Unit,
     onSelectCard: (String) -> Unit,
     onAddCard: () -> Unit,
@@ -198,17 +205,29 @@ private fun RepayDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (repayType == RepayType.MONTHLY) "Thanh toán kỳ này" else "Tất toán sớm") },
+        title = {
+            Text(
+                stringResource(
+                    if (repayType == RepayType.MONTHLY) R.string.repay_dialog_title_monthly
+                    else R.string.repay_dialog_title_early
+                )
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(if (repayType == RepayType.MONTHLY) "Chọn nguồn thanh toán cho kỳ nợ hiện tại." else "Chọn nguồn thanh toán để tất toán khoản vay.")
+                Text(
+                    stringResource(
+                        if (repayType == RepayType.MONTHLY) R.string.repay_dialog_desc_monthly
+                        else R.string.repay_dialog_desc_early
+                    )
+                )
                 PaymentOptionRow(
                     selected = selectedCardId == null,
-                    title = "Ví EasyMoney",
-                    subtitle = "Trừ tiền từ số dư ví",
+                    title = stringResource(R.string.repay_source_wallet),
+                    subtitle = stringResource(R.string.repay_source_wallet_subtitle),
                     onClick = onSelectWallet
                 )
-                Text("Thẻ ngân hàng", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.repay_source_card), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 if (cards.isEmpty()) {
                     Text(
                         stringResource(R.string.card_empty_state),
@@ -223,15 +242,23 @@ private fun RepayDialog(
                         PaymentOptionRow(
                             selected = selectedCardId == card.id,
                             title = "${card.bankName} ${card.cardNumber}",
-                            subtitle = "Số dư thẻ: ${formatMoney(card.balance)} đ",
+                            subtitle = stringResource(R.string.repay_card_balance, formatMoney(card.balance)),
                             onClick = { onSelectCard(card.id) }
                         )
                     }
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                RepaymentEstimateSection(
+                    estimate = estimate,
+                    isLoading = isEstimateLoading,
+                    errorMessage = estimateError,
+                    onRetry = onRetryEstimate
+                )
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(onClick = onConfirm, enabled = estimate != null && !isEstimateLoading) {
                 Text(stringResource(R.string.action_confirm))
             }
         },
@@ -241,6 +268,54 @@ private fun RepayDialog(
             }
         }
     )
+}
+
+/**
+ * Workflow #71 — shows the estimate (amount due, fees, reward preview) before the user confirms.
+ * On a backend failure it shows an explicit error + retry instead of guessing an amount.
+ */
+@Composable
+private fun RepaymentEstimateSection(
+    estimate: RepaymentEstimate?,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onRetry: () -> Unit
+) {
+    when {
+        isLoading -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularProgressIndicator(modifier = Modifier.height(18.dp))
+            Text(stringResource(R.string.repay_estimate_loading), style = MaterialTheme.typography.bodySmall)
+        }
+        errorMessage != null -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                stringResource(R.string.repay_estimate_error),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            OutlinedButton(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.action_retry))
+            }
+        }
+        estimate != null -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(stringResource(R.string.repay_estimate_title), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            DebtRow(stringResource(R.string.repay_estimate_amount_due), formatMoneyDouble(estimate.amountDue, estimate.currency))
+            DebtRow(stringResource(R.string.repay_estimate_principal), formatMoneyDouble(estimate.principalDue, estimate.currency))
+            DebtRow(stringResource(R.string.repay_estimate_interest), formatMoneyDouble(estimate.interestDue, estimate.currency))
+            if (estimate.penaltyFee > 0.0) {
+                DebtRow(stringResource(R.string.repay_estimate_penalty), formatMoneyDouble(estimate.penaltyFee, estimate.currency))
+            }
+            if (estimate.discountAmount > 0.0) {
+                DebtRow(stringResource(R.string.repay_estimate_discount), formatMoneyDouble(estimate.discountAmount, estimate.currency))
+            }
+            estimate.rewardPointsPreview?.let { points ->
+                DebtRow(stringResource(R.string.repay_estimate_reward_preview), points.toString())
+            }
+        }
+    }
 }
 
 @Composable
@@ -442,3 +517,9 @@ private fun DebtRow(label: String, value: String) {
 
 private fun formatMoney(value: Long): String =
     NumberFormat.getInstance(Locale("vi", "VN")).format(value)
+
+// Workflow #71 — estimate money fields are Double; round to whole VND only for display.
+private fun formatMoneyDouble(value: Double, currency: String): String {
+    val formatted = NumberFormat.getInstance(Locale("vi", "VN")).format(Math.round(value))
+    return "$formatted $currency"
+}

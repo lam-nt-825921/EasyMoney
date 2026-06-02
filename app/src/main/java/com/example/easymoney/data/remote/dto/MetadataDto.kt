@@ -9,7 +9,11 @@ package com.example.easymoney.data.remote.dto
 data class ApiResponse<T>(
     val status: String,
     val data: T? = null,
-    val message: String? = null
+    val message: String? = null,
+    // Workflow #75 — structured error metadata for forms (e.g. add card). Both nullable/additive.
+    val code: String? = null,
+    @com.google.gson.annotations.SerializedName("field_errors")
+    val fieldErrors: Map<String, String>? = null
 )
 
 data class MasterDataMetadataDto(

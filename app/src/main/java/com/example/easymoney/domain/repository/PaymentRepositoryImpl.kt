@@ -8,6 +8,9 @@ import com.example.easymoney.data.sample.SAMPLE_INITIAL_BALANCE
 import com.example.easymoney.data.sample.SAMPLE_PAYMENT_CARDS
 import com.example.easymoney.data.sample.sampleWalletInfo
 import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.model.AddCardOutcome
+import com.example.easymoney.domain.model.AddCardRequest
+import com.example.easymoney.domain.model.Bank
 import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.domain.model.QrPayment
 import com.example.easymoney.domain.model.QrPaymentStatus
@@ -17,6 +20,14 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
+
+// Workflow #75 — minimal bank list for MOCK mode; REMOTE uses GET /api/v1/payment/banks.
+private val MOCK_BANKS = listOf(
+    Bank("VCB", "Vietcombank", "VCB", listOf("970436"), null, listOf("DEBIT", "CREDIT")),
+    Bank("TCB", "Techcombank", "TCB", listOf("970407"), null, listOf("DEBIT", "CREDIT")),
+    Bank("BIDV", "BIDV", "BIDV", listOf("970418"), null, listOf("DEBIT")),
+    Bank("MB", "MB Bank", "MB", listOf("970422"), null, listOf("DEBIT", "CREDIT"))
+)
 
 class PaymentRepositoryImpl @Inject constructor(
     private val appPreferences: AppPreferences,
@@ -47,16 +58,36 @@ class PaymentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addPaymentCard(card: PaymentCard): Resource<Unit> {
+    override suspend fun getBanks(): Resource<List<Bank>> {
         val mode = appPreferences.dataSourceMode
-        Log.d(TAG, "PaymentRepository.addPaymentCard mode=$mode")
+        Log.d(TAG, "PaymentRepository.getBanks mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(200)
+                Resource.Success(MOCK_BANKS, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> remoteDataSource.getBanks()
+        }
+    }
+
+    override suspend fun addCard(request: AddCardRequest): AddCardOutcome {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "PaymentRepository.addCard mode=$mode")
         return when (mode) {
             DataSourceMode.MOCK -> {
                 delay(500)
-                cards.add(card)
-                Resource.Success(Unit, isFromMock = true)
+                cards.add(
+                    PaymentCard(
+                        id = "card_${System.currentTimeMillis()}",
+                        cardNumber = request.cardNumber,
+                        cardType = request.cardType,
+                        bankName = request.bankName
+                    )
+                )
+                AddCardOutcome.Success
             }
-            DataSourceMode.REMOTE -> remoteDataSource.addPaymentCard(card)
+            // Workflow #75 — REMOTE must not fabricate a card; the backend is the source of truth.
+            DataSourceMode.REMOTE -> remoteDataSource.addCard(request)
         }
     }
 
@@ -117,23 +148,6 @@ class PaymentRepositoryImpl @Inject constructor(
 
     // Workflow #36 — track QR payments tạo trong MOCK (mô phỏng pending → success).
     private val mockQrPayments: MutableMap<String, QrPayment> = mutableMapOf()
-
-    override suspend fun verifyCard(card: PaymentCard): Resource<Unit> {
-        val mode = appPreferences.dataSourceMode
-        Log.d(TAG, "PaymentRepository.verifyCard mode=$mode")
-        return when (mode) {
-            DataSourceMode.MOCK -> {
-                delay(600)
-                // Đơn giản: trim cardNumber + bank chính là valid.
-                if (card.cardNumber.isBlank() || card.bankName.isBlank()) {
-                    Resource.Error("Thông tin thẻ không hợp lệ")
-                } else {
-                    Resource.Success(Unit, isFromMock = true)
-                }
-            }
-            DataSourceMode.REMOTE -> remoteDataSource.verifyCard(card)
-        }
-    }
 
     override suspend fun createQrPayment(amount: Long): Resource<QrPayment> {
         val mode = appPreferences.dataSourceMode

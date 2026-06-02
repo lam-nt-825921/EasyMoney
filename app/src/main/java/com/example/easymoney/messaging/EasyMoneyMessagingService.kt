@@ -26,6 +26,9 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var appPreferences: AppPreferences
 
+    @Inject
+    lateinit var contractOtpHolder: ContractOtpHolder
+
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
@@ -43,6 +46,18 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
         // Lấy dữ liệu từ payload "data" (Khuyên dùng loại này để tùy biến cao)
         val data = remoteMessage.data
         if (data.isNotEmpty()) {
+            // Workflow #72 — contract signing OTP arrives as a data message. Store it keyed by
+            // contract id so the signing screen can auto-fill it; never auto-submit. Only honour
+            // the payload when both type and purpose mark it as a contract-sign OTP.
+            if (data["type"] == "CONTRACT_SIGN_OTP" && data["purpose"] == "SIGN_CONTRACT") {
+                val contractId = data["contract_id"] ?: data["contractId"]
+                val otp = data["otp"]
+                if (!contractId.isNullOrBlank() && !otp.isNullOrBlank()) {
+                    val expiresAt = (data["expires_at"] ?: data["expiresAt"])?.toLongOrNull()
+                    contractOtpHolder.submit(contractId, otp, expiresAt)
+                }
+            }
+
             val title = data["title"] ?: "Easy Money"
             val content = data["content"] ?: ""
             val type = data["type"] ?: "transaction"

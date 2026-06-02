@@ -192,6 +192,7 @@ fun AppNavHost(
                 onNavigateToEvent = { id -> navController.navigate(AppDestination.EventDetail.createRoute(id)) },
                 onNavigateToLoanPackage = { id -> navController.navigate(AppDestination.LoanDetail.createRoute(id)) },
                 onNavigateToLoanDebt = { id -> navController.navigate(AppDestination.LoanManagement.createRoute(id)) },
+                onNavigateToContract = { id -> navController.navigate(AppDestination.Contract.createRoute(id)) },
                 modifier = Modifier.fillMaxSize()
             )
         }

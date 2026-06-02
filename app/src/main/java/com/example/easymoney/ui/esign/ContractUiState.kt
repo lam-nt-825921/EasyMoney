@@ -16,6 +16,8 @@ data class ContractUiState(
     val otpError: UiText? = null,
     val isOtpVerifying: Boolean = false,
     val userPhone: String = "0913849582", // Mock phone as per design
-    // Workflow #64 — biometric 2FA local toggle; OTP chỉ mở sau khi gate pass.
-    val is2FAEnabled: Boolean = false
+    // Workflow #72 — contract id currently being signed + OTP auto-filled from an FCM push.
+    val loadedContractId: String? = null,
+    val otpRequired: Boolean = true,
+    val otpAutofill: String? = null
 )

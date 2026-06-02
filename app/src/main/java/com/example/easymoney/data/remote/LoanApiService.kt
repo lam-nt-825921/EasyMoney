@@ -127,8 +127,19 @@ interface LoanApiService {
     @GET("api/v1/loan/contracts/approved")
     suspend fun getApprovedContracts(): ApiResponse<List<LoanContractModel>>
 
+    // Workflow #72 — canonical contract create/detail endpoints.
+    @POST("api/v1/loan/contracts")
+    suspend fun createContract(@Body request: CreateContractRequest): ApiResponse<LoanContractDetailDto>
+
+    @GET("api/v1/loan/contracts/{contractId}")
+    suspend fun getContractDetail(@Path("contractId") contractId: String): ApiResponse<LoanContractDetailDto>
+
     @POST("api/v1/loan/contracts/{contractId}/cancel")
     suspend fun cancelContract(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
+
+    // Workflow #72 — request a signing OTP (delivered to the device via FCM) separately from signing.
+    @POST("api/v1/loan/contracts/{contractId}/sign/request-otp")
+    suspend fun requestSignOtp(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
 
     @POST("api/v1/loan/contracts/{contractId}/sign")
     suspend fun signContract(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
@@ -141,6 +152,15 @@ interface LoanApiService {
         @Path("debtId") debtId: Long,
         @Body request: RepayDebtRequest
     ): ApiResponse<Map<String, Any>>
+
+    // Workflow #71 — repayment estimate shown before confirming monthly/early settlement.
+    @GET("api/v1/loan/debts/{debtId}/repayment-estimate")
+    suspend fun getRepaymentEstimate(
+        @Path("debtId") debtId: Long,
+        @Query("repay_type") repayType: String,
+        @Query("payment_method") paymentMethod: String? = null,
+        @Query("card_id") cardId: String? = null
+    ): ApiResponse<RepaymentEstimateDto>
 
     // --- Notifications ---
     @GET("api/v1/notifications")
