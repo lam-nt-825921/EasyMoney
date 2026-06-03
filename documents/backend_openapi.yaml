@@ -7,8 +7,10 @@ x-backend-design-2026-06-02:
     below are superseded by this section and the added target paths/schemas when conflicts exist.
   frontend_task_source: documents/AGENT_TASKS.md
   app_defaults:
+    data_source_mode: remote
     language: vi
     theme: light
+    api_base_url: https://easymoney.lamgd.dev/
   score_policy:
     reward_points: loyalty points, separate from credit score.
     credit_score: backend-owned underwriting score from /api/v1/user/credit-score.

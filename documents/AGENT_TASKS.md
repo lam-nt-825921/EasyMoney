@@ -1,6 +1,6 @@
-# Agent Tasks - Frontend UI Fix Batch
+# Agent Tasks - Frontend Configuration And Loan Slider Fix
 
-Purpose: this is the only active frontend task list. Old task batches are intentionally removed.
+Purpose: this is the only active frontend task list. Older task batches are intentionally removed.
 
 Read first:
 
@@ -10,189 +10,123 @@ Read first:
 - `documents/backend_contract.yaml`
 - This file
 
-Assume the implementation agent may only have the Android frontend repository. Backend source is not available to the frontend agent. Public demo base URL remains `https://easymoney.lamgd.dev/`.
+Assume the implementation agent may only have the Android frontend repository. Backend source is not available to the frontend agent. Public demo base URL must be `https://easymoney.lamgd.dev/`.
 
 ## Source Issues Covered
 
 | Issue | Main files to inspect | Expected outcome |
 |---|---|---|
-| OTP still fills automatically without user consent | `ui/esign/ContractViewModel.kt`, `ui/common/components/OtpDialog.kt`, `messaging/ContractOtpHolder.kt` | OTP is only filled after the user explicitly chooses the suggestion |
-| OTP request endpoint can be spammed by leaving/reopening the dialog | `ui/esign/ContractViewModel.kt`, `ui/esign/ContractUiState.kt` | Existing valid OTP request is reused; sign button reopens dialog instead of calling endpoint again |
-| Text pieces are stuck together in contract/OTP UI | `ui/esign/ContractScreen.kt`, `ui/common/components/OtpDialog.kt`, string resources | Text has explicit spacing independent of XML trailing/leading spaces |
-| Canceling one contract disables buttons for other contracts until screen reopen | `ui/loan/management/LoanManagementViewModel.kt`, `LoanManagementUiState.kt`, `LoanManagementScreen.kt` | Submitting state is reset and/or scoped to the affected contract |
-| Loan suggestion amount slider has awkward far-apart / fractional-looking steps | `ui/loan/configuration/LoanConfigurationContent.kt`, `LoanConfigurationViewModel.kt`, possibly `LoanListScreen.kt` if the observed screen is the list filter | Slider snaps to clean, user-friendly VND increments with readable labels |
-| AI chatbot user messages look like raw text without a proper bubble | `ui/chatbot/ChatBotScreen.kt` | User messages render as clear right-aligned bubbles with background/border/padding |
+| Loan configuration amount bubble is too far from the slider and not aligned with the slider thumb on the X axis | `app/src/main/java/com/example/easymoney/ui/loan/configuration/LoanConfigurationContent.kt` | Amount bubble sits close above the track and its center follows the thumb center across min, middle, and max values |
+| Removed language/mock/theme toggles do not guarantee the desired runtime config on devices with old persisted settings | `AppPreferences.kt`, `EasyMoneyApplication.kt`, `MainActivity.kt`, `NetworkModule.kt`, `SandBoxViewModel.kt`, `SandBoxScreen.kt`, `LocaleUtils.kt` | Fresh build always runs `REMOTE`, `vi`, `light`, public base URL, even if the installed app previously stored `MOCK`, `en`, dark mode, or a local URL |
 
-## 1. Contract OTP Requires User Consent To Fill
-
-Current root cause:
-
-- `ContractViewModel` writes incoming API/FCM OTP directly into `otpAutofill`.
-- `OtpDialog` receives `prefillOtp` and immediately assigns it to `otpValue`.
-
-Required fix:
-
-- Remove the direct auto-fill path.
-- Do not pass a `prefillOtp` that mutates the input field automatically.
-- Treat OTP from API response or FCM as a suggestion only.
-- Store suggested OTP separately from the typed OTP, for example:
-  - `otpSuggestion: String?`
-  - `otpInput: String`
-  - `otpExpiresAt: Long?`
-- `OtpDialog` should show a compact action such as `Điền OTP từ thông báo` only when a valid suggestion exists.
-- Only when the user taps that action should the dialog copy `otpSuggestion` into `otpInput`.
-- User must still be able to type the OTP manually.
-- The final sign request still sends `{ otp, purpose: "SIGN_CONTRACT" }`.
-
-Implementation guidance:
-
-- FCM/API handlers may call something like `setOtpSuggestion(contractId, otp, expiresAt)`.
-- Do not call `onOtpChange(otp)` or assign to the input field from a `LaunchedEffect`.
-- If using Android keyboard autofill is unreliable for FCM data messages, prefer the in-app suggestion chip/button. The product requirement is user consent, not a particular Android autofill API.
-
-Acceptance:
-
-- Requesting OTP does not populate the six OTP boxes by itself.
-- Receiving matching `CONTRACT_SIGN_OTP` FCM does not populate the boxes by itself.
-- Tapping `Điền OTP từ thông báo` fills the boxes.
-- Manual typing still works.
-
-## 2. Prevent OTP Request Spam And Preserve OTP Dialog State
-
-Current root cause:
-
-- `showOtpDialog()` calls `requestSignOtp()` every time the sign button is pressed.
-- Dismissing the dialog sets `showOtpDialog=false` but there is no state representing "OTP was already requested and is still valid".
-
-Required fix:
-
-- Add frontend-only OTP request state per active `contractId`.
-- Suggested state model:
-  - `NotRequested`
-  - `Requesting`
-  - `WaitingForOtp(expiresAtMillis: Long?)`
-  - `Expired`
-  - `Failed(message: UiText?)`
-- Pressing `Ký hợp đồng` should:
-  - open the OTP dialog;
-  - call `requestSignOtp()` only when state is `NotRequested`, `Expired`, or `Failed`;
-  - not call the endpoint when state is `Requesting` or valid `WaitingForOtp`.
-- Dismissing/tapping outside the OTP dialog should only hide it. It must not clear the OTP request state, typed value, or suggestion.
-- Pressing `Ký hợp đồng` again while waiting for OTP should only show the existing OTP dialog.
-- Resend should be an explicit action and should reset state only after expiry or when user intentionally retries a failed request.
-- Clear OTP state only after successful signing, contract change, or confirmed expiry.
-
-Acceptance:
-
-- Tap `Ký hợp đồng`, dismiss OTP dialog, tap `Ký hợp đồng` again before expiry: no second request-OTP API call is made.
-- While request state is `Requesting`, repeated taps do not create concurrent OTP requests.
-- Dialog reopening preserves typed OTP/suggestion if still valid.
-- After successful sign, OTP holder/state is consumed.
-
-## 3. Fix Contract And OTP Text Spacing
-
-Current root cause:
-
-- Contract agreement text is built by concatenating resource strings and relies on a trailing space in `contract_agree_prefix`.
-- OTP description concatenates `otp_desc_1`, phone number, and `otp_desc_2`, relying on leading/trailing spaces in XML.
-
-Required fix:
-
-- Do not rely on resource strings carrying invisible leading/trailing spaces.
-- Build annotated strings with explicit `append(" ")` before/after inline styled segments.
-- For OTP description, ensure spaces around the phone number are explicit in Kotlin or use a single formatted string resource.
-- Prefer formatted resources for sentence templates if it keeps localization cleaner, e.g. `Vui lòng nhập mã OTP được gửi về SĐT %1$s để ký hợp đồng`.
-
-Acceptance:
-
-- Contract text reads naturally: `Tôi đã đọc và đồng ý với Điều khoản...`, not stuck together.
-- OTP text reads naturally with spaces around the phone number.
-- Vietnamese and English resources both remain valid.
-
-## 4. Fix Contract Cancel Disabling Other Buttons
-
-Current root cause:
-
-- `LoanManagementViewModel.cancelContract()` sets `isSubmitting=true`.
-- On success it calls `load()`, but `load()` does not reset `isSubmitting=false`.
-- `ContractList` disables all contract buttons via `enabled = !isSubmitting`.
-
-Required fix:
-
-- At minimum, ensure `isSubmitting=false` after cancel success and after `load()` finishes.
-- Preferred: scope submitting state to the affected contract/action instead of disabling every contract card.
-- Suggested model:
-  - replace or supplement `isSubmitting` with `submittingContractId: String?`
-  - disable only the card whose id matches `submittingContractId`
-  - keep other contracts active.
-- Avoid keeping global submit state true after any success path.
-
-Acceptance:
-
-- Cancel one contract successfully; remaining contract cards stay clickable without leaving the screen.
-- Cancel error resets submitting state and shows the error.
-- Repayment/debt submit loading still behaves correctly.
-
-## 5. Make Loan Suggestion Amount Slider Steps Clean
+## 1. Fix Loan Configuration Amount Bubble Alignment
 
 Observed issue:
 
-- The amount slider in loan suggestion/configuration has awkward steps: jumps feel too far apart in some ranges and selected values can look arbitrary or "lẻ".
+- In the loan flow configuration screen, the amount slider has a track/thumb and a component showing the current selected amount.
+- The amount bubble is visually too far above the slider track.
+- The amount bubble does not line up horizontally with the slider thumb.
 
-Current likely cause:
+Current likely root cause:
 
-- `LoanAmountSection` snaps with `((value / 100_000f).toInt() * 100_000L)`, regardless of package min/max range.
-- For larger packages this creates too many tiny raw stops; for uneven min/max it can also produce values that do not feel aligned to clean product increments.
+- `LoanAmountSection` places the bubble and the `Slider` inside a `Box` with fixed `height(104.dp)`.
+- The bubble is drawn from the top of the `Box`, while the `Slider` is aligned with `Alignment.BottomCenter`, creating excessive vertical distance.
+- The bubble offset is calculated from `sliderSize.width`, but `sliderSize` is the outer `Box` size, not the actual Material Slider thumb/track travel area.
+- The current offset maps the bubble left edge across `(boxWidth - bubbleWidth) * progress`; it does not calculate the actual thumb center and then center the bubble on that point.
+- Material3 `Slider` has internal horizontal space for the thumb, and the custom thumb is `24.dp`, so using full box width causes visible X-axis drift near min/max and sometimes mid-range.
 
 Required fix:
 
-- Define a clean amount step based on package range and product money scale.
-- Recommended step policy:
-  - range <= 5,000,000 VND: step `500,000`
-  - range <= 20,000,000 VND: step `1,000,000`
-  - range > 20,000,000 VND: step `5,000,000`
-- Snap relative to `minAmount`, not absolute zero:
-  - `snapped = minAmount + round((raw - minAmount) / step) * step`
-  - clamp to `minAmount..maxAmount`
-  - ensure exact min/max can still be selected.
-- Display amount labels in clean compact format (`5tr`, `10tr`, `50tr`) or full VND where needed.
-- If the user meant `LoanListScreen` filter slider instead of loan configuration, apply the same clean-step principle there too. Do not leave one amount slider polished and the other awkward.
+- Keep the bubble close to the slider, with a small fixed gap such as `6.dp` to `8.dp` between the bubble pointer and the track/thumb area.
+- Calculate bubble X position by centering it on the slider thumb center, then clamp the bubble inside the available width.
+- Use the actual slider/thumb geometry instead of the outer `Box` height/width assumption.
+- A safe implementation pattern:
+  - measure the slider row width separately from the parent container;
+  - define `thumbDiameter = 24.dp` to match the custom thumb;
+  - compute `thumbRadiusPx = thumbDiameterPx / 2`;
+  - compute `trackStartPx = thumbRadiusPx`;
+  - compute `trackEndPx = sliderWidthPx - thumbRadiusPx`;
+  - compute `thumbCenterPx = trackStartPx + progress * (trackEndPx - trackStartPx)`;
+  - compute `bubbleLeftPx = (thumbCenterPx - bubbleWidthPx / 2).coerceIn(0f, sliderWidthPx - bubbleWidthPx)`;
+  - apply `Modifier.offset(x = bubbleLeftPx.toDp())` to the bubble.
+- Prefer replacing the tall free-positioned `Box` with a compact layout such as:
+  - a `Box` for the bubble overlay;
+  - `Spacer(6.dp)` or `Spacer(8.dp)`;
+  - the `Slider`;
+  - min/max labels.
+- Do not let the bubble resize or shift the rest of the screen while dragging.
+- Preserve the existing amount snapping behavior unless it directly causes the visual mismatch.
 
 Acceptance:
 
-- Slider values land on clean increments such as `5tr`, `6tr`, `7tr`, not arbitrary values.
-- Min and max package amounts remain selectable.
-- Moving the slider feels smooth enough and does not jump across too much money for small packages.
-- Displayed selected amount matches the value passed into quote/application state.
+- At min value, the bubble is near the left thumb and remains fully visible.
+- At max value, the bubble is near the right thumb and remains fully visible.
+- At mid value, the bubble center visually matches the thumb center.
+- Vertical spacing between bubble pointer and slider is tight and intentional, not a large empty gap.
+- The selected amount text still updates immediately while dragging.
+- Build passes with `.\gradlew.bat build`.
 
-## 6. Improve AI Chatbot User Message Bubble
+## 2. Force Production Runtime Config Regardless Of Old Persisted Settings
 
 Observed issue:
 
-- User messages in the AI chatbot look like plain text and are visually hard to distinguish.
+- UI toggles for language, mock/remote mode, and dark/light mode were removed from regular screens.
+- Devices that previously used the app can still behave as if old config remains active.
+- Desired production config for the next build is:
+  - data source mode: `REMOTE`
+  - language: `vi`
+  - theme: `light`
+  - API base URL: `https://easymoney.lamgd.dev/`
 
-Current likely cause:
+Current confirmed root cause:
 
-- `MessageRow` uses a `Surface` for both roles, but user messages use `MaterialTheme.colorScheme.surface` and `fillMaxWidth(0.85f)`, making the user bubble blend into the page.
+- `AppPreferences.readDataSourceMode()` currently defaults to `DataSourceMode.MOCK`.
+- `AppPreferences.dataSourceMode` still reads `KEY_DATA_SOURCE_MODE` from `SharedPreferences`, so an old installed app can keep `MOCK`.
+- `AppPreferences.apiBaseUrl` still reads `KEY_API_BASE_URL`, so an old Sandbox/local URL can survive into a new build.
+- `SandBoxViewModel` and `SandBoxScreen` can still write `dataSourceMode` and `apiBaseUrl`.
+- `EasyMoneyApplication.forceVietnameseLocale()` already sets `AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("vi"))`, but config enforcement should remain centralized and verifiable.
+- `MainActivity` already calls `EasyMoneyTheme(darkTheme = false)`, but `darkThemeEnabled` can still hold stale data and any future caller could accidentally read it.
 
 Required fix:
 
-- Render user messages as a clearly visible right-aligned bubble:
-  - width wraps content up to a max width, not always `fillMaxWidth(0.85f)`;
-  - background should differ from the screen surface, e.g. `primary` / `primaryContainer` depending on contrast;
-  - text color must meet contrast (`onPrimary` or `onPrimaryContainer`);
-  - add rounded corners, with a slightly different corner on the speaker side if desired;
-  - add internal padding around text;
-  - optionally add a subtle border if using a light background.
-- Bot messages should remain left-aligned and readable.
-- Cards/actions from bot should keep their existing structure, only polished if needed to avoid layout mismatch.
+- Add a single production config policy in the frontend, preferably centralized in `AppPreferences` or a small dedicated constants object:
+  - `PRODUCTION_DATA_SOURCE_MODE = DataSourceMode.REMOTE`
+  - `PRODUCTION_API_BASE_URL = "https://easymoney.lamgd.dev/"`
+  - `PRODUCTION_LANGUAGE_TAG = "vi"`
+  - `PRODUCTION_DARK_THEME_ENABLED = false`
+- Make getters used by production code return the forced values:
+  - `dataSourceMode` must return `DataSourceMode.REMOTE` regardless of old `SharedPreferences`.
+  - `apiBaseUrl` must return `https://easymoney.lamgd.dev/` regardless of old `SharedPreferences`.
+  - `darkThemeEnabled` should return `false` or be made unused by production theme selection.
+- On app startup, also write the forced values back to `SharedPreferences` once, so diagnostic screens and future code see the same values:
+  - `KEY_DATA_SOURCE_MODE = REMOTE`
+  - `KEY_API_BASE_URL = https://easymoney.lamgd.dev/`
+  - `KEY_DARK_THEME_ENABLED = false`
+- Keep `EasyMoneyApplication` forcing Vietnamese locale. If needed, expose a clear method such as `enforceProductionDefaults()` and call it before FCM registration or repository work that depends on `dataSourceMode`.
+- Ensure `currentAppLanguage()` always resolves to `vi` for production behavior. Do not allow old app locale `en` to influence master-data API calls.
+- Remove, disable, or make debug-only any Sandbox control that can write `MOCK` or a local `apiBaseUrl` in production. The safest quick fix is:
+  - hide the data source and API base URL controls from production builds; or
+  - make the Sandbox setters no-op unless an explicit debug flag is true.
+- Do not clear auth tokens or user data as part of this config migration.
+- Do not require users to uninstall the app or clear storage.
+
+Recommended quick and safe approach:
+
+1. Centralize production constants.
+2. Make the critical getters return forced production values immediately.
+3. Add a startup persistence repair method that overwrites only the config keys, not auth/profile/cache data.
+4. Make Sandbox writes unable to override production config.
+5. Keep `MainActivity` hard-coded light theme and `EasyMoneyApplication` hard-coded Vietnamese locale.
 
 Acceptance:
 
-- User text messages visibly appear inside a bubble.
-- User and bot messages are easy to distinguish at a glance.
-- Long user messages wrap cleanly and do not span edge-to-edge.
-- Chat input row remains usable and visually separated from the message list.
+- Install the new build over an app that previously stored `data_source_mode=MOCK`: repositories use `REMOTE`.
+- Install the new build over an app that previously stored a local `api_base_url`: Retrofit uses `https://easymoney.lamgd.dev/`.
+- Install the new build over an app that previously used English: app UI and master-data language are Vietnamese.
+- Install the new build over an app that previously used dark mode: UI remains light.
+- Sandbox or hidden debug screens cannot switch production runtime back to `MOCK` or a local URL.
+- Existing login tokens and user data are not wiped by the config enforcement.
+- Build passes with `.\gradlew.bat build`.
 
 ## Verification Checklist
 
@@ -204,10 +138,7 @@ Run from frontend root:
 
 Manual verification:
 
-- OTP is not inserted until the user taps the OTP suggestion action.
-- Dismiss/reopen OTP dialog before expiry does not call request-OTP again.
-- OTP resend is explicit and does not create duplicate concurrent requests.
-- Contract agreement text and OTP phone text have correct spacing.
-- Canceling one contract does not disable other contract buttons.
-- Loan amount slider snaps to clean increments and still reaches min/max.
-- Chatbot user messages render as distinct right-aligned bubbles with readable background/text contrast.
+- On a dirty existing install with old settings, launch the new build and verify network calls use the public remote backend.
+- Confirm visible app text is Vietnamese.
+- Confirm the app remains in light theme even if the device is dark or the previous app setting was dark.
+- Open loan flow configuration and test amount bubble alignment at min, middle, and max.

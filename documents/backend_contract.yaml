@@ -8,8 +8,10 @@ active_design:
     frontend snapshot details when conflicts exist.
   frontend_task_source: documents/AGENT_TASKS.md
   app_defaults:
+    data_source_mode: remote
     language: vi
     theme: light
+    api_base_url: https://easymoney.lamgd.dev/
     frontend_switching_ui: disabled in production
   debt_visibility:
     default_include_paid: false

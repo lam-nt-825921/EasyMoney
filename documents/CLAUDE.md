@@ -13,7 +13,7 @@ This directory is written for an implementation agent, not for end-user document
 5. `SRS.md`
    - Business meaning of each major screen and workflow.
 6. `AGENT_TASKS.md`
-   - The only active task list. It contains the latest frontend UI fix batch, including OTP suggestion/resend-guard UX, contract/OTP text spacing, contract cancel button state, loan amount slider polish, and chatbot message bubbles.
+   - The only active task list. It contains the latest frontend fix batch for loan configuration slider bubble alignment and forced production runtime config.
 
 ## Repository Context
 
@@ -39,4 +39,4 @@ Do not invent alternate backend behavior to make frontend code easier. If curren
 - A registered user starts with a wallet account and no payment cards. Never seed or fake a card in `REMOTE` mode to hide `CARD_REQUIRED`/empty-card states.
 - Lists that represent time events must be newest first: notifications, transactions, repayments, contracts/events where applicable.
 - Use Material3 `MaterialTheme.colorScheme` unless a local design token already exists. Avoid hard-coded production colors. UI/UX changes should feel complete enough for customer demo, not like a debug scaffold.
-- The current 2026-06-02 product direction is in `AGENT_TASKS.md`; do not resurrect older task batches from stale docs or commits.
+- The current product direction is in `AGENT_TASKS.md`; do not resurrect older task batches from stale docs or commits.
