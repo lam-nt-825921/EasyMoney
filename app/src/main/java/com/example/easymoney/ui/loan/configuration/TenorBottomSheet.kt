@@ -48,19 +48,24 @@ fun TenorBottomSheetContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(stringResource(R.string.loan_tenor_value_months, tenor), fontSize = 16.sp)
-                if (tenor == selectedTenor) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                } else {
-                    RadioButton(
-                        selected = false,
-                        onClick = { onTenorSelected(tenor) },
-                        colors = RadioButtonDefaults.colors(unselectedColor = Color(0xFFB3B3B3))
-                    )
+                Box(
+                    modifier = Modifier.size(48.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (tenor == selectedTenor) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        RadioButton(
+                            selected = false,
+                            onClick = { onTenorSelected(tenor) },
+                            colors = RadioButtonDefaults.colors(unselectedColor = Color(0xFFB3B3B3))
+                        )
+                    }
                 }
             }
             HorizontalDivider(color = Color(0xFFEAECF0))
