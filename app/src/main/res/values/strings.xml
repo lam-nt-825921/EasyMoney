@@ -270,6 +270,20 @@
     <string name="profile_label_contact_name">Họ và tên người liên hệ</string>
     <string name="profile_label_phone">Số điện thoại</string>
     <string name="profile_label_relationship">Mối quan hệ</string>
+    <!-- Workflow #95 — chọn giới tính cố định + thông báo lỗi validate hồ sơ -->
+    <string name="profile_gender_male">Nam</string>
+    <string name="profile_gender_female">Nữ</string>
+    <string name="profile_gender_select">Chọn giới tính</string>
+    <string name="profile_error_required">Vui lòng nhập thông tin này</string>
+    <string name="profile_error_name_invalid">Họ tên chỉ gồm chữ cái và khoảng trắng</string>
+    <string name="profile_error_name_too_short">Họ tên quá ngắn</string>
+    <string name="profile_error_phone_invalid">Số điện thoại không hợp lệ (VD: 0901234567)</string>
+    <string name="profile_error_national_id_invalid">CCCD phải gồm đúng 12 chữ số</string>
+    <string name="profile_error_gender_required">Vui lòng chọn giới tính</string>
+    <string name="profile_error_dob_invalid">Ngày sinh không hợp lệ (định dạng YYYY-MM-DD)</string>
+    <string name="profile_error_dob_future">Ngày sinh không thể ở tương lai</string>
+    <string name="profile_error_dob_age_range">Độ tuổi phải từ 18 đến 70</string>
+    <string name="profile_error_income_invalid">Thu nhập phải là số dương</string>
     <string name="profile_unit_currency_short">đ</string>
     <string name="profile_avatar_content_desc">Ảnh đại diện hồ sơ</string>
     <string name="profile_update_avatar">Cập nhật ảnh đại diện</string>

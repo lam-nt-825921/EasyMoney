@@ -121,6 +121,7 @@ fun EditContactInfoScreen(
                     label = stringResource(id = R.string.profile_label_contact_name),
                     value = contactInfo.contactName,
                     onValueChange = { viewModel.updateContactInfo(name = it) },
+                    errorText = uiState.fieldErrors[ProfileField.CONTACT_NAME]?.asMessage(),
                     trailingIcon = {
                         Column(
                             modifier = Modifier
@@ -168,7 +169,8 @@ fun EditContactInfoScreen(
                     onValueChange = { viewModel.updateContactInfo(phone = it) },
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Done,
-                    onImeAction = { focusManager.clearFocus() }
+                    onImeAction = { focusManager.clearFocus() },
+                    errorText = uiState.fieldErrors[ProfileField.CONTACT_PHONE]?.asMessage()
                 )
             }
         }
@@ -182,9 +184,7 @@ fun EditContactInfoScreen(
             color = MaterialTheme.colorScheme.surface
         ) {
             Box(modifier = Modifier.padding(16.dp)) {
-                val isFormValid = contactInfo.contactName.isNotBlank() && 
-                                  contactInfo.relationship.isNotBlank() && 
-                                  contactInfo.phoneNumber.isNotBlank()
+                val isFormValid = uiState.isContactInfoValid
 
                 Button(
                     onClick = {
@@ -240,16 +240,19 @@ private fun InputField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     onImeAction: () -> Unit = {},
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    errorText: String? = null
 ) {
     val focusManager = LocalFocusManager.current
-    
+    val isError = errorText != null
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
+            isError = isError,
             placeholder = { if (placeholder != null) Text(placeholder, color = MaterialTheme.colorScheme.outline) },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             keyboardActions = KeyboardActions(onDone = { onImeAction() }, onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }),
@@ -258,9 +261,18 @@ private fun InputField(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                errorIndicatorColor = MaterialTheme.colorScheme.error
             )
         )
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }
 

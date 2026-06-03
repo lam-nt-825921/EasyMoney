@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow #94 — production ships Vietnamese only; en is no longer a selectable per-app language. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="vi" />
-    <locale android:name="en" />
 </locale-config>
