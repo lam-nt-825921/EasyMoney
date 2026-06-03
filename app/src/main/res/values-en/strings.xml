@@ -268,6 +268,20 @@
     <string name="profile_label_contact_name">Contact name</string>
     <string name="profile_label_phone">Phone number</string>
     <string name="profile_label_relationship">Relationship</string>
+    <!-- Workflow #95 — fixed-choice gender + profile validation messages -->
+    <string name="profile_gender_male">Nam</string>
+    <string name="profile_gender_female">Nữ</string>
+    <string name="profile_gender_select">Select gender</string>
+    <string name="profile_error_required">This field is required</string>
+    <string name="profile_error_name_invalid">Name may only contain letters and spaces</string>
+    <string name="profile_error_name_too_short">Name is too short</string>
+    <string name="profile_error_phone_invalid">Invalid phone number (e.g. 0901234567)</string>
+    <string name="profile_error_national_id_invalid">Citizen ID must be exactly 12 digits</string>
+    <string name="profile_error_gender_required">Please select a gender</string>
+    <string name="profile_error_dob_invalid">Invalid date of birth (format YYYY-MM-DD)</string>
+    <string name="profile_error_dob_future">Date of birth cannot be in the future</string>
+    <string name="profile_error_dob_age_range">Age must be between 18 and 70</string>
+    <string name="profile_error_income_invalid">Income must be a positive number</string>
     <string name="profile_unit_currency_short">VND</string>
     <string name="profile_avatar_content_desc">Profile avatar</string>
     <string name="profile_update_avatar">Update avatar</string>

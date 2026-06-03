@@ -25,6 +25,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Workflow #94 — production ships Vietnamese only. This strips values-en/ from the APK so a
+        // device set to English (or a stale persisted en locale) has nothing to fall back to and the
+        // default (Vietnamese) values/ resources are always used.
+        resourceConfigurations += "vi"
     }
 
     buildTypes {

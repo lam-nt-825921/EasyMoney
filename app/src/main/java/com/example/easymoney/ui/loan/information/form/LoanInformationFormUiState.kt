@@ -16,7 +16,8 @@ enum class FormSheetType {
     POSITION,
     EDUCATION,
     MARITAL_STATUS,
-    RELATIONSHIP
+    RELATIONSHIP,
+    GENDER
 }
 
 data class LoanInformationFormUiState(
