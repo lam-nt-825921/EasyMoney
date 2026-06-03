@@ -93,7 +93,7 @@
     <string name="error_input_company_name">Vui lòng nhập tên công ty</string>
     <string name="error_select_position">Vui lòng chọn chức vụ</string>
     <string name="error_input_spouse_name">Vui lòng nhập tên vợ/chồng</string>
-    <string name="error_invalid_phone">Số điện thoại không hợp lệ</string>
+    <string name="error_invalid_phone">Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0</string>
     <string name="error_input_contact_name">Vui lòng nhập tên người liên hệ</string>
     <string name="error_select_relationship">Vui lòng chọn mối quan hệ</string>
 
@@ -198,7 +198,7 @@
     <string name="add_card_error_bank_required">Vui lòng chọn ngân hàng.</string>
     <string name="add_card_error_type_required">Vui lòng chọn loại thẻ.</string>
     <string name="add_card_error_number">Số thẻ phải có 16-19 chữ số.</string>
-    <string name="add_card_error_holder">Vui lòng nhập tên chủ thẻ.</string>
+    <string name="add_card_error_holder">Tên chủ thẻ phải gồm ít nhất họ và tên, không chứa số hoặc ký tự đặc biệt.</string>
     <string name="add_card_error_expiry">Hạn thẻ không hợp lệ hoặc đã hết hạn.</string>
     <!-- Workflow #80 — CVV/CVC -->
     <string name="add_card_cvv_label">CVV/CVC</string>

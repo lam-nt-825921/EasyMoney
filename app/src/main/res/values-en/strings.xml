@@ -93,7 +93,7 @@
     <string name="error_input_company_name">Please enter company name</string>
     <string name="error_select_position">Please select position</string>
     <string name="error_input_spouse_name">Please enter spouse\'s name</string>
-    <string name="error_invalid_phone">Invalid phone number</string>
+    <string name="error_invalid_phone">Phone number must be 10 digits and start with 0</string>
     <string name="error_input_contact_name">Please enter contact name</string>
     <string name="error_select_relationship">Please select relationship</string>
 
@@ -198,7 +198,7 @@
     <string name="add_card_error_bank_required">Please select a bank.</string>
     <string name="add_card_error_type_required">Please select a card type.</string>
     <string name="add_card_error_number">Card number must be 16-19 digits.</string>
-    <string name="add_card_error_holder">Please enter the cardholder name.</string>
+    <string name="add_card_error_holder">Cardholder name must include at least first and last name, without numbers or special characters.</string>
     <string name="add_card_error_expiry">Card expiry is invalid or already expired.</string>
     <!-- Workflow #80 — CVV/CVC -->
     <string name="add_card_cvv_label">CVV/CVC</string>

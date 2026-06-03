@@ -135,7 +135,7 @@ class PaymentViewModel @Inject constructor(
         if (digits.length !in 16..19) {
             errors["card_number"] = UiText.StringResource(R.string.add_card_error_number)
         }
-        if (request.cardHolderName.isBlank()) {
+        if (!isCardHolderNameValid(request.cardHolderName)) {
             errors["card_holder_name"] = UiText.StringResource(R.string.add_card_error_holder)
         }
         if (!isExpiryValid(request.expiry)) {
@@ -145,6 +145,13 @@ class PaymentViewModel @Inject constructor(
             errors["cvv"] = UiText.StringResource(R.string.add_card_error_cvv)
         }
         return errors
+    }
+
+    private fun isCardHolderNameValid(value: String): Boolean {
+        val normalized = value.trim().replace("\\s+".toRegex(), " ")
+        if (!normalized.matches(Regex("[A-Z ]+"))) return false
+        val words = normalized.split(" ").filter { it.isNotBlank() }
+        return words.size >= 2 && words.sumOf { it.length } >= 5
     }
 
     /** Workflow #80 — expiry phải đúng định dạng `MM/YYYY` và chưa hết hạn. */

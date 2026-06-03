@@ -16,9 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.easymoney.R
+import com.example.easymoney.ui.account.profile.ProfileInputValidator
 import com.example.easymoney.ui.components.AppTextField
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 import com.example.easymoney.ui.theme.LocalDarkMode
@@ -36,6 +39,17 @@ fun RegisterScreen1(
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var acceptedTerms by rememberSaveable { mutableStateOf(false) }
     var showPassword by rememberSaveable { mutableStateOf(false) }
+
+    val normalizedPhone = ProfileInputValidator.normalizePhone(phone)
+    val phoneError = when {
+        phone.isBlank() || ProfileInputValidator.validatePhone(phone) == null -> null
+        else -> stringResource(R.string.error_invalid_phone)
+    }
+    val canRegister = acceptedTerms &&
+        fullName.isNotBlank() &&
+        password == confirmPassword &&
+        password.isNotBlank() &&
+        ProfileInputValidator.validatePhone(phone) == null
 
     val isDarkMode = LocalDarkMode.current
     val scheme = MaterialTheme.colorScheme
@@ -84,8 +98,10 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_phone_label),
                     value = phone,
-                    onValueChange = { phone = it },
-                    placeholder = stringResource(id = R.string.register_phone_placeholder)
+                    onValueChange = { phone = it.filter(Char::isDigit).take(10) },
+                    placeholder = stringResource(id = R.string.register_phone_placeholder),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    error = if (phone.isNotBlank()) phoneError else null
                 )
 
                 RegisterField(
@@ -138,8 +154,10 @@ fun RegisterScreen1(
             }
 
             Button(
-                onClick = { onRegisterClick(phone, fullName, password) },
-                enabled = !isLoading && acceptedTerms && phone.isNotBlank() && fullName.isNotBlank() && password == confirmPassword,
+                onClick = {
+                    if (canRegister) onRegisterClick(normalizedPhone, fullName.trim(), password)
+                },
+                enabled = !isLoading && canRegister,
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
@@ -178,6 +196,8 @@ private fun RegisterField(
     isPassword: Boolean = false,
     showPassword: Boolean = false,
     onTogglePassword: () -> Unit = {},
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    error: String? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -194,8 +214,17 @@ private fun RegisterField(
             placeholder = placeholder,
             isPassword = isPassword,
             showPassword = showPassword,
-            onTogglePassword = onTogglePassword
+            onTogglePassword = onTogglePassword,
+            keyboardOptions = keyboardOptions
         )
+        if (!error.isNullOrBlank()) {
+            Text(
+                text = error,
+                color = scheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
     }
 }
 

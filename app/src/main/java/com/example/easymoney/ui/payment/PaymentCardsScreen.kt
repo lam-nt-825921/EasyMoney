@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -163,7 +164,7 @@ private fun CreditCardItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp),
+            .height(204.dp),
         shape = RoundedCornerShape(16.dp),
         color = Color.Transparent,
         shadowElevation = 4.dp
@@ -187,27 +188,30 @@ private fun CreditCardItem(
                     letterSpacing = 2.sp
                 )
                 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Column(modifier = Modifier.weight(1.1f)) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         Text(text = stringResource(R.string.money_mgmt_card_holder), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
                         Text(
                             text = card.cardHolderName.ifBlank { "-" },
                             color = Color.White,
                             style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Column(modifier = Modifier.weight(0.8f), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = stringResource(R.string.money_mgmt_card_expiry), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
-                        Text(text = card.expiry.ifBlank { "--/----" }, color = Color.White, style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                        Text(text = stringResource(R.string.money_mgmt_card_balance), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
-                        Text(text = "${formatMoney(card.balance)}đ", color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Column {
+                            Text(text = stringResource(R.string.money_mgmt_card_expiry), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                            Text(text = card.expiry.ifBlank { "--/----" }, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(text = stringResource(R.string.money_mgmt_card_balance), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                            Text(text = "${formatMoney(card.balance)}đ", color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -433,7 +437,6 @@ private fun normalizeCardHolderName(value: String): String {
         .replace('đ', 'd')
         .replace('Đ', 'D')
     return withoutDiacritics
-        .replace("[^A-Za-z\\s]".toRegex(), " ")
         .replace("\\s+".toRegex(), " ")
         .trim()
         .uppercase(Locale.ROOT)
