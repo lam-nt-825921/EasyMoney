@@ -428,14 +428,15 @@
     <string name="nav_edit_contact_info">Contact person</string>
     <!-- OTP Dialog -->
     <string name="otp_title">OTP Verification</string>
-    <string name="otp_desc_1">Please enter the OTP sent to phone number </string>
-    <string name="otp_desc_2"> to sign the contract</string>
+    <string name="otp_desc_1">Please enter the OTP sent to phone number</string>
+    <string name="otp_desc_2">to sign the contract</string>
     <string name="otp_resend_wait">Resend in %1$ds</string>
     <string name="otp_resend">Resend OTP</string>
+    <string name="otp_fill_suggestion">Fill OTP from notification</string>
     <string name="otp_error_wrong">Incorrect OTP (%1$d/%2$d attempts)</string>
     <string name="action_skip">Skip</string>
     <!-- Contract & E-Sign -->
-    <string name="contract_agree_prefix">I have read and agree to </string>
+    <string name="contract_agree_prefix">I have read and agree to</string>
     <string name="esign_success_home">Back to Home</string>
     <string name="esign_success_title">Contract signed successfully</string>
     <string name="esign_success_desc">Please wait a moment for the system to disburse the funds.</string>

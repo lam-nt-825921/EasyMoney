@@ -46,6 +46,8 @@ fun ContractScreen(
     if (uiState.showOtpDialog && !readOnly) {
         OtpDialog(
             phoneNumber = uiState.userPhone,
+            otpValue = uiState.otpInput,
+            onOtpChange = viewModel::onOtpInputChange,
             onDismiss = viewModel::hideOtpDialog,
             onConfirm = { otp -> viewModel.verifyOtp(otp, loanId, onSignSuccess) },
             onResendOtp = viewModel::resendOtp,
@@ -55,7 +57,9 @@ fun ContractScreen(
             },
             isVerifying = uiState.isOtpVerifying,
             errorMessage = uiState.otpError?.asString(),
-            prefillOtp = uiState.otpAutofill
+            // Workflow #87 — suggestion shown only when still valid; filled only on explicit tap.
+            otpSuggestion = uiState.validOtpSuggestion(),
+            onFillSuggestion = viewModel::fillOtpSuggestion
         )
     }
 
@@ -182,8 +186,11 @@ private fun ContractBottomSection(
                     )
                 )
                 
+                // Workflow #89 — explicit space before the styled link; do not rely on a trailing
+                // space inside contract_agree_prefix.
                 val annotatedString = buildAnnotatedString {
                     append(stringResource(R.string.contract_agree_prefix))
+                    append(" ")
                     pushStringAnnotation(tag = "terms", annotation = "terms")
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)) {
                         append(stringResource(R.string.settings_item_terms))

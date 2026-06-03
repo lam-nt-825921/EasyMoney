@@ -100,7 +100,7 @@ fun LoanManagementScreen(
                 }
                 selectedTab == 0 -> ContractList(
                     contracts = uiState.contracts,
-                    isSubmitting = uiState.isSubmitting,
+                    submittingContractId = uiState.submittingContractId,
                     onCancel = { pendingCancelId = it },
                     onSign = onSignContract,
                     modifier = Modifier.fillMaxSize()
@@ -348,7 +348,8 @@ private fun PaymentOptionRow(
 @Composable
 private fun ContractList(
     contracts: List<LoanContractModel>,
-    isSubmitting: Boolean,
+    // Workflow #90 — only the contract currently being cancelled is disabled.
+    submittingContractId: String?,
     onCancel: (String) -> Unit,
     onSign: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -372,7 +373,7 @@ private fun ContractList(
         items(contracts, key = { it.id }) { contract ->
             ContractCard(
                 contract = contract,
-                enabled = !isSubmitting,
+                enabled = submittingContractId != contract.id,
                 onCancel = { onCancel(contract.id) },
                 onSign = { onSign(contract.id) }
             )

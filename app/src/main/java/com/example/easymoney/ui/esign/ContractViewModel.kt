@@ -26,13 +26,26 @@ class ContractViewModel @Inject constructor(
     val uiState: StateFlow<ContractUiState> = _uiState.asStateFlow()
 
     init {
-        // Workflow #72 — auto-fill the OTP field when an FCM CONTRACT_SIGN_OTP arrives for the
-        // contract being signed. Only the matching contract id is honoured; the user still confirms.
+        // Workflow #87 — an FCM CONTRACT_SIGN_OTP for the contract being signed is stored as a
+        // SUGGESTION only. The six OTP boxes are never filled automatically; the user must tap
+        // "Điền OTP từ thông báo" to copy it into the input.
         viewModelScope.launch {
             contractOtpHolder.latest.collect { pending ->
                 val currentId = _uiState.value.loadedContractId ?: return@collect
                 if (pending != null && pending.contractId == currentId) {
-                    _uiState.update { it.copy(otpAutofill = pending.otp) }
+                    _uiState.update { state ->
+                        state.copy(
+                            otpSuggestion = pending.otp,
+                            otpExpiresAt = pending.expiresAt,
+                            // A suggestion arriving means the OTP we requested is now available.
+                            otpRequestState = when (state.otpRequestState) {
+                                is OtpRequestState.Requesting,
+                                is OtpRequestState.NotRequested ->
+                                    OtpRequestState.WaitingForOtp(pending.expiresAt)
+                                else -> state.otpRequestState
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -57,9 +70,9 @@ class ContractViewModel @Inject constructor(
                 is Resource.Error -> loadContractContentFallback(loanId)
                 is Resource.Loading -> Unit
             }
-            // Apply any OTP that already arrived for this contract before the screen opened.
+            // Workflow #87 — surface any OTP already received for this contract as a suggestion.
             contractOtpHolder.otpFor(loanId)?.let { otp ->
-                _uiState.update { it.copy(otpAutofill = otp) }
+                _uiState.update { it.copy(otpSuggestion = otp) }
             }
         }
     }
@@ -80,35 +93,69 @@ class ContractViewModel @Inject constructor(
         _uiState.update { it.copy(isTermsAccepted = accepted) }
     }
 
+    /** Workflow #87 — controlled OTP input; only digits, max 6. */
+    fun onOtpInputChange(value: String) {
+        val sanitized = value.filter { it.isDigit() }.take(6)
+        _uiState.update { it.copy(otpInput = sanitized, otpError = null) }
+    }
+
+    /** Workflow #87 — copy the suggested OTP into the input only when the user explicitly asks. */
+    fun fillOtpSuggestion() {
+        val suggestion = _uiState.value.validOtpSuggestion() ?: return
+        _uiState.update { it.copy(otpInput = suggestion.filter { c -> c.isDigit() }.take(6), otpError = null) }
+    }
+
     fun showOtpDialog() {
         _uiState.update { it.copy(showOtpDialog = true, otpError = null) }
-        requestSignOtp()
-        // Surface an OTP that may already have arrived via FCM for this contract.
-        _uiState.value.loadedContractId?.let { id ->
-            contractOtpHolder.otpFor(id)?.let { otp ->
-                _uiState.update { it.copy(otpAutofill = otp) }
-            }
+        // Workflow #88 — only call request-OTP when there is no valid outstanding request.
+        if (shouldRequestOtp()) {
+            requestSignOtp()
         }
     }
 
+    private fun shouldRequestOtp(): Boolean = when (val state = _uiState.value.otpRequestState) {
+        is OtpRequestState.NotRequested,
+        is OtpRequestState.Expired,
+        is OtpRequestState.Failed -> true
+        // Re-request only if the previously requested OTP has already expired.
+        is OtpRequestState.WaitingForOtp -> isExpired(state.expiresAtMillis)
+        is OtpRequestState.Requesting -> false
+    }
+
+    private fun isExpired(expiresAtMillis: Long?): Boolean =
+        expiresAtMillis != null && System.currentTimeMillis() > expiresAtMillis
+
     fun hideOtpDialog() {
-        _uiState.update { it.copy(showOtpDialog = false, otpError = null) }
+        // Workflow #88 — dismissing only hides the dialog; request state, typed value, and the
+        // suggestion are preserved so reopening does not trigger another request-OTP call.
+        _uiState.update { it.copy(showOtpDialog = false) }
     }
 
     private fun requestSignOtp() {
         val contractId = _uiState.value.loadedContractId ?: return
+        if (_uiState.value.otpRequestState is OtpRequestState.Requesting) return
+        _uiState.update { it.copy(otpRequestState = OtpRequestState.Requesting) }
         viewModelScope.launch {
-            // Workflow #81 — autofill OTP ngay từ response của request-otp (ngoài kênh FCM),
-            // và lưu vào holder để khớp đúng contract id. Người dùng vẫn tự bấm xác nhận.
             when (val result = loanRepository.requestSignOtp(contractId)) {
                 is Resource.Success -> {
                     val otp = result.data.otp
+                    val expiresAt = result.data.expiresAt
+                    // Workflow #87 — store as suggestion + holder; never write into the input field.
                     if (!otp.isNullOrBlank()) {
-                        contractOtpHolder.submit(contractId, otp, result.data.expiresAt)
-                        _uiState.update { it.copy(otpAutofill = otp) }
+                        contractOtpHolder.submit(contractId, otp, expiresAt)
+                    }
+                    _uiState.update { state ->
+                        state.copy(
+                            otpRequestState = OtpRequestState.WaitingForOtp(expiresAt),
+                            otpSuggestion = otp?.takeIf { it.isNotBlank() } ?: state.otpSuggestion,
+                            otpExpiresAt = expiresAt ?: state.otpExpiresAt
+                        )
                     }
                 }
-                is Resource.Error, is Resource.Loading -> Unit
+                is Resource.Error -> _uiState.update {
+                    it.copy(otpRequestState = OtpRequestState.Failed(UiText.DynamicString(result.message)))
+                }
+                is Resource.Loading -> Unit
             }
         }
     }
@@ -116,11 +163,22 @@ class ContractViewModel @Inject constructor(
     fun verifyOtp(otp: String, contractId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isOtpVerifying = true, otpError = null) }
-            // Workflow #81 — final sign gửi kèm OTP đã autofill (body { otp, purpose }).
+            // Workflow #81/#88 — final sign sends the body { otp, purpose: "SIGN_CONTRACT" }.
             when (val signResult = loanRepository.signContract(contractId, otp)) {
                 is Resource.Success -> {
+                    // Workflow #88 — consume the OTP holder + reset OTP state after a successful sign.
                     contractOtpHolder.consume(contractId)
-                    _uiState.update { it.copy(isOtpVerifying = false, showOtpDialog = false, signSuccess = true) }
+                    _uiState.update {
+                        it.copy(
+                            isOtpVerifying = false,
+                            showOtpDialog = false,
+                            signSuccess = true,
+                            otpInput = "",
+                            otpSuggestion = null,
+                            otpExpiresAt = null,
+                            otpRequestState = OtpRequestState.NotRequested
+                        )
+                    }
                     onSuccess()
                 }
                 is Resource.Error -> {
@@ -134,6 +192,8 @@ class ContractViewModel @Inject constructor(
     }
 
     fun resendOtp() {
+        // Workflow #88 — explicit user retry: reset state and request a fresh OTP.
+        _uiState.update { it.copy(otpInput = "", otpRequestState = OtpRequestState.NotRequested) }
         requestSignOtp()
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +37,9 @@ import com.example.easymoney.R
 @Composable
 fun OtpDialog(
     phoneNumber: String,
+    // Workflow #87 — OTP input is controlled by the caller so it survives dialog dismiss/reopen.
+    otpValue: String,
+    onOtpChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
     onResendOtp: () -> Unit,
@@ -43,19 +47,11 @@ fun OtpDialog(
     isVerifying: Boolean = false,
     errorMessage: String? = null,
     maxAttempts: Int = 3,
-    // Workflow #72 — when an OTP arrives via FCM it is auto-filled here. The user still
-    // taps confirm; the dialog never auto-submits on its own.
-    prefillOtp: String? = null
+    // Workflow #87 — a valid OTP suggestion (from API/FCM) shown as a chip the user must tap to
+    // fill. Null when there is no valid suggestion. The boxes are never filled automatically.
+    otpSuggestion: String? = null,
+    onFillSuggestion: () -> Unit = {}
 ) {
-    var otpValue by remember { mutableStateOf("") }
-
-    // Auto-fill (not auto-submit) when a matching OTP is pushed via FCM.
-    LaunchedEffect(prefillOtp) {
-        val incoming = prefillOtp?.filter { it.isDigit() }?.take(6)
-        if (!incoming.isNullOrBlank()) {
-            otpValue = incoming
-        }
-    }
     var timeLeft by remember { mutableIntStateOf(60) }
     var attempts by remember { mutableIntStateOf(0) }
     var isTimerRunning by remember { mutableStateOf(true) }
@@ -111,11 +107,15 @@ fun OtpDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Workflow #89 — explicit spaces around the phone number; do not rely on invisible
+                // leading/trailing spaces in the XML resources.
                 val description = buildAnnotatedString {
                     append(stringResource(R.string.otp_desc_1))
+                    append(" ")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(phoneNumber)
                     }
+                    append(" ")
                     append(stringResource(R.string.otp_desc_2))
                 }
 
@@ -156,16 +156,28 @@ fun OtpDialog(
                     // Hidden BasicTextField overlaying the Row
                     BasicTextField(
                         value = otpValue,
-                        onValueChange = {
-                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
-                                otpValue = it
-                            }
-                        },
+                        onValueChange = { onOtpChange(it) },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .matchParentSize() // Occupy the same area as Row
                             .alpha(0f), // Invisible but has size
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                    )
+                }
+
+                // Workflow #87 — consent action: only fills the boxes when the user taps it.
+                if (otpSuggestion != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    AssistChip(
+                        onClick = onFillSuggestion,
+                        label = { Text(stringResource(R.string.otp_fill_suggestion)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Sms,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     )
                 }
 
@@ -195,7 +207,7 @@ fun OtpDialog(
                             onClick = {
                                 timeLeft = 60
                                 isTimerRunning = true
-                                otpValue = ""
+                                onOtpChange("")
                                 onResendOtp()
                             },
                             contentPadding = PaddingValues(0.dp)

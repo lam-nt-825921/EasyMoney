@@ -85,11 +85,18 @@ class LoanManagementViewModel @Inject constructor(
 
     fun cancelContract(contractId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, actionMessage = null) }
+            // Workflow #90 — scope submitting to this contract only; reset on every terminal path
+            // (success and error) so other contract cards stay interactive without leaving the screen.
+            _uiState.update {
+                it.copy(submittingContractId = contractId, errorMessage = null, actionMessage = null)
+            }
             when (val result = loanRepository.cancelContract(contractId)) {
-                is Resource.Success -> load()
+                is Resource.Success -> {
+                    _uiState.update { it.copy(submittingContractId = null) }
+                    load()
+                }
                 is Resource.Error -> _uiState.update {
-                    it.copy(isSubmitting = false, errorMessage = UiText.DynamicString(result.message))
+                    it.copy(submittingContractId = null, errorMessage = UiText.DynamicString(result.message))
                 }
                 is Resource.Loading -> Unit
             }
