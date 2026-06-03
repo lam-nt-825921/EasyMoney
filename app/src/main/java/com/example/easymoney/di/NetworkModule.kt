@@ -50,7 +50,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, appPreferences: AppPreferences): Retrofit {
-        // Base URL có thể đổi từ Sandbox, nên dùng giá trị từ preferences
+        // Workflow #94 — apiBaseUrl is locked to the public production backend; Sandbox can no longer
+        // point this at a LAN URL.
         val gson = GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create()
