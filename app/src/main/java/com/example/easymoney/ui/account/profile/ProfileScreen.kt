@@ -1,16 +1,12 @@
 package com.example.easymoney.ui.account.profile
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
@@ -42,11 +38,6 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val profile = uiState.profile
-    val avatarPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let { viewModel.updateAvatar(it.toString()) }
-    }
     val needsIdentity = profile.verificationStatus != ProfileVerificationStatus.VERIFIED ||
         !profile.identityStatus.isFaceVerified ||
         !profile.identityStatus.isIdentityDocumentVerified
@@ -61,7 +52,6 @@ fun ProfileScreen(
             avatarUri = profile.avatarUri,
             fullName = profile.personalInfo.fullName,
             phoneNumber = profile.personalInfo.phoneNumber,
-            onAvatarClick = { avatarPicker.launch("image/*") },
             onEditClick = onEditProfile
         )
 
@@ -126,7 +116,6 @@ private fun ProfileHeader(
     avatarUri: String,
     fullName: String,
     phoneNumber: String,
-    onAvatarClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
     Column(
@@ -135,46 +124,27 @@ private fun ProfileHeader(
             .padding(horizontal = 20.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box {
-            Surface(
-                modifier = Modifier
-                    .size(104.dp)
-                    .clickable(onClick = onAvatarClick),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                if (avatarUri.isNotBlank()) {
-                    AsyncImage(
-                        model = avatarUri,
-                        contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(24.dp)
-                    )
-                }
-            }
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(34.dp)
-                    .clickable(onClick = onAvatarClick),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary,
-                shadowElevation = 2.dp
-            ) {
+        // Workflow #96 — avatar chỉ hiển thị, không còn nút cập nhật / chọn ảnh.
+        Surface(
+            modifier = Modifier.size(104.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            if (avatarUri.isNotBlank()) {
+                AsyncImage(
+                    model = avatarUri,
+                    contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
                 Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = stringResource(id = R.string.profile_update_avatar),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(7.dp)
+                    imageVector = Icons.Default.Person,
+                    contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(24.dp)
                 )
             }
         }

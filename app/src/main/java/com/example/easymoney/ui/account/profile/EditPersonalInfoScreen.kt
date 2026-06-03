@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
+import com.example.easymoney.domain.model.MasterDataItem
+import com.example.easymoney.ui.loan.information.form.FormSheetType
+import com.example.easymoney.ui.loan.information.form.SimpleSelectionBottomSheet
 
 @Composable
 fun EditPersonalInfoScreen(
@@ -66,7 +71,8 @@ fun EditPersonalInfoScreen(
                     label = stringResource(id = R.string.profile_label_fullname),
                     value = personalInfo.fullName,
                     onValueChange = { viewModel.updatePersonalInfo(fullName = it) },
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
+                    errorText = uiState.fieldErrors[ProfileField.FULL_NAME]?.asMessage()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -76,16 +82,18 @@ fun EditPersonalInfoScreen(
                     value = personalInfo.nationalId,
                     onValueChange = { viewModel.updatePersonalInfo(nationalId = it) },
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
+                    errorText = uiState.fieldErrors[ProfileField.NATIONAL_ID]?.asMessage()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                InputField(
+                SelectorItem(
                     label = stringResource(id = R.string.profile_label_gender),
-                    value = personalInfo.gender,
-                    onValueChange = { viewModel.updatePersonalInfo(gender = it) },
-                    imeAction = ImeAction.Next
+                    value = personalInfo.gender.ifBlank { stringResource(id = R.string.profile_gender_select) },
+                    isPlaceholder = personalInfo.gender.isBlank(),
+                    errorText = uiState.fieldErrors[ProfileField.GENDER]?.asMessage(),
+                    onClick = { viewModel.onShowSheet(FormSheetType.GENDER) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -97,7 +105,8 @@ fun EditPersonalInfoScreen(
                     placeholder = stringResource(id = R.string.profile_placeholder_dob),
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done,
-                    onImeAction = { focusManager.clearFocus() }
+                    onImeAction = { focusManager.clearFocus() },
+                    errorText = uiState.fieldErrors[ProfileField.DATE_OF_BIRTH]?.asMessage()
                 )
             }
         }
@@ -120,7 +129,7 @@ fun EditPersonalInfoScreen(
                         .fillMaxWidth()
                         .height(54.dp),
                     shape = RoundedCornerShape(27.dp),
-                    enabled = !uiState.isLoading
+                    enabled = !uiState.isLoading && uiState.isPersonalInfoValid
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
@@ -129,6 +138,21 @@ fun EditPersonalInfoScreen(
                     }
                 }
             }
+        }
+
+        // Workflow #95 — Bottom sheet chọn giới tính cố định (Nam/Nữ)
+        if (uiState.activeSheet == FormSheetType.GENDER) {
+            val genderOptions = listOf(
+                MasterDataItem(id = ProfileInputValidator.GENDER_MALE, name = stringResource(id = R.string.profile_gender_male)),
+                MasterDataItem(id = ProfileInputValidator.GENDER_FEMALE, name = stringResource(id = R.string.profile_gender_female))
+            )
+            SimpleSelectionBottomSheet(
+                title = stringResource(id = R.string.profile_label_gender),
+                items = genderOptions,
+                selectedId = personalInfo.gender.ifBlank { null },
+                onItemSelected = { viewModel.onSelectGender(it.id) },
+                onDismiss = { viewModel.onDismissSheet() }
+            )
         }
     }
 }
@@ -153,16 +177,19 @@ private fun InputField(
     placeholder: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
-    onImeAction: () -> Unit = {}
+    onImeAction: () -> Unit = {},
+    errorText: String? = null
 ) {
     val focusManager = LocalFocusManager.current
-    
+    val isError = errorText != null
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
+            isError = isError,
             placeholder = { if (placeholder != null) Text(placeholder, color = MaterialTheme.colorScheme.outline) },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             keyboardActions = KeyboardActions(onDone = { onImeAction() }, onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }),
@@ -170,8 +197,49 @@ private fun InputField(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                errorIndicatorColor = MaterialTheme.colorScheme.error
             )
         )
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SelectorItem(
+    label: String,
+    value: String,
+    onClick: () -> Unit,
+    isPlaceholder: Boolean = false,
+    errorText: String? = null
+) {
+    Column(modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isPlaceholder) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface
+            )
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(color = if (errorText != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant)
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }

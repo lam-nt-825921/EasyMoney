@@ -37,8 +37,30 @@ data class EditProfileUiState(
     val selectedRelationship: MasterDataItem? = null,
 
     // UI State for BottomSheets
-    val activeSheet: FormSheetType = FormSheetType.NONE
-)
+    val activeSheet: FormSheetType = FormSheetType.NONE,
+
+    // Workflow #95 — lỗi validate theo từng trường
+    val fieldErrors: Map<ProfileField, ProfileValidationError> = emptyMap()
+) {
+    /** Màn thông tin cá nhân hợp lệ khi không trường nào lỗi. */
+    val isPersonalInfoValid: Boolean
+        get() = PERSONAL_FIELDS.none { fieldErrors.containsKey(it) }
+
+    /** Màn người liên hệ hợp lệ khi tên + SĐT hợp lệ và đã chọn mối quan hệ. */
+    val isContactInfoValid: Boolean
+        get() = CONTACT_FIELDS.none { fieldErrors.containsKey(it) } &&
+            profile.contactInfo.relationship.isNotBlank()
+
+    private companion object {
+        val PERSONAL_FIELDS = listOf(
+            ProfileField.FULL_NAME,
+            ProfileField.NATIONAL_ID,
+            ProfileField.GENDER,
+            ProfileField.DATE_OF_BIRTH
+        )
+        val CONTACT_FIELDS = listOf(ProfileField.CONTACT_NAME, ProfileField.CONTACT_PHONE)
+    }
+}
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
@@ -59,7 +81,10 @@ class EditProfileViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             when (val result = userRepository.getProfile()) {
                 is Resource.Success -> {
-                    _uiState.update { it.copy(profile = result.data, isLoading = false) }
+                    _uiState.update {
+                        it.copy(profile = result.data, isLoading = false)
+                            .withRecomputedErrors()
+                    }
                 }
                 is Resource.Error -> {
                     _uiState.update { it.copy(errorMessage = result.message, isLoading = false) }
@@ -120,7 +145,14 @@ class EditProfileViewModel @Inject constructor(
             }
             
             updatedState.copy(profile = updatedProfile, activeSheet = FormSheetType.NONE)
+                .withRecomputedErrors()
         }
+    }
+
+    /** Workflow #95 — chọn giới tính từ bottom sheet cố định (Nam/Nữ). */
+    fun onSelectGender(gender: String) {
+        updatePersonalInfo(gender = gender)
+        onDismissSheet()
     }
 
     fun updatePersonalInfo(
@@ -140,7 +172,7 @@ class EditProfileViewModel @Inject constructor(
                         nationalId = nationalId ?: current.nationalId
                     )
                 )
-            )
+            ).withRecomputedErrors()
         }
     }
 
@@ -161,7 +193,7 @@ class EditProfileViewModel @Inject constructor(
                         position = position ?: current.position
                     )
                 )
-            )
+            ).withRecomputedErrors()
         }
     }
 
@@ -180,7 +212,7 @@ class EditProfileViewModel @Inject constructor(
                         phoneNumber = phone ?: current.phoneNumber
                     )
                 )
-            )
+            ).withRecomputedErrors()
         }
     }
 
@@ -199,19 +231,60 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun saveProfile() {
+        // Workflow #95 — chặn lưu khi còn lỗi validate ở các trường nhập tay.
+        val current = _uiState.value.withRecomputedErrors()
+        if (current.fieldErrors.isNotEmpty()) {
+            _uiState.value = current
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            val result = userRepository.updateProfile(_uiState.value.profile)
+            val result = userRepository.updateProfile(normalizeForSave(current.profile))
             if (result is Resource.Success) {
                 userRepository.getProfileCompletion(forceRefresh = true)
             }
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
-                    isLoading = false, 
+                    isLoading = false,
                     isSuccess = result is Resource.Success,
                     errorMessage = if (result is Resource.Error) result.message else null
-                ) 
+                )
             }
+        }
+    }
+
+    /** Workflow #95 — chuẩn hoá giá trị nhập tay ngay trước khi gửi lên backend. */
+    private fun normalizeForSave(profile: UserProfile): UserProfile = profile.copy(
+        personalInfo = profile.personalInfo.copy(
+            fullName = ProfileInputValidator.normalizeName(profile.personalInfo.fullName),
+            nationalId = ProfileInputValidator.normalizeDigits(profile.personalInfo.nationalId)
+        ),
+        contactInfo = profile.contactInfo.copy(
+            contactName = ProfileInputValidator.normalizeName(profile.contactInfo.contactName),
+            phoneNumber = ProfileInputValidator.normalizePhone(profile.contactInfo.phoneNumber)
+        )
+    )
+
+    /** Workflow #95 — tính lại lỗi validate cho toàn bộ trường nhập tay. */
+    private fun EditProfileUiState.withRecomputedErrors(): EditProfileUiState =
+        copy(fieldErrors = computeErrors(profile))
+
+    private fun computeErrors(profile: UserProfile): Map<ProfileField, ProfileValidationError> {
+        val personal = profile.personalInfo
+        val contact = profile.contactInfo
+        return buildMap {
+            ProfileInputValidator.validateName(personal.fullName)
+                ?.let { put(ProfileField.FULL_NAME, it) }
+            ProfileInputValidator.validateNationalId(personal.nationalId)
+                ?.let { put(ProfileField.NATIONAL_ID, it) }
+            ProfileInputValidator.validateGender(personal.gender)
+                ?.let { put(ProfileField.GENDER, it) }
+            ProfileInputValidator.validateDateOfBirth(personal.dateOfBirth)
+                ?.let { put(ProfileField.DATE_OF_BIRTH, it) }
+            ProfileInputValidator.validateName(contact.contactName)
+                ?.let { put(ProfileField.CONTACT_NAME, it) }
+            ProfileInputValidator.validatePhone(contact.phoneNumber)
+                ?.let { put(ProfileField.CONTACT_PHONE, it) }
         }
     }
 }
