@@ -225,8 +225,8 @@ fun LoanAmountSection(amount: Long, minAmount: Long, maxAmount: Long, onAmountCh
             Slider(
                 value = amount.toFloat(),
                 onValueChange = {
-                    val snapped = ((it / 100_000f).toInt() * 100_000L).coerceIn(minAmount, maxAmount)
-                    onAmountChange(snapped)
+                    // Workflow #91 — snap to clean VND increments relative to the package minimum.
+                    onAmountChange(LoanAmountStep.snap(it.toLong(), minAmount, maxAmount))
                 },
                 valueRange = minAmount.toFloat()..maxAmount.toFloat(),
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),

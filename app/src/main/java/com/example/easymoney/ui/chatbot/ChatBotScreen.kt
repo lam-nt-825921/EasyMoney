@@ -97,18 +97,31 @@ fun ChatBotScreen(
 @Composable
 private fun MessageRow(msg: ChatMessage, onAction: (ChatActionTarget) -> Unit) {
     val isUser = msg.role == ChatRole.USER
-    val bubbleColor = if (isUser) MaterialTheme.colorScheme.surface
+    // Workflow #92 — user messages render as a clearly distinct right-aligned bubble; bot messages
+    // stay left-aligned in a container surface with their existing card/action structure.
+    val bubbleColor = if (isUser) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.primaryContainer
+    val contentColor = if (isUser) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onPrimaryContainer
+    val bubbleShape = if (isUser) {
+        // Sharper corner on the speaker (bottom-end) side.
+        RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 4.dp)
+    } else {
+        RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 4.dp, bottomEnd = 16.dp)
+    }
+    // User bubble wraps content up to a max width; bot keeps its wider fixed fraction for cards.
+    val bubbleModifier = if (isUser) Modifier.widthIn(max = 300.dp) else Modifier.fillMaxWidth(0.85f)
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start) {
         Surface(
-            shape = RoundedCornerShape(12.dp),
+            shape = bubbleShape,
             color = bubbleColor,
-            modifier = Modifier.fillMaxWidth(0.85f)
+            contentColor = contentColor,
+            modifier = bubbleModifier
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                 when (msg) {
-                    is ChatMessage.Text -> Text(msg.content)
+                    is ChatMessage.Text -> Text(msg.content, color = contentColor)
                     is ChatMessage.Action -> Button(onClick = { onAction(msg.target) }) {
                         Text(msg.label)
                     }

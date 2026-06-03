@@ -428,14 +428,15 @@
     <string name="nav_edit_contact_info">Thông tin người liên hệ</string>
     <!-- OTP Dialog -->
     <string name="otp_title">Xác thực OTP</string>
-    <string name="otp_desc_1">Vui lòng nhập mã OTP được gửi về SĐT </string>
-    <string name="otp_desc_2"> để ký hợp đồng</string>
+    <string name="otp_desc_1">Vui lòng nhập mã OTP được gửi về SĐT</string>
+    <string name="otp_desc_2">để ký hợp đồng</string>
     <string name="otp_resend_wait">Gửi lại sau %1$ds</string>
     <string name="otp_resend">Gửi lại mã OTP</string>
+    <string name="otp_fill_suggestion">Điền OTP từ thông báo</string>
     <string name="otp_error_wrong">Mã OTP không đúng (%1$d/%2$d lần)</string>
     <string name="action_skip">Bỏ qua</string>
     <!-- Contract & E-Sign -->
-    <string name="contract_agree_prefix">Tôi đã đọc và đồng ý với </string>
+    <string name="contract_agree_prefix">Tôi đã đọc và đồng ý với</string>
     <string name="esign_success_home">Về trang chủ</string>
     <string name="esign_success_title">Ký hợp đồng thành công</string>
     <string name="esign_success_desc">Bạn hãy đợi chờ trong giây lát để hệ thống thực hiện giải ngân.</string>

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.domain.model.LoanPackageModel
+import com.example.easymoney.ui.loan.configuration.LoanAmountStep
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.ui.theme.TextPrimary
 import com.example.easymoney.ui.theme.TextSecondary
@@ -77,7 +78,10 @@ fun LoanListScreen(
                 )
                 Slider(
                     value = (uiState.maxAmount ?: 100_000_000L).toFloat(),
-                    onValueChange = { viewModel.updateFilters(max = it.toLong()) },
+                    // Workflow #91 — snap the filter slider to the same clean VND increments.
+                    onValueChange = {
+                        viewModel.updateFilters(max = LoanAmountStep.snap(it.toLong(), 0L, 100_000_000L))
+                    },
                     valueRange = 0f..100_000_000f,
                     steps = 10,
                     colors = SliderDefaults.colors(thumbColor = TealPrimary, activeTrackColor = TealPrimary)

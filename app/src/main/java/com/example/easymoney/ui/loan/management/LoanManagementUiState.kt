@@ -15,7 +15,11 @@ data class LoanManagementUiState(
     val errorMessage: UiText? = null,
     val actionMessage: UiText? = null,
     val shouldNavigateToAddCard: Boolean = false,
+    // Workflow #90 — isSubmitting drives the debt/repay loading state only.
     val isSubmitting: Boolean = false,
+    // Workflow #90 — cancel state scoped to the affected contract so cancelling one contract does
+    // not disable the buttons on every other contract card.
+    val submittingContractId: String? = null,
     // Workflow #71 — repayment estimate shown in the repay dialog before confirming.
     val estimate: RepaymentEstimate? = null,
     val isEstimateLoading: Boolean = false,
