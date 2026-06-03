@@ -26,6 +26,7 @@ import com.example.easymoney.domain.model.Bank
 import com.example.easymoney.domain.model.PaymentCard
 import com.example.easymoney.ui.theme.TealPrimary
 import com.example.easymoney.utils.UiText
+import java.text.Normalizer
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -186,13 +187,26 @@ private fun CreditCardItem(
                     letterSpacing = 2.sp
                 )
                 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column(modifier = Modifier.weight(1.1f)) {
                         Text(text = stringResource(R.string.money_mgmt_card_holder), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
-                        Text(text = "NGUYEN VAN A", color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = card.cardHolderName.ifBlank { "-" },
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1
+                        )
                     }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(text = "BALANCE", color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                    Column(modifier = Modifier.weight(0.8f), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = stringResource(R.string.money_mgmt_card_expiry), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
+                        Text(text = card.expiry.ifBlank { "--/----" }, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+                        Text(text = stringResource(R.string.money_mgmt_card_balance), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
                         Text(text = "${formatMoney(card.balance)}đ", color = Color.White, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
@@ -265,7 +279,7 @@ private fun AddCardDialog(
 
                 CardTextField(
                     value = cardHolder,
-                    onValueChange = { cardHolder = it.uppercase().take(40) },
+                    onValueChange = { cardHolder = it.take(40) },
                     label = stringResource(R.string.add_card_holder_label),
                     error = fieldErrors["card_holder_name"]?.asString()
                 )
@@ -319,7 +333,7 @@ private fun AddCardDialog(
                             bankName = selectedBank?.name.orEmpty(),
                             cardType = cardType,
                             cardNumber = cardNumber,
-                            cardHolderName = cardHolder.trim(),
+                            cardHolderName = normalizeCardHolderName(cardHolder),
                             expiry = normalizedExpiry,
                             cvv = cvv
                         )
@@ -412,4 +426,16 @@ private fun maskCardNumber(value: String): String {
 
 private fun formatMoney(value: Long): String =
     NumberFormat.getInstance(Locale("vi", "VN")).format(value)
+
+private fun normalizeCardHolderName(value: String): String {
+    val withoutDiacritics = Normalizer.normalize(value.trim(), Normalizer.Form.NFD)
+        .replace("\\p{Mn}+".toRegex(), "")
+        .replace('đ', 'd')
+        .replace('Đ', 'D')
+    return withoutDiacritics
+        .replace("[^A-Za-z\\s]".toRegex(), " ")
+        .replace("\\s+".toRegex(), " ")
+        .trim()
+        .uppercase(Locale.ROOT)
+}
 

@@ -5,6 +5,9 @@ data class PaymentCard(
     val cardNumber: String, // Masked
     val cardType: String, // VISA, MASTER, NAPAS
     val bankName: String,
+    val bankId: String = "",
+    val cardHolderName: String = "",
+    val expiry: String = "",
     val balance: Long = 0
 )
 

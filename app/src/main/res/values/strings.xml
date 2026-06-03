@@ -127,6 +127,8 @@
     <string name="card_empty_state">Bạn chưa thêm thẻ ngân hàng.</string>
     <string name="card_action_add">Thêm thẻ</string>
     <string name="money_mgmt_card_holder">CARD HOLDER</string>
+    <string name="money_mgmt_card_expiry">VALID THRU</string>
+    <string name="money_mgmt_card_balance">BALANCE</string>
     <string name="money_mgmt_expires">EXPIRES</string>
 
     <!-- Security -->

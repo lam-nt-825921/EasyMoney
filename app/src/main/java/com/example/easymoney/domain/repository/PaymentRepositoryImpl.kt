@@ -81,7 +81,10 @@ class PaymentRepositoryImpl @Inject constructor(
                         id = "card_${System.currentTimeMillis()}",
                         cardNumber = request.cardNumber,
                         cardType = request.cardType,
-                        bankName = request.bankName
+                        bankName = request.bankName,
+                        bankId = request.bankId,
+                        cardHolderName = request.cardHolderName,
+                        expiry = request.expiry
                     )
                 )
                 AddCardOutcome.Success
