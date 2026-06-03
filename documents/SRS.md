@@ -131,6 +131,8 @@ Frontend should:
 - Never show notification rows belonging to another account. Newly registered users start with an empty notification list unless backend created user-specific notifications.
 - Sync mark-read/read-all/clear in `REMOTE`.
 - Sort notifications by backend `timestamp` descending before display and after cache refresh. Newest notifications must be at the top for every tab/filter.
+- Preserve notification `target_type` and `target_id` through app startup and the login gate. If a user is already authenticated, tapping a notification must navigate to the target without forcing Login. If login is required, the app should navigate to the pending target after successful login instead of dropping to Home.
+- Display concrete notification text from backend/FCM `title` and `body` when present, especially for contract OTP notifications.
 
 ### Payment And Transactions
 
@@ -150,9 +152,11 @@ Purpose: view legal contract and sign via OTP.
 
 - Contract content comes from backend.
 - OTP purpose should describe action, e.g. contract signing.
-- Backend generates a real OTP for contract signing. Frontend auto-fills the OTP from API/FCM and sends it in the final sign request after the user taps confirm.
+- Backend generates a real OTP for contract signing. Frontend must not fill the OTP field automatically on receipt; it should offer the OTP as a user-selected keyboard/autofill suggestion or compact in-app suggestion, while still allowing manual entry.
+- Frontend should remember OTP request state per active contract so leaving and reopening the signing UI does not spam the request-OTP endpoint while a valid OTP exists.
 - Successful disbursement should create a user notification and FCM payload that can navigate to loan management.
 - Success screen returns user to Home or loan management.
+- Loan management debt cards can provide a read-only action to fetch and display the related contract detail from backend.
 
 ### Chatbot
 

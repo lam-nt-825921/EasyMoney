@@ -13,7 +13,7 @@ This directory is written for an implementation agent, not for end-user document
 5. `SRS.md`
    - Business meaning of each major screen and workflow.
 6. `AGENT_TASKS.md`
-   - The only active task list. It contains the latest 2026-06-02 system fix batch, including Vietnamese/light defaults, hidden paid debts, reward and credit-score separation, card expiry/CVV contract, real OTP confirmation, and disbursement FCM handling.
+   - The only active task list. It contains the latest frontend work, including Vietnamese/light defaults, hidden paid debts, reward and credit-score separation, card expiry/CVV contract, OTP suggestion/resend-guard UX, notification tap routing through login, profile refresh fixes, and debt-card contract viewing.
 
 ## Repository Context
 

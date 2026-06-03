@@ -22,6 +22,36 @@ active_design:
       "
     frontend_cache_rule: mobile must key Room/cache rows by current authenticated user id
       and must not display seed user notifications after register/login switch.
+    tap_routing_rule: mobile must preserve notification target_type/target_id through
+      app startup and login; authenticated users must not be sent to Login only because
+      the app was opened from a notification.
+  contract_content:
+    company_name: EasyMoney
+    detail_rule: LoanContractDetailDto.content/html_content should contain realistic
+      loan-agreement text using the borrower's profile data, loan terms, repayment
+      terms, fees, and EasyMoney as the lender.
+    debt_view_rule: mobile may view a debt's contract by calling GET /api/v1/loan/contracts/{contract_id}
+      using CONTRACT_<LoanDebtDto.application_id> when no explicit contract_id is present.
+  fcm_payloads:
+    CONTRACT_SIGN_OTP:
+      type: CONTRACT_SIGN_OTP
+      purpose: SIGN_CONTRACT
+      contract_id: CONTRACT_APP_XXXXXXXX
+      otp: '123456'
+      expires_at: '1717240300000'
+      title: Ma OTP ky hop dong
+      body: Ma OTP ky hop dong vay EasyMoney cua ban la 123456. Ma co hieu luc trong
+        5 phut.
+    LOAN_DISBURSED:
+      type: LOAN_DISBURSED
+      contract_id: CONTRACT_APP_XXXXXXXX
+      application_id: APP_XXXXXXXX
+      debt_id: '12'
+      amount: '20000000'
+      title: Giai ngan thanh cong
+      body: Khoan vay da duoc giai ngan vao vi EasyMoney.
+      target_type: LOAN_DEBT
+      target_id: '12'
   score_policy:
     reward_points: loyalty points, spendable in rewards; not used as underwriting score.
     credit_score: backend-owned underwriting score exposed through /api/v1/user/credit-score.
@@ -32,7 +62,9 @@ active_design:
   - credit score is separate from reward points and exposed by API
   - repayment estimate is available before MONTHLY and FULL_EARLY payment
   - canonical contract create/detail endpoints live under /api/v1/loan/contracts
+  - contract detail content is realistic and includes borrower profile/loan terms
   - contract signing OTP is generated, returned, delivered by FCM, and verified on sign
+  - contract OTP and disbursement notifications include concrete title/body text
   - disbursement creates notification and FCM push with debt navigation target
   - wallet recent_flows are newest-first by timestamp descending
   - card add/verify uses bank metadata, expiry MM/YYYY, cvv, and field_errors

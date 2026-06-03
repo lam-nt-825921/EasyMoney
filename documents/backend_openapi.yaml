@@ -16,6 +16,15 @@ x-backend-design-2026-06-02:
     user_scope: notification list/read/read-all/clear operations are scoped to authenticated user.
     new_registered_user_default: GET /api/v1/notifications returns an empty list unless
       notifications exist for that exact user.
+    tap_routing_rule: frontend preserves target_type/target_id through app startup and
+      login; authenticated notification taps must not force Login.
+  contract_content:
+    company_name: EasyMoney
+    detail_rule: LoanContractDetailDto.content/html_content should contain realistic
+      loan-agreement text using borrower profile data, loan terms, repayment terms,
+      fees, and EasyMoney as lender.
+    debt_view_rule: frontend may view a debt contract with GET /api/v1/loan/contracts/{contract_id}
+      using CONTRACT_<LoanDebtDto.application_id> when no explicit contract_id exists.
   fcm_payloads:
     CONTRACT_SIGN_OTP:
       type: CONTRACT_SIGN_OTP
@@ -23,6 +32,9 @@ x-backend-design-2026-06-02:
       contract_id: CONTRACT_APP_XXXXXXXX
       otp: '123456'
       expires_at: '1717240300000'
+      title: Ma OTP ky hop dong
+      body: Ma OTP ky hop dong vay EasyMoney cua ban la 123456. Ma co hieu luc trong
+        5 phut.
     LOAN_APPLICATION_APPROVED:
       type: LOAN_APPLICATION_APPROVED
       application_id: APP_XXXXXXXX

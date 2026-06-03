@@ -140,6 +140,59 @@ Prefer `/api/v1` paths.
 | Chatbot | `/api/v1/chat/message`, `/api/v1/chatbot/chat` | `ChatApiService` |
 | Events/Web | `/api/v1/events/{id}`, `/api/v1/events/{id}/join`, `/event/{id}`, `/cskh` | `EventApiService`, `WebContentScreen` |
 
+## Loan Contract And Debt Contract Viewing
+
+Canonical contract endpoints:
+
+- `GET /api/v1/loan/contracts/{contract_id}`
+- `POST /api/v1/loan/contracts`
+- `POST /api/v1/loan/contracts/{contract_id}/sign/request-otp`
+- `POST /api/v1/loan/contracts/{contract_id}/sign`
+
+`LoanDebtDto` currently includes `application_id`. For a debt-card "view contract" action, frontend may build the contract id as `CONTRACT_<application_id>` and call `GET /api/v1/loan/contracts/{contract_id}`. The backend also accepts the underlying application id in current mock behavior, but frontend should prefer the canonical `CONTRACT_APP_...` form.
+
+`LoanContractDetailDto.content` is plain-text contract content. `html_content` is optional; if present, frontend may render HTML in the existing contract viewer. Viewing a contract from a debt card must be read-only: do not show sign/cancel/resend actions for an already disbursed debt contract.
+
+## Contract OTP And FCM Payloads
+
+Contract OTP request:
+
+```json
+{
+  "contract_id": "CONTRACT_APP_XXXXXXXX",
+  "purpose": "SIGN_CONTRACT",
+  "otp": "123456",
+  "expires_at": 1717240300000
+}
+```
+
+Expected `CONTRACT_SIGN_OTP` FCM data payload includes meaningful display text:
+
+```json
+{
+  "type": "CONTRACT_SIGN_OTP",
+  "purpose": "SIGN_CONTRACT",
+  "contract_id": "CONTRACT_APP_XXXXXXXX",
+  "otp": "123456",
+  "expires_at": "1717240300000",
+  "title": "Ma OTP ky hop dong",
+  "body": "Ma OTP ky hop dong vay EasyMoney cua ban la 123456. Ma co hieu luc trong 5 phut."
+}
+```
+
+Frontend must not fill the OTP field automatically on receipt. Offer it as a user-selected keyboard/autofill suggestion where feasible, or as a compact in-app suggestion near the OTP field if FCM data cannot be exposed to the Android keyboard reliably. Preserve OTP request state per `contract_id` to avoid repeated request-OTP API calls when the user leaves and reopens the signing screen before expiry.
+
+## Notification Routing
+
+Notification data payloads should include `target_type` and `target_id`. Current important targets:
+
+| target_type | target_id meaning | Expected frontend behavior |
+|---|---|---|
+| `LOAN_DEBT` | Debt id, e.g. `12` | Navigate to loan management and focus/highlight the debt when possible |
+| `CONTRACT` | Contract id, e.g. `CONTRACT_APP_XXXXXXXX` | Navigate to contract detail/signing flow for that contract |
+
+Notification taps must preserve the target through app startup and authentication. If a valid token/session exists, opening from a notification must not force Login. If login is required, save the pending target and navigate to it after successful login instead of dropping to Home.
+
 ## Banner And Web Contract
 
 Backend seed banners are designed to match current frontend navigation:
