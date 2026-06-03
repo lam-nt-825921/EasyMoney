@@ -164,12 +164,12 @@ private fun CreditCardItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(204.dp),
+            .height(216.dp),
         shape = RoundedCornerShape(16.dp),
         color = Color.Transparent,
         shadowElevation = 4.dp
     ) {
-        Box(modifier = Modifier.background(gradient).padding(24.dp)) {
+        Box(modifier = Modifier.background(gradient).padding(horizontal = 24.dp, vertical = 20.dp)) {
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CreditCard, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
@@ -188,7 +188,10 @@ private fun CreditCardItem(
                     letterSpacing = 2.sp
                 )
                 
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(
+                    modifier = Modifier.padding(bottom = 2.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(text = stringResource(R.string.money_mgmt_card_holder), color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.labelSmall)
                         Text(
