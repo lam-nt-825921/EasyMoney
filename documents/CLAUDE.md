@@ -13,7 +13,7 @@ This directory is written for an implementation agent, not for end-user document
 5. `SRS.md`
    - Business meaning of each major screen and workflow.
 6. `AGENT_TASKS.md`
-   - The only active task list. It contains the latest frontend fix batch for edit-profile validation/selectors and profile avatar update removal.
+   - The only active task list. It contains the latest frontend fix batch for loan configuration insurance icon removal and tenor bottom-sheet alignment.
 
 ## Repository Context
 
