@@ -32,6 +32,10 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
+    private companion object {
+        const val CONTRACT_SIGN_OTP_TYPE = "CONTRACT_SIGN_OTP"
+    }
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d("FCM", "New Token: $token")
@@ -62,6 +66,11 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
             // Workflow #82 — LOAN_DISBURSED và một số payload dùng key `body` thay cho `content`.
             val content = data["content"] ?: data["body"] ?: ""
             val type = data["type"] ?: "transaction"
+            if (!appPreferences.appNotificationsEnabled && type != CONTRACT_SIGN_OTP_TYPE) {
+                Log.d("FCM", "App notifications disabled; suppress foreground notification type=$type")
+                return
+            }
+
             // Workflow #54 — amount can be fractional VND from backend repayment splits.
             val amount = data["amount"]?.toDoubleOrNull()
             val balanceAfter = (data["balanceAfter"] ?: data["balance_after"])?.toDoubleOrNull()

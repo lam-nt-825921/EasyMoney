@@ -7,14 +7,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.example.easymoney.ui.AppRoot
 import com.example.easymoney.data.local.AppPreferences
+import com.example.easymoney.domain.common.Resource
+import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.navigation.PendingNavTarget
 import com.example.easymoney.ui.notification.manager.AppNotificationManager
 import com.example.easymoney.ui.theme.EasyMoneyTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -26,6 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var appPreferences: AppPreferences
+
+    @Inject
+    lateinit var userRepository: UserRepository
 
     // Workflow #84 — pending notification target carried from the launching/new intent. Survives
     // cold start (read from onCreate intent) and live taps (onNewIntent), and is consumed by the
@@ -44,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             var appNotificationsEnabled by rememberSaveable {
                 mutableStateOf(appPreferences.appNotificationsEnabled)
             }
+            val scope = rememberCoroutineScope()
             val navTarget by pendingNavTarget
 
             // Production: luôn dùng light theme — không cho phép chuyển dark mode.
@@ -51,8 +59,19 @@ class MainActivity : AppCompatActivity() {
                 AppRoot(
                     appNotificationsEnabled = appNotificationsEnabled,
                     onAppNotificationsChange = { enabled ->
+                        val previous = appNotificationsEnabled
                         appNotificationsEnabled = enabled
                         appPreferences.appNotificationsEnabled = enabled
+                        scope.launch {
+                            when (userRepository.updateNotificationSettings(enabled)) {
+                                is Resource.Success -> Unit
+                                is Resource.Error -> {
+                                    appNotificationsEnabled = previous
+                                    appPreferences.appNotificationsEnabled = previous
+                                }
+                                Resource.Loading -> Unit
+                            }
+                        }
                     },
                     pendingNavTarget = navTarget,
                     onPendingNavTargetConsumed = { pendingNavTarget.value = null }

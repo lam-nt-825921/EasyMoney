@@ -211,6 +211,9 @@ endpoints:
   tags:
   - User & Account
   auth_required: true
+  description: Persist the user's app-notification preference. When `enabled=false`,
+    backend-created regular FCM pushes must not be sent to this user. Mandatory
+    security/transactional payloads such as `CONTRACT_SIGN_OTP` are still allowed.
   parameters:
   - name: authorization
     in: header
@@ -224,7 +227,12 @@ endpoints:
       application/json:
         schema:
           type: object
-          additionalProperties: true
+          required:
+          - enabled
+          properties:
+            enabled:
+              type: boolean
+          additionalProperties: false
           title: Request
   response: see raw OpenAPI or controller mapping
 - method: POST

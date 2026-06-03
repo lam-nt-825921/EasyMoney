@@ -195,6 +195,9 @@ paths:
       tags:
       - User & Account
       summary: Update Notification Settings
+      description: Persist the user's app-notification preference. When `enabled=false`,
+        backend-created regular FCM pushes are not sent. Mandatory security/transactional
+        payloads such as `CONTRACT_SIGN_OTP` are still allowed.
       operationId: update_notification_settings_api_v1_user_notification_settings_patch
       parameters:
       - name: authorization
@@ -209,7 +212,12 @@ paths:
           application/json:
             schema:
               type: object
-              additionalProperties: true
+              required:
+              - enabled
+              properties:
+                enabled:
+                  type: boolean
+              additionalProperties: false
               title: Request
       responses:
         '200':
