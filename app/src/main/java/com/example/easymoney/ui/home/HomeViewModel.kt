@@ -102,6 +102,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun refreshProfile() {
+        viewModelScope.launch {
+            when (val result = userRepository.getProfile()) {
+                is Resource.Success -> {
+                    _uiState.update { state ->
+                        val refreshedName = result.data.personalInfo.fullName.ifBlank { state.userName }
+                        state.copy(userName = refreshedName)
+                    }
+                }
+                is Resource.Error,
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
     fun refreshRewardPoints() {
         viewModelScope.launch {
             when (val result = rewardRepository.getRewardsCatalog()) {

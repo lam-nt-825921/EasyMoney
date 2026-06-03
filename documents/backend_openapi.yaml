@@ -2729,38 +2729,32 @@ components:
       title: ContractSignResultDto
     CreditScoreDto:
       properties:
-        user_id:
+        credit_score:
           type: integer
-          title: User Id
-        score:
-          type: integer
-          title: Score
-        grade:
+          title: Credit Score
+        tier:
           type: string
-          title: Grade
-        policy_version:
-          type: string
-          title: Policy Version
-        updated_at:
+          title: Tier
+        min_score:
           type: integer
-          title: Updated At
-        reasons:
-          items:
-            type: string
-          type: array
-          title: Reasons
-        can_apply_loan:
-          type: boolean
-          title: Can Apply Loan
+          title: Min Score
+          default: 0
+        max_score:
+          type: integer
+          title: Max Score
+          default: 1000
+        total_reward_points:
+          type: integer
+          title: Total Reward Points
+        explanation:
+          type: string
+          title: Explanation
       type: object
       required:
-      - user_id
-      - score
-      - grade
-      - policy_version
-      - updated_at
-      - reasons
-      - can_apply_loan
+      - credit_score
+      - tier
+      - total_reward_points
+      - explanation
       title: CreditScoreDto
     LoanContractDetailDto:
       properties:

@@ -89,13 +89,13 @@ Repay success may return:
 }
 ```
 
-Frontend requirement: after disbursement or any repay success, refresh rewards and credit-score/profile state where visible.
+Frontend requirement: after disbursement or any repay success, refresh rewards/profile state where visible. Do not add credit-score refresh because frontend does not display user credit score.
 
 ### Credit Score
 
-Credit score is a backend-owned underwriting score. It must not be derived from reward points on frontend.
+Credit score is a backend-owned underwriting score used for loan underwriting. Frontend does not display user credit score in the current product scope.
 
-New endpoint:
+Backend endpoint, documented for context only:
 
 - `GET /api/v1/user/credit-score`
 - Auth: required
@@ -103,21 +103,16 @@ New endpoint:
 
 ```json
 {
-  "user_id": 1,
-  "score": 720,
-  "grade": "GOOD",
-  "policy_version": "2026-06-02",
-  "updated_at": 1717240000000,
-  "reasons": [
-    "EKYC_VERIFIED",
-    "HAS_ACTIVE_WALLET",
-    "COMPLETED_REPAYMENT"
-  ],
-  "can_apply_loan": true
+  "credit_score": 720,
+  "tier": "GOOD",
+  "min_score": 0,
+  "max_score": 1000,
+  "total_reward_points": 1347,
+  "explanation": "Điểm tín dụng dùng để xét điều kiện vay; điểm thưởng dùng riêng cho ưu đãi và voucher."
 }
 ```
 
-Backend policy target, for frontend display only:
+Backend policy target, for frontend context only:
 
 - Base score for a new verified user: around `620`.
 - Incomplete eKYC starts lower, around `520`.
@@ -125,9 +120,15 @@ Backend policy target, for frontend display only:
 - Monthly on-time repayment may add a small delta.
 - Completing a debt adds a larger positive delta.
 - Rejected applications, overdue debt, or failed repayment may reduce score.
-- Loan eligibility must use backend `credit_score`, not frontend reward points.
+- Loan eligibility is evaluated by backend and exposed through loan package/eligibility APIs.
 
-Frontend requirement: if any screen displays score or eligibility reason, consume backend `score`, `grade`, and `reasons`. Do not compute score locally.
+Frontend requirement:
+
+- Do not add `CreditScoreDto`, `CreditScoreModel`, `getCreditScore()`, repository methods, ViewModels, or UI for `/api/v1/user/credit-score` in this task batch.
+- Do not call `/api/v1/user/credit-score` from frontend unless a future approved design adds a visible credit-score screen.
+- Do not compute credit score locally from reward points, profile completion, loan package thresholds, or repayment history.
+- Existing loan eligibility UI should continue to trust backend loan APIs (`is_eligible`, `reason_code`, package thresholds/messages). Frontend must not make its own underwriting decision.
+- Sign/repay responses may include `credit_score_delta` and `credit_score`; frontend may ignore these fields unless they are needed for a visible success message. They must not be used as reward points.
 
 ### Bank Card Add/Verify
 
@@ -315,18 +316,18 @@ Acceptance:
 ### 4. Reward Points And Credit Score Refresh
 
 - Treat reward points and credit score as separate backend values.
-- Add/consume `GET /api/v1/user/credit-score` if any screen shows score or loan eligibility.
+- Do not consume `GET /api/v1/user/credit-score` in frontend for this batch because no current screen displays user credit score.
 - After disbursement or repay success, refresh:
   - debts
   - wallet
   - rewards
-  - credit score/profile state if visible
+  - profile state if visible
 - Never compute credit score from reward points on frontend.
 
 Acceptance:
 
 - Reward point display changes only from rewards API or returned backend result.
-- Credit score display uses backend score.
+- No credit-score UI/API consumer is added unless a future approved design explicitly requires it.
 
 ### 5. Card Add Form With Expiry And CVV/CVC
 
@@ -389,6 +390,7 @@ Verified frontend bug details:
   - `data/remote/LoanApiService.kt` calls `GET api/v1/notifications`.
   - `data/remote/AuthInterceptor.kt` attaches `Authorization: Bearer <accessToken>` for non-auth endpoints.
   - Backend quick check with a newly registered token returned `data: []`, so user leakage is very likely frontend cache/state.
+  - Backend also had an auto-promotion startup job that could create default package-offer notifications for every existing user; backend has removed that job. Frontend still must handle empty backend lists and account switches correctly.
 - `ui/notification/NotificationViewModel.kt` captures the user id once:
 
 ```kotlin

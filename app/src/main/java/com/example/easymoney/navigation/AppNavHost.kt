@@ -100,6 +100,7 @@ fun AppNavHost(
             DisposableEffect(lifecycleOwner, viewModel) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.refreshProfile()
                         viewModel.refreshProfileCompletion()
                         viewModel.refreshRewardPoints()
                     }
