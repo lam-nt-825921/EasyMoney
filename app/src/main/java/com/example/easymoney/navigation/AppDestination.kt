@@ -165,7 +165,7 @@ sealed class AppDestination(
     )
 
     data object Contract : AppDestination(
-        route = "contract?contractId={contractId}",
+        route = "contract?contractId={contractId}&readOnly={readOnly}",
         titleResId = R.string.nav_contract,
         showBackButton = true,
         showHelpButton = true,
@@ -173,8 +173,15 @@ sealed class AppDestination(
     ) {
         const val BASE_ROUTE = "contract"
         const val CONTRACT_ID_ARG = "contractId"
-        fun createRoute(contractId: String? = null): String =
-            if (contractId.isNullOrEmpty()) BASE_ROUTE else "$BASE_ROUTE?contractId=$contractId"
+        // Workflow #86 — readOnly=true mở hợp đồng đã giải ngân ở chế độ chỉ xem (ẩn ký/huỷ/resend).
+        const val READ_ONLY_ARG = "readOnly"
+        fun createRoute(contractId: String? = null, readOnly: Boolean = false): String {
+            val params = buildList {
+                if (!contractId.isNullOrEmpty()) add("$CONTRACT_ID_ARG=$contractId")
+                if (readOnly) add("$READ_ONLY_ARG=true")
+            }
+            return if (params.isEmpty()) BASE_ROUTE else "$BASE_ROUTE?${params.joinToString("&")}"
+        }
     }
 
     data object EsignSuccess : AppDestination(

@@ -98,7 +98,10 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
                 type = type,
                 amount = amount,
                 balanceAfter = balanceAfter,
-                transactionCode = transactionCode
+                transactionCode = transactionCode,
+                // Workflow #84 — pass the target so a tap can route through the login gate.
+                targetType = targetType,
+                targetId = targetId
             )
         }
     }

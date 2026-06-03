@@ -27,6 +27,12 @@ class AppNotificationManager @Inject constructor(
     private val channelId = "easy_money_high_priority_notifications"
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    companion object {
+        // Workflow #84 — intent-extra keys for the notification navigation target.
+        const val EXTRA_TARGET_TYPE = "easymoney.notification.TARGET_TYPE"
+        const val EXTRA_TARGET_ID = "easymoney.notification.TARGET_ID"
+    }
+
     init {
         createNotificationChannel()
     }
@@ -53,15 +59,22 @@ class AppNotificationManager @Inject constructor(
         type: String = "general",
         amount: Double? = null,
         balanceAfter: Double? = null,
-        transactionCode: String? = null
+        transactionCode: String? = null,
+        // Workflow #84 — carry the navigation target so a tap can route through the login gate.
+        targetType: String? = null,
+        targetId: String? = null
     ) {
-        // Note: Việc lưu vào Database nên để Service FCM hoặc Repository lo, 
+        // Note: Việc lưu vào Database nên để Service FCM hoặc Repository lo,
         // ở đây ta tập trung vào việc hiển thị UI.
 
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // SINGLE_TOP (thay cho CLEAR_TASK) để khi app đang sống, tap thông báo gọi onNewIntent
+            // và giữ nguyên session — không buộc đăng nhập lại.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             // Có thể thêm dữ liệu để MainActivity biết cần mở màn hình nào
             putExtra("NOTIFICATION_TYPE", type)
+            targetType?.takeIf { it.isNotBlank() }?.let { putExtra(EXTRA_TARGET_TYPE, it) }
+            targetId?.takeIf { it.isNotBlank() }?.let { putExtra(EXTRA_TARGET_ID, it) }
         }
         
         val pendingIntent: PendingIntent = PendingIntent.getActivity(

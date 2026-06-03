@@ -156,6 +156,8 @@
     <string name="loan_management_approved_at">Ngày duyệt: %1$s</string>
     <string name="loan_management_cancel">Hủy hợp đồng</string>
     <string name="loan_management_sign">Ký hợp đồng</string>
+    <!-- Workflow #86 — debt-card action to view the disbursed contract (read-only). -->
+    <string name="loan_management_view_contract">Xem hợp đồng</string>
     <string name="loan_management_cancel_title">Xác nhận hủy hợp đồng</string>
     <string name="loan_management_cancel_confirm">Bạn có chắc chắn muốn hủy hợp đồng này?</string>
     <string name="action_confirm">Xác nhận</string>

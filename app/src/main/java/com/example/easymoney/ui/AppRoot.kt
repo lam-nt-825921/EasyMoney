@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.compositeOver
 import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.navigation.AppNavHost
+import com.example.easymoney.navigation.PendingNavTarget
 import com.example.easymoney.navigation.rememberAppState
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.easymoney.ui.components.AppNavigationBar
@@ -35,7 +36,9 @@ import com.example.easymoney.ui.components.TopBarMode
 @Composable
 fun AppRoot(
     appNotificationsEnabled: Boolean,
-    onAppNotificationsChange: (Boolean) -> Unit
+    onAppNotificationsChange: (Boolean) -> Unit,
+    pendingNavTarget: PendingNavTarget? = null,
+    onPendingNavTargetConsumed: () -> Unit = {}
 ) {
     // Yêu cầu quyền thông báo trên Android 13+
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -133,6 +136,8 @@ fun AppRoot(
                 navController = appState.navController,
                 appNotificationsEnabled = appNotificationsEnabled,
                 onAppNotificationsChange = onAppNotificationsChange,
+                pendingNavTarget = pendingNavTarget,
+                onPendingNavTargetConsumed = onPendingNavTargetConsumed,
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding)

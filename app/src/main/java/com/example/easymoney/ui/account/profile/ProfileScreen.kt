@@ -81,9 +81,10 @@ fun ProfileScreen(
                 ProfileInfoItem(label = stringResource(id = R.string.profile_label_dob), value = profile.personalInfo.dateOfBirth)
             }
 
+            // Workflow #85 — chỉ hiển thị địa chỉ thường trú. "Địa chỉ hiện tại" được ẩn khỏi
+            // màn xem hồ sơ (chỉ ẩn hiển thị; field vẫn giữ trong form/DTO/request gửi backend).
             ProfileInfoGroup(title = stringResource(id = R.string.profile_section_address)) {
                 ProfileInfoItem(label = stringResource(id = R.string.profile_label_permanent_address), value = profile.addressInfo.permanentAddress)
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_current_address), value = profile.addressInfo.currentAddress)
             }
 
             ProfileInfoGroup(title = stringResource(id = R.string.profile_section_job_income)) {
