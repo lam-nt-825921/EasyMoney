@@ -22,31 +22,37 @@ class AppPreferences @Inject constructor(
     companion object {
         private const val KEY_DATA_SOURCE_MODE = "data_source_mode"
         private const val KEY_API_BASE_URL = "api_base_url"
-        private const val DEFAULT_BASE_URL = "https://easymoney.lamgd.dev/"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
         private const val KEY_DARK_THEME_ENABLED = "dark_theme_enabled"
         private const val KEY_APP_NOTIFICATIONS_ENABLED = "app_notifications_enabled"
+
+        // Workflow #94 — forced production runtime config. These win over any stale value an old
+        // install may have persisted (e.g. MOCK, a LAN base URL, en locale, dark mode).
+        val PRODUCTION_DATA_SOURCE_MODE = DataSourceMode.REMOTE
+        const val PRODUCTION_API_BASE_URL = "https://easymoney.lamgd.dev/"
+        const val PRODUCTION_LANGUAGE_TAG = "vi"
+        const val PRODUCTION_DARK_THEME_ENABLED = false
     }
 
-    private val _dataSourceModeFlow = MutableStateFlow(readDataSourceMode())
+    // Workflow #94 — always seeded with the forced production mode, never the persisted value.
+    private val _dataSourceModeFlow = MutableStateFlow(PRODUCTION_DATA_SOURCE_MODE)
     val dataSourceModeFlow: StateFlow<DataSourceMode> = _dataSourceModeFlow.asStateFlow()
 
-    private fun readDataSourceMode(): DataSourceMode =
-        DataSourceMode.valueOf(
-            prefs.getString(KEY_DATA_SOURCE_MODE, DataSourceMode.MOCK.name) ?: DataSourceMode.MOCK.name
-        )
-
+    // Workflow #94 — data source is locked to REMOTE in production; the setter cannot move it off
+    // the forced value, so Sandbox/old persisted MOCK can never re-activate.
     var dataSourceMode: DataSourceMode
-        get() = readDataSourceMode()
-        set(value) {
-            prefs.edit().putString(KEY_DATA_SOURCE_MODE, value.name).apply()
-            _dataSourceModeFlow.value = value
+        get() = PRODUCTION_DATA_SOURCE_MODE
+        set(_) {
+            prefs.edit().putString(KEY_DATA_SOURCE_MODE, PRODUCTION_DATA_SOURCE_MODE.name).apply()
+            _dataSourceModeFlow.value = PRODUCTION_DATA_SOURCE_MODE
         }
 
+    // Workflow #94 — base URL is locked to the public backend; the setter cannot point Retrofit at
+    // a stale LAN URL.
     var apiBaseUrl: String
-        get() = prefs.getString(KEY_API_BASE_URL, DEFAULT_BASE_URL) ?: DEFAULT_BASE_URL
-        set(value) = prefs.edit().putString(KEY_API_BASE_URL, value).apply()
+        get() = PRODUCTION_API_BASE_URL
+        set(_) = prefs.edit().putString(KEY_API_BASE_URL, PRODUCTION_API_BASE_URL).apply()
 
     var accessToken: String?
         get() = prefs.getString(KEY_ACCESS_TOKEN, null)
@@ -85,13 +91,28 @@ class AppPreferences @Inject constructor(
         get() = prefs.getBoolean("biometric_2fa_enabled", false)
         set(value) = prefs.edit().putBoolean("biometric_2fa_enabled", value).apply()
 
+    // Workflow #94 — theme is locked to light in production regardless of stale dark-mode setting.
     var darkThemeEnabled: Boolean
-        get() = prefs.getBoolean(KEY_DARK_THEME_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_DARK_THEME_ENABLED, value).apply()
+        get() = PRODUCTION_DARK_THEME_ENABLED
+        set(_) = prefs.edit().putBoolean(KEY_DARK_THEME_ENABLED, PRODUCTION_DARK_THEME_ENABLED).apply()
 
     var appNotificationsEnabled: Boolean
         get() = prefs.getBoolean(KEY_APP_NOTIFICATIONS_ENABLED, true)
         set(value) = prefs.edit().putBoolean(KEY_APP_NOTIFICATIONS_ENABLED, value).apply()
+
+    /**
+     * Workflow #94 — overwrite only the runtime-config keys with forced production values once at
+     * startup so diagnostic screens and any future code observe the same locked config. Auth tokens,
+     * user id, profile, and cached data are intentionally untouched.
+     */
+    fun enforceProductionDefaults() {
+        prefs.edit()
+            .putString(KEY_DATA_SOURCE_MODE, PRODUCTION_DATA_SOURCE_MODE.name)
+            .putString(KEY_API_BASE_URL, PRODUCTION_API_BASE_URL)
+            .putBoolean(KEY_DARK_THEME_ENABLED, PRODUCTION_DARK_THEME_ENABLED)
+            .apply()
+        _dataSourceModeFlow.value = PRODUCTION_DATA_SOURCE_MODE
+    }
 
     fun clearAuthData() {
         prefs.edit()

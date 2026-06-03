@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import com.example.easymoney.R
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easymoney.ui.loan.configuration.LoanConfigurationUiState
@@ -173,23 +172,29 @@ private enum class LoanSheetType { TENOR, VOUCHER, BREAKDOWN }
 fun LoanAmountSection(amount: Long, minAmount: Long, maxAmount: Long, onAmountChange: (Long) -> Unit) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val density = LocalDensity.current
-    var sliderSize by remember { mutableStateOf(IntSize.Zero) }
+    // Workflow #93 — measure the slider row itself (not the parent) so the bubble can follow the
+    // real thumb center instead of drifting based on the outer container width.
+    var sliderWidthPx by remember { mutableStateOf(0) }
+
+    val bubbleWidth = 68.dp
+    val thumbDiameter = 24.dp
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(104.dp)
-                .onSizeChanged { sliderSize = it }
-        ) {
+        // Bubble overlay — spans the same width as the slider below it so x-offsets line up.
+        Box(modifier = Modifier.fillMaxWidth()) {
             val range = (maxAmount - minAmount).toFloat()
             val progress = if (range > 0) ((amount - minAmount).toFloat() / range).coerceIn(0f, 1f) else 0f
 
-            val bubbleWidth = 68.dp
             val bubbleOffset = with(density) {
                 val bubbleWidthPx = bubbleWidth.toPx()
-                val travelPx = (sliderSize.width - bubbleWidthPx).coerceAtLeast(0f)
-                (travelPx * progress).toDp()
+                val thumbRadiusPx = thumbDiameter.toPx() / 2f
+                val width = sliderWidthPx.toFloat()
+                // Thumb travels between trackStart and trackEnd, inset by the thumb radius.
+                val trackStartPx = thumbRadiusPx
+                val trackEndPx = (width - thumbRadiusPx).coerceAtLeast(trackStartPx)
+                val thumbCenterPx = trackStartPx + progress * (trackEndPx - trackStartPx)
+                val maxLeftPx = (width - bubbleWidthPx).coerceAtLeast(0f)
+                (thumbCenterPx - bubbleWidthPx / 2f).coerceIn(0f, maxLeftPx).toDp()
             }
 
             Column(
@@ -221,42 +226,47 @@ fun LoanAmountSection(amount: Long, minAmount: Long, maxAmount: Long, onAmountCh
                     drawPath(path, color = primaryColor)
                 }
             }
-
-            Slider(
-                value = amount.toFloat(),
-                onValueChange = {
-                    // Workflow #91 — snap to clean VND increments relative to the package minimum.
-                    onAmountChange(LoanAmountStep.snap(it.toLong(), minAmount, maxAmount))
-                },
-                valueRange = minAmount.toFloat()..maxAmount.toFloat(),
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = primaryColor,
-                    activeTrackColor = primaryColor,
-                    inactiveTrackColor = Color(0xFFEAECF0)
-                ),
-                thumb = {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(primaryColor)
-                    )
-                },
-                track = { sliderState ->
-                    SliderDefaults.Track(
-                        sliderState = sliderState,
-                        modifier = Modifier.height(4.dp),
-                        colors = SliderDefaults.colors(
-                            activeTrackColor = primaryColor,
-                            inactiveTrackColor = Color(0xFFEAECF0)
-                        ),
-                        drawStopIndicator = null,
-                        thumbTrackGapSize = 0.dp
-                    )
-                }
-            )
         }
+
+        // Small intentional gap between the bubble pointer and the slider track.
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Slider(
+            value = amount.toFloat(),
+            onValueChange = {
+                // Workflow #91 — snap to clean VND increments relative to the package minimum.
+                onAmountChange(LoanAmountStep.snap(it.toLong(), minAmount, maxAmount))
+            },
+            valueRange = minAmount.toFloat()..maxAmount.toFloat(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onSizeChanged { sliderWidthPx = it.width },
+            colors = SliderDefaults.colors(
+                thumbColor = primaryColor,
+                activeTrackColor = primaryColor,
+                inactiveTrackColor = Color(0xFFEAECF0)
+            ),
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(thumbDiameter)
+                        .clip(CircleShape)
+                        .background(primaryColor)
+                )
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    modifier = Modifier.height(4.dp),
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = primaryColor,
+                        inactiveTrackColor = Color(0xFFEAECF0)
+                    ),
+                    drawStopIndicator = null,
+                    thumbTrackGapSize = 0.dp
+                )
+            }
+        )
 
         Row(
             modifier = Modifier

@@ -52,14 +52,14 @@ class SandBoxViewModel @Inject constructor(
         }
     }
 
+    // Workflow #94 — production runtime config is locked. These controls are inert: they cannot
+    // switch the app to MOCK or a LAN URL; the UI always reflects the enforced production values.
     fun toggleDataSourceMode(mode: DataSourceMode) {
-        appPreferences.dataSourceMode = mode
-        _uiState.update { it.copy(dataSourceMode = mode) }
+        _uiState.update { it.copy(dataSourceMode = appPreferences.dataSourceMode) }
     }
 
     fun updateApiBaseUrl(url: String) {
-        appPreferences.apiBaseUrl = url
-        _uiState.update { it.copy(apiBaseUrl = url) }
+        _uiState.update { it.copy(apiBaseUrl = appPreferences.apiBaseUrl) }
     }
 
     fun startFcmTestFlow() {
