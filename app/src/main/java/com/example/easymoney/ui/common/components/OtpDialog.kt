@@ -135,7 +135,7 @@ fun OtpDialog(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         repeat(6) { index ->
@@ -148,7 +148,10 @@ fun OtpDialog(
                             OtpCell(
                                 value = char,
                                 isFocused = isFocused,
-                                isError = errorMessage != null
+                                isError = errorMessage != null,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(50.dp)
                             )
                         }
                     }
@@ -306,7 +309,8 @@ fun OtpDialog(
 private fun OtpCell(
     value: String,
     isFocused: Boolean,
-    isError: Boolean
+    isError: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val borderColor = when {
         isError -> MaterialTheme.colorScheme.error
@@ -318,8 +322,7 @@ private fun OtpCell(
     val borderWidth = if (isFocused || isError) 2.dp else 1.dp
 
     Box(
-        modifier = Modifier
-            .size(width = 42.dp, height = 50.dp)
+        modifier = modifier
             .background(
                 color = if (isFocused) MaterialTheme.colorScheme.primary.copy(alpha = 0.05f) else Color.Transparent,
                 shape = RoundedCornerShape(8.dp)
