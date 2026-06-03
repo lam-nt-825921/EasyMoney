@@ -3,8 +3,6 @@ package com.example.easymoney.ui.loan.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,14 +44,6 @@ fun LoanBottomButton(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 4.dp)
-            )
-            Icon(
-                Icons.Default.Info,
-                contentDescription = null,
-                tint = Color.Red.copy(alpha = 0.6f),
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .size(18.dp)
             )
         }
         Button(
