@@ -189,7 +189,7 @@ fun EditContactInfoScreen(
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        viewModel.saveProfile()
+                        viewModel.saveProfile(EditProfileSection.CONTACT)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -214,6 +214,18 @@ fun EditContactInfoScreen(
                 selectedId = uiState.selectedRelationship?.id,
                 onItemSelected = { viewModel.onSelectItem(it) },
                 onDismiss = { viewModel.onDismissSheet() }
+            )
+        }
+
+        uiState.errorMessage?.let { message ->
+            AlertDialog(
+                onDismissRequest = viewModel::clearError,
+                confirmButton = {
+                    TextButton(onClick = viewModel::clearError) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                },
+                text = { Text(text = message) }
             )
         }
     }

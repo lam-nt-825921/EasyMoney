@@ -62,6 +62,12 @@ data class EditProfileUiState(
     }
 }
 
+enum class EditProfileSection {
+    PERSONAL,
+    CONTACT,
+    JOB
+}
+
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
@@ -230,10 +236,11 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-    fun saveProfile() {
-        // Workflow #95 — chặn lưu khi còn lỗi validate ở các trường nhập tay.
+    fun saveProfile(section: EditProfileSection) {
+        // Workflow #95 — chỉ chặn theo nhóm trường đang sửa, tránh lỗi ở màn khác làm save im lặng.
         val current = _uiState.value.withRecomputedErrors()
-        if (current.fieldErrors.isNotEmpty()) {
+        val blockingErrors = current.fieldErrors.filterKeys { it in section.validatedFields }
+        if (blockingErrors.isNotEmpty()) {
             _uiState.value = current
             return
         }
@@ -251,6 +258,10 @@ class EditProfileViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     /** Workflow #95 — chuẩn hoá giá trị nhập tay ngay trước khi gửi lên backend. */
@@ -287,4 +298,19 @@ class EditProfileViewModel @Inject constructor(
                 ?.let { put(ProfileField.CONTACT_PHONE, it) }
         }
     }
+
+    private val EditProfileSection.validatedFields: Set<ProfileField>
+        get() = when (this) {
+            EditProfileSection.PERSONAL -> setOf(
+                ProfileField.FULL_NAME,
+                ProfileField.NATIONAL_ID,
+                ProfileField.GENDER,
+                ProfileField.DATE_OF_BIRTH
+            )
+            EditProfileSection.CONTACT -> setOf(
+                ProfileField.CONTACT_NAME,
+                ProfileField.CONTACT_PHONE
+            )
+            EditProfileSection.JOB -> emptySet()
+        }
 }

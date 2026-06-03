@@ -45,8 +45,13 @@ fun RegisterScreen1(
         phone.isBlank() || ProfileInputValidator.validatePhone(phone) == null -> null
         else -> stringResource(R.string.error_invalid_phone)
     }
+    val fullNameError = when {
+        fullName.isBlank() || ProfileInputValidator.validateName(fullName) == null -> null
+        else -> stringResource(R.string.profile_error_name_invalid)
+    }
     val canRegister = acceptedTerms &&
         fullName.isNotBlank() &&
+        ProfileInputValidator.validateName(fullName) == null &&
         password == confirmPassword &&
         password.isNotBlank() &&
         ProfileInputValidator.validatePhone(phone) == null
@@ -91,8 +96,9 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_username_label),
                     value = fullName,
-                    onValueChange = { fullName = it },
-                    placeholder = stringResource(id = R.string.register_username_placeholder)
+                    onValueChange = { fullName = it.filter { char -> char.isLetter() || char.isWhitespace() }.take(50) },
+                    placeholder = stringResource(id = R.string.register_username_placeholder),
+                    error = if (fullName.isNotBlank()) fullNameError else null
                 )
 
                 RegisterField(
@@ -107,7 +113,7 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_password_label),
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { password = it.take(12) },
                     placeholder = stringResource(id = R.string.register_password_placeholder),
                     isPassword = true,
                     showPassword = showPassword,
@@ -117,7 +123,7 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_confirm_password_label),
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = { confirmPassword = it.take(12) },
                     placeholder = stringResource(id = R.string.register_confirm_password_placeholder),
                     isPassword = true,
                     showPassword = showPassword,

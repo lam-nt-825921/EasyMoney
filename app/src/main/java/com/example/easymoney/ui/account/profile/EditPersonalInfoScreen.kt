@@ -123,7 +123,7 @@ fun EditPersonalInfoScreen(
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        viewModel.saveProfile()
+                        viewModel.saveProfile(EditProfileSection.PERSONAL)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -152,6 +152,18 @@ fun EditPersonalInfoScreen(
                 selectedId = personalInfo.gender.ifBlank { null },
                 onItemSelected = { viewModel.onSelectGender(it.id) },
                 onDismiss = { viewModel.onDismissSheet() }
+            )
+        }
+
+        uiState.errorMessage?.let { message ->
+            AlertDialog(
+                onDismissRequest = viewModel::clearError,
+                confirmButton = {
+                    TextButton(onClick = viewModel::clearError) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                },
+                text = { Text(text = message) }
             )
         }
     }

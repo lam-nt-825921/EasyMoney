@@ -139,7 +139,7 @@ fun EditJobInfoScreen(
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        viewModel.saveProfile()
+                        viewModel.saveProfile(EditProfileSection.JOB)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,6 +186,18 @@ fun EditJobInfoScreen(
                 selectedId = selectedId,
                 onItemSelected = { viewModel.onSelectItem(it) },
                 onDismiss = { viewModel.onDismissSheet() }
+            )
+        }
+
+        uiState.errorMessage?.let { message ->
+            AlertDialog(
+                onDismissRequest = viewModel::clearError,
+                confirmButton = {
+                    TextButton(onClick = viewModel::clearError) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                },
+                text = { Text(text = message) }
             )
         }
     }
