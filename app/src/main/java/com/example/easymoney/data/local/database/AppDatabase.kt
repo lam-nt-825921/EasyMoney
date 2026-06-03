@@ -11,7 +11,8 @@ import com.example.easymoney.data.local.entity.RememberedAccountEntity
 
 @Database(
     entities = [NotificationEntity::class, AccountEntity::class, RememberedAccountEntity::class],
-    version = 5,
+    // Workflow #83 — bump cho `remoteId` mới (destructive migration đã bật trong DatabaseModule).
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

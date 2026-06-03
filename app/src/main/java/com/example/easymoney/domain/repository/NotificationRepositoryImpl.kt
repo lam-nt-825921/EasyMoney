@@ -39,22 +39,26 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAsRead(id: Long) {
-        // Room cache là nguồn hiển thị; REMOTE mode sync read-status về backend (workflow #46).
-        notificationDao.markAsRead(id)
-        if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
-            remoteDataSource.markNotificationRead(id)
+        // Workflow #83 — mark local scope theo user; sync read-status backend bằng remoteId.
+        val userId = currentUserId
+        val remoteId = notificationDao.getRemoteId(id)
+        notificationDao.markAsRead(id, userId)
+        if (appPreferences.dataSourceMode == DataSourceMode.REMOTE && remoteId != null) {
+            remoteDataSource.markNotificationRead(remoteId)
         }
     }
 
     override suspend fun markAllAsRead() {
-        notificationDao.markAllAsRead()
+        // Workflow #83 — chỉ mark thông báo của user hiện tại.
+        notificationDao.markAllAsRead(currentUserId)
         if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
             remoteDataSource.markAllNotificationsRead()
         }
     }
 
     override suspend fun clearAll() {
-        notificationDao.clearAll()
+        // Workflow #83 — chỉ xoá thông báo của user hiện tại, không xoá toàn bảng.
+        notificationDao.clearAll(currentUserId)
         // Workflow #54 — sync server-side clear in REMOTE mode.
         if (appPreferences.dataSourceMode == DataSourceMode.REMOTE) {
             remoteDataSource.clearAllNotifications()
@@ -85,12 +89,15 @@ class NotificationRepositoryImpl @Inject constructor(
         Log.d("DataSource", "NotificationRepository mode=$mode")
         if (mode == DataSourceMode.MOCK) return
         
+        // Workflow #83 — chụp user id một lần cho lần refresh này; reconcile đúng user đó.
+        val userId = currentUserId
         when (val result = remoteDataSource.getNotifications()) {
             is Resource.Success -> {
                 val entities = result.data.map { dto ->
                     NotificationEntity(
-                        id = dto.id,
-                        userId = currentUserId,
+                        // id = 0 → Room autoGenerate; tách backend id sang remoteId để tránh đụng PK.
+                        remoteId = dto.id,
+                        userId = userId,
                         title = dto.title ?: "Thông báo",
                         content = dto.content,
                         type = dto.type ?: "transaction",
@@ -104,9 +111,10 @@ class NotificationRepositoryImpl @Inject constructor(
                         isRead = dto.isRead
                     )
                 }
-                // Sync to Local Database with safety
+                // Workflow #83 — thay TOÀN BỘ cache của user bằng kết quả backend. Backend trả `[]`
+                // cho user mới → cache của user đó thành rỗng (không còn rò rỉ thông báo user khác).
                 try {
-                    notificationDao.insertNotifications(entities)
+                    notificationDao.replaceForUser(userId, entities)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

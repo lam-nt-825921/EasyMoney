@@ -50,7 +50,11 @@ class AppPreferences @Inject constructor(
 
     var accessToken: String?
         get() = prefs.getString(KEY_ACCESS_TOKEN, null)
-        set(value) = prefs.edit().putString(KEY_ACCESS_TOKEN, value).apply()
+        set(value) {
+            prefs.edit().putString(KEY_ACCESS_TOKEN, value).apply()
+            // Workflow #83 — user id đổi theo token → phát lại để UI rebind đúng tài khoản.
+            _currentUserIdFlow.value = readCurrentUserId()
+        }
 
     /**
      * Workflow #54 — derive current user id from the mock access token
@@ -59,11 +63,18 @@ class AppPreferences @Inject constructor(
      * have a non-null userId column (Room schema requirement).
      */
     val currentUserId: String
-        get() {
-            val token = prefs.getString(KEY_ACCESS_TOKEN, null) ?: return "user_anonymous"
-            val prefix = "mock_access_token_"
-            return if (token.startsWith(prefix)) "user_" + token.removePrefix(prefix) else "user_anonymous"
-        }
+        get() = readCurrentUserId()
+
+    private fun readCurrentUserId(): String {
+        val token = prefs.getString(KEY_ACCESS_TOKEN, null) ?: return "user_anonymous"
+        val prefix = "mock_access_token_"
+        return if (token.startsWith(prefix)) "user_" + token.removePrefix(prefix) else "user_anonymous"
+    }
+
+    // Workflow #83 — observable user id; notification flows flatMapLatest theo nó để
+    // không giữ cache của tài khoản trước sau login/register/đổi tài khoản.
+    private val _currentUserIdFlow = MutableStateFlow(readCurrentUserId())
+    val currentUserIdFlow: StateFlow<String> = _currentUserIdFlow.asStateFlow()
 
     var refreshToken: String?
         get() = prefs.getString(KEY_REFRESH_TOKEN, null)
@@ -87,5 +98,7 @@ class AppPreferences @Inject constructor(
             .remove(KEY_ACCESS_TOKEN)
             .remove(KEY_REFRESH_TOKEN)
             .apply()
+        // Workflow #83 — logout đổi user id về anonymous → phát lại cho UI.
+        _currentUserIdFlow.value = readCurrentUserId()
     }
 }

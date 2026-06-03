@@ -98,37 +98,37 @@ class ContractViewModel @Inject constructor(
     private fun requestSignOtp() {
         val contractId = _uiState.value.loadedContractId ?: return
         viewModelScope.launch {
-            loanRepository.requestSignOtp(contractId)
+            // Workflow #81 — autofill OTP ngay từ response của request-otp (ngoài kênh FCM),
+            // và lưu vào holder để khớp đúng contract id. Người dùng vẫn tự bấm xác nhận.
+            when (val result = loanRepository.requestSignOtp(contractId)) {
+                is Resource.Success -> {
+                    val otp = result.data.otp
+                    if (!otp.isNullOrBlank()) {
+                        contractOtpHolder.submit(contractId, otp, result.data.expiresAt)
+                        _uiState.update { it.copy(otpAutofill = otp) }
+                    }
+                }
+                is Resource.Error, is Resource.Loading -> Unit
+            }
         }
     }
 
     fun verifyOtp(otp: String, contractId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isOtpVerifying = true, otpError = null) }
-            val result = loanRepository.verifyOtp(otp)
-
-            when (result) {
+            // Workflow #81 — final sign gửi kèm OTP đã autofill (body { otp, purpose }).
+            when (val signResult = loanRepository.signContract(contractId, otp)) {
                 is Resource.Success -> {
-                    when (val signResult = loanRepository.signContract(contractId)) {
-                        is Resource.Success -> {
-                            contractOtpHolder.consume(contractId)
-                            _uiState.update { it.copy(isOtpVerifying = false, showOtpDialog = false, signSuccess = true) }
-                            onSuccess()
-                        }
-                        is Resource.Error -> {
-                            _uiState.update {
-                                it.copy(isOtpVerifying = false, otpError = UiText.DynamicString(signResult.message))
-                            }
-                        }
-                        Resource.Loading -> Unit
-                    }
+                    contractOtpHolder.consume(contractId)
+                    _uiState.update { it.copy(isOtpVerifying = false, showOtpDialog = false, signSuccess = true) }
+                    onSuccess()
                 }
                 is Resource.Error -> {
                     _uiState.update {
-                        it.copy(isOtpVerifying = false, otpError = UiText.DynamicString(result.message))
+                        it.copy(isOtpVerifying = false, otpError = UiText.DynamicString(signResult.message))
                     }
                 }
-                else -> {}
+                Resource.Loading -> Unit
             }
         }
     }

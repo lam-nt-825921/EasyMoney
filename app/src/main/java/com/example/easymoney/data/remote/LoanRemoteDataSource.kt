@@ -173,12 +173,22 @@ class LoanRemoteDataSource @Inject constructor(
     suspend fun cancelContract(contractId: String): Resource<Unit> =
         safeUnitApiCall("Cancel contract failed") { apiService.cancelContract(contractId) }
 
-    // Workflow #72 — request signing OTP (separate from sign).
-    suspend fun requestSignOtp(contractId: String): Resource<Unit> =
-        safeUnitApiCall("Request OTP failed") { apiService.requestSignOtp(contractId) }
+    // Workflow #81 — request OTP trả về otp + expires_at để autofill (không bắt nhập tay).
+    suspend fun requestSignOtp(contractId: String): Resource<ContractOtpRequestResult> =
+        safeApiCall("Request OTP failed") { apiService.requestSignOtp(contractId) }
+            .mapSuccess { map ->
+                ContractOtpRequestResult(
+                    contractId = (map["contract_id"] as? String) ?: contractId,
+                    otp = map["otp"] as? String,
+                    expiresAt = (map["expires_at"] as? Number)?.toLong()
+                )
+            }
 
-    suspend fun signContract(contractId: String): Resource<Unit> =
-        safeUnitApiCall("Sign contract failed") { apiService.signContract(contractId) }
+    // Workflow #81 — final sign gửi kèm OTP + purpose trong body.
+    suspend fun signContract(contractId: String, otp: String): Resource<Unit> =
+        safeUnitApiCall("Sign contract failed") {
+            apiService.signContract(contractId, ContractSignRequest(otp, "SIGN_CONTRACT"))
+        }
 
     suspend fun getDebts(): Resource<List<LoanDebtModel>> =
         safeApiCall("Fetch debts failed") { apiService.getDebts() }

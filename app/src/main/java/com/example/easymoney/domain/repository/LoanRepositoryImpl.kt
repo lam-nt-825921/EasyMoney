@@ -758,13 +758,21 @@ class LoanRepositoryImpl @Inject constructor(
         return Resource.Success(mockContractDetail(contractId, applicationId = null), isFromMock = true)
     }
 
-    override suspend fun requestSignOtp(contractId: String): Resource<Unit> {
+    override suspend fun requestSignOtp(contractId: String): Resource<ContractOtpRequestResult> {
         if (isRemote()) {
             return remoteDataSource?.requestSignOtp(contractId)
                 ?: Resource.Error("Remote data source not available")
         }
         delay(600)
-        return Resource.Success(Unit, isFromMock = true)
+        // Workflow #81 — mock trả về OTP cố định để autofill trong dev.
+        return Resource.Success(
+            ContractOtpRequestResult(
+                contractId = contractId,
+                otp = "123456",
+                expiresAt = System.currentTimeMillis() + 5 * 60 * 1000L
+            ),
+            isFromMock = true
+        )
     }
 
     private fun mockContractDetail(contractId: String, applicationId: String?): LoanContractDetail {
@@ -834,13 +842,17 @@ class LoanRepositoryImpl @Inject constructor(
 
     private val mockDebts = mutableListOf<LoanDebtModel>()
 
-    override suspend fun signContract(contractId: String): Resource<Unit> {
+    override suspend fun signContract(contractId: String, otp: String): Resource<Unit> {
         if (isRemote()) {
-            return remoteDataSource?.signContract(contractId)
+            return remoteDataSource?.signContract(contractId, otp)
                 ?: Resource.Error("Remote data source not available")
         }
 
         delay(500)
+        // Workflow #81 — mock kiểm tra OTP autofill trước khi ký.
+        if (otp != "123456") {
+            return Resource.Error("Mã OTP không chính xác. Vui lòng kiểm tra lại.")
+        }
         cancelledContractIds.remove(contractId)
         if (mockDebts.none { it.applicationId == contractId }) {
             mockDebts.add(
@@ -863,13 +875,24 @@ class LoanRepositoryImpl @Inject constructor(
 
     override suspend fun getDebts(): Resource<List<LoanDebtModel>> {
         if (isRemote()) {
-            return remoteDataSource?.getDebts()
-                ?: Resource.Error("Remote data source not available")
+            val result = remoteDataSource?.getDebts()
+                ?: return Resource.Error("Remote data source not available")
+            // Workflow #78 — phòng thủ: loại bỏ nợ đã tất toán kể cả khi backend trả về.
+            return when (result) {
+                is Resource.Success -> result.copy(data = result.data.filterNot { it.isFullyPaid() })
+                else -> result
+            }
         }
 
         delay(400)
-        return Resource.Success(mockDebts.toList(), isFromMock = true)
+        return Resource.Success(
+            mockDebts.filterNot { it.isFullyPaid() }.toList(),
+            isFromMock = true
+        )
     }
+
+    /** Workflow #78 — nợ tất toán nếu status == PAID (không phân biệt hoa thường). */
+    private fun LoanDebtModel.isFullyPaid(): Boolean = status.equals("PAID", ignoreCase = true)
 
     override suspend fun repayDebt(debtId: Long, repayType: RepayType, cardId: String?): Resource<Unit> {
         if (isRemote()) {

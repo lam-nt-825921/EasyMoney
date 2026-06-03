@@ -59,7 +59,8 @@ class EasyMoneyMessagingService : FirebaseMessagingService() {
             }
 
             val title = data["title"] ?: "Easy Money"
-            val content = data["content"] ?: ""
+            // Workflow #82 — LOAN_DISBURSED và một số payload dùng key `body` thay cho `content`.
+            val content = data["content"] ?: data["body"] ?: ""
             val type = data["type"] ?: "transaction"
             // Workflow #54 — amount can be fractional VND from backend repayment splits.
             val amount = data["amount"]?.toDoubleOrNull()

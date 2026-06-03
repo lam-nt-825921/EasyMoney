@@ -138,23 +138,29 @@ class PaymentViewModel @Inject constructor(
         if (request.cardHolderName.isBlank()) {
             errors["card_holder_name"] = UiText.StringResource(R.string.add_card_error_holder)
         }
-        if (!isExpiryValid(request.expiryMonth, request.expiryYear)) {
+        if (!isExpiryValid(request.expiry)) {
             errors["expiry"] = UiText.StringResource(R.string.add_card_error_expiry)
+        }
+        if (request.cvv.filter { it.isDigit() }.length !in 3..4) {
+            errors["cvv"] = UiText.StringResource(R.string.add_card_error_cvv)
         }
         return errors
     }
 
-    private fun isExpiryValid(monthStr: String, yearStr: String): Boolean {
-        val month = monthStr.toIntOrNull() ?: return false
-        val year = yearStr.toIntOrNull() ?: return false
+    /** Workflow #80 — expiry phải đúng định dạng `MM/YYYY` và chưa hết hạn. */
+    private fun isExpiryValid(expiry: String): Boolean {
+        val parts = expiry.split("/")
+        if (parts.size != 2) return false
+        val month = parts[0].toIntOrNull() ?: return false
+        val year = parts[1].toIntOrNull() ?: return false
         if (month !in 1..12) return false
-        val fullYear = if (year < 100) 2000 + year else year
+        if (parts[1].length != 4) return false
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH) + 1
         return when {
-            fullYear < currentYear -> false
-            fullYear == currentYear && month < currentMonth -> false
+            year < currentYear -> false
+            year == currentYear && month < currentMonth -> false
             else -> true
         }
     }

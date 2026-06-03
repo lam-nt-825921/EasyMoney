@@ -7,6 +7,9 @@ import androidx.room.PrimaryKey
 data class NotificationEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    // Workflow #83 — backend notification id (null cho thông báo tạo từ FCM/local).
+    // Tách khỏi PK local để id backend trùng nhau giữa các user không ghi đè cache.
+    val remoteId: Long? = null,
     val userId: String,
     val title: String,
     val content: String? = null,

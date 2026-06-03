@@ -23,23 +23,26 @@ data class BankDto(
     )
 }
 
-/** Workflow #75 — request body for verify/add card. */
+/**
+ * Workflow #80 — canonical request body for verify/add card.
+ * `expiry` is sent as `MM/YYYY`; `cvv` is a string; `card_number` is digits-only.
+ */
 data class AddCardRequestDto(
     @SerializedName("bank_id") val bankId: String,
     @SerializedName("bank_name") val bankName: String,
     @SerializedName("card_type") val cardType: String,
     @SerializedName("card_number") val cardNumber: String,
     @SerializedName("card_holder_name") val cardHolderName: String,
-    @SerializedName("expiry_month") val expiryMonth: String,
-    @SerializedName("expiry_year") val expiryYear: String
+    @SerializedName("expiry") val expiry: String,
+    @SerializedName("cvv") val cvv: String
 )
 
 fun AddCardRequest.toDto(): AddCardRequestDto = AddCardRequestDto(
     bankId = bankId,
     bankName = bankName,
     cardType = cardType,
-    cardNumber = cardNumber,
+    cardNumber = cardNumber.filter(Char::isDigit),
     cardHolderName = cardHolderName,
-    expiryMonth = expiryMonth,
-    expiryYear = expiryYear
+    expiry = expiry,
+    cvv = cvv
 )

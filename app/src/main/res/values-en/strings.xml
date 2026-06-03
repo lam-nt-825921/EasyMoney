@@ -196,6 +196,9 @@
     <string name="add_card_error_number">Card number must be 16-19 digits.</string>
     <string name="add_card_error_holder">Please enter the cardholder name.</string>
     <string name="add_card_error_expiry">Card expiry is invalid or already expired.</string>
+    <!-- Workflow #80 — CVV/CVC -->
+    <string name="add_card_cvv_label">CVV/CVC</string>
+    <string name="add_card_error_cvv">CVV/CVC must be 3-4 digits.</string>
     <!-- Workflow #71 — repayment estimate + repay dialog -->
     <string name="loan_mgmt_repay_success_points">Repayment completed. Current reward points: %1$d.</string>
     <string name="repay_dialog_title_monthly">Pay this period</string>

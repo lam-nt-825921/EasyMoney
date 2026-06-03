@@ -141,11 +141,18 @@ interface LoanApiService {
     @POST("api/v1/loan/contracts/{contractId}/sign/request-otp")
     suspend fun requestSignOtp(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
 
+    // Workflow #81 — final sign gửi kèm OTP + purpose trong body.
     @POST("api/v1/loan/contracts/{contractId}/sign")
-    suspend fun signContract(@Path("contractId") contractId: String): ApiResponse<Map<String, Any>>
+    suspend fun signContract(
+        @Path("contractId") contractId: String,
+        @Body request: ContractSignRequest
+    ): ApiResponse<Map<String, Any>>
 
+    // Workflow #78 — mặc định ẩn nợ đã tất toán (status == PAID).
     @GET("api/v1/loan/debts")
-    suspend fun getDebts(): ApiResponse<List<LoanDebtModel>>
+    suspend fun getDebts(
+        @Query("include_paid") includePaid: Boolean = false
+    ): ApiResponse<List<LoanDebtModel>>
 
     @POST("api/v1/loan/debts/{debtId}/repay")
     suspend fun repayDebt(
@@ -208,6 +215,12 @@ data class OtpRequest(
     @SerializedName("purpose") val purpose: String
 )
 data class OtpVerifyRequest(val otp: String, val purpose: String)
+
+/** Workflow #81 — body cho `POST .../sign`: OTP đã autofill + purpose. */
+data class ContractSignRequest(
+    @SerializedName("otp") val otp: String,
+    @SerializedName("purpose") val purpose: String
+)
 data class RepayDebtRequest(
     val repayType: String,
     val cardId: String? = null,

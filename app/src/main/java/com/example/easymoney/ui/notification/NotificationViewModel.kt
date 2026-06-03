@@ -17,13 +17,19 @@ data class NotificationGroup(
     val items: List<NotificationEntity>
 )
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    appPreferences: AppPreferences
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val currentUserId: String = appPreferences.currentUserId
+    // Workflow #83 — KHÔNG cache user id cố định; đọc lại mỗi lần build flow/action để
+    // không hiển thị cache của tài khoản trước sau khi login/register/đổi tài khoản.
+    private val currentUserId: String
+        get() = appPreferences.currentUserId
+
+    private val currentUserIdFlow get() = appPreferences.currentUserIdFlow
 
     init {
         refresh()
@@ -45,7 +51,8 @@ class NotificationViewModel @Inject constructor(
             else -> "transaction"
         }
 
-        return notificationRepository.getNotificationsByType(currentUserId, mappedType)
+        return currentUserIdFlow
+            .flatMapLatest { userId -> notificationRepository.getNotificationsByType(userId, mappedType) }
             .map { list ->
                 try {
                     list.groupBy { entity ->
