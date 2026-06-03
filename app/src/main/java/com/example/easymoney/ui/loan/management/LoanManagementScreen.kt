@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -21,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -57,6 +62,8 @@ fun LoanManagementScreen(
     viewModel: LoanManagementViewModel = hiltViewModel(),
     initialDebtId: String? = null,
     onSignContract: (String) -> Unit = {},
+    // Workflow #86 — mở hợp đồng đã giải ngân ở chế độ chỉ xem; nhận contractId canonical.
+    onViewContract: (String) -> Unit = {},
     onNavigateToAddCard: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -102,6 +109,7 @@ fun LoanManagementScreen(
                     debts = uiState.debts,
                     isSubmitting = uiState.isSubmitting,
                     onRepay = { debtId, type -> pendingRepay = debtId to type },
+                    onViewContract = onViewContract,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -377,6 +385,7 @@ private fun DebtList(
     debts: List<LoanDebtModel>,
     isSubmitting: Boolean,
     onRepay: (Long, RepayType) -> Unit,
+    onViewContract: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (debts.isEmpty()) {
@@ -400,7 +409,11 @@ private fun DebtList(
                 debt = debt,
                 enabled = !isSubmitting && debt.status == "ACTIVE",
                 onMonthlyRepay = { onRepay(debt.id, RepayType.MONTHLY) },
-                onFullRepay = { onRepay(debt.id, RepayType.FULL_EARLY) }
+                onFullRepay = { onRepay(debt.id, RepayType.FULL_EARLY) },
+                onViewContract = {
+                    // Workflow #86 — id hợp đồng canonical = CONTRACT_<application_id>.
+                    debt.applicationId.takeIf { it.isNotBlank() }?.let { onViewContract("CONTRACT_$it") }
+                }
             )
         }
     }
@@ -462,7 +475,8 @@ private fun DebtCard(
     debt: LoanDebtModel,
     enabled: Boolean,
     onMonthlyRepay: () -> Unit,
-    onFullRepay: () -> Unit
+    onFullRepay: () -> Unit,
+    onViewContract: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -471,12 +485,36 @@ private fun DebtCard(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = debt.applicationId,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = debt.applicationId,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
+                )
+                // Workflow #86 — hành động gọn để xem hợp đồng đã giải ngân (chỉ xem).
+                TextButton(
+                    onClick = onViewContract,
+                    enabled = debt.applicationId.isNotBlank(),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Description,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.loan_management_view_contract),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
             Spacer(Modifier.height(8.dp))
             DebtRow("Trạng thái", debt.status)
             DebtRow("Dư nợ gốc", "${formatMoney(debt.remainingPrincipal)} đ")

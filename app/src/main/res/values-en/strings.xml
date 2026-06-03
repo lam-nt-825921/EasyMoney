@@ -156,6 +156,8 @@
     <string name="loan_management_approved_at">Approval date: %1$s</string>
     <string name="loan_management_cancel">Cancel contract</string>
     <string name="loan_management_sign">Sign contract</string>
+    <!-- Workflow #86 — debt-card action to view the disbursed contract (read-only). -->
+    <string name="loan_management_view_contract">View contract</string>
     <string name="loan_management_cancel_title">Confirm cancellation</string>
     <string name="loan_management_cancel_confirm">Are you sure you want to cancel this contract?</string>
     <string name="action_confirm">Confirm</string>

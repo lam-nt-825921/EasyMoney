@@ -89,6 +89,9 @@ class UserRepositoryImpl @Inject constructor(
             DataSourceMode.REMOTE -> {
                 when (val result = remoteDataSource.updateProfile(updatedProfile)) {
                     is Resource.Success -> {
+                        // Workflow #85 — write-through cache so repository state phản ánh giá trị
+                        // vừa lưu ngay lập tức (tránh hiển thị dữ liệu cũ khi quay lại màn edit).
+                        profile = result.data
                         updateCachedCompletionFromProfile(result.data, isFromMock = false)
                         Resource.Success(Unit, isFromMock = false)
                     }

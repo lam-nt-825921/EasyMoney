@@ -61,6 +61,8 @@ fun AppNavHost(
     navController: NavHostController,
     appNotificationsEnabled: Boolean,
     onAppNotificationsChange: (Boolean) -> Unit,
+    pendingNavTarget: PendingNavTarget? = null,
+    onPendingNavTargetConsumed: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val appContext = LocalContext.current
@@ -68,11 +70,31 @@ fun AppNavHost(
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginUiState by loginViewModel.uiState.collectAsState()
 
+    // Workflow #84 — notification tap đã có session hợp lệ: mở thẳng target, KHÔNG buộc đăng nhập.
+    LaunchedEffect(pendingNavTarget) {
+        val route = pendingNavTarget?.toRoute() ?: return@LaunchedEffect
+        if (appPreferences.accessToken != null) {
+            navController.navigate(AppDestination.Home.route) {
+                popUpTo(0) { inclusive = true }
+            }
+            navController.navigate(route)
+            onPendingNavTargetConsumed()
+        }
+        // Chưa đăng nhập: giữ target lại, login-success effect bên dưới sẽ điều hướng sau khi login.
+    }
+
     // Xử lý chuyển hướng khi login thành công
     LaunchedEffect(loginUiState.loginSuccess) {
         if (loginUiState.loginSuccess) {
+            // Workflow #84 — nếu có notification target đang chờ, mở target sau khi vào Home
+            // thay vì bỏ về Home trống.
+            val pendingRoute = pendingNavTarget?.toRoute()
             navController.navigate(AppDestination.Home.route) {
                 popUpTo(0) { inclusive = true }
+            }
+            if (pendingRoute != null) {
+                navController.navigate(pendingRoute)
+                onPendingNavTargetConsumed()
             }
             loginViewModel.resetLoginState()
         }
@@ -446,12 +468,19 @@ fun AppNavHost(
                     type = androidx.navigation.NavType.StringType
                     nullable = true
                     defaultValue = null
+                },
+                // Workflow #86 — chế độ chỉ xem hợp đồng đã giải ngân từ thẻ khoản nợ.
+                androidx.navigation.navArgument(AppDestination.Contract.READ_ONLY_ARG) {
+                    type = androidx.navigation.NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) { backStackEntry ->
             val contractId = backStackEntry.arguments?.getString(AppDestination.Contract.CONTRACT_ID_ARG)
+            val readOnly = backStackEntry.arguments?.getBoolean(AppDestination.Contract.READ_ONLY_ARG) ?: false
             ContractScreen(
                 loanId = contractId ?: "MOCK-SANDBOX-123",
+                readOnly = readOnly,
                 onSignSuccess = {
                     navController.navigate(AppDestination.EsignSuccess.route) {
                         popUpTo(AppDestination.Contract.BASE_ROUTE) { inclusive = true }
@@ -726,12 +755,34 @@ fun AppNavHost(
                 onSignContract = { contractId ->
                     navController.navigate(AppDestination.Contract.createRoute(contractId))
                 },
+                // Workflow #86 — xem hợp đồng đã giải ngân ở chế độ chỉ-xem từ thẻ khoản nợ.
+                onViewContract = { contractId ->
+                    navController.navigate(AppDestination.Contract.createRoute(contractId, readOnly = true))
+                },
                 onNavigateToAddCard = { navController.navigate(AppDestination.PaymentCards.route) }
             )
         }
 
         composable(AppDestination.IdentityVerification.route) {
+            // Workflow #85 — refresh hồ sơ khi quay lại từ màn edit để hiển thị giá trị vừa lưu,
+            // không còn dữ liệu cũ trước khi sửa (mirror pattern của Profile route).
+            val viewModel: com.example.easymoney.ui.account.profile.ProfileCompletionViewModel = hiltViewModel()
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner, viewModel) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.loadProfile()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
             ProfileCompletionScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNavigateToEditPersonalInfo = { navController.navigate(AppDestination.EditPersonalInfo.route) },
                 onNavigateToEditJobInfo = { navController.navigate(AppDestination.EditJobInfo.route) },

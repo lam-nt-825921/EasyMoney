@@ -31,6 +31,8 @@ fun ContractScreen(
     onSignSuccess: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
+    // Workflow #86 — true khi xem hợp đồng đã giải ngân: chỉ hiển thị nội dung, ẩn ký/huỷ/resend.
+    readOnly: Boolean = false,
     onTermsClick: () -> Unit = {},
     viewModel: ContractViewModel = hiltViewModel()
 ) {
@@ -41,7 +43,7 @@ fun ContractScreen(
         viewModel.loadContract(loanId)
     }
 
-    if (uiState.showOtpDialog) {
+    if (uiState.showOtpDialog && !readOnly) {
         OtpDialog(
             phoneNumber = uiState.userPhone,
             onDismiss = viewModel::hideOtpDialog,
@@ -61,14 +63,17 @@ fun ContractScreen(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            ContractBottomSection(
-                isAccepted = uiState.isTermsAccepted,
-                isSigning = uiState.isSigning,
-                onAcceptedChange = viewModel::onTermsAcceptedChange,
-                onSignClick = { viewModel.signContract(onSignSuccess) },
-                onCancelClick = onCancel,
-                onTermsClick = onTermsClick
-            )
+            // Workflow #86 — read-only viewing không cho ký/huỷ/resend hợp đồng đã giải ngân.
+            if (!readOnly) {
+                ContractBottomSection(
+                    isAccepted = uiState.isTermsAccepted,
+                    isSigning = uiState.isSigning,
+                    onAcceptedChange = viewModel::onTermsAcceptedChange,
+                    onSignClick = { viewModel.signContract(onSignSuccess) },
+                    onCancelClick = onCancel,
+                    onTermsClick = onTermsClick
+                )
+            }
         }
     ) { innerPadding ->
         Box(
