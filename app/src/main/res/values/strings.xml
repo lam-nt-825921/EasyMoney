@@ -645,6 +645,8 @@
     <string name="loan_list_filter_promotional">Khuyến mãi</string>
     <string name="loan_list_filter_keyword_hint">Tìm theo tên gói</string>
     <string name="loan_list_filter_reset">Xoá bộ lọc</string>
+    <string name="loan_list_filter_active_summary">Đang áp dụng %1$d bộ lọc</string>
+    <string name="loan_list_filter_inactive_summary">Chưa áp dụng bộ lọc nhanh</string>
     <string name="loan_list_filter_interest">Lãi suất tối đa: %1$.1f%%/năm</string>
     <string name="loan_list_eligible">Đủ điều kiện</string>
     <string name="loan_list_not_suitable">Chưa phù hợp</string>

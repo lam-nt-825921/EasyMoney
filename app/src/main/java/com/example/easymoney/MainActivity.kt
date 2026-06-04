@@ -34,9 +34,7 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var userRepository: UserRepository
 
-    // Workflow #84 — pending notification target carried from the launching/new intent. Survives
-    // cold start (read from onCreate intent) and live taps (onNewIntent), and is consumed by the
-    // nav host once routed.
+
     private val pendingNavTarget = mutableStateOf<PendingNavTarget?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {

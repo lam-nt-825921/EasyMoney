@@ -4,8 +4,11 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -17,9 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.unit.dp
 import com.example.easymoney.R
 import com.example.easymoney.navigation.AppDestination
 import com.example.easymoney.navigation.AppNavHost
@@ -57,18 +60,25 @@ fun AppRoot(
     val navBackStackEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val destination = appState.currentDestination()
+    val layoutDirection = LocalLayoutDirection.current
     val destinationTitle = destination.titleResId?.let { stringResource(id = it) }.orEmpty()
     val canNavigateBack = appState.navController.previousBackStackEntry != null
     val topBarController = remember { AppTopBarController() }
-    val loginGradientTopColor = MaterialTheme.colorScheme.primary
-        .copy(alpha = 0.95f)
-        .compositeOver(MaterialTheme.colorScheme.background)
+    val isAuthGradientScreen = destination == AppDestination.Login1 || destination == AppDestination.Register1
+    val scaffoldContainerColor = when (destination) {
+        AppDestination.Welcome -> MaterialTheme.colorScheme.background
+        else -> destination.topBarBackgroundColor ?: MaterialTheme.colorScheme.background
+    }
     val topBarBackgroundColor = when (destination) {
         AppDestination.LoanFlow -> MaterialTheme.colorScheme.background
         AppDestination.Welcome -> MaterialTheme.colorScheme.background
         AppDestination.Login1,
-        AppDestination.Register1 -> loginGradientTopColor
+        AppDestination.Register1 -> Color.Transparent
         else -> destination.topBarBackgroundColor ?: MaterialTheme.colorScheme.background
+    }
+    val topBarContentColor = when {
+        isAuthGradientScreen -> Color.White
+        else -> destination.topBarContentColor ?: Color.Unspecified
     }
 
     CompositionLocalProvider(LocalAppTopBarController provides topBarController) {
@@ -101,7 +111,7 @@ fun AppRoot(
                             ))
                         }
                         val resolvedBackground = topBarOverride?.backgroundColor ?: topBarBackgroundColor
-                        val resolvedContentColor = topBarOverride?.contentColor ?: (destination.topBarContentColor ?: Color.Unspecified)
+                        val resolvedContentColor = topBarOverride?.contentColor ?: topBarContentColor
 
                         AppNavigationBar(
                             title = resolvedTitle,
@@ -130,8 +140,18 @@ fun AppRoot(
                     )
                 }
             },
-            containerColor = topBarBackgroundColor
+            containerColor = scaffoldContainerColor
         ) { innerPadding ->
+            val contentPadding = if (isAuthGradientScreen) {
+                PaddingValues(
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    top = 0.dp,
+                    end = innerPadding.calculateEndPadding(layoutDirection),
+                    bottom = innerPadding.calculateBottomPadding()
+                )
+            } else {
+                innerPadding
+            }
             AppNavHost(
                 navController = appState.navController,
                 appNotificationsEnabled = appNotificationsEnabled,
@@ -139,8 +159,8 @@ fun AppRoot(
                 pendingNavTarget = pendingNavTarget,
                 onPendingNavTargetConsumed = onPendingNavTargetConsumed,
                 modifier = Modifier
-                    .padding(innerPadding)
-                    .consumeWindowInsets(innerPadding)
+                    .padding(contentPadding)
+                    .consumeWindowInsets(contentPadding)
                     .fillMaxSize()
             )
         }

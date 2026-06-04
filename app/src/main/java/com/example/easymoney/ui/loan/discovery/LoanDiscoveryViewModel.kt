@@ -39,7 +39,7 @@ data class LoanDiscoveryUiState(
     fun isAnyFilterActive(): Boolean =
         eligibleOnly || hotOnly || newOnly || promotionalOnly ||
             keyword.isNotBlank() || minInterest != null || maxInterest != null ||
-            tenor != null || minAmount != null
+            tenor != null || minAmount != null || maxAmount != null
 }
 
 @HiltViewModel

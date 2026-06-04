@@ -646,6 +646,8 @@
     <string name="loan_list_filter_promotional">Promo</string>
     <string name="loan_list_filter_keyword_hint">Search by package name</string>
     <string name="loan_list_filter_reset">Reset filters</string>
+    <string name="loan_list_filter_active_summary">%1$d filters active</string>
+    <string name="loan_list_filter_inactive_summary">No quick filters active</string>
     <string name="loan_list_filter_interest">Max interest: %1$.1f%%/year</string>
     <string name="loan_list_eligible">Eligible</string>
     <string name="loan_list_not_suitable">Not suitable</string>

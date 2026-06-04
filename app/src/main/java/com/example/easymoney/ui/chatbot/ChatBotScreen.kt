@@ -13,6 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -31,67 +34,207 @@ fun ChatBotScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
+    val typingListState = rememberLazyListState()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    var isInputFocused by remember { mutableStateOf(false) }
     val greeting = stringResource(R.string.chatbot_greeting)
     val hideKeyboard = {
+        isInputFocused = false
         focusManager.clearFocus()
         keyboardController?.hide()
+        Unit
     }
 
     LaunchedEffect(Unit) { viewModel.greetIfNeeded(greeting) }
 
-    LaunchedEffect(uiState.messages.size) {
-        if (uiState.messages.isNotEmpty()) {
-            listState.animateScrollToItem(uiState.messages.size - 1)
+    if (isInputFocused) {
+        val typingMessages = uiState.messages.latestConversationTurn()
+        LaunchedEffect(typingMessages.size, uiState.isThinking, uiState.errorMessage) {
+            if (typingMessages.isNotEmpty()) {
+                typingListState.animateScrollToItem(typingMessages.size - 1)
+            }
         }
+        FocusedChatLayout(
+            messages = typingMessages,
+            isThinking = uiState.isThinking,
+            errorMessage = uiState.errorMessage,
+            listState = typingListState,
+            input = uiState.input,
+            onInputChange = viewModel::onInputChange,
+            onSend = viewModel::onSend,
+            onInputFocused = { isInputFocused = true },
+            onAction = { target ->
+                when (target) {
+                    is ChatActionTarget.NavigateRoute -> onNavigateRoute(target.route)
+                    is ChatActionTarget.DialPhone -> LinkHandler.dial(context, target.phone)
+                }
+            },
+            onDismissKeyboard = hideKeyboard
+        )
+    } else {
+        LaunchedEffect(uiState.messages.size) {
+            if (uiState.messages.isNotEmpty()) {
+                listState.animateScrollToItem(uiState.messages.size - 1)
+            }
+        }
+        DefaultChatLayout(
+            messages = uiState.messages,
+            isThinking = uiState.isThinking,
+            errorMessage = uiState.errorMessage,
+            listState = listState,
+            input = uiState.input,
+            onInputChange = viewModel::onInputChange,
+            onSend = viewModel::onSend,
+            onInputFocused = { isInputFocused = true },
+            onAction = { target ->
+                when (target) {
+                    is ChatActionTarget.NavigateRoute -> onNavigateRoute(target.route)
+                    is ChatActionTarget.DialPhone -> LinkHandler.dial(context, target.phone)
+                }
+            },
+            onDismissKeyboard = hideKeyboard
+        )
+    }
+}
+
+@Composable
+private fun DefaultChatLayout(
+    messages: List<ChatMessage>,
+    isThinking: Boolean,
+    errorMessage: String?,
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    input: String,
+    onInputChange: (String) -> Unit,
+    onSend: () -> Unit,
+    onInputFocused: () -> Unit,
+    onAction: (ChatActionTarget) -> Unit,
+    onDismissKeyboard: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        ChatMessageList(
+            messages = messages,
+            isThinking = isThinking,
+            errorMessage = errorMessage,
+            listState = listState,
+            onAction = onAction,
+            onDismissKeyboard = onDismissKeyboard,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(top = 12.dp, bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        )
+
+        InputRow(
+            input = input,
+            onChange = onInputChange,
+            onSend = onSend,
+            onFocused = onInputFocused,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+        )
+    }
+}
+
+@Composable
+private fun FocusedChatLayout(
+    messages: List<ChatMessage>,
+    isThinking: Boolean,
+    errorMessage: String?,
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    input: String,
+    onInputChange: (String) -> Unit,
+    onSend: () -> Unit,
+    onInputFocused: () -> Unit,
+    onAction: (ChatActionTarget) -> Unit,
+    onDismissKeyboard: () -> Unit
+) {
+    val inputFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        inputFocusRequester.requestFocus()
+        keyboardController?.show()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = listState,
+        ChatMessageList(
+            messages = messages,
+            isThinking = isThinking,
+            errorMessage = errorMessage,
+            listState = listState,
+            onAction = onAction,
+            onDismissKeyboard = onDismissKeyboard,
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth()
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = { hideKeyboard() })
-                }
-                .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 12.dp)
-        ) {
-            items(uiState.messages, key = { it.id }) { msg ->
-                MessageRow(msg, onAction = { target ->
-                    when (target) {
-                        is ChatActionTarget.NavigateRoute -> onNavigateRoute(target.route)
-                        is ChatActionTarget.DialPhone -> LinkHandler.dial(context, target.phone)
-                    }
-                })
-            }
-            if (uiState.isThinking) {
-                item {
-                    Text(stringResource(R.string.chatbot_typing), style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            uiState.errorMessage?.let { err ->
-                item {
-                    // Workflow #33 — surface chatbot error inline.
-                    Text(
-                        text = err,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Bottom)
+        )
 
         InputRow(
-            input = uiState.input,
-            onChange = viewModel::onInputChange,
-            onSend = viewModel::onSend
+            input = input,
+            onChange = onInputChange,
+            onSend = onSend,
+            onFocused = onInputFocused,
+            focusRequester = inputFocusRequester,
+            modifier = Modifier.navigationBarsPadding()
         )
     }
+}
+
+@Composable
+private fun ChatMessageList(
+    messages: List<ChatMessage>,
+    isThinking: Boolean,
+    errorMessage: String?,
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    onAction: (ChatActionTarget) -> Unit,
+    onDismissKeyboard: () -> Unit,
+    modifier: Modifier,
+    contentPadding: PaddingValues,
+    verticalArrangement: Arrangement.Vertical
+) {
+    LazyColumn(
+        state = listState,
+        modifier = modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { onDismissKeyboard() })
+            }
+            .padding(horizontal = 12.dp),
+        verticalArrangement = verticalArrangement,
+        contentPadding = contentPadding
+    ) {
+        items(messages, key = { it.id }) { msg ->
+            MessageRow(msg, onAction = onAction)
+        }
+        if (isThinking) {
+            item {
+                Text(stringResource(R.string.chatbot_typing), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        errorMessage?.let { err ->
+            item {
+                // Workflow #33 — surface chatbot error inline.
+                Text(
+                    text = err,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+private fun List<ChatMessage>.latestConversationTurn(): List<ChatMessage> {
+    if (isEmpty()) return emptyList()
+    val latestBotIndex = indexOfLast { it.role == ChatRole.BOT }
+    val anchorIndex = if (latestBotIndex >= 0) latestBotIndex else lastIndex
+    val previousUserIndex = subList(0, anchorIndex + 1).indexOfLast { it.role == ChatRole.USER }
+    val startIndex = previousUserIndex.takeIf { it >= 0 } ?: anchorIndex
+    return drop(startIndex)
 }
 
 @Composable
@@ -144,8 +287,15 @@ private fun MessageRow(msg: ChatMessage, onAction: (ChatActionTarget) -> Unit) {
 }
 
 @Composable
-private fun InputRow(input: String, onChange: (String) -> Unit, onSend: () -> Unit) {
-    Surface(tonalElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
+private fun InputRow(
+    input: String,
+    onChange: (String) -> Unit,
+    onSend: () -> Unit,
+    onFocused: () -> Unit,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester? = null
+) {
+    Surface(tonalElevation = 2.dp, modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -154,7 +304,10 @@ private fun InputRow(input: String, onChange: (String) -> Unit, onSend: () -> Un
                 value = input,
                 onValueChange = onChange,
                 placeholder = { Text(stringResource(R.string.chatbot_placeholder)) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                    .onFocusChanged { if (it.isFocused) onFocused() },
                 singleLine = true
             )
             Spacer(Modifier.width(4.dp))

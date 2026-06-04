@@ -218,7 +218,7 @@ fun HotLoansSection(
         
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(end = 16.dp)
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp)
         ) {
             items(loans) { loan ->
                 HotLoanCard(loan = loan, onClick = { onLoanClick(loan) })

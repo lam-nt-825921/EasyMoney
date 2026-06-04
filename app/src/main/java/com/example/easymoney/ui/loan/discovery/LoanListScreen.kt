@@ -34,8 +34,8 @@ import com.example.easymoney.ui.theme.TextSecondary
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun LoanListScreen(
@@ -44,6 +44,7 @@ fun LoanListScreen(
     viewModel: LoanDiscoveryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val activeFilterCount = uiState.activeFilterCount()
 
     LaunchedEffect(Unit) {
         viewModel.loadPackages()
@@ -61,10 +62,23 @@ fun LoanListScreen(
             shadowElevation = 1.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.FilterList, contentDescription = null, tint = TealPrimary)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.loan_list_filter_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.FilterList, contentDescription = null, tint = TealPrimary)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.loan_list_filter_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -117,31 +131,67 @@ fun LoanListScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Workflow #29 — filter chips: hot / new / promotional
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = if (activeFilterCount > 0) {
+                            stringResource(R.string.loan_list_filter_active_summary, activeFilterCount)
+                        } else {
+                            stringResource(R.string.loan_list_filter_inactive_summary)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (activeFilterCount > 0) {
+                        TextButton(
+                            onClick = { viewModel.resetFilters() },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.loan_list_filter_reset),
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                // Workflow #29 — filter chips: hot / new / promotional
+                LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FilterChip(
-                        selected = uiState.hotOnly,
-                        onClick = { viewModel.updateFilters(hotOnly = !uiState.hotOnly) },
-                        label = { Text(stringResource(R.string.loan_list_filter_hot)) }
-                    )
-                    FilterChip(
-                        selected = uiState.newOnly,
-                        onClick = { viewModel.updateFilters(newOnly = !uiState.newOnly) },
-                        label = { Text(stringResource(R.string.loan_list_filter_new)) }
-                    )
-                    FilterChip(
-                        selected = uiState.promotionalOnly,
-                        onClick = { viewModel.updateFilters(promotionalOnly = !uiState.promotionalOnly) },
-                        label = { Text(stringResource(R.string.loan_list_filter_promotional)) }
-                    )
-                    if (uiState.isAnyFilterActive()) {
-                        TextButton(onClick = { viewModel.resetFilters() }) {
-                            Text(stringResource(R.string.loan_list_filter_reset))
-                        }
+                    item {
+                        FilterChip(
+                            selected = uiState.hotOnly,
+                            onClick = { viewModel.updateFilters(hotOnly = !uiState.hotOnly) },
+                            label = { Text(stringResource(R.string.loan_list_filter_hot)) }
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.newOnly,
+                            onClick = { viewModel.updateFilters(newOnly = !uiState.newOnly) },
+                            label = { Text(stringResource(R.string.loan_list_filter_new)) }
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.promotionalOnly,
+                            onClick = { viewModel.updateFilters(promotionalOnly = !uiState.promotionalOnly) },
+                            label = { Text(stringResource(R.string.loan_list_filter_promotional)) }
+                        )
                     }
                 }
             }
@@ -172,6 +222,20 @@ fun LoanListScreen(
         }
     }
 }
+
+private fun LoanDiscoveryUiState.activeFilterCount(): Int =
+    listOf(
+        minAmount != null,
+        maxAmount != null,
+        tenor != null,
+        eligibleOnly,
+        minInterest != null,
+        maxInterest != null,
+        hotOnly,
+        newOnly,
+        promotionalOnly,
+        keyword.isNotBlank()
+    ).count { it }
 
 @Composable
 fun LoanPackageCard(
