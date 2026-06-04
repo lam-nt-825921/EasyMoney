@@ -182,21 +182,26 @@ private fun SelectionRow(
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
         )
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(22.dp)
-            )
-        } else {
-            RadioButton(
-                selected = false,
-                onClick = onClick,
-                colors = RadioButtonDefaults.colors(
-                    unselectedColor = MaterialTheme.colorScheme.outline
+        Box(
+            modifier = Modifier.size(48.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
                 )
-            )
+            } else {
+                RadioButton(
+                    selected = false,
+                    onClick = onClick,
+                    colors = RadioButtonDefaults.colors(
+                        unselectedColor = MaterialTheme.colorScheme.outline
+                    )
+                )
+            }
         }
     }
 }

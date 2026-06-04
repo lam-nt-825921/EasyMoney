@@ -12,7 +12,13 @@ enum class ProfileField {
     DATE_OF_BIRTH,
     CONTACT_NAME,
     CONTACT_PHONE,
-    INCOME
+    RELATIONSHIP,
+    JOB_TITLE,
+    INCOME,
+    COMPANY_NAME,
+    POSITION,
+    EDUCATION,
+    MARITAL_STATUS
 }
 
 /**
@@ -60,6 +66,23 @@ object ProfileInputValidator {
 
     /** Chỉ giữ lại chữ số. */
     fun normalizeDigits(raw: String): String = raw.filter { it.isDigit() }
+
+    /** Chỉ giữ chữ số và giới hạn độ dài cho các trường nhập tay dạng số. */
+    fun digitsOnlyInput(raw: String, maxLength: Int? = null): String {
+        val digits = normalizeDigits(raw)
+        return if (maxLength == null) digits else digits.take(maxLength)
+    }
+
+    /** Nhập ngày sinh bằng số, app tự chèn dấu gạch theo yyyy-MM-dd. */
+    fun dateOfBirthInput(raw: String): String {
+        val digits = digitsOnlyInput(raw, maxLength = 8)
+        return buildString {
+            digits.forEachIndexed { index, char ->
+                if (index == 4 || index == 6) append('-')
+                append(char)
+            }
+        }
+    }
 
     /**
      * Bỏ khoảng trắng, gạch ngang, dấu chấm, ngoặc; chuyển +84/84 về dạng nội địa 0xxxxxxxxx.
@@ -142,6 +165,10 @@ object ProfileInputValidator {
     /** Thu nhập hàng tháng: phải là số dương khi được nhập. */
     fun validateIncome(value: Long): ProfileValidationError? =
         if (value <= 0L) ProfileValidationError.INCOME_INVALID else null
+
+    /** Dropdown/text bắt buộc chọn hoặc nhập. */
+    fun validateRequired(raw: String): ProfileValidationError? =
+        if (raw.isBlank()) ProfileValidationError.REQUIRED else null
 
     private fun daysInMonth(year: Int, month: Int): Int =
         Calendar.getInstance().apply {

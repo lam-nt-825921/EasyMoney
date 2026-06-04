@@ -51,6 +51,10 @@ data class EditProfileUiState(
         get() = CONTACT_FIELDS.none { fieldErrors.containsKey(it) } &&
             profile.contactInfo.relationship.isNotBlank()
 
+    /** Màn công việc hợp lệ khi các dropdown bắt buộc và thu nhập đã hợp lệ. */
+    val isJobInfoValid: Boolean
+        get() = JOB_FIELDS.none { fieldErrors.containsKey(it) }
+
     private companion object {
         val PERSONAL_FIELDS = listOf(
             ProfileField.FULL_NAME,
@@ -58,7 +62,19 @@ data class EditProfileUiState(
             ProfileField.GENDER,
             ProfileField.DATE_OF_BIRTH
         )
-        val CONTACT_FIELDS = listOf(ProfileField.CONTACT_NAME, ProfileField.CONTACT_PHONE)
+        val CONTACT_FIELDS = listOf(
+            ProfileField.CONTACT_NAME,
+            ProfileField.RELATIONSHIP,
+            ProfileField.CONTACT_PHONE
+        )
+        val JOB_FIELDS = listOf(
+            ProfileField.JOB_TITLE,
+            ProfileField.INCOME,
+            ProfileField.COMPANY_NAME,
+            ProfileField.POSITION,
+            ProfileField.EDUCATION,
+            ProfileField.MARITAL_STATUS
+        )
     }
 }
 
@@ -278,9 +294,10 @@ class EditProfileViewModel @Inject constructor(
 
     /** Workflow #95 — tính lại lỗi validate cho toàn bộ trường nhập tay. */
     private fun EditProfileUiState.withRecomputedErrors(): EditProfileUiState =
-        copy(fieldErrors = computeErrors(profile))
+        copy(fieldErrors = computeErrors(this))
 
-    private fun computeErrors(profile: UserProfile): Map<ProfileField, ProfileValidationError> {
+    private fun computeErrors(state: EditProfileUiState): Map<ProfileField, ProfileValidationError> {
+        val profile = state.profile
         val personal = profile.personalInfo
         val contact = profile.contactInfo
         return buildMap {
@@ -294,10 +311,29 @@ class EditProfileViewModel @Inject constructor(
                 ?.let { put(ProfileField.DATE_OF_BIRTH, it) }
             ProfileInputValidator.validateName(contact.contactName)
                 ?.let { put(ProfileField.CONTACT_NAME, it) }
+            ProfileInputValidator.validateRequired(contact.relationship)
+                ?.let { put(ProfileField.RELATIONSHIP, it) }
             ProfileInputValidator.validatePhone(contact.phoneNumber)
                 ?.let { put(ProfileField.CONTACT_PHONE, it) }
+            ProfileInputValidator.validateRequired(profile.jobInfo.jobTitle)
+                ?.let { put(ProfileField.JOB_TITLE, it) }
+            ProfileInputValidator.validateIncome(profile.jobInfo.monthlyIncome)
+                ?.let { put(ProfileField.INCOME, it) }
+            if (state.requiresCompanyDetails()) {
+                ProfileInputValidator.validateRequired(profile.jobInfo.companyName)
+                    ?.let { put(ProfileField.COMPANY_NAME, it) }
+                ProfileInputValidator.validateRequired(profile.jobInfo.position)
+                    ?.let { put(ProfileField.POSITION, it) }
+            }
+            ProfileInputValidator.validateRequired(profile.education)
+                ?.let { put(ProfileField.EDUCATION, it) }
+            ProfileInputValidator.validateRequired(profile.maritalStatus)
+                ?.let { put(ProfileField.MARITAL_STATUS, it) }
         }
     }
+
+    private fun EditProfileUiState.requiresCompanyDetails(): Boolean =
+        selectedProfession?.id == "p1" || profile.jobInfo.jobTitle == "Nhân viên văn phòng công ty"
 
     private val EditProfileSection.validatedFields: Set<ProfileField>
         get() = when (this) {
@@ -309,8 +345,16 @@ class EditProfileViewModel @Inject constructor(
             )
             EditProfileSection.CONTACT -> setOf(
                 ProfileField.CONTACT_NAME,
+                ProfileField.RELATIONSHIP,
                 ProfileField.CONTACT_PHONE
             )
-            EditProfileSection.JOB -> emptySet()
+            EditProfileSection.JOB -> setOf(
+                ProfileField.JOB_TITLE,
+                ProfileField.INCOME,
+                ProfileField.COMPANY_NAME,
+                ProfileField.POSITION,
+                ProfileField.EDUCATION,
+                ProfileField.MARITAL_STATUS
+            )
         }
 }

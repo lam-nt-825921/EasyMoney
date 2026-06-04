@@ -108,6 +108,14 @@ class ProfileInputValidatorTest {
         assertNull(ProfileInputValidator.validateNationalId("012345678912"))
     }
 
+    @Test
+    fun `digits only input removes hardware keyboard letters`() {
+        assertEquals(
+            "012345678912",
+            ProfileInputValidator.digitsOnlyInput("0123abcd45678912", maxLength = 12)
+        )
+    }
+
     // ---- Gender ----
 
     @Test
@@ -131,6 +139,14 @@ class ProfileInputValidatorTest {
         assertEquals(
             ProfileValidationError.DOB_INVALID,
             ProfileInputValidator.validateDateOfBirth("12/05/1990")
+        )
+    }
+
+    @Test
+    fun `date of birth input keeps digits and inserts separators`() {
+        assertEquals(
+            "1990-06-15",
+            ProfileInputValidator.dateOfBirthInput("1990abc06-15xyz")
         )
     }
 

@@ -73,7 +73,10 @@ fun EditContactInfoScreen(
                                     val numIndex = pCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                                     if (numIndex != -1) {
                                         val number = pCursor.getString(numIndex)
-                                        viewModel.updateContactInfo(name = name, phone = number)
+                                        viewModel.updateContactInfo(
+                                            name = name,
+                                            phone = ProfileInputValidator.normalizePhone(number)
+                                        )
                                     }
                                 }
                             }
@@ -158,7 +161,8 @@ fun EditContactInfoScreen(
                 SelectorItem(
                     label = stringResource(id = R.string.profile_label_relationship),
                     value = contactInfo.relationship.ifBlank { stringResource(id = R.string.error_select_relationship) },
-                    onClick = { viewModel.onShowSheet(FormSheetType.RELATIONSHIP) }
+                    onClick = { viewModel.onShowSheet(FormSheetType.RELATIONSHIP) },
+                    errorText = uiState.fieldErrors[ProfileField.RELATIONSHIP]?.asMessage()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -166,7 +170,11 @@ fun EditContactInfoScreen(
                 InputField(
                     label = stringResource(id = R.string.profile_label_phone),
                     value = contactInfo.phoneNumber,
-                    onValueChange = { viewModel.updateContactInfo(phone = it) },
+                    onValueChange = {
+                        viewModel.updateContactInfo(
+                            phone = ProfileInputValidator.digitsOnlyInput(it, maxLength = 10)
+                        )
+                    },
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Done,
                     onImeAction = { focusManager.clearFocus() },
@@ -289,7 +297,12 @@ private fun InputField(
 }
 
 @Composable
-private fun SelectorItem(label: String, value: String, onClick: () -> Unit) {
+private fun SelectorItem(
+    label: String,
+    value: String,
+    onClick: () -> Unit,
+    errorText: String? = null
+) {
     Column(modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(8.dp))
@@ -298,6 +311,14 @@ private fun SelectorItem(label: String, value: String, onClick: () -> Unit) {
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(color = if (errorText != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant)
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }

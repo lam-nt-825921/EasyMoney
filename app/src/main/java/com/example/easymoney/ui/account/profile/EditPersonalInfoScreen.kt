@@ -80,7 +80,11 @@ fun EditPersonalInfoScreen(
                 InputField(
                     label = stringResource(id = R.string.profile_label_id_number),
                     value = personalInfo.nationalId,
-                    onValueChange = { viewModel.updatePersonalInfo(nationalId = it) },
+                    onValueChange = {
+                        viewModel.updatePersonalInfo(
+                            nationalId = ProfileInputValidator.digitsOnlyInput(it, maxLength = 12)
+                        )
+                    },
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next,
                     errorText = uiState.fieldErrors[ProfileField.NATIONAL_ID]?.asMessage()
@@ -101,7 +105,11 @@ fun EditPersonalInfoScreen(
                 InputField(
                     label = stringResource(id = R.string.profile_label_dob),
                     value = personalInfo.dateOfBirth,
-                    onValueChange = { viewModel.updatePersonalInfo(dob = it) },
+                    onValueChange = {
+                        viewModel.updatePersonalInfo(
+                            dob = ProfileInputValidator.dateOfBirthInput(it)
+                        )
+                    },
                     placeholder = stringResource(id = R.string.profile_placeholder_dob),
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done,
