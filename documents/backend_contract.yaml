@@ -205,6 +205,28 @@ endpoints:
           additionalProperties: true
           title: Profile Data
   response: see raw OpenAPI or controller mapping
+- method: POST
+  path: /api/v1/user/avatar
+  name: upload_avatar
+  tags:
+  - User & Account
+  auth_required: true
+  description: Upload and persist the authenticated user's avatar image. Backend stores
+    the binary file under `/static/avatars/`, updates `avatar_uri`, and returns the
+    refreshed `UserProfile`.
+  request_body:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+          - avatar
+          properties:
+            avatar:
+              type: string
+              format: binary
+  response: ApiResponse<UserProfile>
 - method: PATCH
   path: /api/v1/user/notification-settings
   name: update_notification_settings

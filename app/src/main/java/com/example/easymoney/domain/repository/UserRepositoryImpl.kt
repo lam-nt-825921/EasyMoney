@@ -9,6 +9,9 @@ import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.ProfileCompletion
 import com.example.easymoney.domain.model.UserProfile
 import kotlinx.coroutines.delay
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 private const val TAG = "DataSource"
@@ -99,6 +102,31 @@ class UserRepositoryImpl @Inject constructor(
                         message = result.message,
                         throwable = result.throwable
                     )
+                    Resource.Loading -> Resource.Loading
+                }
+            }
+        }
+    }
+
+    override suspend fun uploadAvatar(fileName: String, mimeType: String, bytes: ByteArray): Resource<UserProfile> {
+        val mode = appPreferences.dataSourceMode
+        Log.d(TAG, "UserRepository.uploadAvatar mode=$mode")
+        return when (mode) {
+            DataSourceMode.MOCK -> {
+                delay(300)
+                profile = profile.copy(avatarUri = "mock://avatar/$fileName")
+                Resource.Success(profile, isFromMock = true)
+            }
+            DataSourceMode.REMOTE -> {
+                val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val avatarPart = MultipartBody.Part.createFormData("avatar", fileName, requestBody)
+                when (val result = remoteDataSource.uploadAvatar(avatarPart)) {
+                    is Resource.Success -> {
+                        profile = result.data
+                        updateCachedCompletionFromProfile(result.data, isFromMock = false)
+                        result
+                    }
+                    is Resource.Error -> result
                     Resource.Loading -> Resource.Loading
                 }
             }

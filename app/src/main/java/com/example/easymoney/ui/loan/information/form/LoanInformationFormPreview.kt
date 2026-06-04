@@ -45,6 +45,8 @@ private object PreviewUserRepository : UserRepository {
         )
     override fun getCachedProfileCompletion(): ProfileCompletion? = null
     override suspend fun updateProfile(profile: UserProfile): Resource<Unit> = Resource.Success(Unit, isFromMock = true)
+    override suspend fun uploadAvatar(fileName: String, mimeType: String, bytes: ByteArray): Resource<UserProfile> =
+        Resource.Success(UserProfile(avatarUri = "mock://avatar/$fileName"), isFromMock = true)
     override suspend fun updateNotificationSettings(enabled: Boolean): Resource<Unit> = Resource.Success(Unit, isFromMock = true)
     override suspend fun changePassword(oldPassword: String, newPassword: String): Resource<Unit> = Resource.Success(Unit, isFromMock = true)
 }

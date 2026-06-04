@@ -1,5 +1,8 @@
 package com.example.easymoney.ui.account.profile
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easymoney.R
@@ -10,6 +13,7 @@ import com.example.easymoney.domain.repository.UserRepository
 import com.example.easymoney.ui.common.identity.*
 import com.example.easymoney.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +28,8 @@ data class ProfileCompletionUiState(
     val errorMessage: UiText? = null,
     val activeModule: IdentityModule? = null,
     val ekycSessionId: String? = null,
-    val isSubmittingIdentity: Boolean = false
+    val isSubmittingIdentity: Boolean = false,
+    val isUploadingAvatar: Boolean = false
 )
 
 enum class IdentityModule {
@@ -36,7 +41,8 @@ enum class IdentityModule {
 @HiltViewModel
 class ProfileCompletionViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val loanRepository: LoanRepository
+    private val loanRepository: LoanRepository,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileCompletionUiState())
@@ -184,6 +190,47 @@ class ProfileCompletionViewModel @Inject constructor(
             }
         }
     }
+
+    fun uploadAvatar(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploadingAvatar = true, errorMessage = null) }
+            val resolver = appContext.contentResolver
+            val mimeType = resolver.getType(uri) ?: "image/jpeg"
+            val fileName = resolver.displayName(uri) ?: "avatar.jpg"
+            val bytes = runCatching {
+                resolver.openInputStream(uri)?.use { it.readBytes() }
+            }.getOrNull()
+
+            if (bytes == null || bytes.isEmpty()) {
+                _uiState.update {
+                    it.copy(
+                        isUploadingAvatar = false,
+                        errorMessage = UiText.DynamicString("Không thể đọc file ảnh đại diện.")
+                    )
+                }
+                return@launch
+            }
+
+            when (val result = userRepository.uploadAvatar(fileName, mimeType, bytes)) {
+                is Resource.Success -> {
+                    userRepository.getProfileCompletion(forceRefresh = true)
+                    _uiState.update {
+                        it.copy(profile = result.data, isUploadingAvatar = false, errorMessage = null)
+                    }
+                }
+                is Resource.Error -> _uiState.update {
+                    it.copy(isUploadingAvatar = false, errorMessage = UiText.DynamicString(result.message))
+                }
+                Resource.Loading -> Unit
+            }
+        }
+    }
+
+    private fun android.content.ContentResolver.displayName(uri: Uri): String? =
+        query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
+        }
 
     private fun refreshAfterIdentityVerification() {
         viewModelScope.launch {

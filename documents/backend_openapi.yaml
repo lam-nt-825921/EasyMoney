@@ -190,6 +190,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user/avatar:
+    post:
+      tags:
+      - User & Account
+      summary: Upload Avatar
+      description: Upload and persist the authenticated user's avatar image. Backend
+        stores the binary file under `/static/avatars/`, updates `avatar_uri`, and
+        returns the refreshed `UserProfile`.
+      operationId: upload_avatar_api_v1_user_avatar_post
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - avatar
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/user/notification-settings:
     patch:
       tags:

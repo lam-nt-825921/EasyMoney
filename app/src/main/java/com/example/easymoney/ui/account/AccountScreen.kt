@@ -47,11 +47,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.example.easymoney.R
 import com.example.easymoney.ui.theme.LocalDarkMode
 
@@ -110,6 +112,7 @@ fun AccountScreen(
             .verticalScroll(rememberScrollState())
     ) {
         UserProfileHeader(
+            avatarUri = accountState.avatarUri,
             fullName = accountState.fullName.ifBlank { stringResource(R.string.account_default_user_name) },
             phoneNumber = accountState.phoneNumber,
             onClick = onNavigateToProfile
@@ -137,6 +140,7 @@ fun AccountScreen(
 
 @Composable
 private fun UserProfileHeader(
+    avatarUri: String,
     fullName: String,
     phoneNumber: String,
     onClick: () -> Unit
@@ -165,12 +169,23 @@ private fun UserProfileHeader(
                     .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = if (isDarkMode) scheme.primary else Color.White,
-                    modifier = Modifier.size(44.dp)
-                )
+                if (avatarUri.isNotBlank()) {
+                    AsyncImage(
+                        model = avatarUri,
+                        contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = if (isDarkMode) scheme.primary else Color.White,
+                        modifier = Modifier.size(44.dp)
+                    )
+                }
             }
             Spacer(modifier = Modifier.width(20.dp))
             Column {

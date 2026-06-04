@@ -16,6 +16,7 @@ import javax.inject.Inject
 
 data class AccountUiState(
     val isLoading: Boolean = true,
+    val avatarUri: String = "",
     val fullName: String = "",
     val phoneNumber: String = "",
     // Workflow #57 — reward points loaded from backend, not hard-coded.
@@ -50,6 +51,7 @@ class AccountViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
+                            avatarUri = result.data.avatarUri,
                             fullName = info.fullName,
                             phoneNumber = info.phoneNumber
                         )

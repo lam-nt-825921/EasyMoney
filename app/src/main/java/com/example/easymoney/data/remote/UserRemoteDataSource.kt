@@ -7,6 +7,7 @@ import com.example.easymoney.data.remote.dto.toDto
 import com.example.easymoney.domain.common.Resource
 import com.example.easymoney.domain.model.ProfileCompletion
 import com.example.easymoney.domain.model.UserProfile
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 /**
@@ -22,6 +23,10 @@ class UserRemoteDataSource @Inject constructor(
 
     suspend fun updateProfile(profile: UserProfile): Resource<UserProfile> =
         safeApiCall("Update profile failed") { apiService.updateProfile(profile.toDto()) }
+            .mapSuccess { it.toDomain() }
+
+    suspend fun uploadAvatar(avatar: MultipartBody.Part): Resource<UserProfile> =
+        safeApiCall("Upload avatar failed") { apiService.uploadAvatar(avatar) }
             .mapSuccess { it.toDomain() }
 
     suspend fun getProfileCompletion(): Resource<ProfileCompletion> =

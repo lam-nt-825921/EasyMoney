@@ -5,9 +5,12 @@ import com.example.easymoney.data.remote.dto.ChangePasswordRequestDto
 import com.example.easymoney.data.remote.dto.NotificationSettingsRequestDto
 import com.example.easymoney.data.remote.dto.ProfileCompletionDto
 import com.example.easymoney.data.remote.dto.UserProfileDto
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
+import retrofit2.http.Part
 import retrofit2.http.POST
 
 /**
@@ -24,6 +27,10 @@ interface UserApiService {
 
     @PATCH("api/v1/user/profile")
     suspend fun updateProfile(@Body body: UserProfileDto): ApiResponse<UserProfileDto>
+
+    @Multipart
+    @POST("api/v1/user/avatar")
+    suspend fun uploadAvatar(@Part avatar: MultipartBody.Part): ApiResponse<UserProfileDto>
 
     @PATCH("api/v1/user/notification-settings")
     suspend fun updateNotificationSettings(@Body body: NotificationSettingsRequestDto): ApiResponse<Unit>

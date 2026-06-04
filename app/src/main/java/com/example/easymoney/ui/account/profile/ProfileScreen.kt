@@ -1,5 +1,8 @@
 package com.example.easymoney.ui.account.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +42,9 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val profile = uiState.profile
+    val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let(viewModel::uploadAvatar)
+    }
     val needsIdentity = profile.verificationStatus != ProfileVerificationStatus.VERIFIED ||
         !profile.identityStatus.isFaceVerified ||
         !profile.identityStatus.isIdentityDocumentVerified
@@ -52,6 +59,8 @@ fun ProfileScreen(
             avatarUri = profile.avatarUri,
             fullName = profile.personalInfo.fullName,
             phoneNumber = profile.personalInfo.phoneNumber,
+            isUploadingAvatar = uiState.isUploadingAvatar,
+            onAvatarClick = { avatarPicker.launch("image/*") },
             onEditClick = onEditProfile
         )
 
@@ -109,6 +118,19 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    uiState.errorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = viewModel::clearError,
+            title = { Text(stringResource(R.string.dialog_error_title)) },
+            text = { Text(message.asString()) },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearError) {
+                    Text(stringResource(R.string.dialog_button_close))
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -116,6 +138,8 @@ private fun ProfileHeader(
     avatarUri: String,
     fullName: String,
     phoneNumber: String,
+    isUploadingAvatar: Boolean,
+    onAvatarClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
     Column(
@@ -124,28 +148,53 @@ private fun ProfileHeader(
             .padding(horizontal = 20.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Workflow #96 — avatar chỉ hiển thị, không còn nút cập nhật / chọn ảnh.
-        Surface(
-            modifier = Modifier.size(104.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            if (avatarUri.isNotBlank()) {
-                AsyncImage(
-                    model = avatarUri,
-                    contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
+        Box(contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier.size(104.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                if (avatarUri.isNotBlank()) {
+                    AsyncImage(
+                        model = avatarUri,
+                        contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(24.dp)
+                    )
+                }
+            }
+
+            if (isUploadingAvatar) {
+                CircularProgressIndicator(modifier = Modifier.size(36.dp), strokeWidth = 3.dp)
             } else {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = stringResource(id = R.string.profile_avatar_content_desc),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(24.dp)
-                )
+                Surface(
+                    onClick = onAvatarClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(34.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White,
+                    shadowElevation = 4.dp,
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.surface)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.profile_update_avatar),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(14.dp))
