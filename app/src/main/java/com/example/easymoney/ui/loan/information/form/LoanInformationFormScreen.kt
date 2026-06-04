@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
+import com.example.easymoney.ui.account.profile.ProfileInputValidator
 
 /**
  * VisualTransformation để format dấu phân cách hàng nghìn (1.000.000)
@@ -114,7 +116,7 @@ fun LoanInformationFormScreen(
                             if (pCursor.moveToFirst()) {
                                 val number = pCursor.getString(pCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
                                 viewModel.onContactNameChanged(name)
-                                viewModel.onContactPhoneChanged(number)
+                                viewModel.onContactPhoneChanged(ProfileInputValidator.normalizePhone(number))
                             }
                         }
                     }
@@ -220,6 +222,7 @@ fun LoanInformationFormScreen(
                     label = stringResource(R.string.loan_form_label_monthly_income),
                     value = uiState.monthlyIncome,
                     onValueChange = viewModel::onMonthlyIncomeChanged,
+                    inputSanitizer = { it.filter(Char::isDigit) },
                     suffix = stringResource(R.string.common_money_suffix),
                     keyboardType = KeyboardType.Number,
                     placeholder = stringResource(R.string.loan_form_placeholder_income),
@@ -296,6 +299,7 @@ fun LoanInformationFormScreen(
                         label = stringResource(R.string.loan_form_label_phone),
                         value = uiState.spousePhone,
                         onValueChange = viewModel::onSpousePhoneChanged,
+                        inputSanitizer = { it.filter(Char::isDigit).take(10) },
                         keyboardType = KeyboardType.Phone,
                         placeholder = stringResource(R.string.loan_form_placeholder_phone),
                         error = if (uiState.showErrors) uiState.fieldErrors["spousePhone"]?.asString() else null,
@@ -330,6 +334,7 @@ fun LoanInformationFormScreen(
                     label = stringResource(R.string.loan_form_label_phone),
                     value = uiState.contactPhone,
                     onValueChange = viewModel::onContactPhoneChanged,
+                    inputSanitizer = { it.filter(Char::isDigit).take(10) },
                     keyboardType = KeyboardType.Phone,
                     error = if (uiState.showErrors) uiState.fieldErrors["contactPhone"]?.asString() else null,
                     imeAction = ImeAction.Done,
@@ -489,9 +494,19 @@ private fun InputField(
     onImeAction: () -> Unit = {},
     textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     visualTransformation: VisualTransformation = VisualTransformation.None, // THÊM PARAM NÀY
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    inputSanitizer: (String) -> String = { it }
 ) {
     val focusManager = LocalFocusManager.current
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+    }
+
+    LaunchedEffect(value) {
+        if (value != textFieldValue.text) {
+            textFieldValue = TextFieldValue(value, selection = TextRange(value.length))
+        }
+    }
     
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -499,8 +514,19 @@ private fun InputField(
             if (maxLength != null) Text(text = "${value.length}/$maxLength", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         TextField(
-            value = value,
-            onValueChange = { if (maxLength == null || it.length <= maxLength) onValueChange(it) },
+            value = textFieldValue,
+            onValueChange = { candidate ->
+                val sanitized = inputSanitizer(candidate.text)
+                if (maxLength == null || sanitized.length <= maxLength) {
+                    val selection = if (sanitized == candidate.text) {
+                        candidate.selection
+                    } else {
+                        TextRange(sanitized.length)
+                    }
+                    textFieldValue = TextFieldValue(sanitized, selection = selection)
+                    onValueChange(sanitized)
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             readOnly = readOnly,
             isError = error != null,

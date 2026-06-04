@@ -104,7 +104,7 @@ class EditProfileViewModel @Inject constructor(
             when (val result = userRepository.getProfile()) {
                 is Resource.Success -> {
                     _uiState.update {
-                        it.copy(profile = result.data, isLoading = false)
+                        it.copy(profile = result.data.withDisplayDateOfBirth(), isLoading = false)
                             .withRecomputedErrors()
                     }
                 }
@@ -284,7 +284,8 @@ class EditProfileViewModel @Inject constructor(
     private fun normalizeForSave(profile: UserProfile): UserProfile = profile.copy(
         personalInfo = profile.personalInfo.copy(
             fullName = ProfileInputValidator.normalizeName(profile.personalInfo.fullName),
-            nationalId = ProfileInputValidator.normalizeDigits(profile.personalInfo.nationalId)
+            nationalId = ProfileInputValidator.normalizeDigits(profile.personalInfo.nationalId),
+            dateOfBirth = ProfileInputValidator.displayDateToBackend(profile.personalInfo.dateOfBirth)
         ),
         contactInfo = profile.contactInfo.copy(
             contactName = ProfileInputValidator.normalizeName(profile.contactInfo.contactName),
@@ -334,6 +335,12 @@ class EditProfileViewModel @Inject constructor(
 
     private fun EditProfileUiState.requiresCompanyDetails(): Boolean =
         selectedProfession?.id == "p1" || profile.jobInfo.jobTitle == "Nhân viên văn phòng công ty"
+
+    private fun UserProfile.withDisplayDateOfBirth(): UserProfile = copy(
+        personalInfo = personalInfo.copy(
+            dateOfBirth = ProfileInputValidator.backendDateToDisplay(personalInfo.dateOfBirth)
+        )
+    )
 
     private val EditProfileSection.validatedFields: Set<ProfileField>
         get() = when (this) {

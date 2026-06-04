@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -279,7 +281,8 @@ private fun AddCardDialog(
 
                 CardTextField(
                     value = cardNumber,
-                    onValueChange = { cardNumber = it.filter(Char::isDigit).take(19) },
+                    onValueChange = { cardNumber = it },
+                    inputSanitizer = { it.filter(Char::isDigit).take(19) },
                     label = stringResource(R.string.add_card_number_label),
                     error = fieldErrors["card_number"]?.asString()
                 )
@@ -294,14 +297,16 @@ private fun AddCardDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CardTextField(
                         value = expiryMonth,
-                        onValueChange = { expiryMonth = it.filter(Char::isDigit).take(2) },
+                        onValueChange = { expiryMonth = it },
+                        inputSanitizer = { it.filter(Char::isDigit).take(2) },
                         label = stringResource(R.string.add_card_expiry_month_label),
                         modifier = Modifier.weight(1f),
                         error = if (fieldErrors.containsKey("expiry")) "" else null
                     )
                     CardTextField(
                         value = expiryYear,
-                        onValueChange = { expiryYear = it.filter(Char::isDigit).take(4) },
+                        onValueChange = { expiryYear = it },
+                        inputSanitizer = { it.filter(Char::isDigit).take(4) },
                         label = stringResource(R.string.add_card_expiry_year_label),
                         modifier = Modifier.weight(1f),
                         error = if (fieldErrors.containsKey("expiry")) "" else null
@@ -317,7 +322,8 @@ private fun AddCardDialog(
 
                 CardTextField(
                     value = cvv,
-                    onValueChange = { cvv = it.filter(Char::isDigit).take(4) },
+                    onValueChange = { cvv = it },
+                    inputSanitizer = { it.filter(Char::isDigit).take(4) },
                     label = stringResource(R.string.add_card_cvv_label),
                     error = fieldErrors["cvv"]?.asString()
                 )
@@ -364,12 +370,32 @@ private fun CardTextField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    error: String? = null
+    error: String? = null,
+    inputSanitizer: (String) -> String = { it }
 ) {
     Column(modifier = modifier) {
+        var textFieldValue by remember {
+            mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+        }
+
+        LaunchedEffect(value) {
+            if (value != textFieldValue.text) {
+                textFieldValue = TextFieldValue(value, selection = TextRange(value.length))
+            }
+        }
+
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = textFieldValue,
+            onValueChange = { candidate ->
+                val sanitized = inputSanitizer(candidate.text)
+                val selection = if (sanitized == candidate.text) {
+                    candidate.selection
+                } else {
+                    TextRange(sanitized.length)
+                }
+                textFieldValue = TextFieldValue(sanitized, selection = selection)
+                onValueChange(sanitized)
+            },
             label = { Text(label) },
             singleLine = true,
             isError = error != null,

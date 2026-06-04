@@ -22,8 +22,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextRange
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
 import com.example.easymoney.domain.model.MasterDataItem
@@ -80,11 +82,8 @@ fun EditPersonalInfoScreen(
                 InputField(
                     label = stringResource(id = R.string.profile_label_id_number),
                     value = personalInfo.nationalId,
-                    onValueChange = {
-                        viewModel.updatePersonalInfo(
-                            nationalId = ProfileInputValidator.digitsOnlyInput(it, maxLength = 12)
-                        )
-                    },
+                    onValueChange = { viewModel.updatePersonalInfo(nationalId = it) },
+                    inputSanitizer = { ProfileInputValidator.digitsOnlyInput(it, maxLength = 12) },
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next,
                     errorText = uiState.fieldErrors[ProfileField.NATIONAL_ID]?.asMessage()
@@ -105,11 +104,8 @@ fun EditPersonalInfoScreen(
                 InputField(
                     label = stringResource(id = R.string.profile_label_dob),
                     value = personalInfo.dateOfBirth,
-                    onValueChange = {
-                        viewModel.updatePersonalInfo(
-                            dob = ProfileInputValidator.dateOfBirthInput(it)
-                        )
-                    },
+                    onValueChange = { viewModel.updatePersonalInfo(dob = it) },
+                    inputSanitizer = ProfileInputValidator::dateOfBirthInput,
                     placeholder = stringResource(id = R.string.profile_placeholder_dob),
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done,
@@ -198,16 +194,35 @@ private fun InputField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     onImeAction: () -> Unit = {},
-    errorText: String? = null
+    errorText: String? = null,
+    inputSanitizer: (String) -> String = { it }
 ) {
     val focusManager = LocalFocusManager.current
     val isError = errorText != null
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+    }
+
+    LaunchedEffect(value) {
+        if (value != textFieldValue.text) {
+            textFieldValue = TextFieldValue(value, selection = TextRange(value.length))
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = textFieldValue,
+            onValueChange = { candidate ->
+                val sanitized = inputSanitizer(candidate.text)
+                val selection = if (sanitized == candidate.text) {
+                    candidate.selection
+                } else {
+                    TextRange(sanitized.length)
+                }
+                textFieldValue = TextFieldValue(sanitized, selection = selection)
+                onValueChange(sanitized)
+            },
             modifier = Modifier.fillMaxWidth(),
             isError = isError,
             placeholder = { if (placeholder != null) Text(placeholder, color = MaterialTheme.colorScheme.outline) },

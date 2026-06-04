@@ -22,8 +22,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -56,6 +58,15 @@ fun OtpDialog(
     var attempts by remember { mutableIntStateOf(0) }
     var isTimerRunning by remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
+    var otpFieldValue by remember {
+        mutableStateOf(TextFieldValue(otpValue, selection = TextRange(otpValue.length)))
+    }
+
+    LaunchedEffect(otpValue) {
+        if (otpValue != otpFieldValue.text) {
+            otpFieldValue = TextFieldValue(otpValue, selection = TextRange(otpValue.length))
+        }
+    }
 
     // Timer logic
     LaunchedEffect(isTimerRunning, timeLeft) {
@@ -158,8 +169,12 @@ fun OtpDialog(
 
                     // Hidden BasicTextField overlaying the Row
                     BasicTextField(
-                        value = otpValue,
-                        onValueChange = { onOtpChange(it) },
+                        value = otpFieldValue,
+                        onValueChange = { candidate ->
+                            val sanitized = candidate.text.filter(Char::isDigit).take(6)
+                            otpFieldValue = TextFieldValue(sanitized, selection = TextRange(sanitized.length))
+                            onOtpChange(sanitized)
+                        },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .matchParentSize() // Occupy the same area as Row

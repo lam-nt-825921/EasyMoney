@@ -96,7 +96,8 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_username_label),
                     value = fullName,
-                    onValueChange = { fullName = it.filter { char -> char.isLetter() || char.isWhitespace() }.take(50) },
+                    onValueChange = { fullName = it },
+                    inputSanitizer = { it.filter { char -> char.isLetter() || char.isWhitespace() }.take(50) },
                     placeholder = stringResource(id = R.string.register_username_placeholder),
                     error = if (fullName.isNotBlank()) fullNameError else null
                 )
@@ -104,7 +105,8 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_phone_label),
                     value = phone,
-                    onValueChange = { phone = it.filter(Char::isDigit).take(10) },
+                    onValueChange = { phone = it },
+                    inputSanitizer = { it.filter(Char::isDigit).take(10) },
                     placeholder = stringResource(id = R.string.register_phone_placeholder),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     error = if (phone.isNotBlank()) phoneError else null
@@ -113,7 +115,8 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_password_label),
                     value = password,
-                    onValueChange = { password = it.take(12) },
+                    onValueChange = { password = it },
+                    inputSanitizer = { it.take(12) },
                     placeholder = stringResource(id = R.string.register_password_placeholder),
                     isPassword = true,
                     showPassword = showPassword,
@@ -123,7 +126,8 @@ fun RegisterScreen1(
                 RegisterField(
                     label = stringResource(id = R.string.register_confirm_password_label),
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it.take(12) },
+                    onValueChange = { confirmPassword = it },
+                    inputSanitizer = { it.take(12) },
                     placeholder = stringResource(id = R.string.register_confirm_password_placeholder),
                     isPassword = true,
                     showPassword = showPassword,
@@ -204,6 +208,7 @@ private fun RegisterField(
     onTogglePassword: () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     error: String? = null,
+    inputSanitizer: (String) -> String = { it }
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -221,7 +226,8 @@ private fun RegisterField(
             isPassword = isPassword,
             showPassword = showPassword,
             onTogglePassword = onTogglePassword,
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            inputSanitizer = inputSanitizer
         )
         if (!error.isNullOrBlank()) {
             Text(

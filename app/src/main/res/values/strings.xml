@@ -264,7 +264,7 @@
     <string name="profile_label_id_number">Số CCCD</string>
     <string name="profile_label_gender">Giới tính</string>
     <string name="profile_label_dob">Ngày sinh</string>
-    <string name="profile_placeholder_dob">YYYY-MM-DD</string>
+    <string name="profile_placeholder_dob">DD-MM-YYYY</string>
     <string name="profile_label_income">Thu nhập hàng tháng</string>
     <string name="profile_label_company">Tên công ty</string>
     <string name="profile_label_contact_name">Họ và tên người liên hệ</string>
@@ -280,7 +280,7 @@
     <string name="profile_error_phone_invalid">Số điện thoại không hợp lệ (VD: 0901234567)</string>
     <string name="profile_error_national_id_invalid">CCCD phải gồm đúng 12 chữ số</string>
     <string name="profile_error_gender_required">Vui lòng chọn giới tính</string>
-    <string name="profile_error_dob_invalid">Ngày sinh không hợp lệ (định dạng YYYY-MM-DD)</string>
+    <string name="profile_error_dob_invalid">Ngày sinh không hợp lệ. Vui lòng nhập theo định dạng DD-MM-YYYY, ví dụ 15-06-1990</string>
     <string name="profile_error_dob_future">Ngày sinh không thể ở tương lai</string>
     <string name="profile_error_dob_age_range">Độ tuổi phải từ 18 đến 70</string>
     <string name="profile_error_income_invalid">Thu nhập phải là số dương</string>

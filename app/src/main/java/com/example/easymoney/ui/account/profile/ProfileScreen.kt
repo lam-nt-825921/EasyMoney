@@ -77,7 +77,10 @@ fun ProfileScreen(
                 ProfileInfoItem(label = stringResource(id = R.string.profile_label_phone), value = profile.personalInfo.phoneNumber)
                 ProfileInfoItem(label = stringResource(id = R.string.profile_label_id_number), value = profile.personalInfo.nationalId)
                 ProfileInfoItem(label = stringResource(id = R.string.profile_label_gender), value = profile.personalInfo.gender)
-                ProfileInfoItem(label = stringResource(id = R.string.profile_label_dob), value = profile.personalInfo.dateOfBirth)
+                ProfileInfoItem(
+                    label = stringResource(id = R.string.profile_label_dob),
+                    value = ProfileInputValidator.backendDateToDisplay(profile.personalInfo.dateOfBirth)
+                )
             }
 
             // Workflow #85 — chỉ hiển thị địa chỉ thường trú. "Địa chỉ hiện tại" được ẩn khỏi

@@ -7,7 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.easymoney.R
@@ -19,6 +21,18 @@ fun TopUpScreen(
     onTopUpSuccess: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var amountFieldValue by remember {
+        mutableStateOf(TextFieldValue(uiState.amountText, selection = TextRange(uiState.amountText.length)))
+    }
+
+    LaunchedEffect(uiState.amountText) {
+        if (uiState.amountText != amountFieldValue.text) {
+            amountFieldValue = TextFieldValue(
+                uiState.amountText,
+                selection = TextRange(uiState.amountText.length)
+            )
+        }
+    }
 
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
@@ -31,8 +45,12 @@ fun TopUpScreen(
         Text(stringResource(R.string.topup_amount_label), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = uiState.amountText,
-            onValueChange = viewModel::onAmountChange,
+            value = amountFieldValue,
+            onValueChange = { candidate ->
+                val sanitized = candidate.text.filter(Char::isDigit).take(12)
+                amountFieldValue = TextFieldValue(sanitized, selection = TextRange(sanitized.length))
+                viewModel.onAmountChange(sanitized)
+            },
             placeholder = { Text(stringResource(R.string.topup_amount_placeholder)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),

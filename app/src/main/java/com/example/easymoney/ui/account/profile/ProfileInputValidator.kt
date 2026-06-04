@@ -57,7 +57,8 @@ object ProfileInputValidator {
     // Cho phép chữ cái Unicode (gồm tiếng Việt có dấu) và khoảng trắng.
     private val NAME_REGEX = Regex("^[\\p{L} ]+$")
     private val VN_MOBILE_REGEX = Regex("^0\\d{9}$")
-    private val DOB_REGEX = Regex("^\\d{4}-\\d{2}-\\d{2}$")
+    private val DISPLAY_DOB_REGEX = Regex("^\\d{2}-\\d{2}-\\d{4}$")
+    private val BACKEND_DOB_REGEX = Regex("^\\d{4}-\\d{2}-\\d{2}$")
 
     // ---- Normalization ----
 
@@ -73,15 +74,29 @@ object ProfileInputValidator {
         return if (maxLength == null) digits else digits.take(maxLength)
     }
 
-    /** Nhập ngày sinh bằng số, app tự chèn dấu gạch theo yyyy-MM-dd. */
+    /** Nhập ngày sinh bằng số, app tự chèn dấu gạch theo dd-MM-yyyy. */
     fun dateOfBirthInput(raw: String): String {
         val digits = digitsOnlyInput(raw, maxLength = 8)
         return buildString {
             digits.forEachIndexed { index, char ->
-                if (index == 4 || index == 6) append('-')
+                if (index == 2 || index == 4) append('-')
                 append(char)
             }
         }
+    }
+
+    fun backendDateToDisplay(raw: String): String {
+        val value = raw.trim()
+        if (!BACKEND_DOB_REGEX.matches(value)) return value
+        val parts = value.split("-")
+        return "${parts[2]}-${parts[1]}-${parts[0]}"
+    }
+
+    fun displayDateToBackend(raw: String): String {
+        val value = raw.trim()
+        if (!DISPLAY_DOB_REGEX.matches(value)) return value
+        val parts = value.split("-")
+        return "${parts[2]}-${parts[1]}-${parts[0]}"
     }
 
     /**
@@ -135,18 +150,18 @@ object ProfileInputValidator {
         else ProfileValidationError.GENDER_REQUIRED
 
     /**
-     * Ngày sinh theo định dạng backend yyyy-MM-dd; không cho ngày tương lai;
+     * Ngày sinh theo định dạng người dùng dd-MM-yyyy; không cho ngày tương lai;
      * độ tuổi hợp lệ 18–70.
      */
     fun validateDateOfBirth(raw: String): ProfileValidationError? {
         val value = raw.trim()
         if (value.isBlank()) return ProfileValidationError.REQUIRED
-        if (!DOB_REGEX.matches(value)) return ProfileValidationError.DOB_INVALID
+        if (!DISPLAY_DOB_REGEX.matches(value)) return ProfileValidationError.DOB_INVALID
 
         val parts = value.split("-")
-        val year = parts[0].toIntOrNull() ?: return ProfileValidationError.DOB_INVALID
+        val day = parts[0].toIntOrNull() ?: return ProfileValidationError.DOB_INVALID
         val month = parts[1].toIntOrNull() ?: return ProfileValidationError.DOB_INVALID
-        val day = parts[2].toIntOrNull() ?: return ProfileValidationError.DOB_INVALID
+        val year = parts[2].toIntOrNull() ?: return ProfileValidationError.DOB_INVALID
 
         if (month !in 1..12) return ProfileValidationError.DOB_INVALID
         if (day !in 1..daysInMonth(year, month)) return ProfileValidationError.DOB_INVALID

@@ -264,7 +264,7 @@
     <string name="profile_label_id_number">ID Number</string>
     <string name="profile_label_gender">Gender</string>
     <string name="profile_label_dob">Date of birth</string>
-    <string name="profile_placeholder_dob">YYYY-MM-DD</string>
+    <string name="profile_placeholder_dob">DD-MM-YYYY</string>
     <string name="profile_label_income">Monthly income</string>
     <string name="profile_label_company">Company name</string>
     <string name="profile_label_contact_name">Contact name</string>
@@ -280,7 +280,7 @@
     <string name="profile_error_phone_invalid">Invalid phone number (e.g. 0901234567)</string>
     <string name="profile_error_national_id_invalid">Citizen ID must be exactly 12 digits</string>
     <string name="profile_error_gender_required">Please select a gender</string>
-    <string name="profile_error_dob_invalid">Invalid date of birth (format YYYY-MM-DD)</string>
+    <string name="profile_error_dob_invalid">Invalid date of birth. Please use DD-MM-YYYY, for example 15-06-1990</string>
     <string name="profile_error_dob_future">Date of birth cannot be in the future</string>
     <string name="profile_error_dob_age_range">Age must be between 18 and 70</string>
     <string name="profile_error_income_invalid">Income must be a positive number</string>

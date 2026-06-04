@@ -145,8 +145,24 @@ class ProfileInputValidatorTest {
     @Test
     fun `date of birth input keeps digits and inserts separators`() {
         assertEquals(
+            "15-06-1990",
+            ProfileInputValidator.dateOfBirthInput("15abc06-1990xyz")
+        )
+    }
+
+    @Test
+    fun `backend date is converted to display date`() {
+        assertEquals(
+            "15-06-1990",
+            ProfileInputValidator.backendDateToDisplay("1990-06-15")
+        )
+    }
+
+    @Test
+    fun `display date is converted to backend date`() {
+        assertEquals(
             "1990-06-15",
-            ProfileInputValidator.dateOfBirthInput("1990abc06-15xyz")
+            ProfileInputValidator.displayDateToBackend("15-06-1990")
         )
     }
 
@@ -155,7 +171,7 @@ class ProfileInputValidatorTest {
         val nextYear = Calendar.getInstance().get(Calendar.YEAR) + 1
         assertEquals(
             ProfileValidationError.DOB_FUTURE,
-            ProfileInputValidator.validateDateOfBirth("$nextYear-01-01")
+            ProfileInputValidator.validateDateOfBirth("01-01-$nextYear")
         )
     }
 
@@ -164,14 +180,14 @@ class ProfileInputValidatorTest {
         val thisYear = Calendar.getInstance().get(Calendar.YEAR)
         assertEquals(
             ProfileValidationError.DOB_AGE_RANGE,
-            ProfileInputValidator.validateDateOfBirth("${thisYear - 5}-01-01")
+            ProfileInputValidator.validateDateOfBirth("01-01-${thisYear - 5}")
         )
     }
 
     @Test
     fun `realistic adult dob passes`() {
         val thisYear = Calendar.getInstance().get(Calendar.YEAR)
-        assertNull(ProfileInputValidator.validateDateOfBirth("${thisYear - 30}-06-15"))
+        assertNull(ProfileInputValidator.validateDateOfBirth("15-06-${thisYear - 30}"))
     }
 
     // ---- Income ----

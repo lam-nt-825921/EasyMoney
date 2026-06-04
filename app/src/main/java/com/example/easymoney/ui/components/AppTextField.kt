@@ -9,10 +9,17 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.easymoney.R
@@ -28,7 +35,8 @@ fun AppTextField(
     showPassword: Boolean = false,
     onTogglePassword: () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    inputSanitizer: (String) -> String = { it }
 ) {
     val isDarkMode = LocalDarkMode.current
     val fieldContainerColor = if (isDarkMode) {
@@ -37,10 +45,28 @@ fun AppTextField(
         // Light grey for better visibility on white/gradient backgrounds
         Color(0xFFF1F4F9)
     }
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+    }
+
+    LaunchedEffect(value) {
+        if (value != textFieldValue.text) {
+            textFieldValue = TextFieldValue(value, selection = TextRange(value.length))
+        }
+    }
 
     TextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = textFieldValue,
+        onValueChange = { candidate ->
+            val sanitized = inputSanitizer(candidate.text)
+            val selection = if (sanitized == candidate.text) {
+                candidate.selection
+            } else {
+                TextRange(sanitized.length)
+            }
+            textFieldValue = TextFieldValue(sanitized, selection = selection)
+            onValueChange(sanitized)
+        },
         placeholder = { 
             Text(
                 text = placeholder,

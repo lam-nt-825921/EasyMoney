@@ -20,8 +20,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,9 +74,9 @@ fun EditJobInfoScreen(
                     label = stringResource(id = R.string.profile_label_income),
                     value = if (jobInfo.monthlyIncome == 0L) "" else jobInfo.monthlyIncome.toString(),
                     onValueChange = { newValue ->
-                        val cleanValue = ProfileInputValidator.digitsOnlyInput(newValue)
-                        viewModel.updateJobInfo(income = cleanValue.toLongOrNull() ?: 0L) 
+                        viewModel.updateJobInfo(income = newValue.toLongOrNull() ?: 0L)
                     },
+                    inputSanitizer = ProfileInputValidator::digitsOnlyInput,
                     suffix = stringResource(R.string.common_money_suffix),
                     keyboardType = KeyboardType.Number,
                     visualTransformation = ThousandsSeparatorTransformation(),
@@ -232,16 +234,35 @@ private fun InputField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     imeAction: ImeAction = ImeAction.Next,
     onImeAction: () -> Unit = {},
-    errorText: String? = null
+    errorText: String? = null,
+    inputSanitizer: (String) -> String = { it }
 ) {
     val focusManager = LocalFocusManager.current
     val isError = errorText != null
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+    }
+
+    LaunchedEffect(value) {
+        if (value != textFieldValue.text) {
+            textFieldValue = TextFieldValue(value, selection = TextRange(value.length))
+        }
+    }
     
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = textFieldValue,
+            onValueChange = { candidate ->
+                val sanitized = inputSanitizer(candidate.text)
+                val selection = if (sanitized == candidate.text) {
+                    candidate.selection
+                } else {
+                    TextRange(sanitized.length)
+                }
+                textFieldValue = TextFieldValue(sanitized, selection = selection)
+                onValueChange(sanitized)
+            },
             modifier = Modifier.fillMaxWidth(),
             isError = isError,
             placeholder = { if (placeholder != null) Text(placeholder, color = MaterialTheme.colorScheme.outline) },
